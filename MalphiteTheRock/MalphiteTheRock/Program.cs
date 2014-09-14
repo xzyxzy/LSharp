@@ -26,9 +26,6 @@ namespace MalphiteTheRock
         public static Spell E;
         public static Spell R;
 
-        //items
-        public static Items.Item DFG;
-
         //Menu
         public static Menu menu;
 
@@ -52,9 +49,7 @@ namespace MalphiteTheRock
             E = new Spell(SpellSlot.E, 400);
             R = new Spell(SpellSlot.R, 1000);
 
-            DFG = Utility.Map.GetMap() == Utility.Map.MapType.TwistedTreeline ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
-
-            R.SetSkillshot(0f, 270, 700, false, SkillshotType.SkillshotCircle);
+            R.SetSkillshot(0.00f, 270, 700, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -138,9 +133,6 @@ namespace MalphiteTheRock
         {
             var damage = 0d;
 
-            if (DFG.IsReady())
-                damage += DamageLib.getDmg(enemy, DamageLib.SpellType.DFG) / 1.2;
-
             if (Q.IsReady())
                 damage += DamageLib.getDmg(enemy, DamageLib.SpellType.Q);
 
@@ -153,7 +145,7 @@ namespace MalphiteTheRock
             if (R.IsReady())
                 damage += DamageLib.getDmg(enemy, DamageLib.SpellType.R);
 
-            return (float)damage * (DFG.IsReady() ? 1.2f : 1);
+            return (float)damage ;
         }
 
         private static void Combo()
@@ -169,32 +161,30 @@ namespace MalphiteTheRock
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
-            //dfg combo
-            if (useR && rTarget != null && R.IsReady() && GetComboDamage(rTarget) >= rTarget.Health && Player.Distance(rTarget) < R.Range && R.GetPrediction(rTarget).Hitchance >= HitChance.High && DFG.IsReady())
-            {
-                R.Cast(rTarget);
-                DFG.Cast(rTarget);
-            }
-
-            //regular combo
-            if (useR && rTarget != null && R.IsReady() && GetComboDamage(rTarget) >= rTarget.Health && Player.Distance(rTarget) < R.Range && R.GetPrediction(rTarget).Hitchance >= HitChance.High && !DFG.IsReady())
-            {
-                R.Cast(rTarget);
-            }
 
             if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) < Q.Range)
             {
                 Q.CastOnUnit(qTarget, true);
+                return;
             }
 
             if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) < W.Range)
             {
                 W.Cast();
+                return;
             }
 
             if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range)
             {
                 E.Cast();
+                return;
+            }
+
+            //regular combo
+            if (useR && rTarget != null && R.IsReady() && GetComboDamage(rTarget) >= rTarget.Health - 100 && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
+            {
+                R.Cast(rTarget);
+                return;
             }
 
         }
