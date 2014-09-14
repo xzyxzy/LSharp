@@ -132,7 +132,7 @@ namespace MalzaharSpaceAids
         {
             var damage = 0d;
 
-                damage += DamageLib.getDmg(enemy, DamageLib.SpellType.Q);
+                //damage += DamageLib.getDmg(enemy, DamageLib.SpellType.Q);
                 damage += DamageLib.getDmg(enemy, DamageLib.SpellType.W);
                 damage += DamageLib.getDmg(enemy, DamageLib.SpellType.E);
                 damage += DamageLib.getDmg(enemy, DamageLib.SpellType.R);
