@@ -96,7 +96,7 @@ namespace MalphiteTheRock
 
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
-            menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use Q to Interrupt").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("useR_Hit", "Use R if hit").SetValue(new Slider(2, 5, 0)));
 
             //Drawings menu:
