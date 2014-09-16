@@ -115,7 +115,7 @@ namespace MalzaharSpaceAids
             Drawing.OnDraw += Drawing_OnDraw;
             Interrupter.OnPosibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-            Game.PrintChat(ChampionName + " Loaded!");
+            Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
         private static void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
