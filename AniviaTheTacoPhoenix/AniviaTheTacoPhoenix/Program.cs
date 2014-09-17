@@ -114,6 +114,11 @@ namespace AniviaTheTacoPhoenix
             menu.SubMenu("Farm").AddItem(new MenuItem("UseEFarm", "Use E").SetValue(false));
             menu.SubMenu("Farm").AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind(menu.Item("LaneClear").GetValue<KeyBind>().Key, KeyBindType.Press)));
 
+            //Misc Menu:
+            menu.AddSubMenu(new Menu("Misc", "Misc"));
+            menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use R for GapCloser").SetValue(true));
+
             //Drawings menu:
             menu.AddSubMenu(new Menu("Drawings", "Drawings"));
             menu.SubMenu("Drawings")
@@ -340,14 +345,17 @@ namespace AniviaTheTacoPhoenix
 
         public static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
+            if (!menu.Item("UseGap").GetValue<bool>()) return;
+
             if (W.IsReady() && gapcloser.Sender.IsValidTarget(W.Range))
                 W.Cast(Player, true);
         }
 
         private static void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
-            if (!menu.Item("InterruptSpells").GetValue<bool>()) return;
+            if (!menu.Item("UseInt").GetValue<bool>()) return;
 
+            if (W.IsReady() && Player.Distance(unit) <= W.Range)
             W.Cast(unit);
         }
     }
