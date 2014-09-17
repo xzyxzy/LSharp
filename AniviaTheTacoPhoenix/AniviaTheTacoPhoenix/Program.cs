@@ -97,8 +97,8 @@ namespace AniviaTheTacoPhoenix
             //Harass menu:
             menu.AddSubMenu(new Menu("Harass", "Harass"));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Use Q").SetValue(true));
-            menu.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Use W").SetValue(false));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
+            menu.SubMenu("Harass").AddItem(new MenuItem("UseRHarass", "Use R").SetValue(true));
             menu.SubMenu("Harass")
                 .AddItem(
                     new MenuItem("HarassActive", "Harass!").SetValue(
@@ -118,6 +118,8 @@ namespace AniviaTheTacoPhoenix
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use W to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use W for GapCloser").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("qKS", "Use Q to KS").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("eKS", "Use E to KS").SetValue(true));
 
             //Drawings menu:
             menu.AddSubMenu(new Menu("Drawings", "Drawings"));
@@ -149,7 +151,7 @@ namespace AniviaTheTacoPhoenix
             if (Q.IsReady())
                 damage += DamageLib.getDmg(enemy, DamageLib.SpellType.Q);
             if (E.IsReady())
-                damage += DamageLib.getDmg(enemy, DamageLib.SpellType.E);
+                damage += DamageLib.getDmg(enemy, DamageLib.SpellType.E) * 2;
             if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 damage += DamageLib.getDmg(enemy, DamageLib.SpellType.IGNITE);
             if (R.IsReady())
@@ -165,7 +167,7 @@ namespace AniviaTheTacoPhoenix
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
-            if (useW && wTarget != null && W.IsReady() && GetComboDamage(qTarget) >= qTarget.Health)
+            if (useW && wTarget != null && W.IsReady() && GetComboDamage(qTarget) >= qTarget.Health - 100)
             {
                 var pos = wTarget.ServerPosition;
                 var mypos = ObjectManager.Player.ServerPosition;
@@ -207,8 +209,8 @@ namespace AniviaTheTacoPhoenix
 
         private static void Harass()
         {
-            UseSpells(menu.Item("UseQHarass").GetValue<bool>(), menu.Item("UseWHarass").GetValue<bool>(),
-                menu.Item("UseEHarass").GetValue<bool>(), false, false);
+            UseSpells(menu.Item("UseQHarass").GetValue<bool>(), false,
+                menu.Item("UseEHarass").GetValue<bool>(), menu.Item("UseRHarass").GetValue<bool>(), false);
         }
 
         public static void detonateQ()
@@ -233,6 +235,23 @@ namespace AniviaTheTacoPhoenix
                     R.Cast(rpos);
                     return;
                 }
+            }
+        }
+
+        public static void checkKS(bool useQ, bool useE)
+        {
+            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+            var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+
+            if (useE && eTarget != null && E.IsReady() && DamageLib.getDmg(eTarget, DamageLib.SpellType.E) >= eTarget.Health)
+            {
+                E.CastOnUnit(eTarget, true);
+            }
+
+            if (useQ && qTarget != null && Q.IsReady() && Q.GetPrediction(qTarget).Hitchance >= HitChance.High && !qcreated && DamageLib.getDmg(qTarget, DamageLib.SpellType.Q) >= qTarget.Health)
+            {
+                Q.Cast(qTarget, true);
+                return;
             }
         }
 
@@ -268,6 +287,8 @@ namespace AniviaTheTacoPhoenix
             detonateQ();
 
             checkR();
+
+            checkKS(menu.Item("qKS").GetValue<bool>(), menu.Item("eKS").GetValue<bool>());
 
             Orbwalker.SetAttacks(true);
 
