@@ -160,15 +160,15 @@ namespace YorickMILFDigger
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
-            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range)
-            {
-                E.CastOnUnit(eTarget);
-                return;
-            }
-
             if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) < W.Range && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
             {
                 W.Cast(wTarget, true);
+                return;
+            }
+
+            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range)
+            {
+                E.CastOnUnit(eTarget);
                 return;
             }
 
@@ -198,8 +198,10 @@ namespace YorickMILFDigger
                     R.Cast(target, true);
                     return;
                 }
-                //else
-                //R.Cast(Player, true);
+                else if (enemy != null && Player.Distance(enemy) < R.Range)
+                {
+                    R.Cast(Player, true);
+                }
 
             }
 
