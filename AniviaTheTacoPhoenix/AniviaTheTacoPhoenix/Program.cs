@@ -116,8 +116,8 @@ namespace AniviaTheTacoPhoenix
 
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
-            menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use R for GapCloser").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use W to Interrupt").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use W for GapCloser").SetValue(true));
 
             //Drawings menu:
             menu.AddSubMenu(new Menu("Drawings", "Drawings"));
