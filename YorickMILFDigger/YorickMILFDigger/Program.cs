@@ -298,7 +298,7 @@ namespace YorickMILFDigger
             if (!Orbwalking.CanMove(40)) return;
 
             var allMinionsE = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
-            var rangedMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, W.Range + W.Width, MinionTypes.All);
+            var rangedMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, W.Range + W.Width + 50, MinionTypes.All);
 
             var useQ = menu.Item("UseQFarm").GetValue<bool>();
             var useW = menu.Item("UseWFarm").GetValue<bool>();
@@ -310,7 +310,7 @@ namespace YorickMILFDigger
             if (useE && allMinionsE.Count > 0 && E.IsReady())
                 E.Cast(allMinionsE[0]);
 
-            if (useE && E.IsReady())
+            if (useW && W.IsReady())
             {
                 var wPos = W.GetCircularFarmLocation(rangedMinionsW);
                 if (wPos.MinionsHit >= 2)
@@ -350,7 +350,6 @@ namespace YorickMILFDigger
         {
             if (attack.SData.Name == "YorickReviveAlly")
             {
-                Game.PrintChat("Has ghost");
                 hasGhost = true;
                 ghostTimer = Environment.TickCount - 250;
             }
