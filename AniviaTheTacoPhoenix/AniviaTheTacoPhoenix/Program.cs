@@ -228,7 +228,7 @@ namespace AniviaTheTacoPhoenix
             var potentialTargets = new List<Obj_AI_Base>();
             foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsValidTarget()))
             {
-                if (rpos != null && !(enemy.ServerPosition.To2D().Distance(rpos) < R.Width) && enemy != null && rcreated && R.IsReady())
+                if (rpos != null && !(enemy.ServerPosition.To2D().Distance(rpos) < R.Width) && enemy != null && rcreated && R.IsReady() && Player.Distance(enemy) < R.Range + 200)
                 {
                     R.Cast(rpos);
                     return;
