@@ -47,11 +47,11 @@ namespace YorickMILFDigger
 
             //intalize spell
             Q = new Spell(SpellSlot.Q, 125);
-            W = new Spell(SpellSlot.W, 600);
+            W = new Spell(SpellSlot.W, 650);
             E = new Spell(SpellSlot.E, 550);
             R = new Spell(SpellSlot.R, 900);
 
-            W.SetSkillshot(0.25f, 150, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            W.SetSkillshot(0.25f, 200, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -99,6 +99,7 @@ namespace YorickMILFDigger
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("useW_Hit", "Use W if hit").SetValue(new Slider(2, 5, 0)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("autoE", "Auto E enemy if HP <").SetValue(new Slider(50, 0, 100)));
             menu.SubMenu("Misc").AddItem(new MenuItem("useRHP", "R in combo if my %HP <= ").SetValue(new Slider(50, 0, 100)));
             menu.SubMenu("Misc").AddItem(new MenuItem("useRHPE", "R in combo if Enemy %HP <= ").SetValue(new Slider(50, 0, 100)));
             menu.SubMenu("Misc").AddSubMenu(new Menu("Dont use R on", "DontUlt"));
@@ -225,8 +226,11 @@ namespace YorickMILFDigger
                 if (menu.Item("ComboActive").GetValue<KeyBind>().Active || menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
                 {
                     if(Q.IsReady() && target.IsValidTarget())
-                        if(useQCombo || useQHarass)
+                        if (useQCombo || useQHarass)
+                        {
                             Q.Cast();
+                            Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(target.ServerPosition.To2D().X, target.ServerPosition.To2D().Y, 7, target.NetworkId, Player.NetworkId)).Send();
+                        }
                 }
             }
         }
@@ -236,10 +240,22 @@ namespace YorickMILFDigger
             UseSpells(menu.Item("UseWHarass").GetValue<bool>(), menu.Item("UseEHarass").GetValue<bool>(), false);
         }
 
+        public static void autoE()
+        {
+            var HPtoE = menu.Item("autoE").GetValue<Slider>().Value;
+            var playerHP = (Player.Health / Player.MaxHealth) * 100;
+            var Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
+
+            if (playerHP < HPtoE && Target != null && Target.IsValidTarget())
+                E.Cast(Target);
+        }
+
         private static void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
             if (Player.IsDead) return;
+
+            autoE();
 
             WMec();
 
@@ -331,7 +347,7 @@ namespace YorickMILFDigger
             var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
 
             //check if target is in range
-            if (!wTarget.IsValidTarget(W.Range) && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
+            if (!wTarget.IsValidTarget(W.Range) && !(W.GetPrediction(wTarget).Hitchance >= HitChance.High))
                 return;
 
             W.CastIfWillHit(wTarget, minHit, true);
