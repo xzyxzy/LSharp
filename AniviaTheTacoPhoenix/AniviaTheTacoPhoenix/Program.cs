@@ -61,7 +61,7 @@ namespace AniviaTheTacoPhoenix
             IgniteSlot = Player.GetSpellSlot("SummonerDot");
 
             Q.SetSkillshot(.25f, 110f, 850f, false, SkillshotType.SkillshotLine);
-            W.SetSkillshot(.25f, 400f, float.MaxValue, false, SkillshotType.SkillshotLine);
+            W.SetSkillshot(.25f, 600f, float.MaxValue, false, SkillshotType.SkillshotLine);
             R.SetSkillshot(.25f, 400f, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
@@ -172,6 +172,7 @@ namespace AniviaTheTacoPhoenix
                 var pos = wTarget.ServerPosition;
                 var mypos = ObjectManager.Player.ServerPosition;
                 var newpos = pos + (pos - mypos) * (150 / ObjectManager.Player.Distance(wTarget));
+
                 W.Cast(newpos, true);
                 return;
             }
