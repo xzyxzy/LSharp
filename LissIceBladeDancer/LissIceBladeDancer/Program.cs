@@ -216,21 +216,18 @@ namespace LissIceBladeDancer
         public static void detonateE()
         {
             var enemy = SimpleTs.GetTarget(2000, SimpleTs.DamageType.Magical);
-            var distanceToEnemy = enemy.Distance(epos.Position);
-            var endpos = epos.EndPosition;
-            var endposToEnemy = enemy.Distance(endpos);
-
+            
             if (epos != null && enemy.ServerPosition.Distance(epos.Position) < 110 && enemy != null && ecreated && menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 E.Cast();
                 return;
             }
             else if (epos != null && enemy != null && ecreated && menu.Item("ComboActive").GetValue<KeyBind>().Active && menu.Item("UseEGap").GetValue<bool>()
-                && Player.Distance(enemy) > distanceToEnemy)
+                && Player.Distance(enemy) > enemy.Distance(epos.Position))
             {
-                if (endpos.Distance(epos.Position) < 400 && distanceToEnemy < endposToEnemy)
+                if (epos.EndPosition.Distance(epos.Position) < 400 && enemy.Distance(epos.Position) < enemy.Distance(epos.EndPosition))
                     E.Cast();
-                else if (epos.Position == endpos)
+                else if (epos.Position == epos.EndPosition)
                     E.Cast();
             }
 
