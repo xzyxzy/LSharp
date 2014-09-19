@@ -215,19 +215,25 @@ namespace LissIceBladeDancer
 
         public static void detonateE()
         {
-            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsValidTarget()))
+            var enemy = SimpleTs.GetTarget(2000, SimpleTs.DamageType.Magical);
+            var distanceToEnemy = enemy.Distance(epos.Position);
+            var endpos = epos.EndPosition;
+            var endposToEnemy = enemy.Distance(endpos);
+
+            if (epos != null && enemy.ServerPosition.Distance(epos.Position) < 110 && enemy != null && ecreated && menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
-                if (epos != null && enemy.ServerPosition.Distance(epos.Position) < 110 && enemy != null && ecreated && menu.Item("ComboActive").GetValue<KeyBind>().Active)
-                {
-                    E.Cast();
-                    return;
-                }
-                else if (epos != null && enemy != null && ecreated && menu.Item("ComboActive").GetValue<KeyBind>().Active && menu.Item("UseEGap").GetValue<bool>() && epos.Position == epos.EndPosition &&
-                    Player.Distance(enemy) > enemy.Distance(epos.Position))
-                {
-                    E.Cast();
-                }
+                E.Cast();
+                return;
             }
+            else if (epos != null && enemy != null && ecreated && menu.Item("ComboActive").GetValue<KeyBind>().Active && menu.Item("UseEGap").GetValue<bool>() 
+                && Player.Distance(enemy) > distanceToEnemy)
+            {
+                if (endpos.Distance(epos.Position) < 400 && distanceToEnemy < endposToEnemy)
+                    E.Cast();
+                else if (epos.Position == endpos)
+                    E.Cast();
+            }
+            
         }
 
         public static void gapClose()
@@ -235,7 +241,7 @@ namespace LissIceBladeDancer
             var Target = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
             var distance = menu.Item("gapD").GetValue<Slider>().Value;
 
-            if (Player.Distance(Target.ServerPosition) >= distance && Target.IsValidTarget(E.Range) && !ecreated)
+            if (Player.Distance(Target.ServerPosition) >= distance && Target.IsValidTarget(E.Range) && !ecreated && E.GetPrediction(Target).Hitchance >= HitChance.High)
             {
                 E.Cast(Target, true);
             }
