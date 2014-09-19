@@ -225,7 +225,7 @@ namespace LissIceBladeDancer
                 E.Cast();
                 return;
             }
-            else if (epos != null && enemy != null && ecreated && menu.Item("ComboActive").GetValue<KeyBind>().Active && menu.Item("UseEGap").GetValue<bool>() 
+            else if (epos != null && enemy != null && ecreated && menu.Item("ComboActive").GetValue<KeyBind>().Active && menu.Item("UseEGap").GetValue<bool>()
                 && Player.Distance(enemy) > distanceToEnemy)
             {
                 if (endpos.Distance(epos.Position) < 400 && distanceToEnemy < endposToEnemy)
@@ -233,7 +233,7 @@ namespace LissIceBladeDancer
                 else if (epos.Position == endpos)
                     E.Cast();
             }
-            
+
         }
 
         public static void gapClose()
