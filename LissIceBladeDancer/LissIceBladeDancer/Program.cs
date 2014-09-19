@@ -238,7 +238,7 @@ namespace LissIceBladeDancer
             var Target = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
             var distance = menu.Item("gapD").GetValue<Slider>().Value;
 
-            if (Player.Distance(Target.ServerPosition) >= distance && Target.IsValidTarget(E.Range) && !ecreated && E.GetPrediction(Target).Hitchance >= HitChance.High)
+            if (Player.Distance(Target.ServerPosition) >= distance && Target.IsValidTarget(E.Range) && !ecreated && E.GetPrediction(Target).Hitchance >= HitChance.Medium)
             {
                 E.Cast(Target, true);
             }
