@@ -289,12 +289,11 @@ namespace AniviaTheTacoPhoenix
 
             checkR();
 
-            checkKS(menu.Item("qKS").GetValue<bool>(), menu.Item("eKS").GetValue<bool>());
-
             Orbwalker.SetAttacks(true);
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
+                checkKS(menu.Item("qKS").GetValue<bool>(), menu.Item("eKS").GetValue<bool>());
                 Combo();
             }
             else
