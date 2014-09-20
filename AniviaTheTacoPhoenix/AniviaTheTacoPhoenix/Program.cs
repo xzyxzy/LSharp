@@ -195,7 +195,7 @@ namespace AniviaTheTacoPhoenix
 
             if (useE && eTarget != null && E.IsReady() && eTarget.HasBuff("Chilled"))
             {
-                E.CastOnUnit(eTarget, true);
+                E.Cast(eTarget, true);
             }
 
         }
@@ -218,7 +218,7 @@ namespace AniviaTheTacoPhoenix
         {
             foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsValidTarget()))
             {
-                if (qpos != null && enemy.ServerPosition.Distance(qpos.Position) < 110 && enemy != null && qcreated)
+                if (qpos != null && enemy.ServerPosition.Distance(qpos.Position) < 125 && enemy != null && qcreated)
                 {
                     Q.Cast();
                     return;
