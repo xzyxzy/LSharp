@@ -190,10 +190,10 @@ namespace Vladimir
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
             //check if target is in range
-            if (!rTarget.IsValidTarget(R.Range) && !(R.GetPrediction(rTarget).Hitchance >= HitChance.High))
-                return;
-
-            R.CastIfWillHit(rTarget, minHit, true);
+            if (rTarget.IsValidTarget(R.Range) && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
+            {
+                R.CastIfWillHit(rTarget, minHit, true);
+            }
         }
 
         private static void Game_OnGameUpdate(EventArgs args)

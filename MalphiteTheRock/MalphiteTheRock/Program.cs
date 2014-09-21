@@ -46,7 +46,7 @@ namespace MalphiteTheRock
             //intalize spell
             Q = new Spell(SpellSlot.Q, 625);
             W = new Spell(SpellSlot.W, 125);
-            E = new Spell(SpellSlot.E, 400);
+            E = new Spell(SpellSlot.E, 375);
             R = new Spell(SpellSlot.R, 1000);
 
             R.SetSkillshot(0.00f, 270, 700, false, SkillshotType.SkillshotCircle);
@@ -278,10 +278,10 @@ namespace MalphiteTheRock
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
             //check if target is in range
-            if (!rTarget.IsValidTarget(R.Range) && !(R.GetPrediction(rTarget).Hitchance >= HitChance.High))
-                return;
-
-            R.CastIfWillHit(rTarget, minHit, true);
+            if (rTarget.IsValidTarget(R.Range) && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
+            {
+                R.CastIfWillHit(rTarget, minHit, true);
+            }
         }
 
         private static void Drawing_OnDraw(EventArgs args)
