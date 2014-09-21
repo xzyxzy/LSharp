@@ -190,9 +190,9 @@ namespace Vladionic
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
             //check if target is in range
-            if (rTarget.IsValidTarget(R.Range) && R.GetPrediction(rTarget).Hitchance >= HitChance.High && R.GetPrediction(rTarget).AoeTargetsHitCount >= minHit)
+            if (rTarget.IsValidTarget(R.Range) && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
             {
-                R.Cast(rTarget, true);
+                R.CastIfWillHit(rTarget, minHit, true);
             }
         }
 
