@@ -9,7 +9,7 @@ using LeagueSharp.Common;
 using SharpDX;
 using Color = System.Drawing.Color;
 
-namespace Vladimir
+namespace Vladionic
 {
     class Program
     {
@@ -91,7 +91,7 @@ namespace Vladimir
             menu.AddSubMenu(new Menu("Farm", "Farm"));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseQFarm", "Use Q").SetValue(false));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseEFarm", "Use E").SetValue(false));
-            menu.SubMenu("Farm").AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue( new KeyBind(menu.Item("LaneClear").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Farm").AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind(menu.Item("LaneClear").GetValue<KeyBind>().Key, KeyBindType.Press)));
             menu.SubMenu("Farm").AddItem(new MenuItem("LastHitQQ", "Last hit with Q").SetValue(new KeyBind("A".ToCharArray()[0], KeyBindType.Press)));
 
             //Misc Menu:
@@ -211,7 +211,7 @@ namespace Vladimir
             RMec();
 
             Orbwalker.SetAttacks(true);
-            
+
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 Combo();
@@ -268,8 +268,8 @@ namespace Vladimir
             if (!Orbwalking.CanMove(40)) return;
 
             var allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly);
-            var rangedMinionsE = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range + E.Width ,MinionTypes.All);
-            
+            var rangedMinionsE = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range + E.Width, MinionTypes.All);
+
             var useQ = menu.Item("UseQFarm").GetValue<bool>();
             var useE = menu.Item("UseEFarm").GetValue<bool>();
 
