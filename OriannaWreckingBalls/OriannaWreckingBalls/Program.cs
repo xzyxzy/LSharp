@@ -188,6 +188,7 @@ namespace OriannaWreckingBalls
             if (useQ && Q.IsReady())
             {
                 castQ(qTarget);
+                return;
             }
 
             if (useR && rTarget != null && R.IsReady())
