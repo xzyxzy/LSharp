@@ -167,7 +167,7 @@ namespace AniviaTheTacoPhoenix
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
-            if (useW && wTarget != null && W.IsReady() && GetComboDamage(qTarget) >= qTarget.Health - 100)
+            if (useW && wTarget != null && W.IsReady() && GetComboDamage(qTarget) >= qTarget.Health - 100 && Player.Distance(wTarget) <= W.Range)
             {
                 var pos = wTarget.ServerPosition;
                 var mypos = ObjectManager.Player.ServerPosition;
@@ -177,7 +177,7 @@ namespace AniviaTheTacoPhoenix
                 return;
             }
 
-            if (useQ && qTarget != null && Q.IsReady() && Q.GetPrediction(qTarget).Hitchance >= HitChance.High && !qcreated)
+            if (useQ && qTarget != null && Q.IsReady() && Q.GetPrediction(qTarget).Hitchance >= HitChance.High && !qcreated && Player.Distance(qTarget) <= Q.Range)
             {
                 Q.Cast(qTarget, true);
                 return;
@@ -193,7 +193,7 @@ namespace AniviaTheTacoPhoenix
                 return;
             }
 
-            if (useE && eTarget != null && E.IsReady() && eTarget.HasBuff("Chilled"))
+            if (useE && eTarget != null && E.IsReady() && eTarget.HasBuff("Chilled") && Player.Distance(eTarget) <= E.Range)
             {
                 E.Cast(eTarget, true);
             }
@@ -244,12 +244,13 @@ namespace AniviaTheTacoPhoenix
             var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
 
-            if (useE && eTarget != null && E.IsReady() && DamageLib.getDmg(eTarget, DamageLib.SpellType.E) >= eTarget.Health)
+            if (useE && eTarget != null && E.IsReady() && DamageLib.getDmg(eTarget, DamageLib.SpellType.E) >= eTarget.Health && Player.Distance(eTarget) <= E.Range)
             {
                 E.CastOnUnit(eTarget, true);
             }
 
-            if (useQ && qTarget != null && Q.IsReady() && Q.GetPrediction(qTarget).Hitchance >= HitChance.High && !qcreated && DamageLib.getDmg(qTarget, DamageLib.SpellType.Q) >= qTarget.Health)
+            if (useQ && qTarget != null && Q.IsReady() && Q.GetPrediction(qTarget).Hitchance >= HitChance.High && !qcreated && DamageLib.getDmg(qTarget, DamageLib.SpellType.Q) >= qTarget.Health 
+                && Player.Distance(qTarget) <= Q.Range)
             {
                 Q.Cast(qTarget, true);
                 return;
