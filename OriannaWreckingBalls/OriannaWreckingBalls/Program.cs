@@ -95,12 +95,21 @@ namespace OriannaWreckingBalls
             menu.SubMenu("Harass").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Farm").GetValue<KeyBind>().Key, KeyBindType.Press)));
             menu.SubMenu("Harass").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
 
+            //Farming menu:
+            menu.AddSubMenu(new Menu("Farm", "Farm"));
+            menu.SubMenu("Farm").AddItem(new MenuItem("UseQFarm", "Use Q").SetValue(false));
+            menu.SubMenu("Farm").AddItem(new MenuItem("UseWFarm", "Use W").SetValue(false));
+            menu.SubMenu("Farm").AddItem(new MenuItem("LastHitQQ", "Last hit with Q").SetValue(new KeyBind("A".ToCharArray()[0], KeyBindType.Press)));
+            menu.SubMenu("Farm").AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind(menu.Item("LaneClear").GetValue<KeyBind>().Key, KeyBindType.Press)));
+
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoW", "Use W if hit").SetValue(new Slider(2, 0, 5)));
             menu.SubMenu("Misc").AddItem(new MenuItem("killR", "Use R Only if Killable").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoR", "Use R if hit").SetValue(new Slider(3, 0, 5)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("autoE", "E If HP < %").SetValue(new Slider(40, 0, 100)));
+            //menu.SubMenu("Combo").AddItem(new MenuItem("autoEDmg", "E If HP < %").SetValue(new Slider(2, 0, 5)));
 
             //Drawings menu:
             menu.AddSubMenu(new Menu("Drawings", "Drawings"));
@@ -271,6 +280,16 @@ namespace OriannaWreckingBalls
         {
             if (IsBallMoving) return;
 
+            //hp sheild
+            var hp = menu.Item("autoE").GetValue<Slider>().Value;
+            var hpPercent = Player.Health / Player.MaxHealth * 100;
+
+            if (hpPercent <= hp)
+            {
+                E.CastOnUnit(Player, true);
+                return;
+            }
+            
             switch (ballStatus)
             {
                 case 0:
@@ -427,6 +446,65 @@ namespace OriannaWreckingBalls
             }
 
             return hit;
+        }
+
+        public static void lastHit()
+        {
+            if (!Orbwalking.CanMove(40)) return;
+
+            var allMinions = MinionManager.GetMinions(Player.ServerPosition, Q.Range);
+
+            if (Q.IsReady())
+            {
+                foreach (var minion in allMinions)
+                {
+                    if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < DamageLib.getDmg(minion, DamageLib.SpellType.Q) - 10)
+                    {
+                        Q.Cast(minion, true);
+                        return;
+                    }
+                }
+            }
+        }
+
+        private static void Farm()
+        {
+            if (!Orbwalking.CanMove(40)) return;
+
+            var allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range + Q.Width, MinionTypes.All);
+            var allMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range + Q.Width, MinionTypes.All);
+
+            var useQ = menu.Item("UseQFarm").GetValue<bool>();
+            var useW = menu.Item("UseWFarm").GetValue<bool>();
+
+            int hit = 0;
+
+            if (useQ && Q.IsReady())
+            {
+                var qPos = Q.GetLineFarmLocation(allMinionsQ);
+                if (qPos.MinionsHit >= 2)
+                    Q.Cast(qPos.Position, true);
+            }
+
+            if (useW && W.IsReady())
+            {
+                foreach (var enemy in allMinionsW)
+                {
+                    if (ballStatus == 0)
+                    {
+                        if (enemy.Distance(Player.ServerPosition) < W.Range)
+                            hit++;
+                    }
+                    else if (ballStatus == 1 || ballStatus == 2)
+                    {
+                        if (enemy.Distance(qpos.Position) < W.Range)
+                            hit++;
+                    }
+                }
+
+                if (hit >= 3)
+                    W.Cast();
+            }
         }
 
         private static void Harass()
@@ -592,6 +670,16 @@ namespace OriannaWreckingBalls
             {
                 if (menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
                     Harass();
+
+                if (menu.Item("LaneClearActive").GetValue<KeyBind>().Active)
+                {
+                    Farm();
+                }
+
+                if (menu.Item("LastHitQQ").GetValue<KeyBind>().Active)
+                {
+                    lastHit();
+                }
             }
         }
 
