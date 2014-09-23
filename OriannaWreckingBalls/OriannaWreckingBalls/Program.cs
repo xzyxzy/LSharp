@@ -369,7 +369,7 @@ namespace OriannaWreckingBalls
         public static void checkRMec()
         {
             int hit = 0;
-            var minHit = menu.Item("autoW").GetValue<Slider>().Value;
+            var minHit = menu.Item("autoR").GetValue<Slider>().Value;
             foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy))
             {
                 if (enemy != null && !enemy.IsDead)
