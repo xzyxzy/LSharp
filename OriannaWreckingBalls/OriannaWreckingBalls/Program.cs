@@ -116,7 +116,7 @@ namespace OriannaWreckingBalls
             //Events
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
-            Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
+            //Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             GameObject.OnCreate += OnCreate;
             GameObject.OnDelete += OnDelete;
@@ -478,7 +478,7 @@ namespace OriannaWreckingBalls
 
             if (Player.Distance(unit) < R.Range && unit != null)
             {
-                R.CastOnUnit(unit);
+                //R.CastOnUnit(unit);
             }
         }
 
