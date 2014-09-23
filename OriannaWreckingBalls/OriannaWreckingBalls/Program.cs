@@ -81,6 +81,7 @@ namespace OriannaWreckingBalls
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("qHit", "Q HitChance").SetValue(new Slider(3, 1, 3)));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
@@ -311,11 +312,25 @@ namespace OriannaWreckingBalls
         {
             if (IsBallMoving) return;
 
+            var qHit = menu.Item("qHit").GetValue<Slider>().Value;
+            var hitC = HitChance.High;
+
+            if (qHit == 1)
+            {
+                hitC = HitChance.Low;
+            }
+            else if (qHit == 2)
+            {
+                hitC = HitChance.Medium;
+            }else if(qHit == 3){
+                hitC = HitChance.High;
+            }
+
             switch (ballStatus)
             {
                 //on self
                 case 0:
-                    if (Q.IsReady() && Q.GetPrediction(target).Hitchance >= HitChance.High && Player.Distance(target) <= Q.Range)
+                    if (Q.IsReady() && Q.GetPrediction(target).Hitchance >= hitC && Player.Distance(target) <= Q.Range)
                     {
                         Q.Cast(target, true);
                     }
@@ -324,7 +339,7 @@ namespace OriannaWreckingBalls
                 case 1:
                     var prediction = GetP(qpos.Position, Q, target, true);
 
-                    if (Q.IsReady() && prediction.Hitchance >= HitChance.High && Player.Distance(target) <= Q.Range)
+                    if (Q.IsReady() && prediction.Hitchance >= hitC && Player.Distance(target) <= Q.Range)
                     {
                         Q.Cast(prediction.CastPosition, true);
                     }
@@ -333,7 +348,7 @@ namespace OriannaWreckingBalls
                 case 2:
                     var prediction2 = GetP(qpos.Position, Q, target, true);
 
-                    if (Q.IsReady() && prediction2.Hitchance >= HitChance.High && Player.Distance(target) <= Q.Range)
+                    if (Q.IsReady() && prediction2.Hitchance >= hitC && Player.Distance(target) <= Q.Range)
                     {
                         Q.Cast(prediction2.CastPosition, true);
                     }
@@ -564,12 +579,13 @@ namespace OriannaWreckingBalls
             onGainBuff();
 
             checkWMec();
-            checkRMec();
+            
 
             Orbwalker.SetAttacks(true);
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
+                checkRMec();
                 Combo();
             }
             else
