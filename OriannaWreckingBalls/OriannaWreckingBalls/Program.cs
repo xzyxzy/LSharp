@@ -52,9 +52,9 @@ namespace OriannaWreckingBalls
 
             //intalize spell
             Q = new Spell(SpellSlot.Q, 825);
-            W = new Spell(SpellSlot.W, 245);
+            W = new Spell(SpellSlot.W, 220);
             E = new Spell(SpellSlot.E, 1095);
-            R = new Spell(SpellSlot.R, 275);
+            R = new Spell(SpellSlot.R, 300);
 
             Q.SetSkillshot(0f, 80, 1200, false, SkillshotType.SkillshotLine);
             E.SetSkillshot(0.25f, 80, 1700, false, SkillshotType.SkillshotLine);
@@ -502,7 +502,7 @@ namespace OriannaWreckingBalls
             }
             if (obj != null && obj.IsValid && obj.Name.Contains("OriannaEAlly"))
             {
-                Game.PrintChat("onALYY woot");
+                //Game.PrintChat("onALYY woot");
                 qpos = obj;
                 ballStatus = 2;
                 IsBallMoving = false;
