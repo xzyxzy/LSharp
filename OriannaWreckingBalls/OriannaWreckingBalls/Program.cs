@@ -481,11 +481,45 @@ namespace OriannaWreckingBalls
 
             if (useQ && Q.IsReady())
             {
-                var qPos = Q.GetLineFarmLocation(allMinionsQ);
-                if (qPos.MinionsHit >= 2)
-                    Q.Cast(qPos.Position, true);
+                foreach (var enemy in allMinionsW)
+                {
+                    if (ballStatus == 0)
+                    {
+                        var qPos = Q.GetLineFarmLocation(allMinionsQ);
+                        if (qPos.MinionsHit >= 2)
+                            Q.Cast(qPos.Position, true);
+                    }
+                    else if (ballStatus == 1 || ballStatus == 2)
+                    {
+                        var prediction = GetP(qpos.Position, Q, enemy, true);
+
+                        if (Q.IsReady() && Player.Distance(enemy) <= Q.Range)
+                        {
+
+                            if (useW && W.IsReady())
+                            {
+                                foreach (var enemy2 in allMinionsW)
+                                {
+                                    if (ballStatus == 1 || ballStatus == 2)
+                                    {
+                                        if (enemy2.Distance(prediction.CastPosition) < W.Range)
+                                            hit++;
+                                    }
+                                }
+                                if (hit >= 3)
+                                {
+                                    Q.Cast(prediction.CastPosition, true);
+                                    W.Cast();
+                                }
+                            }
+
+                            Q.Cast(prediction.CastPosition, true);
+                        }
+                    }
+                }
             }
 
+            hit = 0;
             if (useW && W.IsReady())
             {
                 foreach (var enemy in allMinionsW)
