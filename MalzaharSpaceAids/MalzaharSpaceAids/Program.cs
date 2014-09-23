@@ -113,8 +113,7 @@ namespace MalzaharSpaceAids
             //Events
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
-            Interrupter.OnPosibleToInterrupt += Interrupter_OnPosibleToInterrupt;
-            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+            Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
@@ -154,24 +153,24 @@ namespace MalzaharSpaceAids
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
-            if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) < Q.Range && Q.GetPrediction(qTarget).Hitchance >= HitChance.High)
+            if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && Q.GetPrediction(qTarget).Hitchance >= HitChance.High)
             {
                 Q.Cast(qTarget, true);
                 return;
             }
 
-            if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) < W.Range && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
+            if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
             {
                 W.Cast(wTarget, true);
                 return;
             }
 
-            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range)
+            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) <= E.Range)
             {
                 E.CastOnUnit(eTarget, true);
             }
 
-            if (useR && rTarget != null && R.IsReady() && GetComboDamage(rTarget) > qTarget.Health && Player.Distance(rTarget) < R.Range)
+            if (useR && rTarget != null && R.IsReady() && GetComboDamage(rTarget) > qTarget.Health && Player.Distance(rTarget) <= R.Range)
             {
                 R.Cast(rTarget, true);
                 return;
@@ -264,11 +263,6 @@ namespace MalzaharSpaceAids
                 if (menuItem.Active)
                     Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
             }
-
-        }
-
-        public static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs attack)
-        {
 
         }
 

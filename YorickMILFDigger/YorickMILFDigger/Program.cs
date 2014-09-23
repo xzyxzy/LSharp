@@ -161,13 +161,13 @@ namespace YorickMILFDigger
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
-            if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) < W.Range && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
+            if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
             {
                 W.Cast(wTarget, true);
                 return;
             }
 
-            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range)
+            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) <= E.Range)
             {
                 E.CastOnUnit(eTarget);
                 return;
@@ -194,7 +194,7 @@ namespace YorickMILFDigger
 
             if (enemyHP <= HPtoUltEnemy)
             {
-                if (target != null && enemy != null && target.BaseSkinName != Player.BaseSkinName && Player.Distance(target) < R.Range && useR)
+                if (target != null && enemy != null && target.BaseSkinName != Player.BaseSkinName && Player.Distance(target) <= R.Range && useR)
                 {
                     R.Cast(target, true);
                     return;
@@ -246,7 +246,7 @@ namespace YorickMILFDigger
             var playerHP = (Player.Health / Player.MaxHealth) * 100;
             var Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
 
-            if (playerHP < HPtoE && Target != null && Target.IsValidTarget())
+            if (playerHP < HPtoE && Target != null && Player.Distance(Target) <= E.Range)
                 E.Cast(Target);
         }
 
@@ -347,10 +347,10 @@ namespace YorickMILFDigger
             var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
 
             //check if target is in range
-            if (!wTarget.IsValidTarget(W.Range) && !(W.GetPrediction(wTarget).Hitchance >= HitChance.High))
-                return;
-
-            W.CastIfWillHit(wTarget, minHit, true);
+            if (Player.Distance(wTarget) <= W.Range && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
+            {
+                W.CastIfWillHit(wTarget, minHit, true);
+            }
         }
 
         private static void Drawing_OnDraw(EventArgs args)

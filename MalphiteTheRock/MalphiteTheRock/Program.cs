@@ -114,7 +114,7 @@ namespace MalphiteTheRock
             //Events
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
-            Interrupter.OnPosibleToInterrupt += Interrupter_OnPosibleToInterrupt;
+            Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
@@ -177,7 +177,7 @@ namespace MalphiteTheRock
             }
 
             //regular combo
-            if (useR && rTarget != null && R.IsReady() && GetComboDamage(rTarget) >= rTarget.Health - 100 && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
+            if (useR && rTarget != null && R.IsReady() && GetComboDamage(rTarget) >= rTarget.Health - 100 && R.GetPrediction(rTarget).Hitchance >= HitChance.High && Player.Distance(rTarget) <= R.Range)
             {
                 R.Cast(rTarget);
                 return;
@@ -274,7 +274,7 @@ namespace MalphiteTheRock
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
             //check if target is in range
-            if (rTarget.IsValidTarget(R.Range) && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
+            if (Player.Distance(rTarget) <= R.Range && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
             {
                 R.CastIfWillHit(rTarget, minHit, true);
             }

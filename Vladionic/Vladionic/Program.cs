@@ -155,18 +155,18 @@ namespace Vladionic
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
-            if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) < Q.Range)
+            if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) <= Q.Range)
             {
                 Q.Cast(qTarget, true);
                 return;
             }
 
-            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range)
+            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) <= E.Range)
             {
                 E.Cast();
             }
 
-            if (useR && rTarget != null && R.IsReady() && R.GetPrediction(rTarget).Hitchance >= HitChance.High && GetComboDamage(rTarget) > qTarget.Health + 150)
+            if (useR && rTarget != null && R.IsReady() && R.GetPrediction(rTarget).Hitchance >= HitChance.High && GetComboDamage(rTarget) > qTarget.Health + 150 && Player.Distance(rTarget) <= R.Range)
             {
                 R.Cast(rTarget, true);
                 return;
@@ -190,7 +190,7 @@ namespace Vladionic
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
             //check if target is in range
-            if (rTarget.IsValidTarget(R.Range) && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
+            if (Player.Distance(rTarget) <= R.Range && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
             {
                 R.CastIfWillHit(rTarget, minHit, true);
             }
