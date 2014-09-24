@@ -105,7 +105,7 @@ namespace OriannaWreckingBalls
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoW", "Use W if hit").SetValue(new Slider(2, 0, 5)));
-            menu.SubMenu("Misc").AddItem(new MenuItem("killR", "Use R Only if Killable").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("killR", "R only multiple Targets").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoR", "Use R if hit").SetValue(new Slider(3, 0, 5)));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoE", "E If HP < %").SetValue(new Slider(40, 0, 100)));
             //menu.SubMenu("Combo").AddItem(new MenuItem("autoEDmg", "E If HP < %").SetValue(new Slider(2, 0, 5)));
@@ -187,14 +187,10 @@ namespace OriannaWreckingBalls
 
             if (useR && rTarget != null && R.IsReady())
             {
-                if (menu.Item("killR").GetValue<bool>())
+                if (!(menu.Item("killR").GetValue<bool>()))
                 {
                     if (GetComboDamage(rTarget) >= rTarget.Health - 100)
                         castR(rTarget);
-                }
-                else
-                {
-                    castR(rTarget);
                 }
             }
 
