@@ -342,7 +342,7 @@ namespace OriannaWreckingBalls
                         foreach (var ally in ObjectManager.Get<Obj_AI_Hero>())
                         {
 
-                            if (ally.IsAlly && Player.Distance(ally.ServerPosition) <= E.Range)
+                            if (!ally.IsMe && ally.IsAlly && Player.Distance(ally.ServerPosition) <= E.Range)
                             {
                                 var allyRange2 = target.Distance(ally.ServerPosition) / Q.Speed + ally.Distance(qpos.Position) / E.Speed;
 
