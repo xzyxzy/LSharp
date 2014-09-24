@@ -319,7 +319,6 @@ namespace OriannaWreckingBalls
                         if (MinTravelTime < TravelTime && Player.Distance(etarget.ServerPosition) <= E.Range)
                         {
                             E.CastOnUnit(etarget, true);
-                            Game.PrintChat("test4");
                             return;
                         }
                     }
