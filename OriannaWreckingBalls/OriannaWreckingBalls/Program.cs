@@ -56,7 +56,9 @@ namespace OriannaWreckingBalls
             R = new Spell(SpellSlot.R, 300);
 
             Q.SetSkillshot(0f, 145, 1250, false, SkillshotType.SkillshotLine);
+            W.SetSkillshot(0.25f, 245, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.25f, 145, 1700, false, SkillshotType.SkillshotLine);
+            R.SetSkillshot(0.60f, 350, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -147,7 +149,25 @@ namespace OriannaWreckingBalls
                 Range = spell.Range,
                 Collision = spell.Collision,
                 Type = spell.Type,
-                RangeCheckFrom = Player.ServerPosition,
+                RangeCheckFrom = pos,
+                Aoe = aoe,
+            });
+        }
+
+        public static PredictionOutput GetPCircle(Vector3 pos, Spell spell, Obj_AI_Base target, bool aoe)
+        {
+
+            return Prediction.GetPrediction(new PredictionInput
+            {
+                Unit = target,
+                Delay = spell.Delay,
+                Radius = 1,
+                Speed = spell.Speed,
+                From = pos,
+                Range = float.MaxValue,
+                Collision = spell.Collision,
+                Type = spell.Type,
+                RangeCheckFrom = pos,
                 Aoe = aoe,
             });
         }
@@ -219,23 +239,29 @@ namespace OriannaWreckingBalls
             switch (ballStatus) { 
                 //on self
                 case 0:
-                    if (W.IsReady() && target.Distance(Player) <= W.Range)
+                    var prediction = GetPCircle(Player.ServerPosition, W, target, true);
+
+                    if (W.IsReady() && target.Distance(Player.ServerPosition) <= W.Width && prediction.CastPosition.Distance(Player.ServerPosition) <= W.Width && prediction.Hitchance >= HitChance.Medium)
                     {
-                        W.Cast();
+                        W.Cast(prediction.CastPosition, true);
                     }
                     break;
                 //on map
                 case 1:
-                    if (W.IsReady() && target.Distance(qpos.Position) <= W.Range)
+                    var prediction2 = GetPCircle(qpos.Position, W, target, true);
+
+                    if (W.IsReady() && target.Distance(qpos.Position) <= W.Width && prediction2.CastPosition.Distance(qpos.Position) <= W.Width && prediction2.Hitchance >= HitChance.Medium)
                     {
-                        W.Cast();
+                        W.Cast(prediction2.CastPosition, true);
                     }
                     break;
                 //on ally
                 case 2:
-                    if (W.IsReady() && target.Distance(qpos.Position) <= W.Range)
+                    var prediction3 = GetPCircle(qpos.Position, W, target, true);
+
+                    if (W.IsReady() && target.Distance(qpos.Position) <= W.Width && prediction3.CastPosition.Distance(qpos.Position) <= W.Width && prediction3.Hitchance >= HitChance.Medium)
                     {
-                        W.Cast();
+                        W.Cast(prediction3.CastPosition, true);
                     }
                     break;
             }
