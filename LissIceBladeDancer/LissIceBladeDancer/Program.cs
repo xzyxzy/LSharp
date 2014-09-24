@@ -49,7 +49,7 @@ namespace LissIceBladeDancer
 
             //intalize spell
             Q = new Spell(SpellSlot.Q, 725);
-            Q2 = new Spell(SpellSlot.Q, 825);
+            Q2 = new Spell(SpellSlot.Q, 1100);
             W = new Spell(SpellSlot.W, 450);
             E = new Spell(SpellSlot.E, 1050);
             R = new Spell(SpellSlot.R, 700);
@@ -125,7 +125,7 @@ namespace LissIceBladeDancer
             //Events
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
-            Interrupter.OnPosibleToInterrupt += Interrupter_OnPosibleToInterrupt;
+            Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             GameObject.OnCreate += OnCreate;
@@ -159,6 +159,43 @@ namespace LissIceBladeDancer
                 menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>());
         }
 
+        public static bool Intersection(Vector2 p1, Vector2 p2, Vector2 pC, float radius)
+        /* Credits to DETUKS https://github.com/detuks/LeagueSharp/blob/master/YasuoSharp/YasMath.cs */
+        {
+            var p3 = new Vector2(pC.X + radius, pC.Y + radius);
+
+            var m = ((p2.Y - p1.Y) / (p2.X - p1.X));
+            var constant = (m * p1.X) - p1.Y;
+            var b = -(2f * ((m * constant) + p3.X + (m * p3.Y)));
+            var a = (1 + (m * m));
+            var c = ((p3.X * p3.X) + (p3.Y * p3.Y) - (radius * radius) + (2f * constant * p3.Y) + (constant * constant));
+            var d = ((b * b) - (4f * a * c));
+
+            return d > 0;
+        }
+
+        public static Obj_AI_Base QMinion // Credit to Esk0r
+        {
+            get
+            {
+                var vTarget = SimpleTs.GetTarget(Q2.Range, SimpleTs.DamageType.Physical);
+                var vMinions = MinionManager.GetMinions(
+                    ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly,
+                    MinionOrderTypes.None);
+
+                return (from vMinion in vMinions.Where(vMinion => vMinion.IsValidTarget(Q.Range))
+                        let endPoint =
+                            vMinion.ServerPosition.To2D()
+                                .Extend(ObjectManager.Player.ServerPosition.To2D(), -Q2.Range)
+                                .To3D()
+                        where
+                            Intersection(
+                                ObjectManager.Player.ServerPosition.To2D(), endPoint.To2D(), vTarget.ServerPosition.To2D(),
+                                vTarget.BoundingRadius + Q.Width / 2)
+                        select vMinion).FirstOrDefault();
+            }
+        }
+
         private static void UseSpells(bool useQ, bool useW, bool useE, bool useR)
         {
             var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
@@ -180,14 +217,10 @@ namespace LissIceBladeDancer
                     Q.Cast(qTarget, true, true);
                     return;
                 }
-                else if (q2Target != null && Player.Distance(qTarget) <= Q2.Range)
+                else if (q2Target != null && Player.Distance(q2Target) <= Q2.Range)
                 {
-                    var qCollision = Q2.GetPrediction(q2Target).CollisionObjects;
-                    foreach (var qCollisionChar in qCollision.Where(qCollisionChar => qCollisionChar.IsValidTarget(Q.Range)))
-                    {
-                        Q2.Cast(qCollisionChar, true, true);
-                        return;
-                    }
+                    if (QMinion != null)
+                        Q.Cast(QMinion, true, true);
                 }
             }
 
@@ -262,11 +295,9 @@ namespace LissIceBladeDancer
             }
             else
             {
-                if (menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
-                    Harass();
-
                 if (menu.Item("LaneClearActive").GetValue<KeyBind>().Active)
                 {
+
                     Farm();
                 }
 
@@ -275,6 +306,8 @@ namespace LissIceBladeDancer
                     lastHit();
                 }
 
+                if (menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
+                    Harass();
             }
         }
 
