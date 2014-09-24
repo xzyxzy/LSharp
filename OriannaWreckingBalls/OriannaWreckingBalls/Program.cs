@@ -275,23 +275,29 @@ namespace OriannaWreckingBalls
             {
                 //on self
                 case 0:
-                    if (R.IsReady() && target.Distance(Player) <= R.Range)
+                    var prediction = GetPCircle(Player.ServerPosition, R, target, true);
+
+                    if (R.IsReady() && target.Distance(Player.ServerPosition) <= R.Width && prediction.CastPosition.Distance(Player.ServerPosition) <= R.Width && prediction.Hitchance >= HitChance.High)
                     {
-                        R.Cast();
+                        R.Cast(prediction.CastPosition, true);
                     }
                     break;
                 //on map
                 case 1:
-                    if (R.IsReady() && target.Distance(qpos.Position) <= R.Range)
+                    var prediction2 = GetPCircle(qpos.Position, R, target, true);
+
+                    if (R.IsReady() && target.Distance(qpos.Position) <= R.Width && prediction2.CastPosition.Distance(qpos.Position) <= R.Width && prediction2.Hitchance >= HitChance.High)
                     {
-                        R.Cast();
+                        R.Cast(prediction2.CastPosition, true);
                     }
                     break;
                 //on ally
                 case 2:
-                    if (R.IsReady() && target.Distance(qpos.Position) <= R.Range)
+                    var prediction3 = GetPCircle(qpos.Position, R, target, true);
+
+                    if (R.IsReady() && target.Distance(qpos.Position) <= R.Width && prediction3.CastPosition.Distance(qpos.Position) <= R.Width && prediction3.Hitchance >= HitChance.Medium)
                     {
-                        R.Cast();
+                        R.Cast(prediction3.CastPosition, true);
                     }
                     break;
             }
@@ -452,23 +458,34 @@ namespace OriannaWreckingBalls
         {
             int hit = 0;
             var minHit = menu.Item("autoW").GetValue<Slider>().Value;
+
             foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy))
             {
                 if (enemy != null && !enemy.IsDead)
                 {
                     if (ballStatus == 0)
                     {
-                        if (enemy.Distance(Player.ServerPosition) < W.Range)
+                        var prediction = GetPCircle(Player.ServerPosition, W, enemy, true);
+
+                        if (W.IsReady() && enemy.Distance(Player.ServerPosition) <= W.Width && prediction.CastPosition.Distance(Player.ServerPosition) <= W.Width && prediction.Hitchance >= HitChance.Medium)
+                        {
                             hit++;
+                        }
                     }
                     else if (ballStatus == 1 || ballStatus == 2)
                     {
-                        if (enemy.Distance(qpos.Position) < W.Range)
+                        var prediction2 = GetPCircle(qpos.Position, W, enemy, true);
+
+                        if (W.IsReady() && enemy.Distance(qpos.Position) <= W.Width && prediction2.CastPosition.Distance(qpos.Position) <= W.Width && prediction2.Hitchance >= HitChance.Medium)
+                        {
                             hit++;
+                        }
                     }
                 }
             }
 
+                    
+                    
             if (hit >= minHit)
                 W.Cast();
         }
@@ -483,13 +500,21 @@ namespace OriannaWreckingBalls
                 {
                     if (ballStatus == 0)
                     {
-                        if (enemy.Distance(Player.ServerPosition) < R.Range)
+                        var prediction = GetPCircle(Player.ServerPosition, R, enemy, true);
+
+                        if (R.IsReady() && enemy.Distance(Player.ServerPosition) <= R.Width && prediction.CastPosition.Distance(Player.ServerPosition) <= R.Width && prediction.Hitchance >= HitChance.Medium)
+                        {
                             hit++;
+                        }
                     }
                     else if (ballStatus == 1 || ballStatus == 2)
                     {
-                        if (enemy.Distance(qpos.Position) < R.Range)
+                        var prediction2 = GetPCircle(qpos.Position, R, enemy, true);
+
+                        if(R.IsReady() && enemy.Distance(qpos.Position) <= R.Width && prediction2.CastPosition.Distance(qpos.Position) <= R.Width && prediction2.Hitchance >= HitChance.Medium)
+                        {
                             hit++;
+                        }
                     }
                 }
             }
@@ -507,13 +532,21 @@ namespace OriannaWreckingBalls
                 {
                     if (ballStatus == 0)
                     {
-                        if (enemy.Distance(Player.ServerPosition) < R.Range)
+                        var prediction = GetPCircle(Player.ServerPosition, R, enemy, true);
+
+                        if (R.IsReady() && enemy.Distance(Player.ServerPosition) <= R.Width && prediction.CastPosition.Distance(Player.ServerPosition) <= R.Width && prediction.Hitchance >= HitChance.Medium)
+                        {
                             hit++;
+                        }
                     }
                     else if (ballStatus == 1 || ballStatus == 2)
                     {
-                        if (enemy.Distance(qpos.Position) < R.Range)
+                        var prediction2 = GetPCircle(qpos.Position, R, enemy, true);
+
+                        if (R.IsReady() && enemy.Distance(qpos.Position) <= R.Width && prediction2.CastPosition.Distance(qpos.Position) <= R.Width && prediction2.Hitchance >= HitChance.Medium)
+                        {
                             hit++;
+                        }
                     }
                 }
             }
