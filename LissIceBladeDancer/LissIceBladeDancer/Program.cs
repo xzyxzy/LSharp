@@ -49,7 +49,7 @@ namespace LissIceBladeDancer
 
             //intalize spell
             Q = new Spell(SpellSlot.Q, 725);
-            Q2 = new Spell(SpellSlot.Q, 1100);
+            Q2 = new Spell(SpellSlot.Q, 1000);
             W = new Spell(SpellSlot.W, 450);
             E = new Spell(SpellSlot.E, 1050);
             R = new Spell(SpellSlot.R, 700);
@@ -217,7 +217,7 @@ namespace LissIceBladeDancer
                     Q.Cast(qTarget, true, true);
                     return;
                 }
-                else if (q2Target != null && Player.Distance(q2Target) <= Q2.Range)
+                if (q2Target != null && Player.Distance(q2Target) <= Q2.Range)
                 {
                     if (QMinion != null)
                         Q.Cast(QMinion, true, true);
