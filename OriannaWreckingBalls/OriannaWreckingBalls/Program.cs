@@ -203,7 +203,7 @@ namespace OriannaWreckingBalls
 
             if (useR && rTarget != null && R.IsReady())
             {
-                if (!(menu.Item("killR").GetValue<bool>()))
+                if (!(menu.Item("killR").GetValue<KeyBind>().Active))
                 {
                     if (GetComboDamage(rTarget) >= rTarget.Health - 100)
                         castR(rTarget);
@@ -551,9 +551,8 @@ namespace OriannaWreckingBalls
                         {
                             foreach (var enemy2 in allMinionsW)
                                 {
-                                    if (enemy2.Distance(prediction.CastPosition) < W.Range)
+                                    if (enemy2.Distance(prediction.CastPosition) < Q.Width)
                                         hit++;
-                                    
                                 }
 
                                 if (hit >= min)
@@ -572,7 +571,7 @@ namespace OriannaWreckingBalls
                         {
                             foreach (var enemy2 in allMinionsW)
                             {
-                                if (enemy2.Distance(prediction.CastPosition) < W.Range)
+                                if (enemy2.Distance(prediction.CastPosition) < Q.Width)
                                     hit++;
                                     
                             }
