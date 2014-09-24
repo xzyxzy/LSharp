@@ -97,8 +97,8 @@ namespace OriannaWreckingBalls
             //Farming menu:
             menu.AddSubMenu(new Menu("Farm", "Farm"));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseQFarm", "Use Q").SetValue(false));
-            menu.SubMenu("Farm").AddItem(new MenuItem("qFarm", "Only Q if > minion").SetValue(new Slider(3, 0, 6)));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseWFarm", "Use W").SetValue(false));
+            menu.SubMenu("Farm").AddItem(new MenuItem("qFarm", "Only Q/W if > minion").SetValue(new Slider(3, 0, 5)));
             menu.SubMenu("Farm").AddItem(new MenuItem("LastHitQQ", "Last hit with Q").SetValue(new KeyBind("A".ToCharArray()[0], KeyBindType.Press)));
             menu.SubMenu("Farm").AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind(menu.Item("LaneClear").GetValue<KeyBind>().Key, KeyBindType.Press)));
 
@@ -495,22 +495,6 @@ namespace OriannaWreckingBalls
             return hit;
         }
 
-
-        //From Common
-        public static MinionManager.FarmLocation GetLineFarmLocation(List<Obj_AI_Base> minionPositions,Vector3 from, float overrideWidth = -1)
-        {
-            var positions = MinionManager.GetMinionsPredictedPositions(
-                minionPositions, Q.Delay, Q.Width, Q.Speed, from, Q.Range, false, SkillshotType.SkillshotLine);
-
-            return GetLineFarmLocation(positions, overrideWidth >= 0 ? overrideWidth : Q.Width);
-        }
-
-        public static MinionManager.FarmLocation GetLineFarmLocation(List<Vector2> minionPositions, float overrideWidth = -1)
-        {
-            return MinionManager.GetBestLineFarmLocation(
-                minionPositions, overrideWidth >= 0 ? overrideWidth : Q.Width, Q.Range);
-        }
-
         public static void lastHit()
         {
             if (!Orbwalking.CanMove(40)) return;
@@ -532,9 +516,10 @@ namespace OriannaWreckingBalls
                         }
                         else if (ballStatus == 1 || ballStatus == 2)
                         {
-                            var prediction = GetLineFarmLocation(allMinions, qpos.Position);
-                            if (prediction.MinionsHit >= 2)
-                                Q.Cast(prediction.Position, true);
+                            var prediction = GetP(qpos.Position, Q, minion, true);
+
+                            if(prediction.Hitchance >= HitChance.High)
+                            Q.Cast(prediction.CastPosition, true);
                         }
                     }
                 }
@@ -550,28 +535,58 @@ namespace OriannaWreckingBalls
 
             var useQ = menu.Item("UseQFarm").GetValue<bool>();
             var useW = menu.Item("UseWFarm").GetValue<bool>();
-            var min = menu.Item("qFarm").GetValue<Slider>().Value;
+            var min = menu.Item("farmQ").GetValue<Slider>().Value;
 
             int hit = 0;
 
             if (useQ && Q.IsReady())
             {
-                if (ballStatus == 0)
+                foreach (var enemy in allMinionsW)
                 {
-                    var qPos = Q.GetLineFarmLocation(allMinionsQ);
+                    if (ballStatus == 0)
+                    {
+                        var prediction = GetP(Player.ServerPosition, Q, enemy, true);
 
-                    if (qPos.MinionsHit >= min)
-                        Q.Cast(qPos.Position, true);
-                }
-                else if (ballStatus == 1 || ballStatus == 2)
-                {
-                    var prediction2 = GetLineFarmLocation(allMinionsQ, qpos.Position);
+                        if (Q.IsReady() && Player.Distance(enemy) <= Q.Range)
+                        {
+                            foreach (var enemy2 in allMinionsW)
+                                {
+                                    if (enemy2.Distance(prediction.CastPosition) < W.Range)
+                                        hit++;
+                                    
+                                }
 
-                    if (prediction2.MinionsHit >= min)
-                        Q.Cast(prediction2.Position, true);
+                                if (hit >= min)
+                                {
+                                    if (prediction.Hitchance >= HitChance.High)
+                                        Q.Cast(prediction.CastPosition, true);
+
+                                }
+                        }
+                    }
+                    else if (ballStatus == 1 || ballStatus == 2)
+                    {
+                        var prediction = GetP(qpos.Position, Q, enemy, true);
+
+                        if (Q.IsReady() && Player.Distance(enemy) <= Q.Range)
+                        {
+                            foreach (var enemy2 in allMinionsW)
+                            {
+                                if (enemy2.Distance(prediction.CastPosition) < W.Range)
+                                    hit++;
+                                    
+                            }
+                            if (hit >= min)
+                            {
+                                if (prediction.Hitchance >= HitChance.High)
+                                Q.Cast(prediction.CastPosition, true);
+                            }
+                        }
+                    }
                 }
             }
 
+            hit = 0;
             if (useW && W.IsReady())
             {
                 foreach (var enemy in allMinionsW)
@@ -588,7 +603,7 @@ namespace OriannaWreckingBalls
                     }
                 }
 
-                if (hit >= 3)
+                if (hit >= min)
                     W.Cast();
             }
         }
