@@ -56,8 +56,8 @@ namespace OriannaWreckingBalls
             E = new Spell(SpellSlot.E, 1095);
             R = new Spell(SpellSlot.R, 300);
 
-            Q.SetSkillshot(0f, 80, 1200, false, SkillshotType.SkillshotLine);
-            E.SetSkillshot(0.25f, 80, 1700, false, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0f, 145, 1200, false, SkillshotType.SkillshotLine);
+            E.SetSkillshot(0.25f, 145, 1700, false, SkillshotType.SkillshotLine);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -349,7 +349,7 @@ namespace OriannaWreckingBalls
             {
                 //on self
                 case 0:
-                    if (Q.IsReady() && Q.GetPrediction(target).Hitchance >= hitC && Player.Distance(target) <= Q.Range)
+                    if (Q.IsReady() && Q.GetPrediction(target).Hitchance >= hitC && Player.Distance(target) <= Q.Range + Q.Width)
                     {
                         Q.Cast(target, true);
                     }
@@ -358,7 +358,7 @@ namespace OriannaWreckingBalls
                 case 1:
                     var prediction = GetP(qpos.Position, Q, target, true);
 
-                    if (Q.IsReady() && prediction.Hitchance >= hitC && Player.Distance(target) <= Q.Range)
+                    if (Q.IsReady() && prediction.Hitchance >= hitC && Player.Distance(target) <= Q.Range + Q.Width)
                     {
                         Q.Cast(prediction.CastPosition, true);
                     }
@@ -367,7 +367,7 @@ namespace OriannaWreckingBalls
                 case 2:
                     var prediction2 = GetP(qpos.Position, Q, target, true);
 
-                    if (Q.IsReady() && prediction2.Hitchance >= hitC && Player.Distance(target) <= Q.Range)
+                    if (Q.IsReady() && prediction2.Hitchance >= hitC && Player.Distance(target) <= Q.Range + Q.Width)
                     {
                         Q.Cast(prediction2.CastPosition, true);
                     }
