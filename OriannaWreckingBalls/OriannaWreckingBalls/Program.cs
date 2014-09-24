@@ -185,16 +185,6 @@ namespace OriannaWreckingBalls
             var eTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
 
-
-            if (useR && rTarget != null && R.IsReady())
-            {
-                if (!(menu.Item("killR").GetValue<bool>()))
-                {
-                    if (GetComboDamage(rTarget) >= rTarget.Health - 100)
-                        castR(rTarget);
-                }
-            }
-
             if (useE && eTarget != null && E.IsReady())
             {
                 castE(eTarget);
@@ -210,6 +200,16 @@ namespace OriannaWreckingBalls
                 castQ(qTarget);
                 return;
             }
+
+            if (useR && rTarget != null && R.IsReady())
+            {
+                if (!(menu.Item("killR").GetValue<bool>()))
+                {
+                    if (GetComboDamage(rTarget) >= rTarget.Health - 100)
+                        castR(rTarget);
+                }
+            }
+
         }
 
         public static void castW(Obj_AI_Base target)
@@ -535,7 +535,7 @@ namespace OriannaWreckingBalls
 
             var useQ = menu.Item("UseQFarm").GetValue<bool>();
             var useW = menu.Item("UseWFarm").GetValue<bool>();
-            var min = menu.Item("farmQ").GetValue<Slider>().Value;
+            var min = menu.Item("qFarm").GetValue<Slider>().Value;
 
             int hit = 0;
 
