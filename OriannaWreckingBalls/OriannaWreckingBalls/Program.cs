@@ -185,22 +185,6 @@ namespace OriannaWreckingBalls
             var rTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
 
 
-            if (useE && eTarget != null && E.IsReady())
-            {
-                castE(eTarget);
-            }
-
-            if (useQ && Q.IsReady())
-            {
-                castQ(qTarget);
-                return;
-            }
-
-            if (useW && wTarget != null && W.IsReady())
-            {
-                castW(wTarget);
-            }
-
             if (useR && rTarget != null && R.IsReady())
             {
                 if (menu.Item("killR").GetValue<bool>())
@@ -212,10 +196,23 @@ namespace OriannaWreckingBalls
                 {
                     castR(rTarget);
                 }
+            }
+
+            if (useE && eTarget != null && E.IsReady())
+            {
+                castE(eTarget);
+            }
+
+            if (useW && wTarget != null && W.IsReady())
+            {
+                castW(wTarget);
+            }
+
+            if (useQ && Q.IsReady())
+            {
+                castQ(qTarget);
                 return;
             }
-            
-
         }
 
         public static void castW(Obj_AI_Base target)
@@ -344,7 +341,7 @@ namespace OriannaWreckingBalls
                         foreach (var ally in ObjectManager.Get<Obj_AI_Hero>())
                         {
 
-                            if (!ally.IsMe && ally.IsAlly && Player.Distance(ally.ServerPosition) <= E.Range && ally != null)
+                            if (ally.IsMe && ally.IsAlly && Player.Distance(ally.ServerPosition) <= E.Range && ally != null)
                             {
                                 var allyRange2 = target.Distance(ally.ServerPosition) / Q.Speed + ally.Distance(qpos.Position) / E.Speed;
 
@@ -352,7 +349,6 @@ namespace OriannaWreckingBalls
                                 {
                                     etarget = ally;
                                     MinTravelTime3 = allyRange2;
-                                    Game.PrintChat("test");
                                 }
                             }
                         }
