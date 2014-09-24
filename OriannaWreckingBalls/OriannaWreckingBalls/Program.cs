@@ -184,6 +184,23 @@ namespace OriannaWreckingBalls
             var eTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
 
+
+            if (useE && eTarget != null && E.IsReady())
+            {
+                castE(eTarget);
+            }
+
+            if (useQ && Q.IsReady())
+            {
+                castQ(qTarget);
+                return;
+            }
+
+            if (useW && wTarget != null && W.IsReady())
+            {
+                castW(wTarget);
+            }
+
             if (useR && rTarget != null && R.IsReady())
             {
                 if (menu.Item("killR").GetValue<bool>())
@@ -197,22 +214,7 @@ namespace OriannaWreckingBalls
                 }
                 return;
             }
-
-            if (useE && eTarget != null && E.IsReady())
-            {
-                castE(eTarget);
-            }
-
-            if (useW && wTarget != null && W.IsReady())
-            {
-                castW(wTarget);
-            }
-
-            if (useQ && Q.IsReady())
-            {
-                castQ(qTarget);
-                return;
-            }
+            
 
         }
 
@@ -296,30 +298,31 @@ namespace OriannaWreckingBalls
             {
 
                 case 0:
-                    var TravelTime = target.Distance(Player.ServerPosition) / Q.Speed;
-                    var MinTravelTime = 10000f;
-                    
-
-                    foreach (var ally in ObjectManager.Get<Obj_AI_Hero>())
+                    if (target != null)
                     {
-                        if (!ally.IsMe && ally.IsAlly && Player.Distance(ally.ServerPosition) <= E.Range)
+                        var TravelTime = target.Distance(Player.ServerPosition) / Q.Speed;
+                        var MinTravelTime = 10000f;
+
+                        foreach (var ally in ObjectManager.Get<Obj_AI_Hero>())
                         {
-                            var allyRange = target.Distance(ally.ServerPosition) / Q.Speed + ally.Distance(Player.ServerPosition) / E.Speed;
-                            if (allyRange < MinTravelTime)
+                            if (!ally.IsMe && ally.IsAlly && Player.Distance(ally.ServerPosition) <= E.Range && ally != null)
                             {
-                                etarget = ally;
-                                MinTravelTime = allyRange;
+                                var allyRange = target.Distance(ally.ServerPosition) / Q.Speed + ally.Distance(Player.ServerPosition) / E.Speed;
+                                if (allyRange < MinTravelTime)
+                                {
+                                    etarget = ally;
+                                    MinTravelTime = allyRange;
+                                }
                             }
                         }
-                    }
 
-                    if (MinTravelTime < TravelTime && Player.Distance(etarget.ServerPosition) <= E.Range)
-                    {
-                        E.CastOnUnit(etarget, true);
-                        Game.PrintChat("test4");
-                        return;
+                        if (MinTravelTime < TravelTime && Player.Distance(etarget.ServerPosition) <= E.Range)
+                        {
+                            E.CastOnUnit(etarget, true);
+                            Game.PrintChat("test4");
+                            return;
+                        }
                     }
-
                     break;
                 case 1:
                     if (qpos != null)
@@ -342,7 +345,7 @@ namespace OriannaWreckingBalls
                         foreach (var ally in ObjectManager.Get<Obj_AI_Hero>())
                         {
 
-                            if (!ally.IsMe && ally.IsAlly && Player.Distance(ally.ServerPosition) <= E.Range)
+                            if (!ally.IsMe && ally.IsAlly && Player.Distance(ally.ServerPosition) <= E.Range && ally != null)
                             {
                                 var allyRange2 = target.Distance(ally.ServerPosition) / Q.Speed + ally.Distance(qpos.Position) / E.Speed;
 
