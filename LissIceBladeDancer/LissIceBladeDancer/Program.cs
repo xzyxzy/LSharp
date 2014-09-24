@@ -49,13 +49,13 @@ namespace LissIceBladeDancer
 
             //intalize spell
             Q = new Spell(SpellSlot.Q, 725);
-            Q2 = new Spell(SpellSlot.Q, 1000);
+            Q2 = new Spell(SpellSlot.Q, 1100);
             W = new Spell(SpellSlot.W, 450);
             E = new Spell(SpellSlot.E, 1050);
             R = new Spell(SpellSlot.R, 700);
 
             Q.SetSkillshot(0.50f, 100, 1300, false, SkillshotType.SkillshotLine);
-            Q2.SetSkillshot(0.50f, 100, 1300, true, SkillshotType.SkillshotLine);
+            Q2.SetSkillshot(0.50f, 150, 1300, true, SkillshotType.SkillshotLine);
             E.SetSkillshot(0.50f, 110, 850, false, SkillshotType.SkillshotLine);
 
             SpellList.Add(Q);
