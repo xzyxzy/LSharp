@@ -460,8 +460,20 @@ namespace OriannaWreckingBalls
                 {
                     if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < DamageLib.getDmg(minion, DamageLib.SpellType.Q) - 10)
                     {
-                        Q.Cast(minion, true);
-                        return;
+                        if (ballStatus == 0)
+                        {
+                            var qPos = Q.GetLineFarmLocation(allMinions);
+
+                            if (qPos.MinionsHit >= 2)
+                            Q.Cast(qPos.Position, true);
+                        }
+                        else if (ballStatus == 1 || ballStatus == 2)
+                        {
+                            var prediction = GetP(qpos.Position, Q, minion, true);
+
+                            if(prediction.Hitchance >= HitChance.High)
+                            Q.Cast(prediction.CastPosition, true);
+                        }
                     }
                 }
             }
@@ -508,11 +520,13 @@ namespace OriannaWreckingBalls
                                 }
                                 if (hit >= 3)
                                 {
+                                    if (prediction.Hitchance >= HitChance.High)
                                     Q.Cast(prediction.CastPosition, true);
                                     W.Cast();
                                 }
                             }
 
+                            if (prediction.Hitchance >= HitChance.High)
                             Q.Cast(prediction.CastPosition, true);
                         }
                     }
