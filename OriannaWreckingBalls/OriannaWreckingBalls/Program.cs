@@ -28,7 +28,6 @@ namespace OriannaWreckingBalls
 
         //ball manager
         public static GameObject qpos;
-        public static bool qcreated = false;
         public static bool IsBallMoving = false;
         public static Vector3 CurrentBallPosition;
         public static int ballStatus = 0;
@@ -56,7 +55,7 @@ namespace OriannaWreckingBalls
             E = new Spell(SpellSlot.E, 1095);
             R = new Spell(SpellSlot.R, 300);
 
-            Q.SetSkillshot(0f, 145, 1200, false, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0f, 145, 1250, false, SkillshotType.SkillshotLine);
             E.SetSkillshot(0.25f, 145, 1700, false, SkillshotType.SkillshotLine);
 
             SpellList.Add(Q);
@@ -185,6 +184,20 @@ namespace OriannaWreckingBalls
             var eTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
 
+            if (useR && rTarget != null && R.IsReady())
+            {
+                if (menu.Item("killR").GetValue<bool>())
+                {
+                    if (GetComboDamage(rTarget) >= rTarget.Health - 100)
+                        castR(rTarget);
+                }
+                else
+                {
+                    castR(rTarget);
+                }
+                return;
+            }
+
             if (useE && eTarget != null && E.IsReady())
             {
                 castE(eTarget);
@@ -198,20 +211,6 @@ namespace OriannaWreckingBalls
             if (useQ && Q.IsReady())
             {
                 castQ(qTarget);
-                return;
-            }
-
-            if (useR && rTarget != null && R.IsReady())
-            {
-                if (menu.Item("killR").GetValue<bool>())
-                {
-                    if (GetComboDamage(rTarget) >= rTarget.Health)
-                    castR(rTarget);
-                }
-                else
-                {
-                    castR(rTarget);
-                }
                 return;
             }
 
@@ -289,23 +288,46 @@ namespace OriannaWreckingBalls
                 E.CastOnUnit(Player, true);
                 return;
             }
-            
+
+
+            var etarget = Player;
+
             switch (ballStatus)
             {
+
                 case 0:
+                    var TravelTime = target.Distance(Player.ServerPosition) / Q.Speed;
+                    var MinTravelTime = 10000f;
+                    
+
                     foreach (var ally in ObjectManager.Get<Obj_AI_Hero>())
                     {
-                        if (target.Distance(ally) < target.Distance(Player.ServerPosition)  && !ally.IsMe  && ally.IsAlly && Player.Distance(ally.ServerPosition) <= E.Range)
+                        if (!ally.IsMe && ally.IsAlly && Player.Distance(ally.ServerPosition) <= E.Range)
                         {
-                            E.CastOnUnit(ally, true);
-                            return;
+                            var allyRange = target.Distance(ally.ServerPosition) / Q.Speed + ally.Distance(Player.ServerPosition) / E.Speed;
+                            if (allyRange < MinTravelTime)
+                            {
+                                etarget = ally;
+                                MinTravelTime = allyRange;
+                            }
                         }
                     }
+
+                    if (MinTravelTime < TravelTime && Player.Distance(etarget.ServerPosition) <= E.Range)
+                    {
+                        E.CastOnUnit(etarget, true);
+                        Game.PrintChat("test4");
+                        return;
+                    }
+
                     break;
                 case 1:
                     if (qpos != null)
                     {
-                        if (target.Distance(Player.ServerPosition) < target.Distance(qpos.Position) && target.Distance(Player.ServerPosition) < Q.Range)
+                        var TravelTime2 = target.Distance(qpos.Position) / Q.Speed;
+                        var MinTravelTime2 = target.Distance(Player.ServerPosition) / Q.Speed + Player.Distance(qpos.Position) / E.Speed;
+
+                         if (MinTravelTime2 < TravelTime2 && target.Distance(Player.ServerPosition) <= Q.Range + Q.Width)
                         {
                             E.CastOnUnit(Player, true);
                         }
@@ -314,13 +336,29 @@ namespace OriannaWreckingBalls
                 case 2:
                     if (qpos != null)
                     {
-                        foreach (var ally in ObjectManager.Get<Obj_AI_Hero>().Where(ally => ally.IsAlly))
+                        var TravelTime3 = target.Distance(qpos.Position) / Q.Speed;
+                        var MinTravelTime3 = 10000f;
+
+                        foreach (var ally in ObjectManager.Get<Obj_AI_Hero>())
                         {
-                            if (ally.Distance(target.ServerPosition) > target.Distance(Player.ServerPosition) && target.Distance(Player.ServerPosition) < Q.Range)
+
+                            if (ally.IsAlly && Player.Distance(ally.ServerPosition) <= E.Range)
                             {
-                               E.CastOnUnit(Player, true);
-                                return;
+                                var allyRange2 = target.Distance(ally.ServerPosition) / Q.Speed + ally.Distance(qpos.Position) / E.Speed;
+
+                                if (allyRange2 < MinTravelTime3)
+                                {
+                                    etarget = ally;
+                                    MinTravelTime3 = allyRange2;
+                                    Game.PrintChat("test");
+                                }
                             }
+                        }
+
+                        if (MinTravelTime3 < TravelTime3 && Player.Distance(etarget.ServerPosition) <= E.Range)
+                        {
+                            E.CastOnUnit(etarget, true);
+                            return;
                         }
                     }
                     break;
@@ -356,20 +394,34 @@ namespace OriannaWreckingBalls
                     break;
                 //on map
                 case 1:
-                    var prediction = GetP(qpos.Position, Q, target, true);
-
-                    if (Q.IsReady() && prediction.Hitchance >= hitC && Player.Distance(target) <= Q.Range + Q.Width)
+                    if (qpos != null)
                     {
-                        Q.Cast(prediction.CastPosition, true);
+                        var prediction = GetP(qpos.Position, Q, target, true);
+
+                        if (Q.IsReady() && prediction.Hitchance >= hitC && Player.Distance(target) <= Q.Range + Q.Width)
+                        {
+                            Q.Cast(prediction.CastPosition, true);
+                        }
+                    }
+                    else
+                    {
+                        ballStatus = 0;
                     }
                     break;
                 //on ally
                 case 2:
-                    var prediction2 = GetP(qpos.Position, Q, target, true);
-
-                    if (Q.IsReady() && prediction2.Hitchance >= hitC && Player.Distance(target) <= Q.Range + Q.Width)
+                    if (qpos != null)
                     {
-                        Q.Cast(prediction2.CastPosition, true);
+                        var prediction2 = GetP(qpos.Position, Q, target, true);
+
+                        if (Q.IsReady() && prediction2.Hitchance >= hitC && Player.Distance(target) <= Q.Range + Q.Width)
+                        {
+                            Q.Cast(prediction2.CastPosition, true);
+                        }
+                    }
+                    else
+                    {
+                        ballStatus = 0;
                     }
                     break;
             }
