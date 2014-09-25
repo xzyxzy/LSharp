@@ -113,6 +113,15 @@ namespace OriannaWreckingBalls
             menu.SubMenu("Misc").AddItem(new MenuItem("autoE", "E If HP < %").SetValue(new Slider(40, 0, 100)));
             //menu.SubMenu("Combo").AddItem(new MenuItem("autoEDmg", "E If HP < %").SetValue(new Slider(2, 0, 5)));
 
+            //Damage after combo:
+            var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
+            Utility.HpBarDamageIndicator.DamageToUnit = GetComboDamage;
+            Utility.HpBarDamageIndicator.Enabled = dmgAfterComboItem.GetValue<bool>();
+            dmgAfterComboItem.ValueChanged += delegate(object sender, OnValueChangeEventArgs eventArgs)
+            {
+                Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
+            };
+
             //Drawings menu:
             menu.AddSubMenu(new Menu("Drawings", "Drawings"));
             menu.SubMenu("Drawings")
@@ -123,6 +132,8 @@ namespace OriannaWreckingBalls
                 .AddItem(new MenuItem("ERange", "E range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
             menu.SubMenu("Drawings")
                 .AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
+            menu.SubMenu("Drawings")
+                .AddItem(dmgAfterComboItem);
             menu.AddToMainMenu();
 
             //Events
@@ -176,17 +187,17 @@ namespace OriannaWreckingBalls
         {
             var damage = 0d;
 
-            if(Q.IsReady())
-            damage += DamageLib.getDmg(enemy, DamageLib.SpellType.Q);
+            if (Q.IsReady())
+                damage += Player.GetSpellDamage(enemy, SpellSlot.Q);
 
             if (W.IsReady())
-            damage += DamageLib.getDmg(enemy, DamageLib.SpellType.W);
+                damage += Player.GetSpellDamage(enemy, SpellSlot.W);
 
             if (E.IsReady())
-                damage += DamageLib.getDmg(enemy, DamageLib.SpellType.E);
+                damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
             if (R.IsReady())
-                damage += DamageLib.getDmg(enemy, DamageLib.SpellType.R);
+                damage += Player.GetSpellDamage(enemy, SpellSlot.R);
 
             return (float)damage;
         }
@@ -564,7 +575,7 @@ namespace OriannaWreckingBalls
             {
                 foreach (var minion in allMinions)
                 {
-                    if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < DamageLib.getDmg(minion, DamageLib.SpellType.Q) - 10)
+                    if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < Player.GetSpellDamage(minion, SpellSlot.Q) - 10)
                     {
                         if (ballStatus == 0)
                         {
