@@ -121,6 +121,15 @@ namespace AniviaTheTacoPhoenix
             menu.SubMenu("Misc").AddItem(new MenuItem("qKS", "Use Q to KS").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("eKS", "Use E to KS").SetValue(true));
 
+            //Damage after combo:
+            var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
+            Utility.HpBarDamageIndicator.DamageToUnit = GetComboDamage;
+            Utility.HpBarDamageIndicator.Enabled = dmgAfterComboItem.GetValue<bool>();
+            dmgAfterComboItem.ValueChanged += delegate(object sender, OnValueChangeEventArgs eventArgs)
+            {
+                Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
+            };
+
             //Drawings menu:
             menu.AddSubMenu(new Menu("Drawings", "Drawings"));
             menu.SubMenu("Drawings")
@@ -131,13 +140,15 @@ namespace AniviaTheTacoPhoenix
                 .AddItem(new MenuItem("ERange", "E range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
             menu.SubMenu("Drawings")
                 .AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
+            menu.SubMenu("Drawings")
+                .AddItem(dmgAfterComboItem);
             menu.AddToMainMenu();
 
             //Events
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
-            Interrupter.OnPosibleToInterrupt += Interrupter_OnPosibleToInterrupt;
+            Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             GameObject.OnCreate += OnCreate;
             GameObject.OnDelete += OnDelete;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
@@ -149,13 +160,16 @@ namespace AniviaTheTacoPhoenix
             var damage = 0d;
 
             if (Q.IsReady())
-                damage += DamageLib.getDmg(enemy, DamageLib.SpellType.Q);
+                damage += Player.GetSpellDamage(enemy, SpellSlot.Q);
+
             if (E.IsReady())
-                damage += DamageLib.getDmg(enemy, DamageLib.SpellType.E) * 2;
+                damage += Player.GetSpellDamage(enemy, SpellSlot.E) * 2;
+
             if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
-                damage += DamageLib.getDmg(enemy, DamageLib.SpellType.IGNITE);
+                damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
+
             if (R.IsReady())
-                damage += DamageLib.getDmg(enemy, DamageLib.SpellType.R);
+                damage += Player.GetSpellDamage(enemy, SpellSlot.E) * 2;
 
             return (float)damage;
         }

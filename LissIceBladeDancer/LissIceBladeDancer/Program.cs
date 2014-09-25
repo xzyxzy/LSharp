@@ -110,6 +110,15 @@ namespace LissIceBladeDancer
             menu.SubMenu("Misc").AddItem(new MenuItem("gapD", "Min Distance").SetValue(new Slider(600, 300, 1050)));
             menu.SubMenu("Misc").AddItem(new MenuItem("MoveToMouse", "MoveToMouse only").SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Toggle)));
 
+            //Damage after combo:
+            var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
+            Utility.HpBarDamageIndicator.DamageToUnit = GetComboDamage;
+            Utility.HpBarDamageIndicator.Enabled = dmgAfterComboItem.GetValue<bool>();
+            dmgAfterComboItem.ValueChanged += delegate(object sender, OnValueChangeEventArgs eventArgs)
+            {
+                Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
+            };
+
             //Drawings menu:
             menu.AddSubMenu(new Menu("Drawings", "Drawings"));
             menu.SubMenu("Drawings")
@@ -120,6 +129,8 @@ namespace LissIceBladeDancer
                 .AddItem(new MenuItem("ERange", "E range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
             menu.SubMenu("Drawings")
                 .AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
+            menu.SubMenu("Drawings")
+                .AddItem(dmgAfterComboItem);
             menu.AddToMainMenu();
 
             //Events
@@ -137,17 +148,17 @@ namespace LissIceBladeDancer
         {
             var damage = 0d;
 
-            //if(Q.IsReady())
-            damage += DamageLib.getDmg(enemy, DamageLib.SpellType.Q);
+            if(Q.IsReady())
+                damage += Player.GetSpellDamage(enemy, SpellSlot.Q);
 
-            //if (W.IsReady())
-            damage += DamageLib.getDmg(enemy, DamageLib.SpellType.W);
+            if (W.IsReady())
+                damage += Player.GetSpellDamage(enemy, SpellSlot.W);
 
             if (E.IsReady())
-                damage += DamageLib.getDmg(enemy, DamageLib.SpellType.E);
+                damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
             if (R.IsReady())
-                damage += DamageLib.getDmg(enemy, DamageLib.SpellType.R);
+                damage += Player.GetSpellDamage(enemy, SpellSlot.R);
 
             return (float)damage;
         }

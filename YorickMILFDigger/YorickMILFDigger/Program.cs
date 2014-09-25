@@ -108,7 +108,16 @@ namespace YorickMILFDigger
                 menu.SubMenu("Misc")
                     .SubMenu("DontUlt")
                     .AddItem(new MenuItem("DontUlt" + myTeam.BaseSkinName, myTeam.BaseSkinName).SetValue(false));
-            
+
+
+            //Damage after combo:
+            var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
+            Utility.HpBarDamageIndicator.DamageToUnit = GetComboDamage;
+            Utility.HpBarDamageIndicator.Enabled = dmgAfterComboItem.GetValue<bool>();
+            dmgAfterComboItem.ValueChanged += delegate(object sender, OnValueChangeEventArgs eventArgs)
+            {
+                Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
+            };
 
             //Drawings menu:
             menu.AddSubMenu(new Menu("Drawings", "Drawings"));
@@ -120,6 +129,8 @@ namespace YorickMILFDigger
                 .AddItem(new MenuItem("ERange", "E range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
             menu.SubMenu("Drawings")
                 .AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
+            menu.SubMenu("Drawings")
+                .AddItem(dmgAfterComboItem);
             menu.AddToMainMenu();
 
             //Events
@@ -135,16 +146,16 @@ namespace YorickMILFDigger
             var damage = 0d;
 
             if (Q.IsReady())
-                damage += DamageLib.getDmg(enemy, DamageLib.SpellType.Q);
+                damage += Player.GetSpellDamage(enemy, SpellSlot.Q);
 
             if (W.IsReady())
-                damage += DamageLib.getDmg(enemy, DamageLib.SpellType.W);
+                damage += Player.GetSpellDamage(enemy, SpellSlot.W);
 
             if (E.IsReady())
-                damage += DamageLib.getDmg(enemy, DamageLib.SpellType.E);
+                damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
             if (R.IsReady())
-                damage += DamageLib.getDmg(enemy, DamageLib.SpellType.R);
+                damage += Player.GetSpellDamage(enemy, SpellSlot.R);
 
             return (float)damage;
         }
