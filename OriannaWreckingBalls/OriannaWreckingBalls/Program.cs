@@ -55,7 +55,7 @@ namespace OriannaWreckingBalls
             E = new Spell(SpellSlot.E, 1095);
             R = new Spell(SpellSlot.R, 300);
 
-            Q.SetSkillshot(0f, 145, 1250, false, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0f, 135, 1150, false, SkillshotType.SkillshotLine);
             W.SetSkillshot(0.25f, 245, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.25f, 145, 1700, false, SkillshotType.SkillshotLine);
             R.SetSkillshot(0.60f, 350, float.MaxValue, false, SkillshotType.SkillshotCircle);
@@ -160,7 +160,7 @@ namespace OriannaWreckingBalls
                 Range = spell.Range,
                 Collision = spell.Collision,
                 Type = spell.Type,
-                RangeCheckFrom = pos,
+                RangeCheckFrom = Player.ServerPosition,
                 Aoe = aoe,
             });
         }
@@ -178,7 +178,7 @@ namespace OriannaWreckingBalls
                 Range = float.MaxValue,
                 Collision = spell.Collision,
                 Type = spell.Type,
-                RangeCheckFrom = pos,
+                RangeCheckFrom = Player.ServerPosition,
                 Aoe = aoe,
             });
         }
