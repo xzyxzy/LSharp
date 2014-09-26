@@ -149,20 +149,7 @@ namespace ViktorTheMindBlower
 
         public static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (sender.IsMe)
-            {
-                // Ult casting
-                if (args.SData.Name == "ViktorChaosStorm")
-                {
-                    ;
-                }
-                // Ult moving
-                else if (args.SData.Name == "viktorchaosstormguide")
-                {
-                    ;
-                }
-                
-            }
+
         }
 
         private static float GetComboDamage(Obj_AI_Base enemy)
