@@ -97,8 +97,8 @@ namespace Vladionic
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use W Against Gap Closer").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("useR_Hit", "Use R if hit").SetValue(new Slider(2, 5, 0)));
             menu.SubMenu("Misc").AddItem(new MenuItem("StackE", "StackE (toggle)!").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("useR_Hit", "Use R if hit").SetValue(new Slider(2, 5, 0)));
             menu.SubMenu("Misc").AddItem(new MenuItem("MoveToMouse", "MoveToMouse only").SetValue(new KeyBind("n".ToCharArray()[0], KeyBindType.Toggle)));
 
             //Damage after combo:
@@ -221,12 +221,11 @@ namespace Vladionic
                 return;
             }
 
-            RMec();
-
             Orbwalker.SetAttacks(true);
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
+                RMec();
                 Combo();
             }
             else
