@@ -51,7 +51,7 @@ namespace ViktorTheMindBlower
             E2 = new Spell(SpellSlot.E, 700);
             R = new Spell(SpellSlot.R, 700);
 
-            Q.SetTargetted(0.25f, 2000);
+            //Q.SetTargetted(0.25f, 2000);
             W.SetSkillshot(2.0f, 300, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.0f, 90, 1100, false, SkillshotType.SkillshotLine);
             E2.SetSkillshot(0.0f, 90, 1100, false, SkillshotType.SkillshotLine);
@@ -104,6 +104,7 @@ namespace ViktorTheMindBlower
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("wMulti", "W only Multitarget").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("useW_Hit", "Auto W if hit In Combo").SetValue(new Slider(2, 5, 0)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("rAlways", "Ult Always Combo").SetValue(new KeyBind("K".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Misc").AddItem(new MenuItem("useR_Hit", "Auto R if hit In Combo").SetValue(new Slider(2, 5, 0)));
             menu.SubMenu("Misc").AddItem(new MenuItem("MoveToMouse", "MoveToMouse only").SetValue(new KeyBind("n".ToCharArray()[0], KeyBindType.Toggle)));
             //Damage after combo:
@@ -124,7 +125,10 @@ namespace ViktorTheMindBlower
             menu.SubMenu("Drawings")
                 .AddItem(new MenuItem("ERange", "E range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
             menu.SubMenu("Drawings")
+                .AddItem(new MenuItem("E2Range", "Extended range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
+            menu.SubMenu("Drawings")
                 .AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
+
             menu.SubMenu("Drawings")
                 .AddItem(dmgAfterComboItem);
             menu.AddToMainMenu();
@@ -182,7 +186,7 @@ namespace ViktorTheMindBlower
                 return;
             }
 
-            if (useR && rTarget != null && R.IsReady() && GetComboDamage(rTarget) > qTarget.Health && Player.Distance(rTarget) <= R.Range)
+            if (useR && rTarget != null && R.IsReady() && (GetComboDamage(rTarget) > qTarget.Health || menu.Item("rAlways").GetValue<KeyBind>().Active) && Player.Distance(rTarget) <= R.Range)
             {
                 R.Cast(rTarget);
                 return;
@@ -221,7 +225,7 @@ namespace ViktorTheMindBlower
         private static void Harass()
         {
             Orbwalker.SetAttacks(!(menu.Item("MoveToMouse").GetValue<KeyBind>().Active));
-            UseSpells(menu.Item("UseQHarass").GetValue<bool>(), menu.Item("UseWHarass").GetValue<bool>(),
+            UseSpells(menu.Item("UseQHarass").GetValue<bool>(), false,
                 menu.Item("UseEHarass").GetValue<bool>(), false);
         }
 
@@ -242,14 +246,14 @@ namespace ViktorTheMindBlower
             }
             else
             {
-                if (menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
-                    Harass();
-
                 if (menu.Item("LastHitQQ").GetValue<KeyBind>().Active)
                     lastHit();
 
                 if (menu.Item("LaneClearActive").GetValue<KeyBind>().Active)
                     Farm();
+
+                if (menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
+                    Harass();
 
             }
         }
@@ -419,6 +423,10 @@ namespace ViktorTheMindBlower
                 var menuItem = menu.Item(spell.Slot + "Range").GetValue<Circle>();
                 if (menuItem.Active)
                     Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
+
+                var menu2 = menu.Item("E2Range").GetValue<Circle>();
+                if (menu2.Active)
+                    Utility.DrawCircle(Player.Position, 1200, menuItem.Color);
             }
 
         }
