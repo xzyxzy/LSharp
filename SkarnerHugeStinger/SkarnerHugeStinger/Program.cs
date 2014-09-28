@@ -189,7 +189,7 @@ namespace SkarnerHugeStinger
             var hp = menu.Item("autoW").GetValue<Slider>().Value;
             var hpPercent = Player.Health / Player.MaxHealth * 100;
 
-            if (Player.Distance(wTarget) >= W.Range && menu.Item("UseGap").GetValue<bool>() && Player.Distance(wTarget) <= 1200)
+            if (Player.Distance(wTarget) >= W.Range && menu.Item("UseGap").GetValue<bool>() && Player.Distance(wTarget) <= 1000)
             {
                 W.Cast();
             }
