@@ -96,6 +96,8 @@ namespace SkarnerHugeStinger
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use W To gap Close").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("towerR", "Auto R enemy under tower").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("toggleR", "Force R Toggle").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoW", "W If HP < %").SetValue(new Slider(40, 0, 100)));
 
             //Damage after combo:
@@ -207,6 +209,11 @@ namespace SkarnerHugeStinger
             {
                 R.CastOnUnit(target, true);
             }
+
+            if (menu.Item("forceR").GetValue<KeyBind>().Active)
+            {
+                R.CastOnUnit(target, true);
+            }
         }
         private static void Harass()
         {
@@ -223,7 +230,10 @@ namespace SkarnerHugeStinger
                     {
                         if (turret != null && turret.IsValid && turret.IsAlly && turret.Health > 0)
                         {
-                            //turret.IsAutoAttacking.
+                            if (Vector2.Distance(enemy.Position.To2D(), turret.Position.To2D()) < 950)
+                            {
+                                R.CastOnUnit(enemy, true);
+                            }
                         }
                     }
                 }
@@ -235,7 +245,10 @@ namespace SkarnerHugeStinger
             //check if player is dead
             if (Player.IsDead) return;
 
-            //Orbwalker.SetAttacks(true);
+            Orbwalker.SetAttacks(true);
+
+            if (menu.Item("towerR").GetValue<bool>())
+                checkUnderTower();
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
