@@ -111,6 +111,7 @@ namespace OriannaWreckingBalls
             menu.SubMenu("Misc").AddItem(new MenuItem("killR", "R Multi Only Toggle").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoR", "Use R if hit").SetValue(new Slider(3, 0, 5)));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoE", "E If HP < %").SetValue(new Slider(40, 0, 100)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("overK", "OverKill Check").SetValue(true));
             //menu.SubMenu("Combo").AddItem(new MenuItem("autoEDmg", "E If HP < %").SetValue(new Slider(2, 0, 5)));
 
             //Damage after combo:
@@ -187,7 +188,7 @@ namespace OriannaWreckingBalls
         {
             var damage = 0d;
 
-            if (Q.IsReady())
+            //if (Q.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.Q);
 
             if (W.IsReady())
@@ -236,8 +237,16 @@ namespace OriannaWreckingBalls
             {
                 if (!(menu.Item("killR").GetValue<KeyBind>().Active))
                 {
-                    if (GetComboDamage(rTarget) >= rTarget.Health - 100)
-                        castR(rTarget);
+                    if (menu.Item("overK").GetValue<bool>())
+                    {
+                        if ((Player.GetSpellDamage(rTarget, SpellSlot.R)) >= rTarget.Health)
+                            return;
+                    }
+                    else
+                    {
+                        if (GetComboDamage(rTarget) >= rTarget.Health - 100)
+                            castR(rTarget);
+                    }
                 }
             }
 
@@ -306,7 +315,7 @@ namespace OriannaWreckingBalls
                 case 2:
                     var prediction3 = GetPCircle(qpos.Position, R, target, true);
 
-                    if (R.IsReady() && target.Distance(qpos.Position) <= R.Width && prediction3.CastPosition.Distance(qpos.Position) <= R.Width && prediction3.Hitchance >= HitChance.Medium)
+                    if (R.IsReady() && target.Distance(qpos.Position) <= R.Width && prediction3.CastPosition.Distance(qpos.Position) <= R.Width && prediction3.Hitchance >= HitChance.High)
                     {
                         R.Cast(prediction3.CastPosition, true);
                     }
