@@ -82,7 +82,7 @@ namespace OriannaWreckingBalls
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("qHit", "Q HitChance").SetValue(new Slider(3, 1, 3)));
+            menu.SubMenu("Combo").AddItem(new MenuItem("qHit", "Q HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
@@ -91,6 +91,7 @@ namespace OriannaWreckingBalls
             //Harass menu:
             menu.AddSubMenu(new Menu("Harass", "Harass"));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Use Q").SetValue(true));
+            menu.SubMenu("Harass").AddItem(new MenuItem("qHit2", "Q HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Use W").SetValue(false));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
             menu.SubMenu("Harass").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Farm").GetValue<KeyBind>().Key, KeyBindType.Press)));
@@ -111,6 +112,7 @@ namespace OriannaWreckingBalls
             menu.SubMenu("Misc").AddItem(new MenuItem("killR", "R Multi Only Toggle").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoR", "Use R if hit").SetValue(new Slider(3, 0, 5)));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoE", "E If HP < %").SetValue(new Slider(40, 0, 100)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("blockR", "Block R if no enemy").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("overK", "OverKill Check").SetValue(true));
             //menu.SubMenu("Combo").AddItem(new MenuItem("autoEDmg", "E If HP < %").SetValue(new Slider(2, 0, 5)));
 
@@ -207,10 +209,10 @@ namespace OriannaWreckingBalls
         {
             //Orbwalker.SetAttacks(!(Q.IsReady()));
             UseSpells(menu.Item("UseQCombo").GetValue<bool>(), menu.Item("UseWCombo").GetValue<bool>(),
-                menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>());
+                menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>(), "Combo");
         }
 
-        private static void UseSpells(bool useQ, bool useW, bool useE, bool useR)
+        private static void UseSpells(bool useQ, bool useW, bool useE, bool useR, String source)
         {
             var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
             var wTarget = SimpleTs.GetTarget(2000, SimpleTs.DamageType.Magical);
@@ -229,7 +231,7 @@ namespace OriannaWreckingBalls
 
             if (useQ && Q.IsReady())
             {
-                castQ(qTarget);
+                castQ(qTarget, source);
                 return;
             }
 
@@ -412,22 +414,47 @@ namespace OriannaWreckingBalls
             }
         }
 
-        public static void castQ(Obj_AI_Base target)
+        public static void castQ(Obj_AI_Base target, String Source)
         {
             if (IsBallMoving) return;
 
-            var qHit = menu.Item("qHit").GetValue<Slider>().Value;
             var hitC = HitChance.High;
+            var qHit = menu.Item("qHit").GetValue<Slider>().Value;
+            var harassQHit = menu.Item("qHit2").GetValue<Slider>().Value;
 
-            if (qHit == 1)
+            // HitChance.Low = 3, Medium , High .... etc..
+            if (Source == "Combo")
             {
-                hitC = HitChance.Low;
+                switch (qHit)
+                {
+                    case 1:
+                        hitC = HitChance.Low;
+                        break;
+                    case 2:
+                        hitC = HitChance.Medium;
+                        break;
+                    case 3:
+                        hitC = HitChance.High;
+                        break;
+                }
             }
-            else if (qHit == 2)
+            else if (Source == "Harass")
             {
-                hitC = HitChance.Medium;
-            }else if(qHit == 3){
-                hitC = HitChance.High;
+                switch (harassQHit)
+                {
+                    case 1:
+                        hitC = HitChance.Low;
+                        break;
+                    case 2:
+                        hitC = HitChance.Medium;
+                        break;
+                    case 3:
+                        hitC = HitChance.High;
+                        break;
+                    case 4:
+                        hitC = HitChance.VeryHigh;
+                        break;
+                }
             }
 
             switch (ballStatus)
@@ -689,7 +716,7 @@ namespace OriannaWreckingBalls
         private static void Harass()
         {
             UseSpells(menu.Item("UseQHarass").GetValue<bool>(), menu.Item("UseWHarass").GetValue<bool>(),
-                menu.Item("UseEHarass").GetValue<bool>(), false);
+                menu.Item("UseEHarass").GetValue<bool>(), false, "Harass");
         }
 
         private static void Drawing_OnDraw(EventArgs args)
@@ -818,7 +845,7 @@ namespace OriannaWreckingBalls
                 var decodedPacket = Packet.C2S.Cast.Decoded(args.PacketData);
                 if (decodedPacket.Slot == SpellSlot.R)
                 {
-                    if (countR() == 0)
+                    if (countR() == 0 && menu.Item("blockR").GetValue<bool>())
                     {
                         //Block packet if enemies hit is 0
                         args.Process = false;
