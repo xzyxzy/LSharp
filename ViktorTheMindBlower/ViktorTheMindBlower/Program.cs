@@ -54,8 +54,8 @@ namespace ViktorTheMindBlower
 
             //Q.SetTargetted(0.25f, 2000);
             W.SetSkillshot(2.0f, 300, float.MaxValue, false, SkillshotType.SkillshotCircle);
-            E.SetSkillshot(0.0f, 90, 1100, false, SkillshotType.SkillshotLine);
-            E2.SetSkillshot(0.0f, 90, 1100, false, SkillshotType.SkillshotLine);
+            E.SetSkillshot(0.0f, 90, 1000, false, SkillshotType.SkillshotLine);
+            E2.SetSkillshot(0.0f, 90, 1000, false, SkillshotType.SkillshotLine);
             R.SetSkillshot(0.25f, 325, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
@@ -83,6 +83,7 @@ namespace ViktorTheMindBlower
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("eHit", "E HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Orbwalk").GetValue<KeyBind>().Key, KeyBindType.Press)));
 
@@ -90,6 +91,7 @@ namespace ViktorTheMindBlower
             menu.AddSubMenu(new Menu("Harass", "Harass"));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Use Q").SetValue(true));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
+            menu.SubMenu("Harass").AddItem(new MenuItem("eHit2", "E HitChance").SetValue(new Slider(4, 1, 4)));
             menu.SubMenu("Harass").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Farm").GetValue<KeyBind>().Key, KeyBindType.Press)));
             menu.SubMenu("Harass").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
 
@@ -149,7 +151,7 @@ namespace ViktorTheMindBlower
 
             if (Player.Distance(unit) < R.Range)
             {
-                R.Cast(unit);
+                R.Cast(unit.ServerPosition, true);
             }
         }
 
@@ -177,7 +179,7 @@ namespace ViktorTheMindBlower
             return (float)damage;
         }
 
-        private static void UseSpells(bool useQ, bool useW, bool useE, bool useR)
+        private static void UseSpells(bool useQ, bool useW, bool useE, bool useR, String Source)
         {
             var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
@@ -193,14 +195,15 @@ namespace ViktorTheMindBlower
 
             
 
-            if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range && (!(menu.Item("wMulti").GetValue<bool>()) || GetComboDamage(wTarget) > wTarget.Health))
+            if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range && W.GetPrediction(wTarget).Hitchance >= HitChance.VeryHigh
+                && (!(menu.Item("wMulti").GetValue<bool>()) || GetComboDamage(wTarget) > wTarget.Health))
             {
                 W.Cast(wTarget, true);
             }
 
             if (useR && rTarget != null && R.IsReady() && (GetComboDamage(rTarget) > qTarget.Health || menu.Item("rAlways").GetValue<KeyBind>().Active) && Player.Distance(rTarget) <= R.Range && !activeR)
             {
-                R.Cast(rTarget);
+                R.Cast(rTarget.ServerPosition, true);
             }
 
             if (useE && E.IsReady())
@@ -208,12 +211,12 @@ namespace ViktorTheMindBlower
 
                 if (Player.Distance(eTarget2.ServerPosition) <= 1200 && Player.Distance(eTarget2.ServerPosition) > E.Range && eTarget2 != null)
                 {
-                    eCalc2();
+                    eCalc2(Source);
                     return;
                 }
                 else if (eTarget.Distance(Player.ServerPosition) <= E.Range && eTarget != null)
                 {
-                    eCalc(eTarget);
+                    eCalc(eTarget, Source);
                     return;
                 }
             }
@@ -230,14 +233,14 @@ namespace ViktorTheMindBlower
         {
             Orbwalker.SetAttacks(!(Q.IsReady() || (E.IsReady()) || menu.Item("MoveToMouse").GetValue<KeyBind>().Active));
             UseSpells(menu.Item("UseQCombo").GetValue<bool>(), menu.Item("UseWCombo").GetValue<bool>(),
-                menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>());
+                menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>(), "Combo");
         }
 
         private static void Harass()
         {
             Orbwalker.SetAttacks(!(menu.Item("MoveToMouse").GetValue<KeyBind>().Active));
             UseSpells(menu.Item("UseQHarass").GetValue<bool>(), false,
-                menu.Item("UseEHarass").GetValue<bool>(), false);
+                menu.Item("UseEHarass").GetValue<bool>(), false, "Harass");
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
@@ -314,8 +317,50 @@ namespace ViktorTheMindBlower
             Packet.C2S.Cast.Encoded(new Packet.C2S.Cast.Struct(0, SpellSlot.E, -1, source.X, source.Y, destination.X, destination.Y)).Send();
         }
 
-        public static void eCalc(Obj_AI_Hero eTarget)
+        public static void eCalc(Obj_AI_Hero eTarget, String Source)
         {
+            var hitC = HitChance.High;
+            var qHit = menu.Item("eHit").GetValue<Slider>().Value;
+            var harassQHit = menu.Item("eHit2").GetValue<Slider>().Value;
+
+            // HitChance.Low = 3, Medium , High .... etc..
+            if (Source == "Combo")
+            {
+                switch (qHit)
+                {
+                    case 1:
+                        hitC = HitChance.Low;
+                        break;
+                    case 2:
+                        hitC = HitChance.Medium;
+                        break;
+                    case 3:
+                        hitC = HitChance.High;
+                        break;
+                    case 4:
+                        hitC = HitChance.VeryHigh;
+                        break;
+                }
+            }
+            else if (Source == "Harass")
+            {
+                switch (harassQHit)
+                {
+                    case 1:
+                        hitC = HitChance.Low;
+                        break;
+                    case 2:
+                        hitC = HitChance.Medium;
+                        break;
+                    case 3:
+                        hitC = HitChance.High;
+                        break;
+                    case 4:
+                        hitC = HitChance.VeryHigh;
+                        break;
+                }
+            }
+
             //case where target is in range of E
             if (Player.Distance(eTarget.ServerPosition) <= E.Range && eTarget != null)
             {
@@ -327,7 +372,7 @@ namespace ViktorTheMindBlower
                         {
                             var pred = GetP(eTarget.ServerPosition, E2, enemy, true);
 
-                            if (pred.Hitchance >= HitChance.High)
+                            if (pred.Hitchance >= hitC)
                             {
                                 castE(eTarget.ServerPosition, pred.CastPosition);
                                 return;
@@ -341,7 +386,7 @@ namespace ViktorTheMindBlower
 
                 var pred2 = GetP(midPos, E2, eTarget, true);
 
-                if (pred2.Hitchance >= HitChance.High)
+                if (pred2.Hitchance >= hitC)
                 {
                     castE(midPos, pred2.CastPosition);
                     return;
@@ -349,8 +394,50 @@ namespace ViktorTheMindBlower
             }
         }
 
-        public static void eCalc2()
+        public static void eCalc2(String Source)
         {
+            var hitC = HitChance.High;
+            var qHit = menu.Item("eHit").GetValue<Slider>().Value;
+            var harassQHit = menu.Item("eHit2").GetValue<Slider>().Value;
+
+            // HitChance.Low = 3, Medium , High .... etc..
+            if (Source == "Combo")
+            {
+                switch (qHit)
+                {
+                    case 1:
+                        hitC = HitChance.Low;
+                        break;
+                    case 2:
+                        hitC = HitChance.Medium;
+                        break;
+                    case 3:
+                        hitC = HitChance.High;
+                        break;
+                    case 4:
+                        hitC = HitChance.VeryHigh;
+                        break;
+                }
+            }
+            else if (Source == "Harass")
+            {
+                switch (harassQHit)
+                {
+                    case 1:
+                        hitC = HitChance.Low;
+                        break;
+                    case 2:
+                        hitC = HitChance.Medium;
+                        break;
+                    case 3:
+                        hitC = HitChance.High;
+                        break;
+                    case 4:
+                        hitC = HitChance.VeryHigh;
+                        break;
+                }
+            }
+
             var eTarget2 = SimpleTs.GetTarget(1200, SimpleTs.DamageType.Magical);
 
             if (eTarget2 != null && Player.Distance(eTarget2) <= 1200)
@@ -359,7 +446,7 @@ namespace ViktorTheMindBlower
                 Vector3 startPos = Player.Position + Vector3.Normalize(eTarget2.ServerPosition - Player.Position) * E.Range;
                 var pred = GetP(startPos, E2, eTarget2, true);
 
-                if (pred.Hitchance >= HitChance.High)
+                if (pred.Hitchance >= hitC)
                 {
                     castE(startPos, pred.CastPosition);
                     return;
