@@ -436,6 +436,9 @@ namespace OriannaWreckingBalls
                     case 3:
                         hitC = HitChance.High;
                         break;
+                    case 4:
+                        hitC = HitChance.VeryHigh;
+                        break;
                 }
             }
             else if (Source == "Harass")
