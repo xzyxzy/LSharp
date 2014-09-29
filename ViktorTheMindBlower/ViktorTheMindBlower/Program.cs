@@ -26,6 +26,7 @@ namespace ViktorTheMindBlower
         public static Spell E;
         public static Spell E2;
         public static Spell R;
+        public static bool activeR = false;
 
         //Menu
         public static Menu menu;
@@ -102,6 +103,7 @@ namespace ViktorTheMindBlower
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("autoAtk", "AA after Q in Range").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("wMulti", "W only Multitarget").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("useW_Hit", "Auto W if hit In Combo").SetValue(new Slider(2, 5, 0)));
             menu.SubMenu("Misc").AddItem(new MenuItem("rAlways", "Ult Always Combo").SetValue(new KeyBind("K".ToCharArray()[0], KeyBindType.Toggle)));
@@ -137,7 +139,7 @@ namespace ViktorTheMindBlower
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
-            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+            Orbwalking.AfterAttack += AfterAttack;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
@@ -151,9 +153,12 @@ namespace ViktorTheMindBlower
             }
         }
 
-        public static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        public static void AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
         {
-
+            if (unit.IsMe)
+            {
+                Orbwalking.ResetAutoAttackTimer();
+            }
         }
 
         private static float GetComboDamage(Obj_AI_Base enemy)
@@ -180,16 +185,22 @@ namespace ViktorTheMindBlower
             var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
+            foreach (var buffs in Player.Buffs)
+            {
+                if (buffs.Name == "ViktorPowerTransfer" && menu.Item("autoAtk").GetValue<bool>() && Player.Distance(qTarget) <= 525)
+                    return;
+            }
+
+            
+
             if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range && (!(menu.Item("wMulti").GetValue<bool>()) || GetComboDamage(wTarget) > wTarget.Health))
             {
                 W.Cast(wTarget, true);
-                return;
             }
 
-            if (useR && rTarget != null && R.IsReady() && (GetComboDamage(rTarget) > qTarget.Health || menu.Item("rAlways").GetValue<KeyBind>().Active) && Player.Distance(rTarget) <= R.Range)
+            if (useR && rTarget != null && R.IsReady() && (GetComboDamage(rTarget) > qTarget.Health || menu.Item("rAlways").GetValue<KeyBind>().Active) && Player.Distance(rTarget) <= R.Range && !activeR)
             {
                 R.Cast(rTarget);
-                return;
             }
 
             if (useE && E.IsReady())
@@ -236,8 +247,8 @@ namespace ViktorTheMindBlower
 
             Orbwalker.SetAttacks(true);
 
-            
 
+            autoR();
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 mecR();
@@ -255,6 +266,23 @@ namespace ViktorTheMindBlower
                 if (menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
                     Harass();
 
+            }
+            
+        }
+
+        public static void autoR()
+        {
+            if (Player.HasBuff("ViktorStormTimer"))
+            {
+                var rTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
+                activeR = true;
+
+                R.Cast(rTarget.ServerPosition, true);
+            }
+
+            if (!Player.HasBuff("ViktorStormTimer"))
+            {
+                activeR = false;
             }
         }
 
@@ -391,7 +419,7 @@ namespace ViktorTheMindBlower
         {
             if (!Orbwalking.CanMove(40)) return;
 
-            var MinionsE = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range + E.Width, MinionTypes.All);
+            var MinionsE = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range + E.Width, MinionTypes.All, MinionTeam.NotAlly);
             var allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range + Q.Width, MinionTypes.All, MinionTeam.NotAlly);
 
             var useQ = menu.Item("UseQFarm").GetValue<bool>();
