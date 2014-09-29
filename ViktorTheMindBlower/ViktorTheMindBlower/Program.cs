@@ -55,7 +55,7 @@ namespace ViktorTheMindBlower
             //Q.SetTargetted(0.25f, 2000);
             W.SetSkillshot(2.0f, 300, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.0f, 90, 1000, false, SkillshotType.SkillshotLine);
-            E2.SetSkillshot(0.0f, 100, 1000, false, SkillshotType.SkillshotLine);
+            E2.SetSkillshot(0.0f, 90, 1000, false, SkillshotType.SkillshotLine);
             R.SetSkillshot(0.5f, 325, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
