@@ -82,6 +82,9 @@ namespace ViktorTheMindBlower
             menu.AddSubMenu(new Menu("Combo", "Combo"));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("wSlow", "Auto W Slow").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("wImmobile", "Auto W Immobile").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("wDashing", "Auto W Dashing").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("eHit", "E HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
@@ -198,8 +201,13 @@ namespace ViktorTheMindBlower
                 }
             }
 
-            if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range && W.GetPrediction(wTarget).Hitchance >= HitChance.VeryHigh
-                && (!(menu.Item("wMulti").GetValue<bool>()) || GetComboDamage(wTarget) > wTarget.Health))
+            var immobile = menu.Item("wSlow").GetValue<bool>();
+            var slow = menu.Item("wImmobile").GetValue<bool>();
+            var dashing = menu.Item("wImmobile").GetValue<bool>();
+
+            if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range
+                && (!(menu.Item("wMulti").GetValue<bool>()) || GetComboDamage(wTarget) >= wTarget.Health || W.GetPrediction(wTarget).Hitchance == HitChance.Immobile && immobile ||
+                wTarget.HasBuffOfType(BuffType.Slow) && slow || W.GetPrediction(wTarget).Hitchance == HitChance.Dashing && dashing))
             {
                 W.Cast(wTarget, true);
             }
