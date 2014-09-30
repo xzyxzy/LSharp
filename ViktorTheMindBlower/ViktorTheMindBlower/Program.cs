@@ -22,6 +22,7 @@ namespace ViktorTheMindBlower
         public static List<Spell> SpellList = new List<Spell>();
 
         public static Spell Q;
+        public static bool chargeQ;
         public static Spell W;
         public static Spell E;
         public static Spell E2;
@@ -39,7 +40,6 @@ namespace ViktorTheMindBlower
 
         private static void Game_OnGameLoad(EventArgs args)
         {
-            //Thanks to Esk0r
             Player = ObjectManager.Player;
 
             //check to see if correct champ
@@ -56,7 +56,7 @@ namespace ViktorTheMindBlower
             W.SetSkillshot(2.0f, 300, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.0f, 90, 1000, false, SkillshotType.SkillshotLine);
             E2.SetSkillshot(0.0f, 90, 1000, false, SkillshotType.SkillshotLine);
-            R.SetSkillshot(0.5f, 325, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            R.SetSkillshot(0.25f, 250, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -157,10 +157,12 @@ namespace ViktorTheMindBlower
 
         public static void AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
         {
-            if (unit.IsMe)
+            if (unit.IsMe && chargeQ)
             {
                 Orbwalking.ResetAutoAttackTimer();
             }
+
+            chargeQ = false;
         }
 
         private static float GetComboDamage(Obj_AI_Base enemy)
@@ -190,10 +192,11 @@ namespace ViktorTheMindBlower
             foreach (var buffs in Player.Buffs)
             {
                 if (buffs.Name == "ViktorPowerTransfer" && menu.Item("autoAtk").GetValue<bool>() && Player.Distance(qTarget) <= 525)
+                {
+                    chargeQ = true;
                     return;
+                }
             }
-
-            
 
             if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range && W.GetPrediction(wTarget).Hitchance >= HitChance.VeryHigh
                 && (!(menu.Item("wMulti").GetValue<bool>()) || GetComboDamage(wTarget) > wTarget.Health))
@@ -275,17 +278,17 @@ namespace ViktorTheMindBlower
 
         public static void autoR()
         {
+            if (!Player.HasBuff("ViktorStormTimer"))
+            {
+                activeR = false;
+            }
+
             if (Player.HasBuff("ViktorStormTimer"))
             {
                 var rTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
                 activeR = true;
 
-                R.Cast(rTarget.ServerPosition, true);
-            }
-
-            if (!Player.HasBuff("ViktorStormTimer"))
-            {
-                activeR = false;
+                R.Cast(rTarget, true);
             }
         }
 
