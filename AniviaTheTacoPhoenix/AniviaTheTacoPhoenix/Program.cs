@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -258,12 +258,12 @@ namespace AniviaTheTacoPhoenix
             var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
 
-            if (useE && eTarget != null && E.IsReady() && DamageLib.getDmg(eTarget, DamageLib.SpellType.E) >= eTarget.Health && Player.Distance(eTarget) <= E.Range)
+            if (useE && eTarget != null && E.IsReady() && Damage.GetSpellDamage(Player, eTarget, SpellSlot.E) >= eTarget.Health && Player.Distance(eTarget) <= E.Range)
             {
                 E.CastOnUnit(eTarget, true);
             }
 
-            if (useQ && qTarget != null && Q.IsReady() && Q.GetPrediction(qTarget).Hitchance >= HitChance.High && !qcreated && DamageLib.getDmg(qTarget, DamageLib.SpellType.Q) >= qTarget.Health 
+            if (useQ && qTarget != null && Q.IsReady() && Q.GetPrediction(qTarget).Hitchance >= HitChance.High && !qcreated && Damage.GetSpellDamage(Player, qTarget, SpellSlot.Q) >= qTarget.Health 
                 && Player.Distance(qTarget) <= Q.Range)
             {
                 Q.Cast(qTarget, true);
