@@ -244,6 +244,12 @@ namespace ViktorTheMindBlower
                 W.Cast(wTarget, true);
             }
 
+            if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) <= Q.Range)
+            {
+                Q.CastOnUnit(qTarget, true);
+                return;
+            }
+
             if (useR && rTarget != null && R.IsReady() && (GetComboDamage(rTarget) > qTarget.Health || menu.Item("rAlways").GetValue<KeyBind>().Active) && Player.Distance(rTarget) <= R.Range && !activeR)
             {
                 R.Cast(rTarget.ServerPosition, true);
@@ -263,13 +269,6 @@ namespace ViktorTheMindBlower
                     return;
                 }
             }
-
-            if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) <= Q.Range)
-            {
-                Q.CastOnUnit(qTarget, true);
-                return;
-            }
-
         }
 
         private static void Combo()
