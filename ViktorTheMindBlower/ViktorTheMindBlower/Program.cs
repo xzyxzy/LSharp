@@ -27,6 +27,7 @@ namespace ViktorTheMindBlower
         public static Spell E;
         public static Spell E2;
         public static Spell R;
+        public static GameObject rObj = null;
         public static bool activeR = false;
 
         //Menu
@@ -144,8 +145,36 @@ namespace ViktorTheMindBlower
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
+            GameObject.OnCreate += OnCreate;
+            GameObject.OnDelete += OnDelete;
             Orbwalking.AfterAttack += AfterAttack;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
+        }
+
+
+        private static void OnCreate(GameObject obj, EventArgs args)
+        {
+            if (Player.Distance(obj.Position) < 2500)
+            {
+                if (obj != null && obj.IsValid && obj.Name.Contains("storm"))
+                {
+                    activeR = true;
+                    rObj = obj;
+                }
+            }
+            
+        }
+
+        private static void OnDelete(GameObject obj, EventArgs args)
+        {
+            if (Player.Distance(obj.Position) < 2500)
+            {
+                if (obj != null && obj.IsValid && obj.Name.Contains("storm"))
+                {
+                    activeR = false;
+                    rObj = null;
+                }
+            }
         }
 
         private static void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
@@ -264,8 +293,8 @@ namespace ViktorTheMindBlower
 
             Orbwalker.SetAttacks(true);
 
-
             autoR();
+
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 mecR();
@@ -289,17 +318,11 @@ namespace ViktorTheMindBlower
 
         public static void autoR()
         {
-            if (!Player.HasBuff("ViktorStormTimer"))
+            if (activeR)
             {
-                activeR = false;
-            }
-
-            if (Player.HasBuff("ViktorStormTimer"))
-            {
-                var rTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
-                activeR = true;
-
-                R.Cast(rTarget, true);
+                var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where rObj.Position.Distance(champ.ServerPosition) < 2500 && champ.IsEnemy select champ).ToList();
+                nearChamps.OrderBy(x => rObj.Position.Distance(x.ServerPosition));
+                R.Cast(nearChamps.First(), true);
             }
         }
 
