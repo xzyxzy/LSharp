@@ -107,7 +107,7 @@ namespace OriannaWreckingBalls
 
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
-            menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
+            //menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoW", "Use W if hit").SetValue(new Slider(2, 0, 5)));
             menu.SubMenu("Misc").AddItem(new MenuItem("killR", "R Multi Only Toggle").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoR", "Use R if hit").SetValue(new Slider(3, 0, 5)));
@@ -788,28 +788,30 @@ namespace OriannaWreckingBalls
         {
             //if(Player.Distance(obj.Position) < 300)
                 //Game.PrintChat("OBJ: " + obj.Name);
-
-            if (obj != null && obj.IsValid && obj.Name.Contains("yomu_ring_"))
+            if (Player.Distance(obj.Position) < 1000)
             {
-                qpos = obj;
-                IsBallMoving = false;
-                ballStatus = 1;
-                return;
-            }
-            if (obj != null && obj.IsValid && obj.Name.Contains("Orianna_Ball_Flash_"))
-            {
-                qpos = obj;
-                ballStatus = 0;
-                IsBallMoving = false;
-                return;
-            }
-            if (obj != null && obj.IsValid && obj.Name.Contains("OriannaEAlly"))
-            {
-                //Game.PrintChat("onALYY woot");
-                qpos = obj;
-                ballStatus = 2;
-                IsBallMoving = false;
-                return;
+                if (obj != null && obj.IsValid && obj.Name.Contains("yomu_ring_"))
+                {
+                    qpos = obj;
+                    IsBallMoving = false;
+                    ballStatus = 1;
+                    return;
+                }
+                if (obj != null && obj.IsValid && obj.Name.Contains("Orianna_Ball_Flash_"))
+                {
+                    qpos = obj;
+                    ballStatus = 0;
+                    IsBallMoving = false;
+                    return;
+                }
+                if (obj != null && obj.IsValid && obj.Name.Contains("OriannaEAlly"))
+                {
+                    //Game.PrintChat("onALYY woot");
+                    qpos = obj;
+                    ballStatus = 2;
+                    IsBallMoving = false;
+                    return;
+                }
             }
         }
 
@@ -818,25 +820,28 @@ namespace OriannaWreckingBalls
             //if (Player.Distance(obj.Position) < 300)
                 //Game.PrintChat("OBJ2: " + obj.Name);
 
-            if (obj != null && obj.IsValid && obj.Name.Contains("yomu_ring_"))
+            if (Player.Distance(obj.Position) < 1000)
             {
-                qpos = null;
-                IsBallMoving = false;
-                ballStatus = 0;
-                return;
-            }
-            if (obj != null && obj.IsValid && obj.Name.Contains("Orianna_Ball_Flash_"))
-            {
-                qpos = null;
-                ballStatus = 0;
-                IsBallMoving = false;
-                return;
-            }
-            if (obj != null && obj.IsValid && obj.Name.Contains("OriannaEAlly"))
-            {
-                qpos = null;
-                ballStatus = 0;
-                IsBallMoving = false;
+                if (obj != null && obj.IsValid && obj.Name.Contains("yomu_ring_"))
+                {
+                    qpos = null;
+                    IsBallMoving = false;
+                    ballStatus = 0;
+                    return;
+                }
+                if (obj != null && obj.IsValid && obj.Name.Contains("Orianna_Ball_Flash_"))
+                {
+                    qpos = null;
+                    ballStatus = 0;
+                    IsBallMoving = false;
+                    return;
+                }
+                if (obj != null && obj.IsValid && obj.Name.Contains("OriannaEAlly"))
+                {
+                    qpos = null;
+                    ballStatus = 0;
+                    IsBallMoving = false;
+                }
             }
         }
 
@@ -865,14 +870,12 @@ namespace OriannaWreckingBalls
 
             onGainBuff();
 
-            checkWMec();
-            
-
             Orbwalker.SetAttacks(true);
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 checkRMec();
+                checkWMec();
                 Combo();
             }
             else
