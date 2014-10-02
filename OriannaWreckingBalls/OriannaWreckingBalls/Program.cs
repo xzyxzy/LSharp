@@ -870,12 +870,13 @@ namespace OriannaWreckingBalls
 
             onGainBuff();
 
+            checkWMec();
+
             Orbwalker.SetAttacks(true);
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 checkRMec();
-                checkWMec();
                 Combo();
             }
             else
