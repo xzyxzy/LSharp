@@ -321,7 +321,7 @@ namespace ViktorTheMindBlower
             {
                 var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where rObj.Position.Distance(champ.ServerPosition) < 2500 && champ.IsEnemy select champ).ToList();
                 nearChamps.OrderBy(x => rObj.Position.Distance(x.ServerPosition));
-                R.Cast(nearChamps.First(), true);
+                R.Cast(nearChamps.First().ServerPosition, true);
             }
         }
 
