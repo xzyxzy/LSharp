@@ -191,7 +191,7 @@ namespace OriannaWreckingBalls
             var damage = 0d;
 
             //if (Q.IsReady())
-                damage += Player.GetSpellDamage(enemy, SpellSlot.Q);
+                damage += Player.GetSpellDamage(enemy, SpellSlot.Q) * 1.5;
 
             if (W.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.W);
@@ -241,7 +241,7 @@ namespace OriannaWreckingBalls
                 {
                     if (menu.Item("overK").GetValue<bool>())
                     {
-                        if ((Player.GetSpellDamage(rTarget, SpellSlot.R)) >= rTarget.Health)
+                        if ((Player.GetSpellDamage(rTarget, SpellSlot.Q) * 1.2) >= rTarget.Health)
                             return;
                     }
                     else
@@ -871,12 +871,12 @@ namespace OriannaWreckingBalls
             onGainBuff();
 
             checkWMec();
+            checkRMec();
 
             Orbwalker.SetAttacks(true);
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
-                checkRMec();
                 Combo();
             }
             else
