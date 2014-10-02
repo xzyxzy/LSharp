@@ -53,7 +53,7 @@ namespace ViktorTheMindBlower
             R = new Spell(SpellSlot.R, 700);
 
             //Q.SetTargetted(0.25f, 2000);
-            W.SetSkillshot(2.0f, 300, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            W.SetSkillshot(1.5f, 300, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.0f, 90, 1000, false, SkillshotType.SkillshotLine);
             E2.SetSkillshot(0.0f, 90, 1000, false, SkillshotType.SkillshotLine);
             R.SetSkillshot(0.25f, 250, float.MaxValue, false, SkillshotType.SkillshotCircle);
@@ -179,7 +179,10 @@ namespace ViktorTheMindBlower
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
             if (R.IsReady())
+            {
                 damage += Player.GetSpellDamage(enemy, SpellSlot.R);
+                damage += 3 * Player.GetSpellDamage(enemy, SpellSlot.R, 1);
+            }
 
             return (float)damage;
         }
@@ -207,7 +210,7 @@ namespace ViktorTheMindBlower
 
             if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range
                 && (!(menu.Item("wMulti").GetValue<bool>()) || GetComboDamage(wTarget) >= wTarget.Health || W.GetPrediction(wTarget).Hitchance == HitChance.Immobile && immobile ||
-                wTarget.HasBuffOfType(BuffType.Slow) && slow || W.GetPrediction(wTarget).Hitchance == HitChance.Dashing && dashing))
+                wTarget.HasBuffOfType(BuffType.Slow) && slow || W.GetPrediction(wTarget).Hitchance == HitChance.Dashing && dashing || Player.Distance(wTarget.ServerPosition) < 300))
             {
                 W.Cast(wTarget, true);
             }
