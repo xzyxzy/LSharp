@@ -212,7 +212,7 @@ namespace ViktorTheMindBlower
             if (R.IsReady())
             {
                 damage += Player.GetSpellDamage(enemy, SpellSlot.R);
-                damage += 3 * Player.GetSpellDamage(enemy, SpellSlot.R, 1);
+                damage += 5 * Player.GetSpellDamage(enemy, SpellSlot.R, 1);
             }
 
             return (float)damage;
@@ -487,7 +487,7 @@ namespace ViktorTheMindBlower
             if (eTarget2 != null && Player.Distance(eTarget2) <= 1200)
             {   
                 // Get initial start point at the border of cast radius
-                Vector3 startPos = Player.Position + Vector3.Normalize(eTarget2.ServerPosition - Player.Position) * E.Range;
+                Vector3 startPos = Player.Position + Vector3.Normalize(eTarget2.ServerPosition - Player.Position) * (E.Range - 50);
                 var pred = GetP(startPos, E2, eTarget2, true);
 
                 if (pred.Hitchance >= hitC)
