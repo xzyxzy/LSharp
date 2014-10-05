@@ -116,7 +116,6 @@ namespace ViktorTheMindBlower
             menu.SubMenu("Misc").AddItem(new MenuItem("rAlways", "Ult Always Combo").SetValue(new KeyBind("K".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Misc").AddItem(new MenuItem("useR_Hit", "Auto R if hit In Combo").SetValue(new Slider(2, 5, 0)));
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets to cast").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("MoveToMouse", "MoveToMouse only").SetValue(new KeyBind("n".ToCharArray()[0], KeyBindType.Toggle)));
             //Damage after combo:
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
             Utility.HpBarDamageIndicator.DamageToUnit = GetComboDamage;
@@ -276,14 +275,13 @@ namespace ViktorTheMindBlower
 
         private static void Combo()
         {
-            Orbwalker.SetAttacks(!(Q.IsReady() || (E.IsReady()) || menu.Item("MoveToMouse").GetValue<KeyBind>().Active));
+            Orbwalker.SetAttacks(!(Q.IsReady()));
             UseSpells(menu.Item("UseQCombo").GetValue<bool>(), menu.Item("UseWCombo").GetValue<bool>(),
                 menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>(), "Combo");
         }
 
         private static void Harass()
         {
-            Orbwalker.SetAttacks(!(menu.Item("MoveToMouse").GetValue<KeyBind>().Active));
             UseSpells(menu.Item("UseQHarass").GetValue<bool>(), false,
                 menu.Item("UseEHarass").GetValue<bool>(), false, "Harass");
         }
