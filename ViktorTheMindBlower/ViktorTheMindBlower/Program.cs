@@ -29,6 +29,7 @@ namespace ViktorTheMindBlower
         public static Spell R;
         public static GameObject rObj = null;
         public static bool activeR = false;
+        public static int lastR;
 
         //Menu
         public static Menu menu;
@@ -86,6 +87,7 @@ namespace ViktorTheMindBlower
             menu.SubMenu("Combo").AddItem(new MenuItem("wSlow", "Auto W Slow").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("wImmobile", "Auto W Immobile").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("wDashing", "Auto W Dashing").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("wMulti", "W only Multitarget").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("eHit", "E HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
@@ -110,10 +112,10 @@ namespace ViktorTheMindBlower
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoAtk", "AA after Q in Range").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("wMulti", "W only Multitarget").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("useW_Hit", "Auto W if hit In Combo").SetValue(new Slider(2, 5, 0)));
             menu.SubMenu("Misc").AddItem(new MenuItem("rAlways", "Ult Always Combo").SetValue(new KeyBind("K".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Misc").AddItem(new MenuItem("useR_Hit", "Auto R if hit In Combo").SetValue(new Slider(2, 5, 0)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets to cast").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("MoveToMouse", "MoveToMouse only").SetValue(new KeyBind("n".ToCharArray()[0], KeyBindType.Toggle)));
             //Damage after combo:
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
@@ -183,7 +185,7 @@ namespace ViktorTheMindBlower
 
             if (Player.Distance(unit) < R.Range)
             {
-                R.Cast(unit.ServerPosition, true);
+                R.Cast(unit.ServerPosition, menu.Item("packet").GetValue<bool>());
             }
         }
 
@@ -241,18 +243,18 @@ namespace ViktorTheMindBlower
                 && (!(menu.Item("wMulti").GetValue<bool>()) || GetComboDamage(wTarget) >= wTarget.Health || W.GetPrediction(wTarget).Hitchance == HitChance.Immobile && immobile ||
                 wTarget.HasBuffOfType(BuffType.Slow) && slow || W.GetPrediction(wTarget).Hitchance == HitChance.Dashing && dashing || Player.Distance(wTarget.ServerPosition) < 300))
             {
-                W.Cast(wTarget, true);
+                W.Cast(wTarget, menu.Item("packet").GetValue<bool>());
             }
 
             if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) <= Q.Range)
             {
-                Q.CastOnUnit(qTarget, true);
+                Q.CastOnUnit(qTarget, menu.Item("packet").GetValue<bool>());
                 return;
             }
 
             if (useR && rTarget != null && R.IsReady() && (GetComboDamage(rTarget) > qTarget.Health || menu.Item("rAlways").GetValue<KeyBind>().Active) && Player.Distance(rTarget) <= R.Range && !activeR)
             {
-                R.Cast(rTarget.ServerPosition, true);
+                R.Cast(rTarget.ServerPosition, menu.Item("packet").GetValue<bool>());
             }
 
             if (useE && E.IsReady())
@@ -292,7 +294,13 @@ namespace ViktorTheMindBlower
 
             Orbwalker.SetAttacks(true);
 
-            autoR();
+            int rTimeLeft = Environment.TickCount - lastR;
+            if ((rTimeLeft <= 500))
+            {
+                autoR();
+                lastR = Environment.TickCount - 250;
+            }
+            
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
@@ -321,7 +329,7 @@ namespace ViktorTheMindBlower
             {
                 var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where rObj.Position.Distance(champ.ServerPosition) < 2500 && champ.IsEnemy select champ).ToList();
                 nearChamps.OrderBy(x => rObj.Position.Distance(x.ServerPosition));
-                R.Cast(nearChamps.First().ServerPosition, true);
+                R.Cast(nearChamps.First().ServerPosition, menu.Item("packet").GetValue<bool>());
             }
         }
 
@@ -531,7 +539,7 @@ namespace ViktorTheMindBlower
                 {
                     if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < Player.GetSpellDamage(minion, SpellSlot.Q) - 10)
                     {
-                        Q.Cast(minion, true);
+                        Q.Cast(minion, menu.Item("packet").GetValue<bool>());
                         return;
                     }
                 }
@@ -550,7 +558,7 @@ namespace ViktorTheMindBlower
 
             if (useQ && allMinionsQ.Count > 0 && Q.IsReady())
             {
-                Q.Cast(allMinionsQ[0], true);
+                Q.Cast(allMinionsQ[0], menu.Item("packet").GetValue<bool>());
             }
 
             if (useE && E.IsReady())
