@@ -193,7 +193,8 @@ namespace ViktorTheMindBlower
         {
             if (unit.IsMe && chargeQ)
             {
-                Orbwalking.ResetAutoAttackTimer();
+                Orbwalker.SetMovement(true);
+                chargeQ = false;
             }
 
             chargeQ = false;
