@@ -240,7 +240,6 @@ namespace OriannaWreckingBalls
             if (useQ && Q.IsReady())
             {
                 castQ(qTarget, source);
-                return;
             }
 
             if (useR && rTarget != null && R.IsReady())
@@ -259,7 +258,7 @@ namespace OriannaWreckingBalls
 
                 if (!(menu.Item("killR").GetValue<KeyBind>().Active))
                 {
-                    if (menu.Item("overK").GetValue<bool>() && (Player.GetSpellDamage(rTarget, SpellSlot.Q) + Player.GetSpellDamage(rTarget, SpellSlot.W)) >= rTarget.Health)
+                    if (menu.Item("overK").GetValue<bool>() && (Player.GetSpellDamage(rTarget, SpellSlot.Q) *2) >= rTarget.Health)
                     {
                         return;
                     }
