@@ -55,7 +55,7 @@ namespace OriannaWreckingBalls
             E = new Spell(SpellSlot.E, 1095);
             R = new Spell(SpellSlot.R, 300);
 
-            Q.SetSkillshot(0f, 135, 1150, false, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0f, 135, 1250, false, SkillshotType.SkillshotLine);
             W.SetSkillshot(0.25f, 245, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.25f, 145, 1700, false, SkillshotType.SkillshotLine);
             R.SetSkillshot(0.60f, 350, float.MaxValue, false, SkillshotType.SkillshotCircle);
@@ -86,6 +86,7 @@ namespace OriannaWreckingBalls
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("killR", "R Multi Only Toggle").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Combo").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Orbwalk").GetValue<KeyBind>().Key, KeyBindType.Press)));
 
             //Harass menu:
@@ -109,12 +110,18 @@ namespace OriannaWreckingBalls
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             //menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoW", "Use W if hit").SetValue(new Slider(2, 0, 5)));
-            menu.SubMenu("Misc").AddItem(new MenuItem("killR", "R Multi Only Toggle").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoR", "Use R if hit").SetValue(new Slider(3, 0, 5)));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoE", "E If HP < %").SetValue(new Slider(40, 0, 100)));
             menu.SubMenu("Misc").AddItem(new MenuItem("blockR", "Block R if no enemy").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("overK", "OverKill Check").SetValue(true));
             //menu.SubMenu("Combo").AddItem(new MenuItem("autoEDmg", "E If HP < %").SetValue(new Slider(2, 0, 5)));
+
+            menu.SubMenu("Misc").AddSubMenu(new Menu("Auto use R on", "intR"));
+
+            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != Player.Team))
+                menu.SubMenu("Misc")
+                    .SubMenu("intR")
+                    .AddItem(new MenuItem("intR" + enemy.BaseSkinName, enemy.BaseSkinName).SetValue(false));
 
             //Damage after combo:
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
@@ -219,6 +226,7 @@ namespace OriannaWreckingBalls
             var eTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
 
+            
             if (useE && eTarget != null && E.IsReady())
             {
                 castE(eTarget);
@@ -237,12 +245,23 @@ namespace OriannaWreckingBalls
 
             if (useR && rTarget != null && R.IsReady())
             {
+                if (menu.Item("intR" + rTarget.BaseSkinName) != null )
+                {
+                    foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy))
+                    {
+                        if (enemy != null && !enemy.IsDead && menu.Item("intR" + enemy.BaseSkinName).GetValue<bool>() == true)
+                        {
+                            castR(enemy);
+                            return;
+                        }
+                    }
+                }
+
                 if (!(menu.Item("killR").GetValue<KeyBind>().Active))
                 {
-                    if (menu.Item("overK").GetValue<bool>())
+                    if (menu.Item("overK").GetValue<bool>() && (Player.GetSpellDamage(rTarget, SpellSlot.Q) + Player.GetSpellDamage(rTarget, SpellSlot.W)) >= rTarget.Health)
                     {
-                        if ((Player.GetSpellDamage(rTarget, SpellSlot.Q) * 1.2) >= rTarget.Health)
-                            return;
+                        return;
                     }
                     else
                     {
