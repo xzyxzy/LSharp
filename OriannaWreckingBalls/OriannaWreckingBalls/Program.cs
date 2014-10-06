@@ -207,7 +207,7 @@ namespace OriannaWreckingBalls
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
             if (R.IsReady())
-                damage += Player.GetSpellDamage(enemy, SpellSlot.R);
+                damage += Player.GetSpellDamage(enemy, SpellSlot.R) - 25;
 
             return (float)damage;
         }
