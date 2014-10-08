@@ -208,25 +208,21 @@ namespace BlitzcrankGrabDAT
             if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= 1200)
             {
                 W.Cast();
-                return;
             }
 
             if (useQ && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && qTarget != null && (Q.GetPrediction(qTarget).Hitchance >= hitC || shouldUseQ(qTarget)))
             {
                 Q.Cast(qTarget, packets());
-                return;
             }
 
             if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range && !menu.Item("resetE").GetValue<bool>())
             {
                 E.Cast();
-                return;
             }
 
             if (useR && rTarget != null && R.IsReady() && Player.Distance(rTarget) < R.Range)
             {
                 R.Cast();
-                return;
             }
 
         }
