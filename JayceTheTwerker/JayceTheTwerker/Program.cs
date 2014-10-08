@@ -371,7 +371,7 @@ namespace JayceTheTwerker
                     }
 
                     //Hammer E
-                    if ((Player.GetSpellDamage(enemy, SpellSlot.E) - 10) > enemy.Health && hamEcd == 0 && Player.Distance(enemy.ServerPosition) <= 260)
+                    if ((Player.GetSpellDamage(enemy, SpellSlot.E) - 20) > enemy.Health && hamEcd == 0 && Player.Distance(enemy.ServerPosition) <= 260)
                     {
                         if (!HammerTime && R.IsReady())
                             R.Cast();
