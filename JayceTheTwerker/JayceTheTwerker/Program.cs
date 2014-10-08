@@ -63,7 +63,7 @@ namespace JayceTheTwerker
             if (Player.BaseSkinName != ChampionName) return;
 
             //intalize spell
-            Q = new Spell(SpellSlot.Q, 1150);
+            Q = new Spell(SpellSlot.Q, 1050);
             QCharge = new Spell(SpellSlot.Q, 1750);
             Q2 = new Spell(SpellSlot.Q, 600);
             W = new Spell(SpellSlot.W, float.MaxValue);
@@ -636,7 +636,7 @@ namespace JayceTheTwerker
             {
                 if (menu.Item("ComboActive").GetValue<KeyBind>().Active || menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
                 {
-                    if (canWcd == 0 && Player.Distance(target) < 600 && !HammerTime)
+                    if (canWcd == 0 && Player.Distance(target) < 600 && !HammerTime && W.Level > 0)
                         if (useWCombo || useWHarass)
                         {
                             Orbwalking.ResetAutoAttackTimer();
