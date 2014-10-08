@@ -497,8 +497,8 @@ namespace JayceTheTwerker
                         if (!lagFree)
                         {
                             ePos = GateVector2;
-                            firstE = true;
                             QCharge.Cast(shootPred.CastPosition, menu.Item("packet").GetValue<bool>());
+                            firstE = true;
                             return;
                         }
                         else
@@ -541,8 +541,8 @@ namespace JayceTheTwerker
 
                 if(!lagFree){
                     ePos = GateVector;
-                    firstE = true;
                     Q.Cast(Game.CursorPos, menu.Item("packet").GetValue<bool>());
+                    firstE = true;
                     return;
                 }
                 else
