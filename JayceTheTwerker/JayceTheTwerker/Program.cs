@@ -72,8 +72,8 @@ namespace JayceTheTwerker
             E2 = new Spell(SpellSlot.E, 240);
             R = new Spell(SpellSlot.R, float.MaxValue);
 
-            Q.SetSkillshot(0.1515f, 70, 1300, true, SkillshotType.SkillshotLine);
-            QCharge.SetSkillshot(0.1515f, 70, 2050, true, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0.1515f, 65, 1300, true, SkillshotType.SkillshotLine);
+            QCharge.SetSkillshot(0.1515f, 65, 1900, true, SkillshotType.SkillshotLine);
             Q2.SetTargetted(0.25f, float.MaxValue);
             E.SetSkillshot(0.1f, 120, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E2.SetTargetted(.25f, float.MaxValue);
