@@ -365,11 +365,12 @@ namespace JayceTheTwerker
                         if (HammerTime)
                         {
                             Q2.CastOnUnit(enemy, menu.Item("packet").GetValue<bool>());
+                            return;
                         }
                     }
 
                     //Hammer E
-                    if (Player.GetSpellDamage(enemy, SpellSlot.E) > enemy.Health && hamEcd == 0 && Player.Distance(enemy.ServerPosition) <= 275)
+                    if (Player.GetSpellDamage(enemy, SpellSlot.E) > enemy.Health && hamEcd == 0 && Player.Distance(enemy.ServerPosition) <= 260)
                     {
                         if (!HammerTime && R.IsReady())
                             R.Cast();
@@ -377,6 +378,7 @@ namespace JayceTheTwerker
                         if (HammerTime)
                         {
                             E2.CastOnUnit(enemy, menu.Item("packet").GetValue<bool>());
+                            return;
                         }
                     }
 
@@ -391,6 +393,7 @@ namespace JayceTheTwerker
                         {
                             Q2.CastOnUnit(enemy, menu.Item("packet").GetValue<bool>());
                             E2.CastOnUnit(enemy, menu.Item("packet").GetValue<bool>());
+                            return;
                         }
                     }
                 }
