@@ -622,7 +622,10 @@ namespace JayceTheTwerker
                 if (menu.Item("shootMouse").GetValue<KeyBind>().Active)
                     castQCannonMouse();
 
-                if (menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
+                if (menu.Item("HarassActive").GetValue<KeyBind>().Active)
+                    Harass();
+
+                if(menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
                     Harass();
             }
         }
