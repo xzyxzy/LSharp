@@ -339,7 +339,7 @@ namespace JayceTheTwerker
                 if (enemy != null && !enemy.IsDead && enemy.IsEnemy && Player.Distance(enemy.ServerPosition) <= QCharge.Range)
                 {
                     //Q
-                    if (Player.GetSpellDamage(enemy, SpellSlot.Q) > enemy.Health && canQcd == 0 && Q.GetPrediction(enemy).Hitchance >= HitChance.High && Player.Distance(enemy.ServerPosition) <= Q.Range){
+                    if ((Player.GetSpellDamage(enemy, SpellSlot.Q) - 20) > enemy.Health && canQcd == 0 && Q.GetPrediction(enemy).Hitchance >= HitChance.High && Player.Distance(enemy.ServerPosition) <= Q.Range){
                         if(HammerTime && R.IsReady())
                             R.Cast();
 
@@ -348,7 +348,7 @@ namespace JayceTheTwerker
                     }
 
                     //QE
-                    if (Player.GetSpellDamage(enemy, SpellSlot.Q) * 1.4 > enemy.Health && canQcd == 0 && canEcd == 0 && Player.Distance(enemy.ServerPosition) <= QCharge.Range)
+                    if ((Player.GetSpellDamage(enemy, SpellSlot.Q) * 1.4 - 20) > enemy.Health && canQcd == 0 && canEcd == 0 && Player.Distance(enemy.ServerPosition) <= QCharge.Range)
                     {
                         if(HammerTime && R.IsReady())
                             R.Cast();
@@ -358,7 +358,7 @@ namespace JayceTheTwerker
                     }
 
                     //Hammer Q
-                    if (Player.GetSpellDamage(enemy, SpellSlot.Q, 1) > enemy.Health && hamQcd == 0 && Player.Distance(enemy.ServerPosition) <= 650)
+                    if ((Player.GetSpellDamage(enemy, SpellSlot.Q, 1) - 20) > enemy.Health && hamQcd == 0 && Player.Distance(enemy.ServerPosition) <= 650)
                     {
                         if (!HammerTime && R.IsReady())
                             R.Cast();
@@ -371,7 +371,7 @@ namespace JayceTheTwerker
                     }
 
                     //Hammer E
-                    if (Player.GetSpellDamage(enemy, SpellSlot.E) > enemy.Health && hamEcd == 0 && Player.Distance(enemy.ServerPosition) <= 260)
+                    if ((Player.GetSpellDamage(enemy, SpellSlot.E) - 10) > enemy.Health && hamEcd == 0 && Player.Distance(enemy.ServerPosition) <= 260)
                     {
                         if (!HammerTime && R.IsReady())
                             R.Cast();
@@ -384,7 +384,7 @@ namespace JayceTheTwerker
                     }
 
                     //Hammer QE
-                    if ((Player.GetSpellDamage(enemy, SpellSlot.E) + Player.GetSpellDamage(enemy, SpellSlot.Q, 1)) > enemy.Health 
+                    if ((Player.GetSpellDamage(enemy, SpellSlot.E) + Player.GetSpellDamage(enemy, SpellSlot.Q, 1) - 20) > enemy.Health 
                         && hamEcd == 0 && hamQcd == 0 && Player.Distance(enemy.ServerPosition) <= 650)
                     {
                         if (!HammerTime && R.IsReady())
