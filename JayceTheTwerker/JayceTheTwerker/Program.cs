@@ -64,7 +64,7 @@ namespace JayceTheTwerker
 
             //intalize spell
             Q = new Spell(SpellSlot.Q, 1050);
-            QCharge = new Spell(SpellSlot.Q, 1750);
+            QCharge = new Spell(SpellSlot.Q, 1600);
             Q2 = new Spell(SpellSlot.Q, 600);
             W = new Spell(SpellSlot.W, float.MaxValue);
             W2 = new Spell(SpellSlot.W, 350);
@@ -73,7 +73,7 @@ namespace JayceTheTwerker
             R = new Spell(SpellSlot.R, float.MaxValue);
 
             Q.SetSkillshot(0.1515f, 70, 1300, true, SkillshotType.SkillshotLine);
-            QCharge.SetSkillshot(0.1515f, 70, 2350, true, SkillshotType.SkillshotLine);
+            QCharge.SetSkillshot(0.1515f, 70, 2050, true, SkillshotType.SkillshotLine);
             Q2.SetTargetted(0.25f, float.MaxValue);
             E.SetSkillshot(0.1f, 120, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E2.SetTargetted(.25f, float.MaxValue);
