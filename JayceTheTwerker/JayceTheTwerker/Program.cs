@@ -476,6 +476,7 @@ namespace JayceTheTwerker
 
             var tarPred = QCharge.GetPrediction(target);
 
+            //dieno :> <3
             if (tarPred.Hitchance >= HitChance.High && canQcd == 0 && canEcd == 0 && useE && !firstE)
             {
                 
