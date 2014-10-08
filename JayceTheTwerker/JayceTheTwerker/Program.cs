@@ -632,12 +632,22 @@ namespace JayceTheTwerker
             var useWCombo = menu.Item("UseWCombo").GetValue<bool>();
             var useWHarass = menu.Item("UseWHarass").GetValue<bool>();
 
-            if (unit.IsMe)
+            if (unit.IsMe && !HammerTime)
             {
-                if (menu.Item("ComboActive").GetValue<KeyBind>().Active || menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
+                if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
                 {
                     if (canWcd == 0 && Player.Distance(target) < 600 && !HammerTime && W.Level > 0)
-                        if (useWCombo || useWHarass)
+                        if (useWCombo)
+                        {
+                            Orbwalking.ResetAutoAttackTimer();
+                            W.Cast();
+                        }
+                }
+
+                if (menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
+                {
+                    if (canWcd == 0 && Player.Distance(target) < 600 && !HammerTime && W.Level > 0)
+                        if (useWHarass)
                         {
                             Orbwalking.ResetAutoAttackTimer();
                             W.Cast();
