@@ -124,6 +124,7 @@ namespace BlitzcrankGrabDAT
             Drawing.OnDraw += Drawing_OnDraw;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+            Orbwalking.AfterAttack += Orbwalking_AfterAttack;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
@@ -292,7 +293,7 @@ namespace BlitzcrankGrabDAT
             {
                 if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
                 {
-                    if (useECombo)
+                    if (useECombo && E.IsReady())
                     {
                         Orbwalking.ResetAutoAttackTimer();
                         E.Cast();
@@ -301,7 +302,7 @@ namespace BlitzcrankGrabDAT
 
                 if (menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
                 {
-                    if (useEHarass)
+                    if (useEHarass && E.IsReady())
                     {
                         Orbwalking.ResetAutoAttackTimer();
                         E.Cast();
