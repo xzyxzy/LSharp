@@ -247,12 +247,25 @@ namespace BlitzcrankGrabDAT
 
             return false;
         }
+
+        public static void autoQ()
+        {
+            var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where Player.Distance(champ.ServerPosition) < Q.Range && champ.IsEnemy select champ).ToList();
+            nearChamps.OrderBy(x => x.Health);
+
+            if(shouldUseQ(nearChamps.First()))
+                Q.Cast(nearChamps.First().ServerPosition, menu.Item("packet").GetValue<bool>());
+
+        }
+
         private static void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
             if (Player.IsDead) return;
 
             Orbwalker.SetAttacks(true);
+
+            autoQ();
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
