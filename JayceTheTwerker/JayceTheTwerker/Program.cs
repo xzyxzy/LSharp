@@ -585,7 +585,10 @@ namespace JayceTheTwerker
                 if (spell.SData.Name == "JayceStaticField")
                     hamWcdRem = Game.Time + CalculateCd(HammerWcd[W.Level - 1]);
                 if (spell.SData.Name == "JayceThunderingBlow")
+                {
                     hamEcdRem = Game.Time + CalculateCd(HammerEcd[E.Level - 1]);
+                    firstE = false;
+                }
             }
             else
             {
@@ -595,7 +598,10 @@ namespace JayceTheTwerker
                 if (spell.SData.Name == "jaycehypercharge")
                     canWcdRem = Game.Time + CalculateCd(CannonWcd[W.Level - 1]);
                 if (spell.SData.Name == "jayceaccelerationgate")
+                {
                     canEcdRem = Game.Time + CalculateCd(CannonEcd[E.Level - 1]);
+                    firstE = false;
+                }
             }
         }
 
