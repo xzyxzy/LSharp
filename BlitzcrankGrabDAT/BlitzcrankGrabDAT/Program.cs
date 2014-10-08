@@ -91,9 +91,10 @@ namespace BlitzcrankGrabDAT
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("qSlow", "Auto W Slow").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("qImmobile", "Auto W Immobile").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("qDashing", "Auto W Dashing").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("qSlow", "Auto Q Slow").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("qImmobile", "Auto Q Immobile").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("qDashing", "Auto Q Dashing").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("resetE", "Use E AA reset Only").SetValue(true));
 
             //Damage after combo:
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
@@ -216,9 +217,9 @@ namespace BlitzcrankGrabDAT
                 return;
             }
 
-            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range)
+            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range && !menu.Item("resetE").GetValue<bool>())
             {
-                E.Cast(eTarget, packets());
+                E.Cast();
                 return;
             }
 
@@ -288,14 +289,14 @@ namespace BlitzcrankGrabDAT
 
         public static void Orbwalking_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
         {
-            var useWCombo = menu.Item("UseWCombo").GetValue<bool>();
-            var useWHarass = menu.Item("UseWHarass").GetValue<bool>();
+            var useECombo = menu.Item("UseECombo").GetValue<bool>();
+            var useEHarass = menu.Item("UseEHarass").GetValue<bool>();
 
             if (unit.IsMe)
             {
                 if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
                 {
-                    if (useWCombo)
+                    if (useECombo)
                     {
                         Orbwalking.ResetAutoAttackTimer();
                         E.Cast();
@@ -304,7 +305,7 @@ namespace BlitzcrankGrabDAT
 
                 if (menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
                 {
-                    if (useWHarass)
+                    if (useEHarass)
                     {
                         Orbwalking.ResetAutoAttackTimer();
                         E.Cast();
