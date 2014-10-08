@@ -242,7 +242,7 @@ namespace BlitzcrankGrabDAT
             if (Q.GetPrediction(target).Hitchance == HitChance.Immobile && immobile)
                 return true;
 
-            if (target.HasBuffOfType(BuffType.Slow) && slow)
+            if (target.HasBuffOfType(BuffType.Slow) && slow && Q.GetPrediction(target).Hitchance >= HitChance.High)
                 return true;
 
             return false;
