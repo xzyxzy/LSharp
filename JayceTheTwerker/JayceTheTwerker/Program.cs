@@ -336,7 +336,7 @@ namespace JayceTheTwerker
         {
             foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>())
             {
-                if (enemy != null && !enemy.IsDead && enemy.IsEnemy && Player.Distance(enemy.ServerPosition) <= 2000)
+                if (enemy != null && !enemy.IsDead && enemy.IsEnemy && Player.Distance(enemy.ServerPosition) <= QCharge.Range)
                 {
                     //Q
                     if (Player.GetSpellDamage(enemy, SpellSlot.Q) > enemy.Health && canQcd == 0 && Q.GetPrediction(enemy).Hitchance >= HitChance.High && Player.Distance(enemy.ServerPosition) <= Q.Range){
@@ -348,7 +348,8 @@ namespace JayceTheTwerker
                     }
 
                     //QE
-                    if (Player.GetSpellDamage(enemy, SpellSlot.Q) *1.4 > enemy.Health && canQcd == 0 && canEcd == 0){
+                    if (Player.GetSpellDamage(enemy, SpellSlot.Q) * 1.4 > enemy.Health && canQcd == 0 && canEcd == 0 && Player.Distance(enemy.ServerPosition) <= QCharge.Range)
+                    {
                         if(HammerTime && R.IsReady())
                             R.Cast();
 
@@ -479,7 +480,6 @@ namespace JayceTheTwerker
             //dieno :> <3
             if (tarPred.Hitchance >= HitChance.High && canQcd == 0 && canEcd == 0 && useE && !firstE)
             {
-                
                 var GateVector = Player.Position + Vector3.Normalize(target.ServerPosition - Player.Position) * gateDis;
                 var addedDelay = Player.Distance(GateVector) / Q.Speed + Q.Delay + 0.250f;
                 var FinalPred = GetP(Player.ServerPosition, QCharge, target, addedDelay, QCharge.Speed, true);
@@ -488,7 +488,6 @@ namespace JayceTheTwerker
                 {
                     var GateVector2 = Player.Position + Vector3.Normalize(FinalPred.CastPosition - Player.Position) * gateDis;
                     
-
                     var Speed = (Player.Distance(GateVector2) / Player.Distance(target)) * Q.Speed + (Player.Distance(GateVector2) / Player.Distance(target)) * QCharge.Speed;
 
                     var shootPred = GetP(Player.ServerPosition, QCharge, target, QCharge.Delay, Speed, true);
