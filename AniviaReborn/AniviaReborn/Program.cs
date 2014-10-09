@@ -9,11 +9,11 @@ using LeagueSharp.Common;
 using SharpDX;
 using Color = System.Drawing.Color;
 
-namespace BlitzcrankGrabDAT
+namespace AniviaReborn
 {
     class Program
     {
-        public const string ChampionName = "Blitzcrank";
+        public const string ChampionName = "Anivia";
 
         //Orbwalker instance
         public static Orbwalking.Orbwalker Orbwalker;
@@ -25,6 +25,14 @@ namespace BlitzcrankGrabDAT
         public static Spell W;
         public static Spell E;
         public static Spell R;
+
+        //Spell Obj
+        //Q
+        public static Obj_SpellMissile qMissle;
+        public static bool firstCreate = false;
+        //R
+        public static GameObject rObj;
+
 
         //Menu
         public static Menu menu;
@@ -43,13 +51,14 @@ namespace BlitzcrankGrabDAT
             if (Player.BaseSkinName != ChampionName) return;
 
             //intalize spell
-            Q = new Spell(SpellSlot.Q, 950);
-            W = new Spell(SpellSlot.W, float.MaxValue);
-            E = new Spell(SpellSlot.E, 140);
-            R = new Spell(SpellSlot.R, 600);
+            Q = new Spell(SpellSlot.Q, 1100);
+            W = new Spell(SpellSlot.W, 1000);
+            E = new Spell(SpellSlot.E, 650);
+            R = new Spell(SpellSlot.R, 625);
 
-            Q.SetSkillshot(0.22f, 70f, 1800, true, SkillshotType.SkillshotLine);
-            R.SetSkillshot(0.25f, 600, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            Q.SetSkillshot(.25f, 110f, 850f, false, SkillshotType.SkillshotLine);
+            W.SetSkillshot(.25f, 600f, float.MaxValue, false, SkillshotType.SkillshotLine);
+            R.SetSkillshot(.25f, 400f, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -73,17 +82,14 @@ namespace BlitzcrankGrabDAT
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("qHit", "Q HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("useRQ", "Use R After Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Orbwalk").GetValue<KeyBind>().Key, KeyBindType.Press)));
 
             //Harass menu:
             menu.AddSubMenu(new Menu("Harass", "Harass"));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Use Q").SetValue(true));
-            menu.SubMenu("Harass").AddItem(new MenuItem("qHit2", "Q HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Use W").SetValue(false));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
             menu.SubMenu("Harass").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Farm").GetValue<KeyBind>().Key, KeyBindType.Press)));
@@ -92,20 +98,8 @@ namespace BlitzcrankGrabDAT
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use W for GapCloser").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("qRange", "Q Range Slider").SetValue(new Slider(900, 1, 950)));
-            menu.SubMenu("Misc").AddItem(new MenuItem("qSlow", "Auto Q Slow").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("qImmobile", "Auto Q Immobile").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("qDashing", "Auto Q Dashing").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("resetE", "Use E AA reset Only").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("autoR", "Use R if hit").SetValue(new Slider(3, 0, 5)));
-
-            menu.SubMenu("Misc").AddSubMenu(new Menu("Don't use Q on", "intR"));
-
-            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != Player.Team))
-                menu.SubMenu("Misc")
-                    .SubMenu("intR")
-                    .AddItem(new MenuItem("intR" + enemy.BaseSkinName, enemy.BaseSkinName).SetValue(false));
 
             //Damage after combo:
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
@@ -135,7 +129,7 @@ namespace BlitzcrankGrabDAT
             Drawing.OnDraw += Drawing_OnDraw;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-            Orbwalking.AfterAttack += Orbwalking_AfterAttack;
+            AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
@@ -146,11 +140,13 @@ namespace BlitzcrankGrabDAT
             if (Q.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.Q);
 
-            if (E.IsReady())
+            if (E.IsReady() & (Q.IsReady() || R.IsReady()))
+                damage += Player.GetSpellDamage(enemy, SpellSlot.E) * 2;
+            else if(E.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
             if (R.IsReady())
-                damage += Player.GetSpellDamage(enemy, SpellSlot.R);
+                damage += Player.GetSpellDamage(enemy, SpellSlot.R) * 3;
 
             return (float)damage;
         }
@@ -175,142 +171,50 @@ namespace BlitzcrankGrabDAT
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
-            var hitC = HitChance.High;
-            var qHit = menu.Item("qHit").GetValue<Slider>().Value;
-            var harassQHit = menu.Item("qHit2").GetValue<Slider>().Value;
-            var qRange = menu.Item("qRange").GetValue<Slider>().Value;
-
-            var RQ = menu.Item("useRQ").GetValue<bool>();
-
-            Q.Range = qRange;
-
-            // HitChance.Low = 3, Medium , High .... etc..
-            if (Source == "Combo")
+            if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range && shouldUseW(qTarget))
             {
-                switch (qHit)
-                {
-                    case 1:
-                        hitC = HitChance.Low;
-                        break;
-                    case 2:
-                        hitC = HitChance.Medium;
-                        break;
-                    case 3:
-                        hitC = HitChance.High;
-                        break;
-                    case 4:
-                        hitC = HitChance.VeryHigh;
-                        break;
-                }
-            }
-            else if (Source == "Harass")
-            {
-                switch (harassQHit)
-                {
-                    case 1:
-                        hitC = HitChance.Low;
-                        break;
-                    case 2:
-                        hitC = HitChance.Medium;
-                        break;
-                    case 3:
-                        hitC = HitChance.High;
-                        break;
-                    case 4:
-                        hitC = HitChance.VeryHigh;
-                        break;
-                }
+                W.Cast(wTarget, packets());
+                return;
             }
 
-            if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= 1200)
-            {
-                W.Cast();
-            }
-
-            if (useQ && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && qTarget != null && (Q.GetPrediction(qTarget).Hitchance >= hitC || shouldUseQ(qTarget)) && useQonEnemy(qTarget))
+            if (useQ && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && qTarget != null && Q.GetPrediction(qTarget).Hitchance >= HitChance.Medium)
             {
                 Q.Cast(qTarget, packets());
+                return;
             }
 
-            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range && !menu.Item("resetE").GetValue<bool>())
+            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range)
             {
-                E.Cast();
+                E.Cast(eTarget, packets());
+                return;
             }
 
-            if (useR && rTarget != null && R.IsReady() && Player.Distance(rTarget) < R.Range)
+            if (useR && rTarget != null && R.IsReady() && GetComboDamage(rTarget) >= rTarget.Health && Player.Distance(rTarget) < R.Range)
             {
-                if (RQ && Q.IsReady())
-                    return;
-
-                R.Cast();
+                R.CastOnUnit(rTarget, packets());
+                return;
             }
 
         }
 
-        public static bool shouldUseQ(Obj_AI_Hero target)
+        public static bool shouldUseW(Obj_AI_Hero target)
         {
-            var slow = menu.Item("qSlow").GetValue<bool>();
-            var immobile = menu.Item("qImmobile").GetValue<bool>();
-            var dashing = menu.Item("qDashing").GetValue<bool>();
-
-            if (Q.GetPrediction(target).Hitchance == HitChance.Dashing && dashing)
+            if (GetComboDamage(target) >= target.Health - 20)
                 return true;
 
-            if (Q.GetPrediction(target).Hitchance == HitChance.Immobile && immobile)
-                return true;
-
-            if (target.HasBuffOfType(BuffType.Slow) && slow && Q.GetPrediction(target).Hitchance >= HitChance.High)
-                return true;
 
             return false;
         }
 
-        public static void autoQ()
+        public static void castW(Obj_AI_Hero target)
         {
-            var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where Player.Distance(champ.ServerPosition) < Q.Range && champ.IsEnemy select champ).ToList();
-            nearChamps.OrderBy(x => x.Health);
+            //W.Width = 
+            //var pred = W.GetPrediction(target);
+            var pos = target.ServerPosition;
+            var mypos = ObjectManager.Player.ServerPosition;
+            var newpos = pos + (pos - mypos) * (150 / ObjectManager.Player.Distance(target));
 
-            if (shouldUseQ(nearChamps.First()) && useQonEnemy(nearChamps.First()))
-                Q.Cast(nearChamps.First().ServerPosition, menu.Item("packet").GetValue<bool>());
-        }
-
-        public static PredictionOutput GetPCircle(Vector3 pos, Spell spell, Obj_AI_Base target, bool aoe)
-        {
-
-            return Prediction.GetPrediction(new PredictionInput
-            {
-                Unit = target,
-                Delay = spell.Delay,
-                Radius = 1,
-                Speed = spell.Speed,
-                From = pos,
-                Range = float.MaxValue,
-                Collision = spell.Collision,
-                Type = spell.Type,
-                RangeCheckFrom = Player.ServerPosition,
-                Aoe = aoe,
-            });
-        }
-
-        public static void checkRMec()
-        {
-            int hit = 0;
-            var minHit = menu.Item("autoR").GetValue<Slider>().Value;
-            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy))
-            {
-                if (enemy != null && !enemy.IsDead)
-                {
-                    var prediction = GetPCircle(Player.ServerPosition, R, enemy, true);
-
-                    if (R.IsReady() && enemy.Distance(Player.ServerPosition) <= R.Width && prediction.CastPosition.Distance(Player.ServerPosition) <= R.Width && prediction.Hitchance >= HitChance.High)
-                    {
-                        hit++;
-                    }
-                }
-            }
-
-            if (hit >= minHit)
-                R.Cast();
+            
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
@@ -319,12 +223,6 @@ namespace BlitzcrankGrabDAT
             if (Player.IsDead) return;
 
             Orbwalker.SetAttacks(true);
-
-            //Q grab on immobile
-            autoQ();
-
-            //Rmec
-            checkRMec();
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
@@ -335,50 +233,14 @@ namespace BlitzcrankGrabDAT
                 if (menu.Item("HarassActive").GetValue<KeyBind>().Active)
                     Harass();
 
-                if(menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
+                if (menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
                     Harass();
             }
-        }
-
-        public static bool useQonEnemy(Obj_AI_Hero target)
-        {
-            if (menu.Item("intR" + target.BaseSkinName) != null)
-                if (menu.Item("intR" + target.BaseSkinName).GetValue<bool>() == true)
-                return false;
-
-            return true;
         }
 
         public static bool packets()
         {
             return menu.Item("packet").GetValue<bool>();
-        }
-
-        public static void Orbwalking_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
-        {
-            var useECombo = menu.Item("UseECombo").GetValue<bool>();
-            var useEHarass = menu.Item("UseEHarass").GetValue<bool>();
-
-            if (unit.IsMe)
-            {
-                if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
-                {
-                    if (useECombo && E.IsReady())
-                    {
-                        Orbwalking.ResetAutoAttackTimer();
-                        E.Cast();
-                    }
-                }
-
-                if (menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
-                {
-                    if (useEHarass && E.IsReady())
-                    {
-                        Orbwalking.ResetAutoAttackTimer();
-                        E.Cast();
-                    }
-                }
-            }
         }
 
         private static void Drawing_OnDraw(EventArgs args)
@@ -387,14 +249,7 @@ namespace BlitzcrankGrabDAT
             {
                 var menuItem = menu.Item(spell.Slot + "Range").GetValue<Circle>();
                 if (menuItem.Active)
-                {
-                    if (spell == Q) {
-                        var qRange = menu.Item("qRange").GetValue<Slider>().Value;
-
-                        Q.Range = qRange;
-                    }
                     Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
-                }
             }
 
         }
@@ -402,6 +257,14 @@ namespace BlitzcrankGrabDAT
         public static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs attack)
         {
 
+        }
+
+        public static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        {
+            if (!menu.Item("UseGap").GetValue<bool>()) return;
+
+            if (W.IsReady() && gapcloser.Sender.IsValidTarget(W.Range))
+                W.Cast();
         }
 
         private static void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
