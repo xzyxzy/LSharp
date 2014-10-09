@@ -118,6 +118,7 @@ namespace AniviaTheTacoPhoenix
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use W to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use W for GapCloser").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("qKS", "Use Q to KS").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("eKS", "Use E to KS").SetValue(true));
 
@@ -187,13 +188,13 @@ namespace AniviaTheTacoPhoenix
                 var mypos = ObjectManager.Player.ServerPosition;
                 var newpos = pos + (pos - mypos) * (150 / ObjectManager.Player.Distance(wTarget));
 
-                W.Cast(newpos, true);
+                W.Cast(newpos, packets());
                 return;
             }
 
             if (useQ && qTarget != null && Q.IsReady() && Q.GetPrediction(qTarget).Hitchance >= HitChance.High && !qcreated && Player.Distance(qTarget) <= Q.Range)
             {
-                Q.Cast(qTarget, true);
+                Q.Cast(qTarget, packets());
                 return;
             }
 
@@ -209,9 +210,13 @@ namespace AniviaTheTacoPhoenix
 
             if (useE && eTarget != null && E.IsReady() && eTarget.HasBuff("Chilled") && Player.Distance(eTarget) <= E.Range)
             {
-                E.Cast(eTarget, true);
+                E.Cast(eTarget, packets());
             }
 
+        }
+        public static bool packets()
+        {
+            return menu.Item("packet").GetValue<bool>();
         }
 
         private static void Combo()
@@ -260,13 +265,13 @@ namespace AniviaTheTacoPhoenix
 
             if (useE && eTarget != null && E.IsReady() && Damage.GetSpellDamage(Player, eTarget, SpellSlot.E) >= eTarget.Health && Player.Distance(eTarget) <= E.Range)
             {
-                E.CastOnUnit(eTarget, true);
+                E.CastOnUnit(eTarget, packets());
             }
 
             if (useQ && qTarget != null && Q.IsReady() && Q.GetPrediction(qTarget).Hitchance >= HitChance.High && !qcreated && Damage.GetSpellDamage(Player, qTarget, SpellSlot.Q) >= qTarget.Health 
                 && Player.Distance(qTarget) <= Q.Range)
             {
-                Q.Cast(qTarget, true);
+                Q.Cast(qTarget, packets());
                 return;
             }
         }
@@ -286,7 +291,7 @@ namespace AniviaTheTacoPhoenix
                 var qPos = Q.GetLineFarmLocation(allMinionsQ);
                 if (qPos.MinionsHit >= 3)
                 {
-                    Q.Cast(qPos.Position, true);
+                    Q.Cast(qPos.Position, packets());
                 }
             }
 
@@ -384,7 +389,7 @@ namespace AniviaTheTacoPhoenix
             if (!menu.Item("UseGap").GetValue<bool>()) return;
 
             if (W.IsReady() && gapcloser.Sender.IsValidTarget(W.Range))
-                W.Cast(Player, true);
+                W.Cast(Player, packets());
         }
 
         private static void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
@@ -392,7 +397,7 @@ namespace AniviaTheTacoPhoenix
             if (!menu.Item("UseInt").GetValue<bool>()) return;
 
             if (W.IsReady() && Player.Distance(unit) <= W.Range)
-            W.Cast(unit);
+                W.Cast(unit, packets());
         }
     }
 }
