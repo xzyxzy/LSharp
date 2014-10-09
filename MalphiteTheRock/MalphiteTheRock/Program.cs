@@ -98,6 +98,7 @@ namespace MalphiteTheRock
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("useR_Hit", "Use R if hit").SetValue(new Slider(2, 5, 0)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
 
             //Damage after combo:
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
@@ -171,7 +172,7 @@ namespace MalphiteTheRock
 
             if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) < Q.Range)
             {
-                Q.CastOnUnit(qTarget, true);
+                Q.CastOnUnit(qTarget, packets());
                 return;
             }
 
@@ -194,6 +195,10 @@ namespace MalphiteTheRock
                 return;
             }
 
+        }
+        public static bool packets()
+        {
+            return menu.Item("packet").GetValue<bool>();
         }
 
         private static void Harass()
