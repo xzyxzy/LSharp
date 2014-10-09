@@ -292,7 +292,7 @@ namespace MalphiteTheRock
             //check if target is in range
             if (Player.Distance(rTarget) <= R.Range && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
             {
-                R.CastIfWillHit(rTarget, minHit, true);
+                R.CastIfWillHit(rTarget, minHit, packets());
             }
         }
 

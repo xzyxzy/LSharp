@@ -97,6 +97,7 @@ namespace Vladionic
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use W Against Gap Closer").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("StackE", "StackE (toggle)!").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Misc").AddItem(new MenuItem("useR_Hit", "Use R if hit").SetValue(new Slider(2, 5, 0)));
             menu.SubMenu("Misc").AddItem(new MenuItem("MoveToMouse", "MoveToMouse only").SetValue(new KeyBind("n".ToCharArray()[0], KeyBindType.Toggle)));
@@ -170,7 +171,7 @@ namespace Vladionic
 
             if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) <= Q.Range)
             {
-                Q.Cast(qTarget, true);
+                Q.Cast(qTarget, packets());
                 return;
             }
 
@@ -181,10 +182,15 @@ namespace Vladionic
 
             if (useR && rTarget != null && R.IsReady() && R.GetPrediction(rTarget).Hitchance >= HitChance.High && GetComboDamage(rTarget) > qTarget.Health + 150 && Player.Distance(rTarget) <= R.Range)
             {
-                R.Cast(rTarget, true);
+                R.Cast(rTarget, packets());
                 return;
             }
 
+        }
+
+        public static bool packets()
+        {
+            return menu.Item("packet").GetValue<bool>();
         }
 
         private static void Harass()
@@ -205,7 +211,7 @@ namespace Vladionic
             //check if target is in range
             if (Player.Distance(rTarget) <= R.Range && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
             {
-                R.CastIfWillHit(rTarget, minHit, true);
+                R.CastIfWillHit(rTarget, minHit, packets());
             }
         }
 
@@ -268,7 +274,7 @@ namespace Vladionic
                 {
                     if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < Damage.GetSpellDamage(Player, minion, SpellSlot.Q) - 10)
                     {
-                        Q.CastOnUnit(minion, true);
+                        Q.CastOnUnit(minion, packets());
                         return;
                     }
                 }
@@ -287,14 +293,14 @@ namespace Vladionic
 
             if (useQ && allMinionsQ.Count > 0 && Q.IsReady())
             {
-                Q.Cast(allMinionsQ[0], true);
+                Q.Cast(allMinionsQ[0], packets());
             }
 
             if (useE && E.IsReady())
             {
                 var ePos = E.GetCircularFarmLocation(rangedMinionsE);
                 if (ePos.MinionsHit >= 3)
-                    E.Cast(ePos.Position);
+                    E.Cast(ePos.Position, packets());
             }
         }
 
