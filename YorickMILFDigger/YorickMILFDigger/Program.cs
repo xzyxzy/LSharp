@@ -99,6 +99,7 @@ namespace YorickMILFDigger
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("useW_Hit", "Use W if hit").SetValue(new Slider(2, 5, 0)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoE", "Auto E enemy if HP <").SetValue(new Slider(50, 0, 100)));
             menu.SubMenu("Misc").AddItem(new MenuItem("useRHP", "R in combo if my %HP <= ").SetValue(new Slider(50, 0, 100)));
             menu.SubMenu("Misc").AddItem(new MenuItem("useRHPE", "R in combo if Enemy %HP <= ").SetValue(new Slider(50, 0, 100)));
@@ -174,7 +175,7 @@ namespace YorickMILFDigger
 
             if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
             {
-                W.Cast(wTarget, true);
+                W.Cast(wTarget, packets());
                 return;
             }
 
@@ -194,6 +195,10 @@ namespace YorickMILFDigger
             }
 
         }
+        public static bool packets()
+        {
+            return menu.Item("packet").GetValue<bool>();
+        }
 
         public static void checkR(Obj_AI_Hero target, Obj_AI_Hero enemy)
         {
@@ -207,12 +212,12 @@ namespace YorickMILFDigger
             {
                 if (target != null && enemy != null && target.BaseSkinName != Player.BaseSkinName && Player.Distance(target) <= R.Range && useR)
                 {
-                    R.Cast(target, true);
+                    R.Cast(target, packets());
                     return;
                 }
                 else if (enemy != null && Player.Distance(enemy) < R.Range)
                 {
-                    R.Cast(Player, true);
+                    R.Cast(Player, packets());
                 }
 
             }
@@ -221,7 +226,7 @@ namespace YorickMILFDigger
             {
                 if (enemy != null)
                 {
-                    R.Cast(Player, true);
+                    R.Cast(Player, packets());
                     return;
                 }
             }
@@ -239,6 +244,7 @@ namespace YorickMILFDigger
                     if(Q.IsReady() && target.IsValidTarget())
                         if (useQCombo || useQHarass)
                         {
+                            Orbwalking.ResetAutoAttackTimer();
                             Q.Cast();
                             Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(target.ServerPosition.To2D().X, target.ServerPosition.To2D().Y, 7, target.NetworkId, Player.NetworkId)).Send();
                         }
@@ -315,7 +321,7 @@ namespace YorickMILFDigger
                 {
                     if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < Damage.GetSpellDamage(Player, minion, SpellSlot.E) - 10)
                     {
-                        E.Cast(minion, true);
+                        E.Cast(minion, packets());
                         return;
                     }
                 }
@@ -344,7 +350,7 @@ namespace YorickMILFDigger
                 var wPos = W.GetCircularFarmLocation(rangedMinionsW);
                 if (wPos.MinionsHit >= 2)
                 {
-                    W.Cast(wPos.Position, true);
+                    W.Cast(wPos.Position, packets());
                 }
             }
         }
@@ -360,7 +366,7 @@ namespace YorickMILFDigger
             //check if target is in range
             if (Player.Distance(wTarget) <= W.Range && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
             {
-                W.CastIfWillHit(wTarget, minHit, true);
+                W.CastIfWillHit(wTarget, minHit, packets());
             }
         }
 
