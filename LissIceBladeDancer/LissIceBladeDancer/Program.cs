@@ -105,6 +105,7 @@ namespace LissIceBladeDancer
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use W for GapCloser").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseHAM", "Ham With E").SetValue(false));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseEGap", "Use E to Gap Close").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("gapD", "Min Distance").SetValue(new Slider(600, 300, 1050)));
@@ -225,20 +226,20 @@ namespace LissIceBladeDancer
             {
                 if (Player.Distance(qTarget) <= Q.Range && qTarget != null && Q.GetPrediction(qTarget).Hitchance >= HitChance.Medium)
                 {
-                    Q.Cast(qTarget, true, true);
+                    Q.Cast(qTarget, packets(), true);
                     return;
                 }
                 if (q2Target != null && Player.Distance(q2Target) <= Q2.Range)
                 {
                     if (QMinion != null)
-                        Q.Cast(QMinion, true, true);
+                        Q.Cast(QMinion, packets(), true);
                 }
             }
 
             if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range && (GetComboDamage(rTarget) >= qTarget.Health || menu.Item("UseHAM").GetValue<bool>() ||
                 menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active) && !ecreated)
             {
-                E.Cast(eTarget, true);
+                E.Cast(eTarget, packets());
                 return;
             }
 
@@ -248,6 +249,10 @@ namespace LissIceBladeDancer
                 return;
             }
 
+        }
+        public static bool packets()
+        {
+            return menu.Item("packet").GetValue<bool>();
         }
 
         private static void Harass()
@@ -284,7 +289,7 @@ namespace LissIceBladeDancer
 
             if (Player.Distance(Target.ServerPosition) >= distance && Target.IsValidTarget(E.Range) && !ecreated && E.GetPrediction(Target).Hitchance >= HitChance.Medium)
             {
-                E.Cast(Target, true);
+                E.Cast(Target, packets());
             }
         }
 
@@ -334,7 +339,7 @@ namespace LissIceBladeDancer
                 {
                     if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < Damage.GetSpellDamage(Player, minion, SpellSlot.Q) - 10)
                     {
-                        Q.Cast(minion, true);
+                        Q.Cast(minion, packets());
                         return;
                     }
                 }
@@ -357,14 +362,14 @@ namespace LissIceBladeDancer
             {
                 var ePos = E.GetLineFarmLocation(allMinionsE);
                 if (ePos.MinionsHit >= 3)
-                    E.Cast(ePos.Position, true);
+                    E.Cast(ePos.Position, packets());
             }
 
             if (useQ && Q.IsReady())
             {
                 var qPos = Q.GetLineFarmLocation(allMinionsQ);
                 if (qPos.MinionsHit >= 2)
-                    Q.Cast(qPos.Position, true);
+                    Q.Cast(qPos.Position, packets());
             }
 
             if (useW && W.IsReady())
@@ -405,7 +410,7 @@ namespace LissIceBladeDancer
 
             if (Player.Distance(unit) < R.Range && unit != null)
             {
-                R.CastOnUnit(unit);
+                R.CastOnUnit(unit, packets());
             }
         }
 
