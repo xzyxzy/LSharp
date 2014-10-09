@@ -96,6 +96,7 @@ namespace SkarnerHugeStinger
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use W To gap Close").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("towerR", "Auto R enemy under tower").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("toggleR", "Force R Toggle").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoW", "W If HP < %").SetValue(new Slider(40, 0, 100)));
@@ -172,7 +173,7 @@ namespace SkarnerHugeStinger
 
             if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) <= E.Range && E.GetPrediction(eTarget).Hitchance >= HitChance.High)
             {
-                E.Cast(E.GetPrediction(eTarget).CastPosition, true);
+                E.Cast(E.GetPrediction(eTarget).CastPosition, packets());
             }
 
             if (useR && rTarget != null && R.IsReady() && Player.Distance(rTarget) < R.Range)
@@ -181,6 +182,11 @@ namespace SkarnerHugeStinger
                 return;
             }
 
+        }
+
+        public static bool packets()
+        {
+            return menu.Item("packet").GetValue<bool>();
         }
 
         public static void castW(Obj_AI_Hero wTarget)
@@ -207,12 +213,12 @@ namespace SkarnerHugeStinger
         {
             if (GetComboDamage(target) >= target.Health - 100)
             {
-                R.CastOnUnit(target, true);
+                R.CastOnUnit(target, packets());
             }
 
             if (menu.Item("forceR").GetValue<KeyBind>().Active)
             {
-                R.CastOnUnit(target, true);
+                R.CastOnUnit(target, packets());
             }
         }
         private static void Harass()
@@ -232,7 +238,7 @@ namespace SkarnerHugeStinger
                         {
                             if (Vector2.Distance(enemy.Position.To2D(), turret.Position.To2D()) < 950)
                             {
-                                R.CastOnUnit(enemy, true);
+                                R.CastOnUnit(enemy, packets());
                             }
                         }
                     }
