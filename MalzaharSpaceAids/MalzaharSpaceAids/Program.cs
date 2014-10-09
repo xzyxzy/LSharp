@@ -96,6 +96,7 @@ namespace MalzaharSpaceAids
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use Q to Interrupt").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("MoveToMouse", "MoveToMouse only").SetValue(new KeyBind("n".ToCharArray()[0], KeyBindType.Toggle)));
 
             //Damage after combo:
@@ -134,7 +135,7 @@ namespace MalzaharSpaceAids
 
             if (Player.Distance(unit) < Q.Range)
             {
-                Q.Cast(unit);
+                Q.Cast(unit, packets());
             }
         }
 
@@ -173,29 +174,32 @@ namespace MalzaharSpaceAids
 
             if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && Q.GetPrediction(qTarget).Hitchance >= HitChance.High)
             {
-                Q.Cast(qTarget, true);
+                Q.Cast(qTarget, packets());
                 return;
             }
 
             if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
             {
-                W.Cast(wTarget, true);
+                W.Cast(wTarget, packets());
                 return;
             }
 
             if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) <= E.Range)
             {
-                E.CastOnUnit(eTarget, true);
+                E.CastOnUnit(eTarget, packets());
             }
 
             if (useR && rTarget != null && R.IsReady() && GetComboDamage(rTarget) > qTarget.Health && Player.Distance(rTarget) <= R.Range)
             {
-                R.Cast(rTarget, true);
+                R.Cast(rTarget, packets());
                 return;
             }
 
         }
-
+        public static bool packets()
+        {
+            return menu.Item("packet").GetValue<bool>();
+        }
         private static void Harass()
         {
             Orbwalker.SetAttacks(!(menu.Item("MoveToMouse").GetValue<KeyBind>().Active));
@@ -243,7 +247,7 @@ namespace MalzaharSpaceAids
                 {
                     if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < Damage.GetSpellDamage(Player, minion, SpellSlot.Q) - 10)
                     {
-                        Q.Cast(minion, true);
+                        Q.Cast(minion, packets());
                         return;
                     }
                 }
@@ -262,14 +266,14 @@ namespace MalzaharSpaceAids
 
             if (useE && allMinionsE.Count > 0 && E.IsReady())
             {
-                E.Cast(allMinionsE[0], true);
+                E.Cast(allMinionsE[0], packets());
             }
 
             if (useQ && Q.IsReady())
             {
                 var qPos = Q.GetCircularFarmLocation(rangedMinionsQ);
                 if (qPos.MinionsHit >= 3)
-                    Q.Cast(qPos.Position, true);
+                    Q.Cast(qPos.Position, packets());
             }
         }
 
