@@ -108,12 +108,13 @@ namespace OriannaWreckingBalls
 
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
-            //menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoW", "Use W if hit").SetValue(new Slider(2, 0, 5)));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoR", "Use R if hit").SetValue(new Slider(3, 0, 5)));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoE", "E If HP < %").SetValue(new Slider(40, 0, 100)));
             menu.SubMenu("Misc").AddItem(new MenuItem("blockR", "Block R if no enemy").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("overK", "OverKill Check").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             //menu.SubMenu("Combo").AddItem(new MenuItem("autoEDmg", "E If HP < %").SetValue(new Slider(2, 0, 5)));
 
             menu.SubMenu("Misc").AddSubMenu(new Menu("Auto use R on", "intR"));
@@ -149,7 +150,7 @@ namespace OriannaWreckingBalls
             //Events
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
-            //Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
+            Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             GameObject.OnCreate += OnCreate;
             GameObject.OnDelete += OnDelete;
@@ -271,6 +272,10 @@ namespace OriannaWreckingBalls
             }
 
         }
+        public static bool packets()
+        {
+            return menu.Item("packet").GetValue<bool>();
+        }
 
         public static void castW(Obj_AI_Base target)
         {
@@ -283,8 +288,9 @@ namespace OriannaWreckingBalls
 
                     if (W.IsReady() && target.Distance(Player.ServerPosition) <= W.Width && prediction.CastPosition.Distance(Player.ServerPosition) <= W.Width && prediction.Hitchance >= HitChance.Medium)
                     {
-                        W.Cast(prediction.CastPosition, true);
+                        W.Cast(prediction.CastPosition, packets());
                     }
+
                     break;
                 //on map
                 case 1:
@@ -292,7 +298,7 @@ namespace OriannaWreckingBalls
 
                     if (W.IsReady() && target.Distance(qpos.Position) <= W.Width && prediction2.CastPosition.Distance(qpos.Position) <= W.Width && prediction2.Hitchance >= HitChance.Medium)
                     {
-                        W.Cast(prediction2.CastPosition, true);
+                        W.Cast(prediction2.CastPosition, packets());
                     }
                     break;
                 //on ally
@@ -301,7 +307,7 @@ namespace OriannaWreckingBalls
 
                     if (W.IsReady() && target.Distance(qpos.Position) <= W.Width && prediction3.CastPosition.Distance(qpos.Position) <= W.Width && prediction3.Hitchance >= HitChance.Medium)
                     {
-                        W.Cast(prediction3.CastPosition, true);
+                        W.Cast(prediction3.CastPosition, packets());
                     }
                     break;
             }
@@ -319,7 +325,7 @@ namespace OriannaWreckingBalls
 
                     if (R.IsReady() && target.Distance(Player.ServerPosition) <= R.Width && prediction.CastPosition.Distance(Player.ServerPosition) <= R.Width && prediction.Hitchance >= HitChance.High)
                     {
-                        R.Cast(prediction.CastPosition, true);
+                        R.Cast(prediction.CastPosition, packets());
                     }
                     break;
                 //on map
@@ -328,7 +334,7 @@ namespace OriannaWreckingBalls
 
                     if (R.IsReady() && target.Distance(qpos.Position) <= R.Width && prediction2.CastPosition.Distance(qpos.Position) <= R.Width && prediction2.Hitchance >= HitChance.High)
                     {
-                        R.Cast(prediction2.CastPosition, true);
+                        R.Cast(prediction2.CastPosition, packets());
                     }
                     break;
                 //on ally
@@ -337,7 +343,7 @@ namespace OriannaWreckingBalls
 
                     if (R.IsReady() && target.Distance(qpos.Position) <= R.Width && prediction3.CastPosition.Distance(qpos.Position) <= R.Width && prediction3.Hitchance >= HitChance.High)
                     {
-                        R.Cast(prediction3.CastPosition, true);
+                        R.Cast(prediction3.CastPosition, packets());
                     }
                     break;
             }
@@ -353,7 +359,7 @@ namespace OriannaWreckingBalls
 
             if (hpPercent <= hp)
             {
-                E.CastOnUnit(Player, true);
+                E.CastOnUnit(Player, packets());
                 return;
             }
 
@@ -384,7 +390,7 @@ namespace OriannaWreckingBalls
 
                         if (MinTravelTime < TravelTime && Player.Distance(etarget.ServerPosition) <= E.Range)
                         {
-                            E.CastOnUnit(etarget, true);
+                            E.CastOnUnit(etarget, packets());
                             return;
                         }
                     }
@@ -397,7 +403,7 @@ namespace OriannaWreckingBalls
 
                          if (MinTravelTime2 < TravelTime2 && target.Distance(Player.ServerPosition) <= Q.Range + Q.Width)
                         {
-                            E.CastOnUnit(Player, true);
+                            E.CastOnUnit(Player, packets());
                         }
                     }
                     break;
@@ -424,7 +430,7 @@ namespace OriannaWreckingBalls
 
                         if (MinTravelTime3 < TravelTime3 && Player.Distance(etarget.ServerPosition) <= E.Range)
                         {
-                            E.CastOnUnit(etarget, true);
+                            E.CastOnUnit(etarget, packets());
                             return;
                         }
                     }
@@ -484,7 +490,7 @@ namespace OriannaWreckingBalls
                 case 0:
                     if (Q.IsReady() && Q.GetPrediction(target).Hitchance >= hitC && Player.Distance(target) <= Q.Range + Q.Width)
                     {
-                        Q.Cast(target, true);
+                        Q.Cast(target, packets());
                     }
                     break;
                 //on map
@@ -495,7 +501,7 @@ namespace OriannaWreckingBalls
 
                         if (Q.IsReady() && prediction.Hitchance >= hitC && Player.Distance(target) <= Q.Range + Q.Width)
                         {
-                            Q.Cast(prediction.CastPosition, true);
+                            Q.Cast(prediction.CastPosition, packets());
                         }
                     }
                     else
@@ -511,7 +517,7 @@ namespace OriannaWreckingBalls
 
                         if (Q.IsReady() && prediction2.Hitchance >= hitC && Player.Distance(target) <= Q.Range + Q.Width)
                         {
-                            Q.Cast(prediction2.CastPosition, true);
+                            Q.Cast(prediction2.CastPosition, packets());
                         }
                     }
                     else
@@ -639,14 +645,14 @@ namespace OriannaWreckingBalls
                             var qPos = Q.GetLineFarmLocation(allMinions);
 
                             if (qPos.MinionsHit >= 2)
-                            Q.Cast(qPos.Position, true);
+                                Q.Cast(qPos.Position, packets());
                         }
                         else if (ballStatus == 1 || ballStatus == 2)
                         {
                             var prediction = GetP(qpos.Position, Q, minion, true);
 
                             if(prediction.Hitchance >= HitChance.High)
-                            Q.Cast(prediction.CastPosition, true);
+                                Q.Cast(prediction.CastPosition, packets());
                         }
                     }
                 }
@@ -685,7 +691,7 @@ namespace OriannaWreckingBalls
                                 if (hit >= min)
                                 {
                                     if (prediction.Hitchance >= HitChance.High)
-                                        Q.Cast(prediction.CastPosition, true);
+                                        Q.Cast(prediction.CastPosition, packets());
 
                                 }
                         }
@@ -705,7 +711,7 @@ namespace OriannaWreckingBalls
                             if (hit >= min)
                             {
                                 if (prediction.Hitchance >= HitChance.High)
-                                Q.Cast(prediction.CastPosition, true);
+                                    Q.Cast(prediction.CastPosition, packets());
                             }
                         }
                     }
@@ -798,7 +804,11 @@ namespace OriannaWreckingBalls
 
             if (Player.Distance(unit) < R.Range && unit != null)
             {
-                //R.CastOnUnit(unit);
+                castR(unit);
+            }
+            else
+            {
+                castQ(unit, "Combo");
             }
         }
 
