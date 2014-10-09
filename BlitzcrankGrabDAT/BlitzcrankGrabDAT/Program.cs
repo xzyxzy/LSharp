@@ -76,6 +76,7 @@ namespace BlitzcrankGrabDAT
             menu.SubMenu("Combo").AddItem(new MenuItem("qHit", "Q HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("QE", "Use E on Grab").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("useRQ", "Use R After Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Orbwalk").GetValue<KeyBind>().Key, KeyBindType.Press)));
@@ -182,6 +183,7 @@ namespace BlitzcrankGrabDAT
             var qRange = menu.Item("qRange").GetValue<Slider>().Value;
 
             var RQ = menu.Item("useRQ").GetValue<bool>();
+            var QE = menu.Item("QE").GetValue<bool>();
 
             Q.Range = qRange;
 
@@ -231,6 +233,9 @@ namespace BlitzcrankGrabDAT
             if (useQ && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && qTarget != null && (Q.GetPrediction(qTarget).Hitchance >= hitC || shouldUseQ(qTarget)) && useQonEnemy(qTarget))
             {
                 Q.Cast(qTarget, packets());
+
+                if (QE && useE && E.IsReady())
+                    E.Cast();
             }
 
             if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < 300 && !menu.Item("resetE").GetValue<bool>() && !Q.IsReady())
