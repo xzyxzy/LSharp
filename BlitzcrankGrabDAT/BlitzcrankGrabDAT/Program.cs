@@ -93,7 +93,8 @@ namespace BlitzcrankGrabDAT
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("qRange", "Q Range Slider").SetValue(new Slider(900, 1, 950)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("qRange2", "Q Min Range Slider").SetValue(new Slider(300, 1, 950)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("qRange", "Q Max Range Slider").SetValue(new Slider(900, 1, 950)));
             menu.SubMenu("Misc").AddItem(new MenuItem("qSlow", "Auto Q Slow").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("qImmobile", "Auto Q Immobile").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("qDashing", "Auto Q Dashing").SetValue(true));
@@ -232,7 +233,7 @@ namespace BlitzcrankGrabDAT
                 Q.Cast(qTarget, packets());
             }
 
-            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range && !menu.Item("resetE").GetValue<bool>())
+            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < 300 && !menu.Item("resetE").GetValue<bool>() && !Q.IsReady())
             {
                 E.Cast();
             }
@@ -342,6 +343,16 @@ namespace BlitzcrankGrabDAT
 
         public static bool useQonEnemy(Obj_AI_Hero target)
         {
+            if (target.HasBuffOfType(BuffType.SpellImmunity))
+            {
+                //Game.PrintChat("Spell immune");
+                return false;
+            }
+
+            var qRangeMin = menu.Item("qRange2").GetValue<Slider>().Value;
+            if (Player.Distance(target.ServerPosition) < qRangeMin)
+                return false;
+
             if (menu.Item("intR" + target.BaseSkinName) != null)
                 if (menu.Item("intR" + target.BaseSkinName).GetValue<bool>() == true)
                 return false;
