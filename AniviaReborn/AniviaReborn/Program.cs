@@ -92,6 +92,7 @@ namespace AniviaReborn
             menu.SubMenu("Key").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Farm").GetValue<KeyBind>().Key, KeyBindType.Press)));
             menu.SubMenu("Key").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Key").AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind(menu.Item("LaneClear").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Key").AddItem(new MenuItem("snipe", "W/Q Snipe").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
             menu.SubMenu("Key").AddItem(new MenuItem("escape", "RUN FOR YOUR LIFE!").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
 
             //Combo menu:
@@ -122,6 +123,7 @@ namespace AniviaReborn
             menu.SubMenu("Misc").AddItem(new MenuItem("checkR", "Auto turn off R").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("detonateQ", "Auto Detonate Q").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("detonateQ2", "Pop Q Behind Enemy").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("wallKill", "Wall Enemy on killable").SetValue(true));
 
             //Damage after combo:
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
@@ -195,29 +197,25 @@ namespace AniviaReborn
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
-            if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range && shouldUseW(qTarget))
+            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range && shouldE(eTarget, Source))
             {
-                castW(wTarget);
-                return;
+                E.CastOnUnit(eTarget, packets());
             }
 
             if (useQ && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && qTarget != null && Q.GetPrediction(qTarget).Hitchance >= HitChance.High && shouldQ(qTarget))
             {
                 qPos = Q.GetPrediction(qTarget).CastPosition;
                 Q.Cast(qTarget, packets());
-                return;
             }
 
-            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range && shouldE(eTarget, Source))
+            if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range && shouldUseW(qTarget))
             {
-                E.CastOnUnit(eTarget, packets());
-                return;
+                castW(wTarget);
             }
 
             if (useR && rTarget != null && R.IsReady() && Player.Distance(rTarget) < R.Range && shouldR(rTarget, Source) && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
             {
                 R.Cast(rTarget, packets());
-                return;
             }
 
         }
@@ -249,17 +247,17 @@ namespace AniviaReborn
             if (checkChilled(target))
                 return true;
 
-            if (Player.GetSpellDamage(target, SpellSlot.E) - 15 > target.Health)
+            if (Player.GetSpellDamage(target, SpellSlot.E) > target.Health)
                 return true;
 
-            if (R.IsReady() && Player.Distance(target) <= R.Range && source == "Harass")
+            if (R.IsReady() && Player.Distance(target) <= R.Range - 25 && Player.Distance(target.ServerPosition) > 250)
                 return true;
                 
             return false;
         }
         public static bool shouldUseW(Obj_AI_Hero target)
         {
-            if (GetComboDamage(target) >= target.Health - 20)
+            if (GetComboDamage(target) >= target.Health - 20 && menu.Item("wallKill").GetValue<bool>())
                 return true;
 
             if(rFirstCreated && rObj != null)
@@ -269,7 +267,6 @@ namespace AniviaReborn
                     return true;
                 }
             }
-
             return false;
         }
 
@@ -281,6 +278,14 @@ namespace AniviaReborn
 
             W.Cast(CastBehind, packets());
         }
+
+        /*public static void castWBetween()
+        {
+            var enemy = (from champ in ObjectManager.Get<Obj_AI_Hero>() where Player.Distance(champ.ServerPosition) < W.Range && champ.IsEnemy && champ.IsValid select champ).ToList();
+            enemy.OrderBy(x => rObj.Position.Distance(x.ServerPosition));
+
+            castW(enemy.FirstOrDefault());
+        }*/
 
         public static void castWEscape(Obj_AI_Hero target)
         {
@@ -302,7 +307,7 @@ namespace AniviaReborn
 
             foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsValidTarget()))
             {
-                if (qMissle != null && enemy.ServerPosition.Distance(qMissle.Position) < Q.Width && enemy != null && Q.IsReady())
+                if (qMissle != null && enemy.ServerPosition.Distance(qMissle.Position) < 110 && enemy != null && Q.IsReady())
                 {
                     //check if user wnat chill to behind target
                     if (Q2)
@@ -327,13 +332,17 @@ namespace AniviaReborn
             }
         }
 
-        public static Obj_AI_Hero nearestChamp()
+        public static void snipe()
         {
-            var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where rObj.Position.Distance(champ.ServerPosition) < 2500 && champ.IsEnemy && champ.IsValid select champ).ToList();
-            nearChamps.OrderBy(x => rObj.Position.Distance(x.ServerPosition));
+            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
 
-            
-           return nearChamps.FirstOrDefault();
+            Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+
+            if(W.IsReady() && Q.IsReady() && Player.Distance(qTarget.ServerPosition) < W.Range)
+                castW(qTarget);
+
+            if (!W.IsReady() && Q.IsReady() && Player.Distance(qTarget.ServerPosition) < Q.Range && Q.GetPrediction(qTarget).Hitchance >= HitChance.High && !qFirstCreated)
+                Q.Cast(Q.GetPrediction(qTarget).CastPosition, packets());
         }
 
         public static void checkR()
@@ -396,7 +405,8 @@ namespace AniviaReborn
             if (useR & R.IsReady() && !rFirstCreated)
             {
                 var rPos = R.GetCircularFarmLocation(allMinionsR);
-                R.Cast(rPos.Position, packets());
+                if (Player.Distance(rPos.Position) < R.Range)
+                    R.Cast(rPos.Position, packets());
             }
 
             if (qFirstCreated)
@@ -433,7 +443,16 @@ namespace AniviaReborn
         private static void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
-            if (Player.IsDead) return;
+            if (Player.IsDead)
+            {
+                //reset on death
+                qMissle = null;
+                qFirstCreated = false;
+                eCasted = false;
+                rObj = null;
+                rFirstCreated = false;
+                return;
+            }
 
             Orbwalker.SetAttacks(true);
 
@@ -449,6 +468,9 @@ namespace AniviaReborn
 
             if (menu.Item("escape").GetValue<KeyBind>().Active)
                 escape();
+
+            if (menu.Item("snipe").GetValue<KeyBind>().Active)
+                snipe();
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
@@ -486,10 +508,18 @@ namespace AniviaReborn
         public static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs attack)
         {
             if (unit.IsMe)
+            {
                 if (attack.SData.Name == "Frostbite")
                 {
                     eCasted = true;
                 }
+
+                if (attack.SData.Name == "FlashFrost" && !qFirstCreated)
+                {
+                    Game.PrintChat("woot");
+                    qFirstCreated = true;
+                }
+            }
         }
 
         public static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
