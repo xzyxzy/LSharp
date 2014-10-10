@@ -208,7 +208,7 @@ namespace AniviaReborn
                 return;
             }
 
-            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range && shouldE(eTarget))
+            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range && shouldE(eTarget, Source))
             {
                 E.CastOnUnit(eTarget, packets());
                 return;
@@ -244,7 +244,7 @@ namespace AniviaReborn
             return false;
         }
 
-        public static bool shouldE(Obj_AI_Hero target)
+        public static bool shouldE(Obj_AI_Hero target, string source)
         {
             if (checkChilled(target))
                 return true;
@@ -252,7 +252,7 @@ namespace AniviaReborn
             if (Player.GetSpellDamage(target, SpellSlot.E) - 15 > target.Health)
                 return true;
 
-            if (R.IsReady() && Player.Distance(target) <= R.Range)
+            if (R.IsReady() && Player.Distance(target) <= R.Range && source == "Harass")
                 return true;
                 
             return false;
