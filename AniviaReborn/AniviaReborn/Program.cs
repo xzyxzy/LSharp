@@ -516,7 +516,7 @@ namespace AniviaReborn
 
                 if (attack.SData.Name == "FlashFrost" && !qFirstCreated)
                 {
-                    Game.PrintChat("woot");
+                    //Game.PrintChat("woot");
                     qFirstCreated = true;
                 }
             }
