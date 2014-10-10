@@ -527,7 +527,10 @@ namespace AniviaReborn
             if (!menu.Item("UseGap").GetValue<bool>()) return;
 
             if (W.IsReady() && gapcloser.Sender.IsValidTarget(W.Range))
-                W.Cast(gapcloser.Sender);
+            {
+                var vec = Player.ServerPosition - Vector3.Normalize(Player.ServerPosition - gapcloser.Sender.ServerPosition) * 1;
+                    W.Cast(vec, packets());
+            }
         }
 
         private static void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
