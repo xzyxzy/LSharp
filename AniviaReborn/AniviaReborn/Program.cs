@@ -221,7 +221,7 @@ namespace AniviaReborn
 
             if (useR && rTarget != null && R.IsReady() && Player.Distance(rTarget) < R.Range && shouldR(rTarget, Source) && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
             {
-                R.Cast(R.GetPrediction(rTarget).CastPosition, packets());
+                R.Cast(R.GetPrediction(rTarget).CastPosition);
                 rFirstCreated = true;
                 rByMe = true;
             }
@@ -426,7 +426,7 @@ namespace AniviaReborn
             {
                 var rPos = R.GetCircularFarmLocation(allMinionsR);
                 if (Player.Distance(rPos.Position) < R.Range)
-                    R.Cast(rPos.Position, packets());
+                    R.Cast(rPos.Position);
             }
 
             if (qFirstCreated)
