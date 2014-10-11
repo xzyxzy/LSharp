@@ -101,6 +101,7 @@ namespace BlitzcrankGrabDAT
             menu.SubMenu("Misc").AddItem(new MenuItem("qDashing", "Auto Q Dashing").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("resetE", "Use E AA reset Only").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoR", "Use R if hit").SetValue(new Slider(3, 0, 5)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("panic", "Panic Key(no spell)").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Toggle)));
 
             menu.SubMenu("Misc").AddSubMenu(new Menu("Don't use Q on", "intR"));
 
@@ -325,6 +326,12 @@ namespace BlitzcrankGrabDAT
             if (Player.IsDead) return;
 
             Orbwalker.SetAttacks(true);
+
+            if (menu.Item("panic").GetValue<KeyBind>().Active)
+            {
+                Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+                return;
+            }
 
             //Q grab on immobile
             autoQ();
