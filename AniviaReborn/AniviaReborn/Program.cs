@@ -66,7 +66,7 @@ namespace AniviaReborn
 
             Q.SetSkillshot(.25f, 75f, 650f, false, SkillshotType.SkillshotLine);
             W.SetSkillshot(.25f, 1f, float.MaxValue, false, SkillshotType.SkillshotLine);
-            R.SetSkillshot(.25f, 100f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            R.SetSkillshot(.25f, 200f, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -211,7 +211,6 @@ namespace AniviaReborn
 
                 qPos = CastBehind;
                 Q.Cast(qTarget, packets());
-                qFirstCreated = true;
             }
 
             if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range && shouldUseW(qTarget))
@@ -219,11 +218,10 @@ namespace AniviaReborn
                 castW(wTarget);
             }
 
-            if (useR && rTarget != null && R.IsReady() && Player.Distance(rTarget) < R.Range && shouldR(rTarget, Source) && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
+            if (useR && rTarget != null && R.IsReady() && Player.Distance(rTarget) < R.Range && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
             {
-                R.Cast(R.GetPrediction(rTarget).CastPosition);
-                rFirstCreated = true;
-                rByMe = true;
+                if(shouldR(rTarget, Source))
+                    R.Cast(rTarget);
             }
 
         }
@@ -238,11 +236,16 @@ namespace AniviaReborn
 
         public static bool shouldR(Obj_AI_Hero target, string source)
         {
-            if (rObj != null && rFirstCreated)
+            if (rFirstCreated)
+            {
+                //Game.PrintChat("Bleh");
                 return false;
-
+            }
             if (rByMe)
+            {
+                Game.PrintChat("Bleh2");
                 return false;
+            }
 
             if (eCasted)
                 return true;
@@ -319,7 +322,7 @@ namespace AniviaReborn
 
             foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsValidTarget()))
             {
-                if (qMissle != null && enemy.ServerPosition.Distance(qMissle.Position) < 110 && enemy != null && Q.IsReady())
+                if (qMissle != null && shouldDetonate(enemy) && enemy != null && Q.IsReady())
                 {
                     //check if user wnat chill to behind target
                     if (Q2)
@@ -360,6 +363,7 @@ namespace AniviaReborn
             {
                 Q.Cast(Q.GetPrediction(qTarget).CastPosition, packets());
                 qFirstCreated = true;
+                return;
             }
         }
 
@@ -390,11 +394,13 @@ namespace AniviaReborn
             if (Q.IsReady() && Player.Distance(enemy.FirstOrDefault()) <= Q.Range && enemy != null && Q.GetPrediction(enemy.FirstOrDefault()).Hitchance >= HitChance.High && !qFirstCreated)
             {
                 Q.Cast(enemy.FirstOrDefault(), packets());
+                qFirstCreated = true;
             }
 
             if (enemy != null && W.IsReady() && Player.Distance(enemy.FirstOrDefault()) <= W.Range)
             {
                 castWEscape(enemy.FirstOrDefault());
+                return;
             }
 
         }
@@ -487,17 +493,18 @@ namespace AniviaReborn
                 checkR();
 
             if (menu.Item("escape").GetValue<KeyBind>().Active)
+            {
                 escape();
-
-            if (menu.Item("snipe").GetValue<KeyBind>().Active)
-                snipe();
-
-            if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
+            }
+            else if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 Combo();
             }
             else
             {
+
+                if (menu.Item("snipe").GetValue<KeyBind>().Active)
+                    snipe();
 
                 if (menu.Item("LaneClearActive").GetValue<KeyBind>().Active)
                     Farm();
@@ -571,7 +578,7 @@ namespace AniviaReborn
 
         private static void OnCreate(GameObject obj, EventArgs args)
         {
-            //if(Player.Distance(obj.Position) < 1500)
+            //if(Player.Distance(obj.Position) < 300)
                 //Game.PrintChat("OBJ: " + obj.Name);
 
             if (Player.Distance(obj.Position) < 1500)
@@ -586,6 +593,9 @@ namespace AniviaReborn
                 //R
                 if (obj != null && obj.IsValid && obj.Name.Contains("cryo_storm"))
                 {
+                    if (menu.Item("ComboActive").GetValue<KeyBind>().Active || menu.Item("LaneClearActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
+                        rByMe = true;
+
                     rObj = obj;
                     rFirstCreated = true;
                     return;
@@ -617,6 +627,7 @@ namespace AniviaReborn
                     //R
                     if (obj != null && obj.IsValid && obj.Name.Contains("cryo_storm"))
                     {
+                        //Game.PrintChat("woot");
                         rObj = null;
                         rFirstCreated = false;
                         rByMe = false;
