@@ -201,7 +201,7 @@ namespace ViktorTheMindBlower
             {
                 Orbwalker.SetMovement(true);
                 Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
-                Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+                //Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
                 chargeQ = false;
             }
 
@@ -239,7 +239,7 @@ namespace ViktorTheMindBlower
             {
                 if (buffs.Name == "ViktorPowerTransfer" && menu.Item("autoAtk").GetValue<bool>() && Player.Distance(qTarget) <= 525)
                 {
-                    Player.IssueOrder(GameObjectOrder.AttackUnit, qTarget);
+                    //Player.IssueOrder(GameObjectOrder.AttackUnit, qTarget);
                     chargeQ = true;
                     return;
                 }
