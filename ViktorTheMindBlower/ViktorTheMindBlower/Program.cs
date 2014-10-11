@@ -155,10 +155,14 @@ namespace ViktorTheMindBlower
 
         private static void OnCreate(GameObject obj, EventArgs args)
         {
-            if (Player.Distance(obj.Position) < 2500)
+            //if (Player.Distance(obj.Position) < 400 && obj.Name != "missile")
+                //Game.PrintChat("Obj: " + obj.Name);
+
+            if (Player.Distance(obj.Position) < 3000)
             {
-                if (obj != null && obj.IsValid && obj.Name.Contains("storm"))
+                if (obj != null && obj.IsValid && obj.Name.Contains("Viktor_Base_R"))
                 {
+                    Game.PrintChat("woot");
                     activeR = true;
                     rObj = obj;
                 }
@@ -168,10 +172,13 @@ namespace ViktorTheMindBlower
 
         private static void OnDelete(GameObject obj, EventArgs args)
         {
-            if (Player.Distance(obj.Position) < 2500)
+            //if (Player.Distance(obj.Position) < 400 && obj.Name != "missile")
+                //Game.PrintChat("Obj2: " + obj.Name);
+            if (Player.Distance(obj.Position) < 3000)
             {
-                if (obj != null && obj.IsValid && obj.Name.Contains("storm"))
+                if (obj != null && obj.IsValid && obj.Name.Contains("Viktor_Base_R"))
                 {
+                    Game.PrintChat("woot2");
                     activeR = false;
                     rObj = null;
                 }
@@ -193,6 +200,8 @@ namespace ViktorTheMindBlower
             if (unit.IsMe && chargeQ)
             {
                 Orbwalker.SetMovement(true);
+                Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+                Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
                 chargeQ = false;
             }
 
@@ -230,6 +239,7 @@ namespace ViktorTheMindBlower
             {
                 if (buffs.Name == "ViktorPowerTransfer" && menu.Item("autoAtk").GetValue<bool>() && Player.Distance(qTarget) <= 525)
                 {
+                    Player.IssueOrder(GameObjectOrder.AttackUnit, qTarget);
                     chargeQ = true;
                     return;
                 }
@@ -249,6 +259,7 @@ namespace ViktorTheMindBlower
             if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) <= Q.Range)
             {
                 Q.CastOnUnit(qTarget, menu.Item("packet").GetValue<bool>());
+                Player.IssueOrder(GameObjectOrder.AttackUnit, qTarget);
                 return;
             }
 
@@ -294,13 +305,12 @@ namespace ViktorTheMindBlower
             Orbwalker.SetAttacks(true);
 
             int rTimeLeft = Environment.TickCount - lastR;
-            if ((rTimeLeft <= 500))
+            if ((rTimeLeft <= 750))
             {
                 autoR();
                 lastR = Environment.TickCount - 250;
             }
             
-
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 mecR();
