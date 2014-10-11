@@ -40,6 +40,7 @@ namespace AniviaReborn
         //R
         public static GameObject rObj = null;
         public static bool rFirstCreated = false;
+        public static bool rByMe = false;
 
         //Menu
         public static Menu menu;
@@ -204,8 +205,13 @@ namespace AniviaReborn
 
             if (useQ && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && qTarget != null && Q.GetPrediction(qTarget).Hitchance >= HitChance.High && shouldQ(qTarget))
             {
-                qPos = Q.GetPrediction(qTarget).CastPosition;
+                var qPos2 = Q.GetPrediction(qTarget).CastPosition;
+                var vec = new Vector3(qPos2.X - Player.ServerPosition.X, 0, qPos2.Z - Player.ServerPosition.Z);
+                var CastBehind = qPos2 + Vector3.Normalize(vec) * 100;
+
+                qPos = CastBehind;
                 Q.Cast(qTarget, packets());
+                qFirstCreated = true;
             }
 
             if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range && shouldUseW(qTarget))
@@ -215,7 +221,9 @@ namespace AniviaReborn
 
             if (useR && rTarget != null && R.IsReady() && Player.Distance(rTarget) < R.Range && shouldR(rTarget, Source) && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
             {
-                R.Cast(rTarget, packets());
+                R.Cast(R.GetPrediction(rTarget).CastPosition, packets());
+                rFirstCreated = true;
+                rByMe = true;
             }
 
         }
@@ -230,7 +238,10 @@ namespace AniviaReborn
 
         public static bool shouldR(Obj_AI_Hero target, string source)
         {
-            if (rObj != null & rFirstCreated)
+            if (rObj != null && rFirstCreated)
+                return false;
+
+            if (rByMe)
                 return false;
 
             if (eCasted)
@@ -262,11 +273,12 @@ namespace AniviaReborn
 
             if(rFirstCreated && rObj != null)
             {
-                if (rObj.Position.Distance(target.ServerPosition) > R.Width - 50)
+                if (rObj.Position.Distance(target.ServerPosition) > 300)
                 {
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -312,15 +324,8 @@ namespace AniviaReborn
                     //check if user wnat chill to behind target
                     if (Q2)
                     {
-                        var vec = new Vector3(qPos.X - Player.ServerPosition.X, 0, qPos.Z - Player.ServerPosition.Z);
-                        var CastBehind = qPos + Vector3.Normalize(vec) * 100;
-
                         if (checkChilled(enemy))
                             Q.Cast();
-                        if (qMissle.Position.Distance(CastBehind) < 50)
-                        {
-                            Q.Cast();
-                        }
                         else
                             return;
                     }
@@ -332,6 +337,16 @@ namespace AniviaReborn
             }
         }
 
+        public static bool shouldDetonate(Obj_AI_Hero target)
+        {
+            if (target.ServerPosition.Distance(qMissle.Position) < 110)
+                return true;
+
+            if (qMissle.Position.Distance(qPos) < 50)
+                return true;
+
+            return false;
+        }
         public static void snipe()
         {
             var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
@@ -342,7 +357,10 @@ namespace AniviaReborn
                 castW(qTarget);
 
             if (!W.IsReady() && Q.IsReady() && Player.Distance(qTarget.ServerPosition) < Q.Range && Q.GetPrediction(qTarget).Hitchance >= HitChance.High && !qFirstCreated)
+            {
                 Q.Cast(Q.GetPrediction(qTarget).CastPosition, packets());
+                qFirstCreated = true;
+            }
         }
 
         public static void checkR()
@@ -350,14 +368,16 @@ namespace AniviaReborn
             int hit = 0;
             foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsValidTarget()))
             {
-                if (rObj != null && enemy != null && R.IsReady() && rObj.Position.Distance(enemy.ServerPosition) < R.Width + 50)
+                if (rObj != null && enemy != null && R.IsReady() && rObj.Position.Distance(enemy.ServerPosition) < 450 + 50)
                 {
                     hit++;
                 }
             }
 
-            if (hit < 1)
+            if (hit < 1 && R.IsReady() && rObj != null && rFirstCreated)
+            {
                 R.Cast();
+            }
         }
 
         public static void escape()
@@ -449,8 +469,8 @@ namespace AniviaReborn
                 qMissle = null;
                 qFirstCreated = false;
                 eCasted = false;
-                rObj = null;
-                rFirstCreated = false;
+                //rObj = null;
+                //rFirstCreated = false;
                 return;
             }
 
@@ -463,7 +483,7 @@ namespace AniviaReborn
 
             //checkR
             var rCheck = menu.Item("checkR").GetValue<bool>();
-            if (rCheck && rFirstCreated && !menu.Item("LaneClearActive").GetValue<KeyBind>().Active)
+            if (rCheck && rFirstCreated && !menu.Item("LaneClearActive").GetValue<KeyBind>().Active && rByMe)
                 checkR();
 
             if (menu.Item("escape").GetValue<KeyBind>().Active)
@@ -568,6 +588,7 @@ namespace AniviaReborn
                 {
                     rObj = obj;
                     rFirstCreated = true;
+                    return;
                 }
             }
         }
@@ -598,6 +619,7 @@ namespace AniviaReborn
                     {
                         rObj = null;
                         rFirstCreated = false;
+                        rByMe = false;
                     }
                 }
             }
