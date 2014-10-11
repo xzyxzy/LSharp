@@ -162,7 +162,7 @@ namespace ViktorTheMindBlower
             {
                 if (obj != null && obj.IsValid && obj.Name.Contains("Viktor_Base_R"))
                 {
-                    Game.PrintChat("woot");
+                    //Game.PrintChat("woot");
                     activeR = true;
                     rObj = obj;
                 }
@@ -178,7 +178,7 @@ namespace ViktorTheMindBlower
             {
                 if (obj != null && obj.IsValid && obj.Name.Contains("Viktor_Base_R"))
                 {
-                    Game.PrintChat("woot2");
+                    //Game.PrintChat("woot2");
                     activeR = false;
                     rObj = null;
                 }
