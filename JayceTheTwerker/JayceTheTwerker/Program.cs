@@ -72,8 +72,8 @@ namespace JayceTheTwerker
             E2 = new Spell(SpellSlot.E, 240);
             R = new Spell(SpellSlot.R, float.MaxValue);
 
-            Q.SetSkillshot(0.1515f, 70, 1300, true, SkillshotType.SkillshotLine);
-            QCharge.SetSkillshot(0.1515f, 70, 2350, true, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0.1515f, 60, 1300, true, SkillshotType.SkillshotLine);
+            QCharge.SetSkillshot(0.1515f, 60, 2000, true, SkillshotType.SkillshotLine);
             Q2.SetTargetted(0.25f, float.MaxValue);
             E.SetSkillshot(0.1f, 120, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E2.SetTargetted(.25f, float.MaxValue);
@@ -137,7 +137,7 @@ namespace JayceTheTwerker
             menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use E for GapCloser").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("forceGate", "Force Gate After Q").SetValue(false));
-            menu.SubMenu("Misc").AddItem(new MenuItem("gatePlace", "Gate Distance").SetValue(new Slider(300, 150, 600)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("gatePlace", "Gate Distance").SetValue(new Slider(300, 250, 600)));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseQAlways", "Use Q When E onCD").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoE", "EPushInCombo HP < %").SetValue(new Slider(40, 0, 100)));
             menu.SubMenu("Misc").AddItem(new MenuItem("smartKS", "Smart KS").SetValue(true));
@@ -246,11 +246,11 @@ namespace JayceTheTwerker
                     if (useW2 && Player.Distance(q2Target) <= 300)
                         W.Cast();
 
-                    if (useQ2 && Player.Distance(q2Target) <= Q2.Range)
-                        Q2.CastOnUnit(q2Target, menu.Item("packet").GetValue<bool>());
+                    if (useQ2 && Player.Distance(q2Target) <= Q2.Range + q2Target.BoundingRadius)
+                        Q2.Cast(q2Target, menu.Item("packet").GetValue<bool>());
 
-                    if (useE2 && eCheck(e2Target, useQ, useW))
-                        E2.CastOnUnit(q2Target, menu.Item("packet").GetValue<bool>());
+                    if (useE2 && eCheck(e2Target, useQ, useW) && Player.Distance(e2Target) <= E2.Range + q2Target.BoundingRadius)
+                        E2.Cast(q2Target, menu.Item("packet").GetValue<bool>());
                 }
 
                 //form switch check
@@ -271,11 +271,11 @@ namespace JayceTheTwerker
                     if (useW2 && Player.Distance(q2Target) <= 300)
                         W.Cast();
 
-                    if(useQ2 && Player.Distance(q2Target) <= Q2.Range)
-                        Q2.CastOnUnit(q2Target, menu.Item("packet").GetValue<bool>());
+                    if(useQ2 && Player.Distance(q2Target) <= Q2.Range + q2Target.BoundingRadius)
+                        Q2.Cast(q2Target, menu.Item("packet").GetValue<bool>());
 
-                    if (useE2 && Player.Distance(q2Target) <= E2.Range)
-                        E2.CastOnUnit(q2Target, menu.Item("packet").GetValue<bool>());
+                    if (useE2 && Player.Distance(q2Target) <= E2.Range + q2Target.BoundingRadius)
+                        E2.Cast(q2Target, menu.Item("packet").GetValue<bool>());
                 }
 
                 //form switch check
@@ -287,7 +287,7 @@ namespace JayceTheTwerker
 
         public static bool eCheck(Obj_AI_Hero target, bool useQ, bool useW)
         {
-            if (Player.Distance(target) <= E2.Range && Player.GetSpellDamage(target, SpellSlot.E) >= target.Health)
+            if (Player.GetSpellDamage(target, SpellSlot.E) >= target.Health)
             {
                 //Game.PrintChat("Hammer KS");
                 return true;
@@ -358,42 +358,42 @@ namespace JayceTheTwerker
                     }
 
                     //Hammer Q
-                    if ((Player.GetSpellDamage(enemy, SpellSlot.Q, 1) - 20) > enemy.Health && hamQcd == 0 && Player.Distance(enemy.ServerPosition) <= 650)
+                    if ((Player.GetSpellDamage(enemy, SpellSlot.Q, 1) - 20) > enemy.Health && hamQcd == 0 && Player.Distance(enemy.ServerPosition) <= Q2.Range + enemy.BoundingRadius)
                     {
                         if (!HammerTime && R.IsReady())
                             R.Cast();
 
                         if (HammerTime)
                         {
-                            Q2.CastOnUnit(enemy, menu.Item("packet").GetValue<bool>());
+                            Q2.Cast(enemy, menu.Item("packet").GetValue<bool>());
                             return;
                         }
                     }
 
                     //Hammer E
-                    if ((Player.GetSpellDamage(enemy, SpellSlot.E) - 20) > enemy.Health && hamEcd == 0 && Player.Distance(enemy.ServerPosition) <= 260)
+                    if ((Player.GetSpellDamage(enemy, SpellSlot.E) - 20) > enemy.Health && hamEcd == 0 && Player.Distance(enemy.ServerPosition) <= E2.Range + enemy.BoundingRadius)
                     {
                         if (!HammerTime && R.IsReady())
                             R.Cast();
 
                         if (HammerTime)
                         {
-                            E2.CastOnUnit(enemy, menu.Item("packet").GetValue<bool>());
+                            E2.Cast(enemy, menu.Item("packet").GetValue<bool>());
                             return;
                         }
                     }
 
                     //Hammer QE
                     if ((Player.GetSpellDamage(enemy, SpellSlot.E) + Player.GetSpellDamage(enemy, SpellSlot.Q, 1) - 20) > enemy.Health 
-                        && hamEcd == 0 && hamQcd == 0 && Player.Distance(enemy.ServerPosition) <= 650)
+                        && hamEcd == 0 && hamQcd == 0 && Player.Distance(enemy.ServerPosition) <= Q2.Range + enemy.BoundingRadius)
                     {
                         if (!HammerTime && R.IsReady())
                             R.Cast();
 
                         if (HammerTime)
                         {
-                            Q2.CastOnUnit(enemy, menu.Item("packet").GetValue<bool>());
-                            E2.CastOnUnit(enemy, menu.Item("packet").GetValue<bool>());
+                            Q2.Cast(enemy, menu.Item("packet").GetValue<bool>());
+                            E2.Cast(enemy, menu.Item("packet").GetValue<bool>());
                             return;
                         }
                     }
@@ -481,34 +481,36 @@ namespace JayceTheTwerker
             if (tarPred.Hitchance >= HitChance.High && canQcd == 0 && canEcd == 0 && useE && !firstE)
             {
                 var GateVector = Player.Position + Vector3.Normalize(target.ServerPosition - Player.Position) * gateDis;
-                var addedDelay = Player.Distance(GateVector) / Q.Speed + Q.Delay + 0.250f;
-                var FinalPred = GetP(Player.ServerPosition, QCharge, target, addedDelay, QCharge.Speed, true);
+                var vecClose = Player.ServerPosition - Vector3.Normalize(Player.ServerPosition - target.ServerPosition) * 50;
 
-                if (FinalPred.Hitchance >= HitChance.High && Player.Distance(FinalPred.CastPosition) <= QCharge.Range)
+                if (Player.Distance(tarPred.CastPosition) < QCharge.Range + 100)
                 {
-                    var GateVector2 = Player.Position + Vector3.Normalize(FinalPred.CastPosition - Player.Position) * gateDis;
-                    
-                    var Speed = (Player.Distance(GateVector2) / Player.Distance(target)) * Q.Speed + (Player.Distance(GateVector2) / Player.Distance(target)) * QCharge.Speed;
-
-                    var shootPred = GetP(Player.ServerPosition, QCharge, target, QCharge.Delay, Speed, true);
-
-                    if (Player.Distance(shootPred.CastPosition) < QCharge.Range + 150)
+                    if (!lagFree)
                     {
-                        if (!lagFree)
+                        if (Player.Distance(target) < 250)
                         {
-                            ePos = GateVector2;
-                            QCharge.Cast(shootPred.CastPosition, menu.Item("packet").GetValue<bool>());
+                            ePos = vecClose;
+                            QCharge.Cast(tarPred.CastPosition, menu.Item("packet").GetValue<bool>());
                             firstE = true;
                             return;
                         }
                         else
                         {
-                            E.Cast(GateVector2, menu.Item("packet").GetValue<bool>());
-                            QCharge.Cast(shootPred.CastPosition, menu.Item("packet").GetValue<bool>());
+                            ePos = GateVector;
+                            QCharge.Cast(tarPred.CastPosition, menu.Item("packet").GetValue<bool>());
+                            firstE = true;
                             return;
                         }
                     }
+                    else
+                    {
+                        E.Cast(GateVector, menu.Item("packet").GetValue<bool>());
+                        QCharge.Cast(tarPred.CastPosition, menu.Item("packet").GetValue<bool>());
+                        return;
+                    }
                 }
+
+                Q.Cast(tarPred.CastPosition, menu.Item("packet").GetValue<bool>());
             }
 
             if ((menu.Item("UseQAlways").GetValue<bool>() || !useE) && canQcd == 0 && Q.GetPrediction(target).Hitchance >= HitChance.High && Player.Distance(target.ServerPosition) <= Q.Range)
@@ -734,7 +736,7 @@ namespace JayceTheTwerker
                 else if (menu.Item("forceGate").GetValue<bool>() && canEcd == 0 && Player.Distance(spell.Position) < 250)
                 {
                     firstE = false;
-                    E.Cast(spell.Position, menu.Item("packet").GetValue<bool>());
+                    E.Cast(spell.EndPosition, menu.Item("packet").GetValue<bool>());
                 }
             }
         }
@@ -762,21 +764,28 @@ namespace JayceTheTwerker
         {
             if (!menu.Item("UseGap").GetValue<bool>()) return;
 
-            if (hamEcd == 0 && gapcloser.Sender.IsValidTarget(E2.Range))
+            if (hamEcd == 0 && gapcloser.Sender.IsValidTarget(E2.Range + gapcloser.Sender.BoundingRadius))
                 if (!HammerTime && R.IsReady())
                     R.Cast();
-                E2.CastOnUnit(gapcloser.Sender, menu.Item("packet").GetValue<bool>());
+                E2.Cast(gapcloser.Sender, menu.Item("packet").GetValue<bool>());
         }
 
         private static void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
             if (!menu.Item("UseInt").GetValue<bool>()) return;
 
-            if (Player.Distance(unit) < E2.Range && unit != null && hamEcd == 0)
+            if (unit != null && Player.Distance(unit) < Q2.Range + unit.BoundingRadius && hamQcd == 0 && hamEcd == 0)
             {
                 if (!HammerTime && R.IsReady())
                     R.Cast();
-                E.CastOnUnit(unit, menu.Item("packet").GetValue<bool>());
+                Q2.Cast(unit, menu.Item("packet").GetValue<bool>());
+            }
+
+            if (Player.Distance(unit) < E2.Range + unit.BoundingRadius && unit != null && hamEcd == 0)
+            {
+                if (!HammerTime && R.IsReady())
+                    R.Cast();
+                E2.Cast(unit, menu.Item("packet").GetValue<bool>());
             }
         }
 
