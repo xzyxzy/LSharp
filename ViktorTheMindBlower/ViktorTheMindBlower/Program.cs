@@ -149,7 +149,7 @@ namespace ViktorTheMindBlower
             GameObject.OnCreate += OnCreate;
             GameObject.OnDelete += OnDelete;
             Orbwalking.AfterAttack += AfterAttack;
-            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+            //Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
