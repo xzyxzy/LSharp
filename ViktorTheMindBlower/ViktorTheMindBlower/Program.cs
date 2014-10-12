@@ -16,7 +16,7 @@ namespace ViktorTheMindBlower
         public const string ChampionName = "Viktor";
 
         //Orbwalker instance
-        public static Orbwalking.Orbwalker Orbwalker;
+        public static Orbwalkerz.Orbwalker Orbwalker;
 
         //Spells
         public static List<Spell> SpellList = new List<Spell>();
@@ -78,7 +78,7 @@ namespace ViktorTheMindBlower
             menu.AddSubMenu(targetSelectorMenu);
 
             //Orbwalk
-            Orbwalker = new Orbwalking.Orbwalker(menu.SubMenu("Orbwalking"));
+            Orbwalker = new Orbwalkerz.Orbwalker(menu.SubMenu("Orbwalking"));
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
@@ -149,9 +149,19 @@ namespace ViktorTheMindBlower
             GameObject.OnCreate += OnCreate;
             GameObject.OnDelete += OnDelete;
             Orbwalking.AfterAttack += AfterAttack;
+            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
+        public static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
+        {
+            SpellSlot castedSlot = ObjectManager.Player.GetSpellSlot(args.SData.Name, false);
+
+            if (!unit.IsMe) return;
+
+            Game.PrintChat("Spell: " + args.SData.Name);
+
+        }
 
         private static void OnCreate(GameObject obj, EventArgs args)
         {
@@ -200,8 +210,6 @@ namespace ViktorTheMindBlower
             if (unit.IsMe && chargeQ)
             {
                 Orbwalker.SetMovement(true);
-                Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
-                //Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
                 chargeQ = false;
             }
 
@@ -235,16 +243,6 @@ namespace ViktorTheMindBlower
             var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
-            foreach (var buffs in Player.Buffs)
-            {
-                if (buffs.Name == "ViktorPowerTransfer" && menu.Item("autoAtk").GetValue<bool>() && Player.Distance(qTarget) <= 525)
-                {
-                    //Player.IssueOrder(GameObjectOrder.AttackUnit, qTarget);
-                    chargeQ = true;
-                    return;
-                }
-            }
-
             var immobile = menu.Item("wSlow").GetValue<bool>();
             var slow = menu.Item("wImmobile").GetValue<bool>();
             var dashing = menu.Item("wImmobile").GetValue<bool>();
@@ -259,7 +257,12 @@ namespace ViktorTheMindBlower
             if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) <= Q.Range)
             {
                 Q.CastOnUnit(qTarget, menu.Item("packet").GetValue<bool>());
-                Player.IssueOrder(GameObjectOrder.AttackUnit, qTarget);
+
+                //force auto
+                if (menu.Item("autoAtk").GetValue<bool>())
+                {
+                    Player.IssueOrder(GameObjectOrder.AttackUnit, qTarget);
+                }
                 return;
             }
 
