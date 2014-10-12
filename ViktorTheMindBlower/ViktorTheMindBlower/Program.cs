@@ -88,6 +88,7 @@ namespace ViktorTheMindBlower
             menu.SubMenu("Combo").AddItem(new MenuItem("wImmobile", "Auto W Immobile").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("wDashing", "Auto W Dashing").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("wMulti", "W only Multitarget").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("QAARange", "Q only if in AA Range").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("eHit", "E HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
@@ -253,7 +254,15 @@ namespace ViktorTheMindBlower
             {
                 W.Cast(wTarget, menu.Item("packet").GetValue<bool>());
             }
-
+            if(menu.Item("QAARange").GetValue<bool>()){
+                if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) <= Player.AttackRange) // Q only in AA range for guaranteed AutoAttack
+                {
+                    Q.CastOnUnit(qTarget, menu.Item("packet").GetValue<bool>());
+                       Player.IssueOrder(GameObjectOrder.AttackUnit, qTarget);
+                    return;
+                }
+            }
+            else{
             if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) <= Q.Range)
             {
                 Q.CastOnUnit(qTarget, menu.Item("packet").GetValue<bool>());
@@ -264,6 +273,7 @@ namespace ViktorTheMindBlower
                     Player.IssueOrder(GameObjectOrder.AttackUnit, qTarget);
                 }
                 return;
+            }
             }
 
             if (useR && rTarget != null && R.IsReady() && (GetComboDamage(rTarget) > qTarget.Health || menu.Item("rAlways").GetValue<KeyBind>().Active) && Player.Distance(rTarget) <= R.Range && !activeR)
