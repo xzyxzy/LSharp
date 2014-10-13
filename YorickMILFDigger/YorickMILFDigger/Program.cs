@@ -171,7 +171,7 @@ namespace YorickMILFDigger
         }
         
         private static void ExploitE(){
-            E.Cast(Player.ServerPosition,true) //must be true so it casts E. Might not work.
+            E.Cast(Player.ServerPosition, true);//must be true so it casts E. Might not work.
         }
         
         private static void UseSpells( bool useW, bool useE, bool useR)
