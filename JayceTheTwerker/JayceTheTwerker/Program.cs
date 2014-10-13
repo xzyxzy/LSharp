@@ -112,6 +112,7 @@ namespace JayceTheTwerker
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Cannon Q").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("qSpeed", "Charge Q Proj Speed").SetValue(new Slider(1600, 400, 2500)));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use Cannon W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use Cannon E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQComboHam", "Use Hammer Q").SetValue(true));
@@ -477,7 +478,10 @@ namespace JayceTheTwerker
         public static void castQCannon(Obj_AI_Hero target, bool useE)
         {
             var gateDis = menu.Item("gatePlace").GetValue<Slider>().Value;
+            var qSpeed = menu.Item("qSpeed").GetValue<Slider>().Value;
             var lagFree = menu.Item("lagMode").GetValue<bool>();
+
+            QCharge.Speed = qSpeed;
 
             var tarPred = QCharge.GetPrediction(target);
 
