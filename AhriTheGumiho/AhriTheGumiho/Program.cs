@@ -56,7 +56,7 @@ namespace AhriTheGumiho
             R = new Spell(SpellSlot.R, 800);
 
             Q.SetSkillshot(0.25f, 50, 1670, false, SkillshotType.SkillshotLine);
-            E.SetSkillshot(0.25f, 80, 1550, true, SkillshotType.SkillshotLine);
+            E.SetSkillshot(0.25f, 60, 1550, true, SkillshotType.SkillshotLine);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -156,9 +156,6 @@ namespace AhriTheGumiho
             if (W.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.W);
 
-            if (E.IsReady())
-                damage += Player.GetSpellDamage(enemy, SpellSlot.E);
-
             if (R.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.R) * 2;
 
@@ -172,6 +169,9 @@ namespace AhriTheGumiho
                 damage = damage * 1.2;
             else if (enemy.HasBuffOfType(BuffType.Charm))
                 damage = damage * 1.2;
+
+            if (E.IsReady())
+                damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
             return (float)damage;
         }
@@ -343,7 +343,9 @@ namespace AhriTheGumiho
             if (rOn && rTimeLeft > 9500)
                 return true;
 
-            if (GetComboDamage(target) > target.Health)
+            var pred = GetP(Game.CursorPos, E, target, false);
+
+            if (GetComboDamage(target) > target.Health && !rOn && pred.Hitchance >= HitChance.High && target.Distance(Game.CursorPos) <= E.Range)
                 return true;
 
             return false;
@@ -351,6 +353,24 @@ namespace AhriTheGumiho
         public static bool isRActive()
         {
             return Player.HasBuff("AhriTumble", true);
+        }
+
+        public static PredictionOutput GetP(Vector3 pos, Spell spell, Obj_AI_Base target, bool aoe)
+        {
+
+            return Prediction.GetPrediction(new PredictionInput
+            {
+                Unit = target,
+                Delay = spell.Delay,
+                Radius = spell.Width,
+                Speed = spell.Speed,
+                From = pos,
+                Range = spell.Range,
+                Collision = spell.Collision,
+                Type = spell.Type,
+                RangeCheckFrom = Player.ServerPosition,
+                Aoe = aoe,
+            });
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
