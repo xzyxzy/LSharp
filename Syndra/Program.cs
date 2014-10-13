@@ -323,6 +323,7 @@ namespace Syndra
                 {
                     if (enemy.IsValidTarget(EQ.Range))
                         UseE(enemy);
+                    return;
                 }
 
             //W
