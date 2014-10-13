@@ -89,6 +89,7 @@ namespace AhriTheGumiho
             menu.SubMenu("Key").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Orbwalk").GetValue<KeyBind>().Key, KeyBindType.Press)));
             menu.SubMenu("Key").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Farm").GetValue<KeyBind>().Key, KeyBindType.Press)));
             menu.SubMenu("Key").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
+            menu.SubMenu("Key").AddItem(new MenuItem("charmCombo", "Only Q if Charmed in Combo").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
@@ -97,7 +98,7 @@ namespace AhriTheGumiho
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("charmCombo", "Only Q if Charmed").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("rSpeed", "Use All R fast Duel").SetValue(true));
             
             //Harass menu:
             menu.AddSubMenu(new Menu("Harass", "Harass"));
@@ -349,6 +350,23 @@ namespace AhriTheGumiho
             if (!manaCheck())
                 return false;
 
+            var pred = GetP(Game.CursorPos, E, target, false);
+
+            if (GetComboDamage(target) > target.Health && !rOn)
+            {
+                if (pred.Hitchance >= HitChance.High && target.Distance(Game.CursorPos) <= E.Range)
+                    return true;
+
+                if (target.HasBuffOfType(BuffType.Charm))
+                    return true;
+            }
+
+            if (countAlliesNearPosition(Game.CursorPos, 1000) > 2 && rTimeLeft > 3500)
+                return true;
+
+            if (menu.Item("rSpeed").GetValue<bool>() && countEnemiesNearPosition(Game.CursorPos, 2000) < 2 && target.Distance(Game.CursorPos) > 200)
+                return true;
+
             if (Player.GetSpellDamage(target, SpellSlot.R) * 2 > target.Health)
                 return true;
 
@@ -358,19 +376,70 @@ namespace AhriTheGumiho
             if (target.Distance(Game.CursorPos) > 700 && rOn)
                 return true;
 
-            var pred = GetP(Game.CursorPos, E, target, false);
-
-            if (GetComboDamage(target) > target.Health && !rOn)
-            {
-                if(pred.Hitchance >= HitChance.High && target.Distance(Game.CursorPos) <= E.Range)
-                    return true;
-
-                if (target.HasBuffOfType(BuffType.Charm))
-                    return true;
-            }
-
-
             return false;
+        }
+
+        public static int countEnemiesNearPosition(Vector3 pos, float range)
+        {
+            return
+                ObjectManager.Get<Obj_AI_Hero>().Count(
+                    hero => hero.IsEnemy && !hero.IsDead && hero.IsValid && hero.Distance(pos) <= range);
+        }
+
+        public static int countAlliesNearPosition(Vector3 pos, float range)
+        {
+            return
+                ObjectManager.Get<Obj_AI_Hero>().Count(
+                    hero => hero.IsAlly && !hero.IsDead && hero.IsValid && hero.Distance(pos) <= range);
+        }
+
+        public static void mecQ()
+        {
+            
+        }
+
+        /// <summary>
+        ///     gets minions and champs in a spells path.
+        /// </summary>
+        /// <param name="player"> the player </param>
+        /// <param name="target"> the target </param>
+        /// <param name="spell"> the spell to do the calculations for </param>
+        /// <returns>
+        ///     if a target is killable with given spell, taking into account damage reduction from minions and champs it
+        ///     passes through also takes into account health regeneration rate, returns true / false.
+        /// </returns>
+        /// Credits Princer007
+        public static int getUnitsInPath(Obj_AI_Hero player, Obj_AI_Hero target, Spell spell)
+        {
+            float distance = player.Distance(target);
+            List<Obj_AI_Base> minionList = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, spell.Range,
+                MinionTypes.All, MinionTeam.NotAlly);
+            int numberOfMinions = (from Obj_AI_Minion minion in minionList
+                                   let skillshotPosition =
+                                       V2E(player.Position,
+                                           V2E(player.Position, target.Position,
+                                               Vector3.Distance(player.Position, target.Position) - spell.Width + 1).To3D(),
+                                           Vector3.Distance(player.Position, minion.Position))
+                                   where skillshotPosition.Distance(minion) < spell.Width
+                                   select minion).Count();
+            int numberOfChamps = (from minion in ObjectManager.Get<Obj_AI_Hero>()
+                                  let skillshotPosition =
+                                      V2E(player.Position,
+                                          V2E(player.Position, target.Position,
+                                              Vector3.Distance(player.Position, target.Position) - spell.Width + 1).To3D(),
+                                          Vector3.Distance(player.Position, minion.Position))
+                                  where skillshotPosition.Distance(minion) < spell.Width && minion.IsEnemy
+                                  select minion).Count();
+            int total = numberOfChamps + numberOfMinions - 1;
+            // total number of champions and minions the projectile will pass through.
+            if (total == -1) return 0;
+
+            return total;
+        }
+
+        public static Vector2 V2E(Vector3 from, Vector3 direction, float distance)
+        {
+            return from.To2D() + distance * Vector3.Normalize(direction - from).To2D();
         }
 
         public static bool manaCheck()
