@@ -56,7 +56,7 @@ namespace AhriTheGumiho
 
             //intalize spell
             Q = new Spell(SpellSlot.Q, 900);
-            W = new Spell(SpellSlot.W, 750);
+            W = new Spell(SpellSlot.W, 900);
             E = new Spell(SpellSlot.E, 875);
             R = new Spell(SpellSlot.R, 800);
 
