@@ -890,7 +890,6 @@ namespace OriannaWreckingBalls
                 }
             }
         }
-
         private static void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
