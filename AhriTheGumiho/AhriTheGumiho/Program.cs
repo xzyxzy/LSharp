@@ -343,6 +343,9 @@ namespace AhriTheGumiho
             if (rOn && rTimeLeft > 9500)
                 return true;
 
+            if (target.Distance(Game.CursorPos) > 700)
+                return true;
+
             var pred = GetP(Game.CursorPos, E, target, false);
 
             if (GetComboDamage(target) > target.Health && !rOn && pred.Hitchance >= HitChance.High && target.Distance(Game.CursorPos) <= E.Range)
