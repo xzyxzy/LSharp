@@ -104,13 +104,16 @@ namespace YorickMILFDigger
             menu.SubMenu("Misc").AddItem(new MenuItem("useRHP", "R in combo if my %HP <= ").SetValue(new Slider(50, 0, 100)));
             menu.SubMenu("Misc").AddItem(new MenuItem("useRHPE", "R in combo if Enemy %HP <= ").SetValue(new Slider(50, 0, 100)));
             menu.SubMenu("Misc").AddSubMenu(new Menu("Dont use R on", "DontUlt"));
-
+            
             foreach (var myTeam in ObjectManager.Get<Obj_AI_Hero>().Where(myTeam => myTeam.Team == Player.Team && myTeam.BaseSkinName != Player.BaseSkinName))
                 menu.SubMenu("Misc")
                     .SubMenu("DontUlt")
                     .AddItem(new MenuItem("DontUlt" + myTeam.BaseSkinName, myTeam.BaseSkinName).SetValue(false));
 
-
+            //Exploit Test
+            menu.AddSubMenu(new Menu("Exploits", "InDev Exploits"));
+            menu.SubMenu("Exploits").AddItem(new MenuItem("eExploit", "Use E exploit").SetValue(new KeyBind("P".ToCharArray()[0], KeyBindType.Press))); //P like push
+            
             //Damage after combo:
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
             Utility.HpBarDamageIndicator.DamageToUnit = GetComboDamage;
@@ -166,7 +169,11 @@ namespace YorickMILFDigger
             UseSpells(menu.Item("UseWCombo").GetValue<bool>(),
                 menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>());
         }
-
+        
+        private static void ExploitE(){
+            E.Cast(Player.ServerPosition,true) //must be true so it casts E. Might not work.
+        }
+        
         private static void UseSpells( bool useW, bool useE, bool useR)
         {
             var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
@@ -271,7 +278,9 @@ namespace YorickMILFDigger
         {
             //check if player is dead
             if (Player.IsDead) return;
-
+            if (menu.Item("eExploit").GetValue<bool>()){
+                ExploitE();
+            }
             autoE();
 
             WMec();
