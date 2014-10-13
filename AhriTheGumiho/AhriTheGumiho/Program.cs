@@ -57,7 +57,7 @@ namespace AhriTheGumiho
             //intalize spell
             Q = new Spell(SpellSlot.Q, 900);
             W = new Spell(SpellSlot.W, 750);
-            E = new Spell(SpellSlot.E, 950);
+            E = new Spell(SpellSlot.E, 875);
             R = new Spell(SpellSlot.R, 800);
 
             Q.SetSkillshot(0.25f, 50, 1670, false, SkillshotType.SkillshotLine);
@@ -266,7 +266,7 @@ namespace AhriTheGumiho
 
             if (useR && eTarget != null && R.IsReady() && Player.Distance(eTarget) < R.Range && shouldR(eTarget))
             {
-                if (eTarget.Distance(Game.CursorPos) < 550)
+                if (eTarget.Distance(Game.CursorPos) < 475)
                 {
                     R.Cast(Game.CursorPos, packets());
                     rTimer = Environment.TickCount - 250;
