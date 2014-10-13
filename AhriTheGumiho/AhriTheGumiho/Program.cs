@@ -30,6 +30,11 @@ namespace AhriTheGumiho
         public static int rTimer;
         public static int rTimeLeft;
 
+        //mana 
+        public static int[] qMana = { 55, 55, 60, 65, 70, 75 };
+        public static int[] wMana = { 50, 50, 50, 50, 50, 50 };
+        public static int[] eMana = { 85, 85, 85, 85, 85, 85 };
+        public static int[] rMana = { 100, 100, 100, 100, 100, 100};
         //items
         public static Items.Item DFG;
 
@@ -107,6 +112,7 @@ namespace AhriTheGumiho
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use E to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use E for GapCloser").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("mana", "Mana check before use R").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("dfgCharm", "Require Charmed to DFG").SetValue(true));
 
             //Damage after combo:
@@ -157,7 +163,7 @@ namespace AhriTheGumiho
                 damage += Player.GetSpellDamage(enemy, SpellSlot.W);
 
             if (R.IsReady())
-                damage += Player.GetSpellDamage(enemy, SpellSlot.R) * 2;
+                damage += Player.GetSpellDamage(enemy, SpellSlot.R) * 2;//* Player.Spellbook.GetSpell(SpellSlot.R).Ammo;
 
             if (DFG.IsReady() && E.IsReady())
                 damage = damage * 1.44;
@@ -169,7 +175,7 @@ namespace AhriTheGumiho
                 damage = damage * 1.2;
             else if (enemy.HasBuffOfType(BuffType.Charm))
                 damage = damage * 1.2;
-
+            
             if (E.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
@@ -237,6 +243,7 @@ namespace AhriTheGumiho
                         break;
                 }
             }
+
             if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range && E.GetPrediction(eTarget).Hitchance >= hitC)
             {
                 E.Cast(eTarget, packets());
@@ -264,15 +271,19 @@ namespace AhriTheGumiho
                 {
                     R.Cast(Game.CursorPos, packets());
                     rTimer = Environment.TickCount - 250;
+
+                    if (E.IsReady())
+                        E.Cast(eTarget, packets());
                     return;
                 }
-                else if (rTimeLeft > 9500)
+                else if (rTimeLeft > 9500 && rOn)
                 {
                     R.Cast(Game.CursorPos, packets());
                     rTimer = Environment.TickCount - 250;
                     return;
                 }
             }
+
         }
 
         public static bool shouldQ(Obj_AI_Hero target, string Source)
@@ -319,7 +330,6 @@ namespace AhriTheGumiho
                     return true;
 
             }
-
             if (Source == "Harass")
             {
                 if (Player.GetSpellDamage(target, SpellSlot.W) > target.Health)
@@ -337,22 +347,44 @@ namespace AhriTheGumiho
 
         public static bool shouldR(Obj_AI_Hero target)
         {
-            if (Player.GetSpellDamage(target, SpellSlot.R) > target.Health)
+            if (!manaCheck())
+                return false;
+
+            if (Player.GetSpellDamage(target, SpellSlot.R) * 2 > target.Health)
                 return true;
 
             if (rOn && rTimeLeft > 9500)
                 return true;
 
-            if (target.Distance(Game.CursorPos) > 700)
+            if (target.Distance(Game.CursorPos) > 700 && rOn)
                 return true;
 
             var pred = GetP(Game.CursorPos, E, target, false);
 
-            if (GetComboDamage(target) > target.Health && !rOn && pred.Hitchance >= HitChance.High && target.Distance(Game.CursorPos) <= E.Range)
-                return true;
+            if (GetComboDamage(target) > target.Health && !rOn)
+            {
+                if(pred.Hitchance >= HitChance.High && target.Distance(Game.CursorPos) <= E.Range)
+                    return true;
+
+                if (target.HasBuffOfType(BuffType.Charm))
+                    return true;
+            }
+
 
             return false;
         }
+
+        public static bool manaCheck()
+        {
+            var totalMana = qMana[Q.Level] + wMana[W.Level] + eMana[E.Level] + rMana[R.Level];
+            var checkMana = menu.Item("mana").GetValue<bool>();
+
+            if (Player.Mana >= totalMana || checkMana)
+                return true;
+            
+            return false;
+        }
+
         public static bool isRActive()
         {
             return Player.HasBuff("AhriTumble", true);
