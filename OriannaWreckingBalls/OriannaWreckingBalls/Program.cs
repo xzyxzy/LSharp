@@ -56,7 +56,7 @@ namespace OriannaWreckingBalls
             R = new Spell(SpellSlot.R, 300);
 
             Q.SetSkillshot(0f, 135, 1250, false, SkillshotType.SkillshotLine);
-            W.SetSkillshot(0.25f, 245, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            W.SetSkillshot(0f, 245, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.25f, 145, 1700, false, SkillshotType.SkillshotLine);
             R.SetSkillshot(0.60f, 350, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
@@ -184,7 +184,7 @@ namespace OriannaWreckingBalls
                 Unit = target,
                 Delay = spell.Delay,
                 Radius = 1,
-                Speed = spell.Speed,
+                Speed = float.MaxValue,
                 From = pos,
                 Range = float.MaxValue,
                 Collision = spell.Collision,
