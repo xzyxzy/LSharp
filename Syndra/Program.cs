@@ -62,7 +62,7 @@ namespace Syndra
             DFG = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
 
             Q.SetSkillshot(0.6f, 100f, float.MaxValue, false, SkillshotType.SkillshotCircle);
-            W.SetSkillshot(0.25f, 140f, 1500f, false, SkillshotType.SkillshotCircle);
+            W.SetSkillshot(0.25f, 140f, 1525f, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.25f, (float)(45 * 0.5), 2500f, false, SkillshotType.SkillshotCircle);
             EQ.SetSkillshot(float.MaxValue, 55f, 2000f, false, SkillshotType.SkillshotCircle);
 
@@ -326,7 +326,6 @@ namespace Syndra
                 }
 
             //W
-            //W
             if (useW && W.IsReady())
                 if (Player.Spellbook.GetSpell(SpellSlot.W).ToggleState == 1 && qeTarget != null)
                 {
@@ -344,13 +343,8 @@ namespace Syndra
                 {
                     if (W.InRange(wTarget.Position) && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
                     {
-                        W.Cast(wTarget);
-                    }
-                    /*if (OrbManager.WObject(false) != null)
-                    {
-                        W.From = OrbManager.WObject(false).ServerPosition;
                         W.Cast(wTarget, false, true);
-                    }*/
+                    }
                 }
 
             if (rTarget != null)
