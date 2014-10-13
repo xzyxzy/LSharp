@@ -33,7 +33,6 @@ namespace JayceTheTwerker
         //status
         public static bool HammerTime = false;
         public static SpellDataInst qdata;
-        public static Obj_SpellMissile qMissle;
         public static Vector3 ePos;
         public static bool firstE = false;
 
@@ -72,8 +71,8 @@ namespace JayceTheTwerker
             E2 = new Spell(SpellSlot.E, 240);
             R = new Spell(SpellSlot.R, float.MaxValue);
 
-            Q.SetSkillshot(0.1515f, 60, 1300, true, SkillshotType.SkillshotLine);
-            QCharge.SetSkillshot(0.1515f, 60, 1600, true, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0.15f, 60, 1200, true, SkillshotType.SkillshotLine);
+            QCharge.SetSkillshot(0.25f, 60, 1600, true, SkillshotType.SkillshotLine);
             Q2.SetTargetted(0.25f, float.MaxValue);
             E.SetSkillshot(0.1f, 120, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E2.SetTargetted(.25f, float.MaxValue);
@@ -357,6 +356,21 @@ namespace JayceTheTwerker
                             castQCannon(enemy, true);
                     }
 
+                    //Hammer QE
+                    if ((Player.GetSpellDamage(enemy, SpellSlot.E) + Player.GetSpellDamage(enemy, SpellSlot.Q, 1) - 20) > enemy.Health
+                        && hamEcd == 0 && hamQcd == 0 && Player.Distance(enemy.ServerPosition) <= Q2.Range + enemy.BoundingRadius)
+                    {
+                        if (!HammerTime && R.IsReady())
+                            R.Cast();
+
+                        if (HammerTime)
+                        {
+                            Q2.Cast(enemy, menu.Item("packet").GetValue<bool>());
+                            E2.Cast(enemy, menu.Item("packet").GetValue<bool>());
+                            return;
+                        }
+                    }
+
                     //Hammer Q
                     if ((Player.GetSpellDamage(enemy, SpellSlot.Q, 1) - 20) > enemy.Health && hamQcd == 0 && Player.Distance(enemy.ServerPosition) <= Q2.Range + enemy.BoundingRadius)
                     {
@@ -378,21 +392,6 @@ namespace JayceTheTwerker
 
                         if (HammerTime)
                         {
-                            E2.Cast(enemy, menu.Item("packet").GetValue<bool>());
-                            return;
-                        }
-                    }
-
-                    //Hammer QE
-                    if ((Player.GetSpellDamage(enemy, SpellSlot.E) + Player.GetSpellDamage(enemy, SpellSlot.Q, 1) - 20) > enemy.Health 
-                        && hamEcd == 0 && hamQcd == 0 && Player.Distance(enemy.ServerPosition) <= Q2.Range + enemy.BoundingRadius)
-                    {
-                        if (!HammerTime && R.IsReady())
-                            R.Cast();
-
-                        if (HammerTime)
-                        {
-                            Q2.Cast(enemy, menu.Item("packet").GetValue<bool>());
                             E2.Cast(enemy, menu.Item("packet").GetValue<bool>());
                             return;
                         }
@@ -420,6 +419,11 @@ namespace JayceTheTwerker
                 && HammerTime)
             {
                 //Game.PrintChat("Cannon Time");
+                R.Cast();
+                return;
+            }
+
+            if(hamQcd != 0 && hamWcd !=0 && hamEcd != 0 && HammerTime){
                 R.Cast();
                 return;
             }
@@ -489,7 +493,7 @@ namespace JayceTheTwerker
                     {
                         if (Player.Distance(target) < 250)
                         {
-                            ePos = vecClose;
+                            E.Cast(vecClose, menu.Item("packet").GetValue<bool>());
                             QCharge.Cast(tarPred.CastPosition, menu.Item("packet").GetValue<bool>());
                             firstE = true;
                             return;
@@ -727,16 +731,15 @@ namespace JayceTheTwerker
 
             if (unit == ObjectManager.Player.Name && name == "JayceShockBlastMis")
             {
-                qMissle = spell;
                 if (ePos != Vector3.Zero && canEcd == 0)
                 {
-                    firstE = false;
                     E.Cast(ePos, menu.Item("packet").GetValue<bool>());
+                    firstE = false;
                 }
                 else if (menu.Item("forceGate").GetValue<bool>() && canEcd == 0 && Player.Distance(spell.Position) < 250)
                 {
-                    firstE = false;
                     E.Cast(spell.EndPosition, menu.Item("packet").GetValue<bool>());
+                    firstE = false;
                 }
             }
         }
@@ -749,7 +752,6 @@ namespace JayceTheTwerker
 
             if (unit == ObjectManager.Player.Name && name == "JayceShockBlastMis")
             {
-                qMissle = null;
                 firstE = false;
                 ePos = Vector3.Zero;
             }
