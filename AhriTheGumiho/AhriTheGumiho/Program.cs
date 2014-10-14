@@ -398,7 +398,7 @@ namespace AhriTheGumiho
                 return true;
 
             var dashVector = Player.Position + Vector3.Normalize(Game.CursorPos - Player.Position) * 425;
-            if (Player.Distance(Game.CursorPos) < 75 && target.Distance(dashVector) > 450)
+            if (Player.Distance(Game.CursorPos) < 75 && target.Distance(dashVector) > 425)
                 return false;
 
             if (GetComboDamage(target) > target.Health && !rOn)
