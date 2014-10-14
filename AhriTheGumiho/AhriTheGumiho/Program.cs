@@ -89,6 +89,7 @@ namespace AhriTheGumiho
             menu.SubMenu("Key").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Orbwalk").GetValue<KeyBind>().Key, KeyBindType.Press)));
             menu.SubMenu("Key").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Farm").GetValue<KeyBind>().Key, KeyBindType.Press)));
             menu.SubMenu("Key").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
+            menu.SubMenu("Key").AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind(menu.Item("LaneClear").GetValue<KeyBind>().Key, KeyBindType.Press)));
             menu.SubMenu("Key").AddItem(new MenuItem("charmCombo", "Q if Charmed in Combo").SetValue(new KeyBind("I".ToCharArray()[0], KeyBindType.Toggle)));
 
             //Combo menu:
@@ -107,6 +108,11 @@ namespace AhriTheGumiho
             menu.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Use W").SetValue(false));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
             menu.SubMenu("Harass").AddItem(new MenuItem("charmHarass", "Only Q if Charmed").SetValue(true));
+
+            //Farming menu:
+            menu.AddSubMenu(new Menu("Farm", "Farm"));
+            menu.SubMenu("Farm").AddItem(new MenuItem("UseQFarm", "Use Q").SetValue(false));
+            menu.SubMenu("Farm").AddItem(new MenuItem("UseWFarm", "Use W").SetValue(false));
 
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
@@ -512,6 +518,29 @@ namespace AhriTheGumiho
             });
         }
 
+        private static void Farm()
+        {
+            if (!Orbwalking.CanMove(40)) return;
+
+            var allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly);
+            var allMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, W.Range, MinionTypes.All, MinionTeam.NotAlly);
+
+            var useQ = menu.Item("UseQFarm").GetValue<bool>();
+            var useW = menu.Item("UseWFarm").GetValue<bool>();
+
+            if (useQ && Q.IsReady())
+            {
+                var qPos = Q.GetLineFarmLocation(allMinionsQ);
+                if (qPos.MinionsHit >= 3)
+                {
+                    Q.Cast(qPos.Position, packets());
+                }
+            }
+
+            if (useW && allMinionsW.Count > 0 && W.IsReady())
+                W.Cast(Player.ServerPosition, packets());
+        }
+
         private static void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
@@ -534,6 +563,9 @@ namespace AhriTheGumiho
             }
             else
             {
+                if (menu.Item("LaneClearActive").GetValue<KeyBind>().Active)
+                    Farm();
+
                 if (menu.Item("HarassActive").GetValue<KeyBind>().Active)
                     Harass();
 
