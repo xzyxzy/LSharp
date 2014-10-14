@@ -121,6 +121,7 @@ namespace AhriTheGumiho
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("mana", "Mana check before use R").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("dfgCharm", "Require Charmed to DFG").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("EQ", "Use Q onTop of E").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("smartKS", "Smart KS").SetValue(true));
 
             //Damage after combo:
@@ -254,6 +255,8 @@ namespace AhriTheGumiho
             if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range && E.GetPrediction(eTarget).Hitchance >= hitC)
             {
                 E.Cast(eTarget, packets());
+                if (menu.Item("EQ").GetValue<bool>())
+                    Q.Cast(eTarget, packets());
             }
 
             if (eTarget != null && GetComboDamage(eTarget) > eTarget.Health && DFG.IsReady() && (eTarget.HasBuffOfType(BuffType.Charm) || !menu.Item("dfgCharm").GetValue<bool>()))
