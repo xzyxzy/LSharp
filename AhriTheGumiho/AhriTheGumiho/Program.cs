@@ -255,9 +255,9 @@ namespace AhriTheGumiho
                 DFG.Cast(eTarget);
             }
 
-            if (useW && wTarget != null && W.IsReady() && Player.Distance(eTarget) <= W.Range && shouldW(eTarget, Source))
+            if (useW && eTarget != null && W.IsReady() && Player.Distance(eTarget) <= W.Range && shouldW(eTarget, Source))
             {
-                W.Cast(eTarget, packets());
+                W.Cast(Player.ServerPosition, packets());
             }
 
             if (useQ && Q.IsReady() && Player.Distance(eTarget) <= Q.Range && eTarget != null && Q.GetPrediction(eTarget).Hitchance >= hitC && shouldQ(eTarget, Source))
