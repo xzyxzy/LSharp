@@ -61,7 +61,7 @@ namespace AhriTheGumiho
             R = new Spell(SpellSlot.R, 850);
 
             Q.SetSkillshot(0.25f, 65, 1600, false, SkillshotType.SkillshotLine);
-            E.SetSkillshot(0.3f, 60, 1400, true, SkillshotType.SkillshotLine);
+            E.SetSkillshot(0.25f, 60, 1450, true, SkillshotType.SkillshotLine);
 
             SpellList.Add(Q);
             SpellList.Add(W);
