@@ -249,7 +249,7 @@ namespace AhriTheGumiho
                 E.Cast(eTarget, packets());
             }
 
-            if (eTarget != null && useR && GetComboDamage(eTarget) > eTarget.Health && DFG.IsReady() && (eTarget.HasBuffOfType(BuffType.Charm) || !menu.Item("dfgCharm").GetValue<bool>()))
+            if (eTarget != null && GetComboDamage(eTarget) > eTarget.Health && DFG.IsReady() && (eTarget.HasBuffOfType(BuffType.Charm) || !menu.Item("dfgCharm").GetValue<bool>()))
             {
                 DFG.Cast(eTarget);
             }
