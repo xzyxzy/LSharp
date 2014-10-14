@@ -89,7 +89,7 @@ namespace AhriTheGumiho
             menu.SubMenu("Key").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Orbwalk").GetValue<KeyBind>().Key, KeyBindType.Press)));
             menu.SubMenu("Key").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Farm").GetValue<KeyBind>().Key, KeyBindType.Press)));
             menu.SubMenu("Key").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
-            menu.SubMenu("Key").AddItem(new MenuItem("charmCombo", "Only Q if Charmed in Combo").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
+            menu.SubMenu("Key").AddItem(new MenuItem("charmCombo", "Q if Charmed in Combo").SetValue(true));
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
@@ -350,11 +350,11 @@ namespace AhriTheGumiho
             if (!manaCheck())
                 return false;
 
-            var pred = GetP(Game.CursorPos, E, target, false);
+            //var pred = GetP(Game.CursorPos, E, target, false);
 
             if (GetComboDamage(target) > target.Health && !rOn)
             {
-                if (pred.Hitchance >= HitChance.High && target.Distance(Game.CursorPos) <= E.Range)
+                if (target.Distance(Game.CursorPos) <= E.Range)
                     return true;
 
                 if (target.HasBuffOfType(BuffType.Charm))
