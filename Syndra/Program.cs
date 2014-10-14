@@ -305,6 +305,19 @@ namespace Syndra
             return (float)damage * (DFG.IsReady() ? 1.2f : 1);
         }
 
+        public static float getUltDmg(Obj_AI_Base enemy)
+        {
+            var damage = 0d;
+
+            if (DFG.IsReady())
+                damage += Player.GetItemDamage(enemy, Damage.DamageItems.Dfg) / 1.2;
+
+            if (R.IsReady())
+                damage += Math.Min(7, Player.Spellbook.GetSpell(SpellSlot.R).Ammo) * Player.GetSpellDamage(enemy, SpellSlot.R, 1) - 20;
+
+            return (float)damage * (DFG.IsReady() ? 1.2f : 1);
+        }
+
         private static void UseSpells(bool useQ, bool useW, bool useE, bool useR, bool useQE, bool useIgnite, bool isHarass)
         {
             var qTarget = SimpleTs.GetTarget(Q.Range + (isHarass ? Q.Width/3 : Q.Width), SimpleTs.DamageType.Magical);
@@ -352,7 +365,7 @@ namespace Syndra
                         Config.Item("DontUlt" + rTarget.BaseSkinName).GetValue<bool>() == false) && useR;
 
             //DFG (and ult if ready)
-            if (rTarget != null && useR && comboDamage > rTarget.Health && DFG.IsReady())
+            if (rTarget != null && useR && getUltDmg(rTarget) > rTarget.Health && DFG.IsReady())
             {
                 DFG.Cast(rTarget);
                 if (R.IsReady())
@@ -364,7 +377,7 @@ namespace Syndra
             //R
             if (rTarget != null && useR && R.IsReady() && !Q.IsReady() && !DFG.IsReady())
             {
-                if (comboDamage > rTarget.Health)
+                if (getUltDmg(rTarget) > rTarget.Health)
                 {
                     R.Cast(rTarget);
                 }
