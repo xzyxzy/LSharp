@@ -56,12 +56,12 @@ namespace AhriTheGumiho
 
             //intalize spell
             Q = new Spell(SpellSlot.Q, 900);
-            W = new Spell(SpellSlot.W, 850);
+            W = new Spell(SpellSlot.W, 800);
             E = new Spell(SpellSlot.E, 825);
             R = new Spell(SpellSlot.R, 850);
 
             Q.SetSkillshot(0.25f, 65, 1600, false, SkillshotType.SkillshotLine);
-            E.SetSkillshot(0.25f, 60, 1450, true, SkillshotType.SkillshotLine);
+            E.SetSkillshot(0.25f, 40, 1300, true, SkillshotType.SkillshotLine);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -107,6 +107,7 @@ namespace AhriTheGumiho
             menu.SubMenu("Harass").AddItem(new MenuItem("qHit2", "Q/E HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Use W").SetValue(false));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
+            menu.SubMenu("Harass").AddItem(new MenuItem("longQ", "Cast Long range Q").SetValue(true));
             menu.SubMenu("Harass").AddItem(new MenuItem("charmHarass", "Only Q if Charmed").SetValue(true));
 
             //Farming menu:
@@ -143,6 +144,8 @@ namespace AhriTheGumiho
                 .AddItem(new MenuItem("ERange", "E range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
             menu.SubMenu("Drawings")
                 .AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
+            menu.SubMenu("Drawings")
+                .AddItem(new MenuItem("cursor", "Draw R cursor range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
             menu.SubMenu("Drawings")
                 .AddItem(dmgAfterComboItem);
             menu.AddToMainMenu();
@@ -209,6 +212,7 @@ namespace AhriTheGumiho
             var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
             var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
+            var rETarget = SimpleTs.GetTarget(450 + E.Range, SimpleTs.DamageType.Magical);
 
             var hitC = HitChance.High;
             var qHit = menu.Item("qHit").GetValue<Slider>().Value;
@@ -255,8 +259,11 @@ namespace AhriTheGumiho
             if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range && E.GetPrediction(eTarget).Hitchance >= hitC)
             {
                 E.Cast(eTarget, packets());
-                if (menu.Item("EQ").GetValue<bool>())
+                if (menu.Item("EQ").GetValue<bool>() && Q.IsReady())
+                {
                     Q.Cast(eTarget, packets());
+                    return;
+                }
             }
 
             if (eTarget != null && GetComboDamage(eTarget) > eTarget.Health && DFG.IsReady() && (eTarget.HasBuffOfType(BuffType.Charm) || !menu.Item("dfgCharm").GetValue<bool>()))
@@ -268,22 +275,37 @@ namespace AhriTheGumiho
             {
                 W.Cast(Player.ServerPosition, packets());
             }
-
-            if (useQ && Q.IsReady() && Player.Distance(eTarget) <= Q.Range && eTarget != null && shouldQ(eTarget, Source))
+            if (Source == "Harass" && menu.Item("longQ").GetValue<bool>())
+            {
+                if (useQ && Q.IsReady() && Player.Distance(eTarget) <= Q.Range && eTarget != null && shouldQ(eTarget, Source) && Player.Distance(eTarget) > 600)
+                {
+                    if (Q.GetPrediction(eTarget).Hitchance >= hitC)
+                    {
+                        Q.Cast(eTarget, packets(), true);
+                        return;
+                    }
+                }
+            }else if (useQ && Q.IsReady() && Player.Distance(eTarget) <= Q.Range && eTarget != null && shouldQ(eTarget, Source))
             {
                 if (Q.GetPrediction(eTarget).Hitchance >= hitC)
+                {
                     Q.Cast(eTarget, packets(), true);
+                    return;
+                }
             }
 
-            if (useR && eTarget != null && R.IsReady() && Player.Distance(eTarget) < R.Range && shouldR(eTarget))
+            if (useR && eTarget != null && R.IsReady() && Player.Distance(eTarget) < R.Range)
             {
-                if (eTarget.Distance(Game.CursorPos) < 475)
+                if (E.IsReady())
+                {
+                    if (checkREQ(rETarget))
+                        E.Cast(rETarget, packets());
+                    return;
+                }
+                else if (shouldR(eTarget))
                 {
                     R.Cast(Game.CursorPos, packets());
                     rTimer = Environment.TickCount - 250;
-
-                    if (E.IsReady())
-                        E.Cast(eTarget, packets());
                     return;
                 }
                 else if (rTimeLeft > 9500 && rOn)
@@ -372,29 +394,23 @@ namespace AhriTheGumiho
             if (!manaCheck())
                 return false;
 
-            if (target.Distance(Game.CursorPos) < 125)
+            if (target.Distance(Game.CursorPos) > 800 && rOn)
+                return true;
+
+            var dashVector = Player.Position + Vector3.Normalize(Game.CursorPos - Player.Position) * 425;
+            if (Player.Distance(Game.CursorPos) < 75 && target.Distance(dashVector) > 450)
                 return false;
 
             if (GetComboDamage(target) > target.Health && !rOn)
             {
                 if (target.HasBuffOfType(BuffType.Charm))
                     return true;
-
-                if (target.Distance(Game.CursorPos) <= E.Range)
-                {
-                    if (menu.Item("rSpeed").GetValue<bool>() && countEnemiesNearPosition(Game.CursorPos, 2000) < 2)
-                        return true;
-
-                    var pred = GetP(Game.CursorPos, E, target, false);
-                    if(pred.Hitchance >= HitChance.High)
-                        return true;
-                }
             }
 
             if (countAlliesNearPosition(Game.CursorPos, 1000) > 2 && rTimeLeft > 3500)
                 return true;
 
-            if (menu.Item("rSpeed").GetValue<bool>() && countEnemiesNearPosition(Game.CursorPos, 2000) < 2 )
+            if (menu.Item("rSpeed").GetValue<bool>() && countEnemiesNearPosition(Game.CursorPos, 1500) < 2 )
                 return true;
 
             if (Player.GetSpellDamage(target, SpellSlot.R) * 2 > target.Health)
@@ -403,8 +419,33 @@ namespace AhriTheGumiho
             if (rOn && rTimeLeft > 9500)
                 return true;
 
-            if (target.Distance(Game.CursorPos) > 700 && rOn)
-                return true;
+            return false;
+        }
+
+        public static bool checkREQ(Obj_AI_Hero target)
+        {
+            
+            if (Player.Distance(Game.CursorPos) < 75)
+                return false;
+
+            if (GetComboDamage(target) > target.Health && !rOn && countEnemiesNearPosition(Game.CursorPos, 1500) < 3)
+            {
+                if (target.Distance(Game.CursorPos) <= E.Range && E.IsReady())
+                {
+                    var dashVector = Player.Position + Vector3.Normalize(Game.CursorPos - Player.Position) * 425;
+                    var addedDelay = Player.Distance(dashVector) / 2200;
+
+                    Game.PrintChat("added delay: " + addedDelay);
+
+                    var pred = GetP(Game.CursorPos, E, target, addedDelay, false);
+                    if (pred.Hitchance >= HitChance.High)
+                    {
+                        R.Cast(Game.CursorPos, packets());
+                        rTimer = Environment.TickCount - 250;
+                        return true;
+                    }
+                }
+            }
 
             return false;
         }
@@ -515,13 +556,13 @@ namespace AhriTheGumiho
             return Player.HasBuff("AhriTumble", true);
         }
 
-        public static PredictionOutput GetP(Vector3 pos, Spell spell, Obj_AI_Base target, bool aoe)
+        public static PredictionOutput GetP(Vector3 pos, Spell spell, Obj_AI_Base target, float delay, bool aoe)
         {
 
             return Prediction.GetPrediction(new PredictionInput
             {
                 Unit = target,
-                Delay = spell.Delay,
+                Delay = spell.Delay + delay,
                 Radius = spell.Width,
                 Speed = spell.Speed,
                 From = pos,
@@ -603,6 +644,8 @@ namespace AhriTheGumiho
                     Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
             }
 
+            if (menu.Item("cursor").GetValue<Circle>().Active)
+                Utility.DrawCircle(Player.Position, 475, Color.Aquamarine);
         }
 
         public static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
