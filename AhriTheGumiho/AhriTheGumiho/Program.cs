@@ -56,11 +56,11 @@ namespace AhriTheGumiho
 
             //intalize spell
             Q = new Spell(SpellSlot.Q, 900);
-            W = new Spell(SpellSlot.W, 900);
+            W = new Spell(SpellSlot.W, 850);
             E = new Spell(SpellSlot.E, 875);
             R = new Spell(SpellSlot.R, 800);
 
-            Q.SetSkillshot(0.25f, 50, 1670, false, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0.25f, 65, 1670, false, SkillshotType.SkillshotLine);
             E.SetSkillshot(0.25f, 60, 1550, true, SkillshotType.SkillshotLine);
 
             SpellList.Add(Q);
@@ -89,7 +89,7 @@ namespace AhriTheGumiho
             menu.SubMenu("Key").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Orbwalk").GetValue<KeyBind>().Key, KeyBindType.Press)));
             menu.SubMenu("Key").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Farm").GetValue<KeyBind>().Key, KeyBindType.Press)));
             menu.SubMenu("Key").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
-            menu.SubMenu("Key").AddItem(new MenuItem("charmCombo", "Q if Charmed in Combo").SetValue(true));
+            menu.SubMenu("Key").AddItem(new MenuItem("charmCombo", "Q if Charmed in Combo").SetValue(new KeyBind("I".ToCharArray()[0], KeyBindType.Toggle)));
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
@@ -249,7 +249,6 @@ namespace AhriTheGumiho
                 E.Cast(eTarget, packets());
             }
 
-
             if (eTarget != null && useR && GetComboDamage(eTarget) > eTarget.Health && DFG.IsReady() && (eTarget.HasBuffOfType(BuffType.Charm) || !menu.Item("dfgCharm").GetValue<bool>()))
             {
                 DFG.Cast(eTarget);
@@ -293,7 +292,7 @@ namespace AhriTheGumiho
                 if (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1) > target.Health)
                     return true;
 
-                if (!menu.Item("charmCombo").GetValue<bool>())
+                if (!menu.Item("charmCombo").GetValue<KeyBind>().Active)
                     return true;
 
                 if (target.HasBuffOfType(BuffType.Charm))
@@ -323,7 +322,7 @@ namespace AhriTheGumiho
                 if (Player.GetSpellDamage(target, SpellSlot.W) > target.Health)
                     return true;
 
-                if (!menu.Item("charmCombo").GetValue<bool>())
+                if (!menu.Item("charmCombo").GetValue<KeyBind>().Active)
                     return true;
 
                 if (target.HasBuffOfType(BuffType.Charm))
@@ -350,21 +349,29 @@ namespace AhriTheGumiho
             if (!manaCheck())
                 return false;
 
-            //var pred = GetP(Game.CursorPos, E, target, false);
+            if (target.Distance(Game.CursorPos) < 125)
+                return false;
 
             if (GetComboDamage(target) > target.Health && !rOn)
             {
-                if (target.Distance(Game.CursorPos) <= E.Range)
-                    return true;
-
                 if (target.HasBuffOfType(BuffType.Charm))
                     return true;
+
+                if (target.Distance(Game.CursorPos) <= E.Range)
+                {
+                    if (menu.Item("rSpeed").GetValue<bool>() && countEnemiesNearPosition(Game.CursorPos, 2000) < 2)
+                        return true;
+
+                    var pred = GetP(Game.CursorPos, E, target, false);
+                    if(pred.Hitchance >= HitChance.High)
+                        return true;
+                }
             }
 
             if (countAlliesNearPosition(Game.CursorPos, 1000) > 2 && rTimeLeft > 3500)
                 return true;
 
-            if (menu.Item("rSpeed").GetValue<bool>() && countEnemiesNearPosition(Game.CursorPos, 2000) < 2 && target.Distance(Game.CursorPos) > 200)
+            if (menu.Item("rSpeed").GetValue<bool>() && countEnemiesNearPosition(Game.CursorPos, 2000) < 2 )
                 return true;
 
             if (Player.GetSpellDamage(target, SpellSlot.R) * 2 > target.Health)
