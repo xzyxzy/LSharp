@@ -115,6 +115,7 @@ namespace AhriTheGumiho
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("mana", "Mana check before use R").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("dfgCharm", "Require Charmed to DFG").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("smartKS", "Smart KS").SetValue(true));
 
             //Damage after combo:
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
@@ -259,9 +260,10 @@ namespace AhriTheGumiho
                 W.Cast(Player.ServerPosition, packets());
             }
 
-            if (useQ && Q.IsReady() && Player.Distance(eTarget) <= Q.Range && eTarget != null && Q.GetPrediction(eTarget).Hitchance >= hitC && shouldQ(eTarget, Source))
+            if (useQ && Q.IsReady() && Player.Distance(eTarget) <= Q.Range && eTarget != null && shouldQ(eTarget, Source))
             {
-                Q.Cast(eTarget, packets(), true);
+                if (Q.GetPrediction(eTarget).Hitchance >= hitC)
+                    Q.Cast(eTarget, packets(), true);
             }
 
             if (useR && eTarget != null && R.IsReady() && Player.Distance(eTarget) < R.Range && shouldR(eTarget))
@@ -289,7 +291,7 @@ namespace AhriTheGumiho
         {
             if (Source == "Combo")
             {
-                if (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1) > target.Health)
+                if ((Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1)) > target.Health)
                     return true;
 
                 if (!menu.Item("charmCombo").GetValue<KeyBind>().Active)
@@ -302,7 +304,7 @@ namespace AhriTheGumiho
 
             if (Source == "Harass")
             {
-                if (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1) > target.Health)
+                if ((Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1)) > target.Health)
                     return true;
 
                 if (!menu.Item("charmHarass").GetValue<bool>())
@@ -400,6 +402,33 @@ namespace AhriTheGumiho
                     hero => hero.IsAlly && !hero.IsDead && hero.IsValid && hero.Distance(pos) <= range);
         }
 
+        public static void checkKS()
+        {
+            foreach (var target in ObjectManager.Get<Obj_AI_Hero>())
+            {
+                if (target != null && !target.IsDead && target.IsEnemy && Player.Distance(target.ServerPosition) <= 1200)
+                {
+                    if (Player.Distance(target.ServerPosition) <= Q.Range && (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1)) > target.Health)
+                    {
+                        Q.Cast(target, packets());
+                        return;
+                    }
+
+                    if (Player.Distance(target.ServerPosition) <= E.Range && (Player.GetSpellDamage(target, SpellSlot.E)) > target.Health)
+                    {
+                        E.Cast(target, packets());
+                        return;
+                    }
+
+                    if (Player.Distance(target.ServerPosition) <= W.Range && (Player.GetSpellDamage(target, SpellSlot.W)) > target.Health)
+                    {
+                        W.Cast(Player.ServerPosition, packets());
+                        return;
+                    }
+                }
+            }
+        }
+
         public static void mecQ()
         {
             
@@ -494,6 +523,10 @@ namespace AhriTheGumiho
 
             if(rOn)
                 rTimeLeft = Environment.TickCount - rTimer;
+
+            //ks check
+            if (menu.Item("smartKS").GetValue<bool>())
+                checkKS();
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
