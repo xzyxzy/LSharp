@@ -300,6 +300,9 @@ namespace AhriTheGumiho
                 if ((Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1)) > target.Health)
                     return true;
 
+                if (rOn)
+                    return true;
+
                 if (!menu.Item("charmCombo").GetValue<KeyBind>().Active)
                     return true;
 
@@ -311,6 +314,9 @@ namespace AhriTheGumiho
             if (Source == "Harass")
             {
                 if ((Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1)) > target.Health)
+                    return true;
+
+                if (rOn)
                     return true;
 
                 if (!menu.Item("charmHarass").GetValue<bool>())
@@ -330,6 +336,9 @@ namespace AhriTheGumiho
                 if (Player.GetSpellDamage(target, SpellSlot.W) > target.Health)
                     return true;
 
+                if (rOn)
+                    return true;
+
                 if (!menu.Item("charmCombo").GetValue<KeyBind>().Active)
                     return true;
 
@@ -340,6 +349,9 @@ namespace AhriTheGumiho
             if (Source == "Harass")
             {
                 if (Player.GetSpellDamage(target, SpellSlot.W) > target.Health)
+                    return true;
+
+                if (rOn)
                     return true;
 
                 if (!menu.Item("charmHarass").GetValue<bool>())
