@@ -57,11 +57,11 @@ namespace AhriTheGumiho
             //intalize spell
             Q = new Spell(SpellSlot.Q, 900);
             W = new Spell(SpellSlot.W, 850);
-            E = new Spell(SpellSlot.E, 800);
+            E = new Spell(SpellSlot.E, 825);
             R = new Spell(SpellSlot.R, 850);
 
             Q.SetSkillshot(0.25f, 65, 1600, false, SkillshotType.SkillshotLine);
-            E.SetSkillshot(0.3f, 60, 1375, true, SkillshotType.SkillshotLine);
+            E.SetSkillshot(0.3f, 60, 1400, true, SkillshotType.SkillshotLine);
 
             SpellList.Add(Q);
             SpellList.Add(W);
