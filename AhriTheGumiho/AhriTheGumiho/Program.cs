@@ -145,7 +145,7 @@ namespace AhriTheGumiho
             menu.SubMenu("Drawings")
                 .AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
             menu.SubMenu("Drawings")
-                .AddItem(new MenuItem("cursor", "Draw R cursor range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
+                .AddItem(new MenuItem("cursor", "Draw R Dash Range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
             menu.SubMenu("Drawings")
                 .AddItem(dmgAfterComboItem);
             menu.AddToMainMenu();
