@@ -395,7 +395,7 @@ namespace AhriTheGumiho
                 return false;
 
             var dashVector = Player.Position + Vector3.Normalize(Game.CursorPos - Player.Position) * 425;
-            if (Player.Distance(Game.CursorPos) < 75 && target.Distance(dashVector) > 425)
+            if (Player.Distance(Game.CursorPos) < 75 && target.Distance(dashVector) > 525)
                 return false;
 
             if (menu.Item("rSpeed").GetValue<bool>() && countEnemiesNearPosition(Game.CursorPos, 1500) < 2)
