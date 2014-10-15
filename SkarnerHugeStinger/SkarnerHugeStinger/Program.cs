@@ -195,15 +195,15 @@ namespace SkarnerHugeStinger
             var hp = menu.Item("autoW").GetValue<Slider>().Value;
             var hpPercent = Player.Health / Player.MaxHealth * 100;
 
-            if (Player.Distance(wTarget) >= W.Range && menu.Item("UseGap").GetValue<bool>() && Player.Distance(wTarget) <= 1000)
+            if (Player.Distance(wTarget) >= W.Range && menu.Item("UseGap").GetValue<bool>() && Player.Distance(wTarget) <= 800 && W.IsReady())
             {
                 W.Cast();
             }
 
-            if (hpPercent <= hp && Player.Distance(wTarget) <= 1200)
+            if (hpPercent <= hp && Player.Distance(wTarget) <= 1200 && W.IsReady())
                 W.Cast();
 
-            if(Player.Distance(wTarget) <= W.Range)
+            if(Player.Distance(wTarget) <= W.Range && W.IsReady())
                 W.Cast();
 
             
@@ -211,12 +211,12 @@ namespace SkarnerHugeStinger
 
         public static void castR(Obj_AI_Hero target)
         {
-            if (GetComboDamage(target) >= target.Health - 100)
+            if (GetComboDamage(target) >= target.Health - 100 && R.IsReady())
             {
                 R.CastOnUnit(target, packets());
             }
 
-            if (menu.Item("forceR").GetValue<KeyBind>().Active)
+            if (menu.Item("forceR").GetValue<KeyBind>().Active && R.IsReady())
             {
                 R.CastOnUnit(target, packets());
             }
@@ -236,7 +236,7 @@ namespace SkarnerHugeStinger
                     {
                         if (turret != null && turret.IsValid && turret.IsAlly && turret.Health > 0)
                         {
-                            if (Vector2.Distance(enemy.Position.To2D(), turret.Position.To2D()) < 950)
+                            if (Vector2.Distance(enemy.Position.To2D(), turret.Position.To2D()) < 950 && R.IsReady())
                             {
                                 R.CastOnUnit(enemy, packets());
                             }
@@ -312,7 +312,7 @@ namespace SkarnerHugeStinger
         {
             if (!menu.Item("UseInt").GetValue<bool>()) return;
 
-            if (Player.Distance(unit) <= R.Range && unit != null)
+            if (Player.Distance(unit) <= R.Range && unit != null && R.IsReady())
             {
                 R.CastOnUnit(unit);
             }
