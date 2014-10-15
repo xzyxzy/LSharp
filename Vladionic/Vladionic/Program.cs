@@ -157,7 +157,7 @@ namespace Vladionic
 
         private static void Combo()
         {
-            Orbwalker.SetAttacks(!(Q.IsReady() || E.IsReady() || menu.Item("MoveToMouse").GetValue<KeyBind>().Active));
+            Orbwalker.SetAttack(!(Q.IsReady() || E.IsReady() || menu.Item("MoveToMouse").GetValue<KeyBind>().Active));
             UseSpells(menu.Item("UseQCombo").GetValue<bool>(), menu.Item("UseWCombo").GetValue<bool>(),
                 menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>());
         }
@@ -195,7 +195,7 @@ namespace Vladionic
 
         private static void Harass()
         {
-            Orbwalker.SetAttacks(!(menu.Item("MoveToMouse").GetValue<KeyBind>().Active));
+            Orbwalker.SetAttack(!(menu.Item("MoveToMouse").GetValue<KeyBind>().Active));
             UseSpells(menu.Item("UseQHarass").GetValue<bool>(), menu.Item("UseWHarass").GetValue<bool>(),
                 menu.Item("UseEHarass").GetValue<bool>(), false);
         }
@@ -209,7 +209,7 @@ namespace Vladionic
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
             //check if target is in range
-            if (Player.Distance(rTarget) <= R.Range && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
+            if (Player.Distance(rTarget) <= R.Range && R.GetPrediction(rTarget).Hitchance >= HitChance.High && R.IsReady())
             {
                 R.CastIfWillHit(rTarget, minHit, packets());
             }
@@ -223,11 +223,11 @@ namespace Vladionic
             int wTimeLeft = Environment.TickCount - Charges.lastW;
             if ((wTimeLeft <= 2000) && !W.IsReady())
             {
-                Orbwalker.SetAttacks(false);
+                Orbwalker.SetAttack(false);
                 return;
             }
 
-            Orbwalker.SetAttacks(true);
+            Orbwalker.SetAttack(true);
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {

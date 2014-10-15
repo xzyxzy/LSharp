@@ -171,6 +171,7 @@ namespace YorickMILFDigger
         }
         
         private static void ExploitE(){
+            if(E.IsReady())
             E.Cast(Player.ServerPosition, true);//must be true so it casts E. Might not work.
         }
         
@@ -217,12 +218,12 @@ namespace YorickMILFDigger
 
             if (enemyHP <= HPtoUltEnemy)
             {
-                if (target != null && enemy != null && target.BaseSkinName != Player.BaseSkinName && Player.Distance(target) <= R.Range && useR)
+                if (target != null && enemy != null && target.BaseSkinName != Player.BaseSkinName && Player.Distance(target) <= R.Range && useR && R.IsReady())
                 {
                     R.Cast(target, packets());
                     return;
                 }
-                else if (enemy != null && Player.Distance(enemy) < R.Range)
+                else if (enemy != null && Player.Distance(enemy) < R.Range && R.IsReady())
                 {
                     R.Cast(Player, packets());
                 }
@@ -231,7 +232,7 @@ namespace YorickMILFDigger
 
             if (playerHP <= HPtoUlt)
             {
-                if (enemy != null)
+                if (enemy != null && R.IsReady())
                 {
                     R.Cast(Player, packets());
                     return;
@@ -270,7 +271,7 @@ namespace YorickMILFDigger
             var playerHP = (Player.Health / Player.MaxHealth) * 100;
             var Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
 
-            if (playerHP < HPtoE && Target != null && Player.Distance(Target) <= E.Range)
+            if (playerHP < HPtoE && Target != null && Player.Distance(Target) <= E.Range && E.IsReady())
                 E.Cast(Target);
         }
 
@@ -291,7 +292,7 @@ namespace YorickMILFDigger
                 hasGhost = false;
             }
 
-            Orbwalker.SetAttacks(true);
+            Orbwalker.SetAttack(true);
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
@@ -373,7 +374,7 @@ namespace YorickMILFDigger
             var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
 
             //check if target is in range
-            if (Player.Distance(wTarget) <= W.Range && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
+            if (Player.Distance(wTarget) <= W.Range && W.GetPrediction(wTarget).Hitchance >= HitChance.High && W.IsReady())
             {
                 W.CastIfWillHit(wTarget, minHit, packets());
             }
