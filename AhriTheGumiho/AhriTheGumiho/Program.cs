@@ -262,8 +262,8 @@ namespace AhriTheGumiho
                 if (menu.Item("EQ").GetValue<bool>() && Q.IsReady())
                 {
                     Q.Cast(eTarget, packets());
-                    return;
                 }
+                return;
             }
 
             if (eTarget != null && GetComboDamage(eTarget) > eTarget.Health && DFG.IsReady() && (eTarget.HasBuffOfType(BuffType.Charm) || !menu.Item("dfgCharm").GetValue<bool>()))
@@ -398,19 +398,22 @@ namespace AhriTheGumiho
             if (Player.Distance(Game.CursorPos) < 75 && target.Distance(dashVector) > 425)
                 return false;
 
+            if (menu.Item("rSpeed").GetValue<bool>() && countEnemiesNearPosition(Game.CursorPos, 1500) < 2)
+                return true;
+
             if (GetComboDamage(target) > target.Health && !rOn)
             {
                 if (target.HasBuffOfType(BuffType.Charm))
                     return true;
             }
 
+            if (target.HasBuffOfType(BuffType.Charm) && rOn)
+                return true;
+
             if (countAlliesNearPosition(Game.CursorPos, 1000) > 2 && rTimeLeft > 3500)
                 return true;
 
-            if (menu.Item("rSpeed").GetValue<bool>() && countEnemiesNearPosition(Game.CursorPos, 1500) < 2 )
-                return true;
-
-            if (Player.GetSpellDamage(target, SpellSlot.R) * 2 > target.Health)
+            if (Player.GetSpellDamage(target, SpellSlot.R) *2 > target.Health)
                 return true;
 
             if (rOn && rTimeLeft > 9500)
@@ -432,7 +435,7 @@ namespace AhriTheGumiho
                     var dashVector = Player.Position + Vector3.Normalize(Game.CursorPos - Player.Position) * 425;
                     var addedDelay = Player.Distance(dashVector) / 2200;
 
-                    //Game.PrintChat("added delay: " + addedDelay);
+                    Game.PrintChat("added delay: " + addedDelay);
 
                     var pred = GetP(Game.CursorPos, E, target, addedDelay, false);
                     if (pred.Hitchance >= HitChance.High)
@@ -468,6 +471,20 @@ namespace AhriTheGumiho
             {
                 if (target != null && !target.IsDead && target.IsEnemy && Player.Distance(target.ServerPosition) <= 1200)
                 {
+                    if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health && Player.Distance(target.ServerPosition) <= 750)
+                    {
+                        DFG.Cast(target);
+                        return;
+                    }
+
+                    if (DFG.IsReady() && Player.Distance(target.ServerPosition) <= 750 &&
+                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) + (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1))*1.2) > target.Health)
+                    {
+                        DFG.Cast(target);
+                        Q.Cast(target, packets());
+                        return;
+                    }
+
                     if (Player.Distance(target.ServerPosition) <= W.Range && 
                         (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1) + Player.GetSpellDamage(target, SpellSlot.W)) > target.Health && Q.IsReady() && W.IsReady())
                     {
@@ -498,6 +515,7 @@ namespace AhriTheGumiho
                     {
                         R.Cast(dashVector, packets());
                     }
+
                 }
             }
         }
