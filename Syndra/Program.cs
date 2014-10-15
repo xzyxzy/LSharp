@@ -200,7 +200,7 @@ namespace Syndra
             if (!Config.Item("UseGap").GetValue<bool>()) return;
 
             if (E.IsReady() && gapcloser.Sender.IsValidTarget(E.Range))
-                E.Cast(Player);
+                E.Cast(gapcloser.Sender);
         }
 
         static void Orbwalking_BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
