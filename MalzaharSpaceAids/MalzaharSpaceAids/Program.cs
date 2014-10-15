@@ -133,7 +133,7 @@ namespace MalzaharSpaceAids
         {
             if (!menu.Item("UseInt").GetValue<bool>()) return;
 
-            if (Player.Distance(unit) < Q.Range)
+            if (Player.Distance(unit) < Q.Range && Q.IsReady())
             {
                 Q.Cast(unit, packets());
             }
