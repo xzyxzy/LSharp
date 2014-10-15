@@ -477,11 +477,19 @@ namespace AhriTheGumiho
                         return;
                     }
 
-                    if (DFG.IsReady() && Player.Distance(target.ServerPosition) <= 750 &&
+                    if (DFG.IsReady() && Player.Distance(target.ServerPosition) <= 750 && Q.IsReady() &&
                         (Player.GetItemDamage(target, Damage.DamageItems.Dfg) + (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1))*1.2) > target.Health)
                     {
                         DFG.Cast(target);
                         Q.Cast(target, packets());
+                        return;
+                    }
+
+                    if (DFG.IsReady() && Player.Distance(target.ServerPosition) <= 750 && W.IsReady() &&
+                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) + Player.GetSpellDamage(target, SpellSlot.W) * 1.2) > target.Health)
+                    {
+                        DFG.Cast(target);
+                        W.Cast(target, packets());
                         return;
                     }
 
