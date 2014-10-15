@@ -468,74 +468,38 @@ namespace AhriTheGumiho
             {
                 if (target != null && !target.IsDead && target.IsEnemy && Player.Distance(target.ServerPosition) <= 1200)
                 {
-                    if (Player.Distance(target.ServerPosition) <= Q.Range && (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1)) > target.Health)
+                    if (Player.Distance(target.ServerPosition) <= W.Range && 
+                        (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1) + Player.GetSpellDamage(target, SpellSlot.W)) > target.Health && Q.IsReady() && W.IsReady())
                     {
                         Q.Cast(target, packets());
                         return;
                     }
 
-                    if (Player.Distance(target.ServerPosition) <= E.Range && (Player.GetSpellDamage(target, SpellSlot.E)) > target.Health)
+                    if (Player.Distance(target.ServerPosition) <= Q.Range && (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1)) > target.Health && Q.IsReady())
+                    {
+                        Q.Cast(target, packets());
+                        return;
+                    }
+
+                    if (Player.Distance(target.ServerPosition) <= E.Range && (Player.GetSpellDamage(target, SpellSlot.E)) > target.Health & E.IsReady())
                     {
                         E.Cast(target, packets());
                         return;
                     }
 
-                    if (Player.Distance(target.ServerPosition) <= W.Range && (Player.GetSpellDamage(target, SpellSlot.W)) > target.Health)
+                    if (Player.Distance(target.ServerPosition) <= W.Range && (Player.GetSpellDamage(target, SpellSlot.W)) > target.Health && W.IsReady())
                     {
                         W.Cast(Player.ServerPosition, packets());
                         return;
                     }
+
+                    var dashVector = Player.Position + Vector3.Normalize(target.ServerPosition - Player.Position) * 425;
+                    if (Player.Distance(target.ServerPosition) <= R.Range && (Player.GetSpellDamage(target, SpellSlot.R)) > target.Health && R.IsReady() && rOn && target.Distance(dashVector) < 425)
+                    {
+                        R.Cast(dashVector, packets());
+                    }
                 }
             }
-        }
-
-        public static void mecQ()
-        {
-            
-        }
-
-        /// <summary>
-        ///     gets minions and champs in a spells path.
-        /// </summary>
-        /// <param name="player"> the player </param>
-        /// <param name="target"> the target </param>
-        /// <param name="spell"> the spell to do the calculations for </param>
-        /// <returns>
-        ///     if a target is killable with given spell, taking into account damage reduction from minions and champs it
-        ///     passes through also takes into account health regeneration rate, returns true / false.
-        /// </returns>
-        /// Credits Princer007
-        public static int getUnitsInPath(Obj_AI_Hero player, Obj_AI_Hero target, Spell spell)
-        {
-            float distance = player.Distance(target);
-            List<Obj_AI_Base> minionList = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, spell.Range,
-                MinionTypes.All, MinionTeam.NotAlly);
-            int numberOfMinions = (from Obj_AI_Minion minion in minionList
-                                   let skillshotPosition =
-                                       V2E(player.Position,
-                                           V2E(player.Position, target.Position,
-                                               Vector3.Distance(player.Position, target.Position) - spell.Width + 1).To3D(),
-                                           Vector3.Distance(player.Position, minion.Position))
-                                   where skillshotPosition.Distance(minion) < spell.Width
-                                   select minion).Count();
-            int numberOfChamps = (from minion in ObjectManager.Get<Obj_AI_Hero>()
-                                  let skillshotPosition =
-                                      V2E(player.Position,
-                                          V2E(player.Position, target.Position,
-                                              Vector3.Distance(player.Position, target.Position) - spell.Width + 1).To3D(),
-                                          Vector3.Distance(player.Position, minion.Position))
-                                  where skillshotPosition.Distance(minion) < spell.Width && minion.IsEnemy
-                                  select minion).Count();
-            int total = numberOfChamps + numberOfMinions - 1;
-            // total number of champions and minions the projectile will pass through.
-            if (total == -1) return 0;
-
-            return total;
-        }
-
-        public static Vector2 V2E(Vector3 from, Vector3 direction, float distance)
-        {
-            return from.To2D() + distance * Vector3.Normalize(direction - from).To2D();
         }
 
         public static bool manaCheck()
