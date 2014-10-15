@@ -134,7 +134,7 @@ namespace MalphiteTheRock
         {
             if (!menu.Item("UseInt").GetValue<bool>()) return;
 
-            if (Player.Distance(unit) < R.Range && R.GetPrediction(unit).Hitchance >= HitChance.High)
+            if (Player.Distance(unit) < R.Range && R.GetPrediction(unit).Hitchance >= HitChance.High && R.IsReady())
             {
                 R.Cast(unit);
             }
@@ -276,6 +276,7 @@ namespace MalphiteTheRock
                 if (ePos.MinionsHit >= 3)
                 {
                     E.Cast(ePos.Position);
+                    if(W.IsReady())
                     W.Cast();
                 }
             }
@@ -290,7 +291,7 @@ namespace MalphiteTheRock
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
             //check if target is in range
-            if (Player.Distance(rTarget) <= R.Range && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
+            if (Player.Distance(rTarget) <= R.Range && R.GetPrediction(rTarget).Hitchance >= HitChance.High && R.IsReady())
             {
                 R.CastIfWillHit(rTarget, minHit, packets());
             }
