@@ -200,7 +200,7 @@ namespace ViktorTheMindBlower
         {
             if (!menu.Item("UseInt").GetValue<bool>()) return;
 
-            if (Player.Distance(unit) < R.Range)
+            if (Player.Distance(unit) < R.Range && R.IsReady())
             {
                 R.Cast(unit.ServerPosition, menu.Item("packet").GetValue<bool>());
             }
@@ -351,6 +351,8 @@ namespace ViktorTheMindBlower
             {
                 var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where rObj.Position.Distance(champ.ServerPosition) < 2500 && champ.IsEnemy select champ).ToList();
                 nearChamps.OrderBy(x => rObj.Position.Distance(x.ServerPosition));
+
+                if(R.IsReady())
                 R.Cast(nearChamps.FirstOrDefault().ServerPosition, menu.Item("packet").GetValue<bool>());
             }
         }
@@ -438,7 +440,7 @@ namespace ViktorTheMindBlower
                         {
                             var pred = GetP(eTarget.ServerPosition, E2, enemy, true);
 
-                            if (pred.Hitchance >= hitC)
+                            if (pred.Hitchance >= hitC && E.IsReady())
                             {
                                 castE(eTarget.ServerPosition, pred.CastPosition);
                                 return;
@@ -452,7 +454,7 @@ namespace ViktorTheMindBlower
 
                 var pred2 = GetP(midPos, E2, eTarget, true);
 
-                if (pred2.Hitchance >= hitC)
+                if (pred2.Hitchance >= hitC && E.IsReady())
                 {
                     castE(midPos, pred2.CastPosition);
                     return;
@@ -512,7 +514,7 @@ namespace ViktorTheMindBlower
                 Vector3 startPos = Player.Position + Vector3.Normalize(eTarget2.ServerPosition - Player.Position) * (E.Range - 50);
                 var pred = GetP(startPos, E2, eTarget2, true);
 
-                if (pred.Hitchance >= hitC)
+                if (pred.Hitchance >= hitC && E.IsReady())
                 {
                     castE(startPos, pred.CastPosition);
                     return;
