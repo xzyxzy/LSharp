@@ -243,7 +243,7 @@ namespace JayceTheTwerker
 
                 if (HammerTime)
                 {
-                    if (useW2 && Player.Distance(q2Target) <= 300)
+                    if (useW2 && Player.Distance(q2Target) <= 300 && W.IsReady())
                         W.Cast();
 
                     if (useQ2 && Player.Distance(q2Target) <= Q2.Range + q2Target.BoundingRadius)
@@ -543,8 +543,6 @@ namespace JayceTheTwerker
             }
 
             var lagFree = menu.Item("lagMode").GetValue<bool>();
-
-            Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
 
             if (canEcd == 0 && canQcd == 0 && !HammerTime && !firstE)
             {
