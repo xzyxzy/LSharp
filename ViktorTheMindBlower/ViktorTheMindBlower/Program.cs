@@ -318,7 +318,7 @@ namespace ViktorTheMindBlower
             Orbwalker.SetAttacks(true);
 
             int rTimeLeft = Environment.TickCount - lastR;
-            if ((rTimeLeft <= 750))
+            if ((rTimeLeft <= 500))
             {
                 autoR();
                 lastR = Environment.TickCount - 250;
@@ -351,7 +351,7 @@ namespace ViktorTheMindBlower
             {
                 var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where rObj.Position.Distance(champ.ServerPosition) < 2500 && champ.IsEnemy select champ).ToList();
                 nearChamps.OrderBy(x => rObj.Position.Distance(x.ServerPosition));
-                R.Cast(nearChamps.First().ServerPosition, menu.Item("packet").GetValue<bool>());
+                R.Cast(nearChamps.FirstOrDefault().ServerPosition, menu.Item("packet").GetValue<bool>());
             }
         }
 
