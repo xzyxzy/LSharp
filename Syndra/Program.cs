@@ -62,9 +62,9 @@ namespace Syndra
             DFG = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
 
             Q.SetSkillshot(0.6f, 100f, float.MaxValue, false, SkillshotType.SkillshotCircle);
-            W.SetSkillshot(0.25f, 175f, 1525f, false, SkillshotType.SkillshotCircle);
+            W.SetSkillshot(0.25f, 175f, 1475f, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.25f, (float)(45 * 0.5), 2500f, false, SkillshotType.SkillshotCircle);
-            EQ.SetSkillshot(float.MaxValue, 55f, 2000f, false, SkillshotType.SkillshotCircle);
+            EQ.SetSkillshot(float.MaxValue, 55f, 2100f, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -253,7 +253,7 @@ namespace Syndra
                         EQ.Width + enemy.BoundingRadius)
                     {
                         E.Cast(orb, true);
-                        W.LastCastAttemptT = Environment.TickCount;
+                        E.LastCastAttemptT = Environment.TickCount;
                         return;
                     }
                 }
@@ -345,7 +345,7 @@ namespace Syndra
                     //WObject
                     var gObjectPos = GetGrabableObjectPos(wTarget == null);
 
-                    if (gObjectPos.To2D().IsValid() && Environment.TickCount - W.LastCastAttemptT > Game.Ping + 100 && Environment.TickCount - E.LastCastAttemptT > Game.Ping + 100)
+                    if (gObjectPos.To2D().IsValid() && Environment.TickCount - W.LastCastAttemptT > Game.Ping + 150 && Environment.TickCount - E.LastCastAttemptT > Game.Ping + 150)
                     {
                         W.Cast(gObjectPos);
                         W.LastCastAttemptT = Environment.TickCount;
