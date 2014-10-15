@@ -388,7 +388,7 @@ namespace JayceTheTwerker
                     //Hammer E
                     if ((Player.GetSpellDamage(enemy, SpellSlot.E) - 20) > enemy.Health && hamEcd == 0 && Player.Distance(enemy.ServerPosition) <= E2.Range + enemy.BoundingRadius)
                     {
-                        if (!HammerTime && R.IsReady())
+                        if (!HammerTime && R.IsReady() && enemy.Health > 80)
                             R.Cast();
 
                         if (HammerTime)
@@ -403,16 +403,18 @@ namespace JayceTheTwerker
 
         public static void switchFormCheck(Obj_AI_Hero target, bool useQ, bool useW, bool useE, bool useQ2, bool useW2, bool useE2)
         {
-            //switch to hammer
-            if ((canQcd != 0 || !useQ) &&
-                (canWcd != 0 && !hyperCharged()  || !useW) && 
-                 hammerAllReady() && !HammerTime && Player.Distance(target.ServerPosition) < 650 &&
-                 (useQ2 || useW2 || useE2)
-                )
+            if (target.Health > 80)
             {
-                //Game.PrintChat("Hammer Time");
-                R.Cast();
-                return;
+                //switch to hammer
+                if ((canQcd != 0 || !useQ) &&
+                    (canWcd != 0 && !hyperCharged() || !useW) &&
+                     hammerAllReady() && !HammerTime && Player.Distance(target.ServerPosition) < 650 &&
+                     (useQ2 || useW2 || useE2))
+                {
+                    //Game.PrintChat("Hammer Time");
+                    R.Cast();
+                    return;
+                }
             }
 
             //switch to cannon
