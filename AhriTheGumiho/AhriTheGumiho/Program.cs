@@ -438,7 +438,7 @@ namespace AhriTheGumiho
                     //Game.PrintChat("added delay: " + addedDelay);
 
                     var pred = GetP(Game.CursorPos, E, target, addedDelay, false);
-                    if (pred.Hitchance >= HitChance.High)
+                    if (pred.Hitchance >= HitChance.High && R.IsReady())
                     {
                         //Game.PrintChat("R-E Mode Intiate!");
                         R.Cast(Game.CursorPos, packets());
@@ -494,7 +494,7 @@ namespace AhriTheGumiho
                     }
 
                     if (Player.Distance(target.ServerPosition) <= W.Range && 
-                        (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1) + Player.GetSpellDamage(target, SpellSlot.W)) > target.Health && Q.IsReady() && W.IsReady())
+                        (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1) + Player.GetSpellDamage(target, SpellSlot.W)) > target.Health && Q.IsReady() && Q.IsReady())
                     {
                         Q.Cast(target, packets());
                         return;
@@ -519,7 +519,7 @@ namespace AhriTheGumiho
                     }
 
                     var dashVector = Player.Position + Vector3.Normalize(target.ServerPosition - Player.Position) * 425;
-                    if (Player.Distance(target.ServerPosition) <= R.Range && (Player.GetSpellDamage(target, SpellSlot.R)) > target.Health && R.IsReady() && rOn && target.Distance(dashVector) < 425)
+                    if (Player.Distance(target.ServerPosition) <= R.Range && (Player.GetSpellDamage(target, SpellSlot.R)) > target.Health && R.IsReady() && rOn && target.Distance(dashVector) < 425 && R.IsReady())
                     {
                         R.Cast(dashVector, packets());
                     }
@@ -650,7 +650,7 @@ namespace AhriTheGumiho
 
             if (Player.Distance(unit) < E.Range && unit != null)
             {
-                if (E.GetPrediction(unit).Hitchance >= HitChance.High)
+                if (E.GetPrediction(unit).Hitchance >= HitChance.High && E.IsReady())
                     E.Cast(unit, packets());
             }
 
