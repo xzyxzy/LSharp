@@ -394,9 +394,6 @@ namespace AhriTheGumiho
             if (!manaCheck())
                 return false;
 
-            if (target.Distance(Game.CursorPos) > 800 && rOn)
-                return true;
-
             var dashVector = Player.Position + Vector3.Normalize(Game.CursorPos - Player.Position) * 425;
             if (Player.Distance(Game.CursorPos) < 75 && target.Distance(dashVector) > 425)
                 return false;
@@ -440,6 +437,7 @@ namespace AhriTheGumiho
                     var pred = GetP(Game.CursorPos, E, target, addedDelay, false);
                     if (pred.Hitchance >= HitChance.High)
                     {
+                        Game.PrintChat("R-E Mode Intiate!");
                         R.Cast(Game.CursorPos, packets());
                         rTimer = Environment.TickCount - 250;
                         return true;
