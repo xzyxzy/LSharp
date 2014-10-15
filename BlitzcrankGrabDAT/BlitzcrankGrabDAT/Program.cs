@@ -277,7 +277,7 @@ namespace BlitzcrankGrabDAT
             var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where Player.Distance(champ.ServerPosition) < Q.Range && champ.IsEnemy select champ).ToList();
             nearChamps.OrderBy(x => x.Health);
 
-            if (shouldUseQ(nearChamps.First()) && useQonEnemy(nearChamps.First()))
+            if (shouldUseQ(nearChamps.First()) && useQonEnemy(nearChamps.First()) && Q.IsReady())
                 Q.Cast(nearChamps.First().ServerPosition, menu.Item("packet").GetValue<bool>());
         }
 
@@ -316,7 +316,7 @@ namespace BlitzcrankGrabDAT
                 }
             }
 
-            if (hit >= minHit)
+            if (hit >= minHit && R.IsReady())
                 R.Cast();
         }
 
@@ -431,15 +431,15 @@ namespace BlitzcrankGrabDAT
         {
             if (!menu.Item("UseInt").GetValue<bool>()) return;
 
-            if (Player.Distance(unit) < Q.Range && unit != null)
+            if (Player.Distance(unit) < Q.Range && unit != null && Q.IsReady())
             {
                 if (Q.GetPrediction(unit).Hitchance >= HitChance.High)
                     Q.Cast(unit, packets());
             }
 
-            if (Player.Distance(unit) < R.Range && unit != null)
+            if (Player.Distance(unit) < R.Range && unit != null & R.IsReady())
             {
-                R.CastOnUnit(unit, packets());
+                R.Cast();
             }
         }
     }
