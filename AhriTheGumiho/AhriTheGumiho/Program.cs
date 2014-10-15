@@ -590,7 +590,7 @@ namespace AhriTheGumiho
             //check if player is dead
             if (Player.IsDead) return;
 
-            Orbwalker.SetAttack(true);
+            Orbwalker.SetAttacks(true);
 
             rOn = isRActive();
 

@@ -620,7 +620,7 @@ namespace JayceTheTwerker
             //check if player is dead
             if (Player.IsDead) return;
 
-            Orbwalker.SetAttack(true);
+            Orbwalker.SetAttacks(true);
 
             //cd check
             ProcessCooldowns();

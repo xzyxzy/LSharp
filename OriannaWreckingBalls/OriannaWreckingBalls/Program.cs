@@ -900,7 +900,7 @@ namespace OriannaWreckingBalls
             checkWMec();
             checkRMec();
 
-            Orbwalker.SetAttack(true);
+            Orbwalker.SetAttacks(true);
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
