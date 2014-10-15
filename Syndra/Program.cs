@@ -150,6 +150,7 @@ namespace Syndra
             Config.AddSubMenu(new Menu("Misc", "Misc"));
             Config.SubMenu("Misc").AddItem(new MenuItem("InterruptSpells", "Interrupt spells").SetValue(true));
             Config.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use E for GapCloser").SetValue(true));
+            Config.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             Config.SubMenu("Misc")
                 .AddItem(
                     new MenuItem("CastQE", "QE closest to cursor").SetValue(new KeyBind("T".ToCharArray()[0],
@@ -213,7 +214,7 @@ namespace Syndra
         {
             if (!Config.Item("InterruptSpells").GetValue<bool>()) return;
 
-            if (Player.Distance(unit) < E.Range && E.IsReady())
+            if (Player.Distance(unit) < E.Range && E.IsReady() && Q.IsReady())
             {
                 Q.Cast(unit.ServerPosition);
                 E.Cast(unit.ServerPosition);
@@ -222,6 +223,11 @@ namespace Syndra
             {
                 UseQE(unit);
             }
+        }
+
+        public static bool packets()
+        {
+            return Config.Item("packet").GetValue<bool>();
         }
 
         private static void Combo()
@@ -240,7 +246,7 @@ namespace Syndra
         private static void UseE(Obj_AI_Base enemy)
         {
             foreach (var orb in OrbManager.GetOrbs(true))
-                if (Player.Distance(orb) < E.Range + 100)
+                if (Player.Distance(orb) < E.Range + 100 && E.IsReady())
                 {
                     var startPoint = orb.To2D().Extend(Player.ServerPosition.To2D(), 100);
                     var endPoint = Player.ServerPosition.To2D()
@@ -252,7 +258,7 @@ namespace Syndra
                         enemyPred.UnitPosition.To2D().Distance(startPoint, endPoint, false) <
                         EQ.Width + enemy.BoundingRadius)
                     {
-                        E.Cast(orb, true);
+                        E.Cast(orb, packets());
                         E.LastCastAttemptT = Environment.TickCount;
                         return;
                     }
@@ -265,7 +271,7 @@ namespace Syndra
             EQ.From = Player.ServerPosition.To2D().Extend(enemy.ServerPosition.To2D(), Q.Range).To3D();
 
             var prediction = EQ.GetPrediction(enemy);
-            if (prediction.Hitchance >= HitChance.High)
+            if (prediction.Hitchance >= HitChance.High && Q.IsReady())
             {
                 Q.Cast(Player.ServerPosition.To2D().Extend(prediction.CastPosition.To2D(), Q.Range - 100));
                 QEComboT = Environment.TickCount;
@@ -327,8 +333,8 @@ namespace Syndra
             var comboDamage = rTarget != null ? GetComboDamage(rTarget) : 0;
 
             //Q
-            if (qTarget != null && useQ && Q.GetPrediction(qTarget).Hitchance >= HitChance.High)
-                Q.Cast(qTarget, true, true);
+            if (qTarget != null && useQ && Q.GetPrediction(qTarget).Hitchance >= HitChance.High && Q.IsReady())
+                Q.Cast(qTarget, packets(), true);
 
             //E
             if (Environment.TickCount - W.LastCastAttemptT > Game.Ping + 150 && E.IsReady() && useE)
@@ -356,7 +362,7 @@ namespace Syndra
                 {
                     if (W.InRange(wTarget.Position) && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
                     {
-                        W.Cast(wTarget, false, true);
+                        W.Cast(wTarget, packets(), true);
                     }
                 }
 
@@ -398,7 +404,7 @@ namespace Syndra
                 UseQE(qeTarget);
 
             //WE
-            if (wTarget == null && qeTarget != null && E.IsReady() && useE && OrbManager.WObject(true) != null)
+            if (wTarget == null && qeTarget != null && E.IsReady() && useE && OrbManager.WObject(true) != null && W.IsReady())
             {
                 EQ.Delay = E.Delay + Q.Range / W.Speed;
                 EQ.From = Player.ServerPosition.To2D().Extend(qeTarget.ServerPosition.To2D(), Q.Range).To3D();
@@ -413,18 +419,18 @@ namespace Syndra
 
         private static void Obj_AI_Hero_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (sender.IsMe && Environment.TickCount - QEComboT < 500 &&
+            if (sender.IsMe && Environment.TickCount - QEComboT < 500 && E.IsReady() && 
                 (args.SData.Name == "SyndraQ"))
             {
                 W.LastCastAttemptT = Environment.TickCount + 400;
-                E.Cast(args.End, true);
+                E.Cast(args.End, packets());
             }
 
             if (sender.IsMe && Environment.TickCount - WEComboT < 500 &&
-                (args.SData.Name == "SyndraW" || args.SData.Name == "syndrawcast"))
+                (args.SData.Name == "SyndraW" || args.SData.Name == "syndrawcast") && E.IsReady())
             {
                 W.LastCastAttemptT = Environment.TickCount + 400;
-                E.Cast(args.End, true);
+                E.Cast(args.End, packets());
             }
         }
 
