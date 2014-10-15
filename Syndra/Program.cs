@@ -261,7 +261,7 @@ namespace Syndra
 
         private static void UseQE(Obj_AI_Base enemy)
         {
-            EQ.Delay = E.Delay + Q.Range / E.Speed;
+            EQ.Delay =  Q.Range / E.Speed;
             EQ.From = Player.ServerPosition.To2D().Extend(enemy.ServerPosition.To2D(), Q.Range).To3D();
 
             var prediction = EQ.GetPrediction(enemy);
