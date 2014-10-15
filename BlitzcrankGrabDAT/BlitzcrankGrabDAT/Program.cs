@@ -277,8 +277,11 @@ namespace BlitzcrankGrabDAT
             var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where Player.Distance(champ.ServerPosition) < Q.Range && champ.IsEnemy select champ).ToList();
             nearChamps.OrderBy(x => x.Health);
 
-            if (shouldUseQ(nearChamps.First()) && useQonEnemy(nearChamps.First()) && Q.IsReady())
-                Q.Cast(nearChamps.First().ServerPosition, menu.Item("packet").GetValue<bool>());
+            if (nearChamps.FirstOrDefault() != null)
+            {
+                if (shouldUseQ(nearChamps.First()) && useQonEnemy(nearChamps.First()) && Q.IsReady())
+                    Q.Cast(nearChamps.FirstOrDefault().ServerPosition, menu.Item("packet").GetValue<bool>());
+            }
         }
 
         public static PredictionOutput GetPCircle(Vector3 pos, Spell spell, Obj_AI_Base target, bool aoe)
