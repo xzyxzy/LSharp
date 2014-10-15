@@ -266,13 +266,13 @@ namespace LissIceBladeDancer
         {
             var enemy = SimpleTs.GetTarget(2000, SimpleTs.DamageType.Magical);
             
-            if (epos != null && enemy.ServerPosition.Distance(epos.Position) < 110 && enemy != null && ecreated && menu.Item("ComboActive").GetValue<KeyBind>().Active)
+            if (epos != null && enemy.ServerPosition.Distance(epos.Position) < 110 && enemy != null && ecreated && menu.Item("ComboActive").GetValue<KeyBind>().Active && E.IsReady())
             {
                 E.Cast();
                 return;
             }
             else if (epos != null && enemy != null && ecreated && menu.Item("ComboActive").GetValue<KeyBind>().Active && menu.Item("UseEGap").GetValue<bool>()
-                && Player.Distance(enemy) > enemy.Distance(epos.Position))
+                && Player.Distance(enemy) > enemy.Distance(epos.Position) && E.IsReady())
             {
                 if (epos.EndPosition.Distance(epos.Position) < 400 && enemy.Distance(epos.Position) < enemy.Distance(epos.EndPosition))
                     E.Cast();
@@ -287,7 +287,7 @@ namespace LissIceBladeDancer
             var Target = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
             var distance = menu.Item("gapD").GetValue<Slider>().Value;
 
-            if (Player.Distance(Target.ServerPosition) >= distance && Target.IsValidTarget(E.Range) && !ecreated && E.GetPrediction(Target).Hitchance >= HitChance.Medium)
+            if (Player.Distance(Target.ServerPosition) >= distance && Target.IsValidTarget(E.Range) && !ecreated && E.GetPrediction(Target).Hitchance >= HitChance.Medium && E.IsReady())
             {
                 E.Cast(Target, packets());
             }
@@ -339,8 +339,11 @@ namespace LissIceBladeDancer
                 {
                     if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < Damage.GetSpellDamage(Player, minion, SpellSlot.Q) - 10)
                     {
-                        Q.Cast(minion, packets());
-                        return;
+                        if (Q.IsReady())
+                        {
+                            Q.Cast(minion, packets());
+                            return;
+                        }
                     }
                 }
             }
@@ -408,7 +411,7 @@ namespace LissIceBladeDancer
         {
             if (!menu.Item("UseInt").GetValue<bool>()) return;
 
-            if (Player.Distance(unit) < R.Range && unit != null)
+            if (Player.Distance(unit) < R.Range && unit != null && R.IsReady())
             {
                 R.CastOnUnit(unit, packets());
             }
