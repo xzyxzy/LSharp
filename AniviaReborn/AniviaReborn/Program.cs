@@ -180,7 +180,7 @@ namespace AniviaReborn
 
         private static void Combo()
         {
-            Orbwalker.SetAttacks(!(Q.IsReady()));
+            Orbwalker.SetAttack(!(Q.IsReady()));
             UseSpells(menu.Item("UseQCombo").GetValue<bool>(), menu.Item("UseWCombo").GetValue<bool>(),
                 menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>(), "Combo");
         }
@@ -482,7 +482,7 @@ namespace AniviaReborn
                 return;
             }
 
-            Orbwalker.SetAttacks(true);
+            Orbwalker.SetAttack(true);
 
             //detonate Q check
             var detQ = menu.Item("detonateQ").GetValue<bool>();

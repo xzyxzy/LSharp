@@ -166,7 +166,7 @@ namespace LissIceBladeDancer
 
         private static void Combo()
         {
-            Orbwalker.SetAttacks(!(Q.IsReady() || menu.Item("MoveToMouse").GetValue<KeyBind>().Active));
+            Orbwalker.SetAttack(!(Q.IsReady() || menu.Item("MoveToMouse").GetValue<KeyBind>().Active));
             UseSpells(menu.Item("UseQCombo").GetValue<bool>(), menu.Item("UseWCombo").GetValue<bool>(),
                 menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>());
         }
@@ -257,7 +257,7 @@ namespace LissIceBladeDancer
 
         private static void Harass()
         {
-            Orbwalker.SetAttacks(!(menu.Item("MoveToMouse").GetValue<KeyBind>().Active));
+            Orbwalker.SetAttack(!(menu.Item("MoveToMouse").GetValue<KeyBind>().Active));
             UseSpells(menu.Item("UseQHarass").GetValue<bool>(), menu.Item("UseWHarass").GetValue<bool>(),
                 menu.Item("UseEHarass").GetValue<bool>(), false);
         }
@@ -300,7 +300,7 @@ namespace LissIceBladeDancer
 
             detonateE();
 
-            Orbwalker.SetAttacks(true);
+            Orbwalker.SetAttack(true);
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {

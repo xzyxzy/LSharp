@@ -160,7 +160,7 @@ namespace BlitzcrankGrabDAT
 
         private static void Combo()
         {
-            Orbwalker.SetAttacks(!(Q.IsReady()));
+            Orbwalker.SetAttack(!(Q.IsReady()));
             UseSpells(menu.Item("UseQCombo").GetValue<bool>(), menu.Item("UseWCombo").GetValue<bool>(),
                 menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>(), "Combo");
         }
@@ -328,7 +328,7 @@ namespace BlitzcrankGrabDAT
             //check if player is dead
             if (Player.IsDead) return;
 
-            Orbwalker.SetAttacks(true);
+            Orbwalker.SetAttack(true);
 
             if (menu.Item("panic").GetValue<KeyBind>().Active)
             {
