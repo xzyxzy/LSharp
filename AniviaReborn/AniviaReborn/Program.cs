@@ -291,7 +291,8 @@ namespace AniviaReborn
             var vec = new Vector3(pred.CastPosition.X - Player.ServerPosition.X, 0, pred.CastPosition.Z - Player.ServerPosition.Z);
             var CastBehind = pred.CastPosition + Vector3.Normalize(vec) * 125;
 
-            W.Cast(CastBehind, packets());
+            if(W.IsReady())
+                W.Cast(CastBehind, packets());
         }
 
         /*public static void castWBetween()
@@ -308,7 +309,8 @@ namespace AniviaReborn
             var vec = new Vector3(pred.CastPosition.X - Player.ServerPosition.X, 0, pred.CastPosition.Z - Player.ServerPosition.Z);
             var CastBehind = pred.CastPosition - Vector3.Normalize(vec) * 125;
 
-            W.Cast(CastBehind, packets());
+            if(W.IsReady())
+                W.Cast(CastBehind, packets());
         }
 
         public static bool checkChilled(Obj_AI_Hero target)
@@ -378,7 +380,7 @@ namespace AniviaReborn
                 }
             }
 
-            if (hit < 1 && R.IsReady() && rObj != null && rFirstCreated)
+            if (hit < 1 && R.IsReady() && rObj != null && rFirstCreated  && R.IsReady())
             {
                 R.Cast();
             }
@@ -446,7 +448,7 @@ namespace AniviaReborn
                     }
                 }
 
-                if (hit > 2)
+                if (hit > 2 && Q.IsReady())
                     Q.Cast();
             }
 
@@ -458,7 +460,7 @@ namespace AniviaReborn
                         hit++;
                 }
 
-                if (hit < 2)
+                if (hit < 2 && R.IsReady())
                     R.Cast();
             }
 
@@ -556,7 +558,7 @@ namespace AniviaReborn
             if (W.IsReady() && gapcloser.Sender.IsValidTarget(W.Range))
             {
                 var vec = Player.ServerPosition - Vector3.Normalize(Player.ServerPosition - gapcloser.Sender.ServerPosition) * 1;
-                    W.Cast(vec, packets());
+                W.Cast(vec, packets());
             }
         }
 
@@ -566,11 +568,11 @@ namespace AniviaReborn
 
             if (Player.Distance(unit) < Q.Range && unit != null)
             {
-                if (Q.GetPrediction(unit).Hitchance >= HitChance.High)
+                if (Q.GetPrediction(unit).Hitchance >= HitChance.High && Q.IsReady())
                     Q.Cast(unit, packets());
             }
 
-            if (Player.Distance(unit) < W.Range && unit != null)
+            if (Player.Distance(unit) < W.Range && unit != null && W.IsReady())
             {
                 W.Cast(unit, packets());
             }
