@@ -435,12 +435,12 @@ namespace AhriTheGumiho
                     var dashVector = Player.Position + Vector3.Normalize(Game.CursorPos - Player.Position) * 425;
                     var addedDelay = Player.Distance(dashVector) / 2200;
 
-                    Game.PrintChat("added delay: " + addedDelay);
+                    //Game.PrintChat("added delay: " + addedDelay);
 
                     var pred = GetP(Game.CursorPos, E, target, addedDelay, false);
                     if (pred.Hitchance >= HitChance.High)
                     {
-                        Game.PrintChat("R-E Mode Intiate!");
+                        //Game.PrintChat("R-E Mode Intiate!");
                         R.Cast(Game.CursorPos, packets());
                         rTimer = Environment.TickCount - 250;
                         return true;
