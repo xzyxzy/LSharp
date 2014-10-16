@@ -302,13 +302,13 @@ namespace AhriTheGumiho
                         E.Cast(rETarget, packets());
                     return;
                 }
-                else if (shouldR(eTarget))
+                else if (shouldR(eTarget) && R.IsReady())
                 {
                     R.Cast(Game.CursorPos, packets());
                     rTimer = Environment.TickCount - 250;
                     return;
                 }
-                else if (rTimeLeft > 9500 && rOn)
+                else if (rTimeLeft > 9500 && rOn && R.IsReady())
                 {
                     R.Cast(Game.CursorPos, packets());
                     rTimer = Environment.TickCount - 250;
