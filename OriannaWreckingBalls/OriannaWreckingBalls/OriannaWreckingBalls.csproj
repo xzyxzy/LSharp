@@ -57,6 +57,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Users\Thanh\Desktop\L# Loader\System\LeagueSharp.Common.dll</HintPath>
     </Reference>
+    <Reference Include="LX-Orbwalker">
+      <HintPath>C:\Users\Thanh\Desktop\L# Loader\System\LX-Orbwalker.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX">
       <HintPath>C:\Users\Thanh\Desktop\L# Loader\System\SharpDX.dll</HintPath>
     </Reference>

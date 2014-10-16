@@ -388,7 +388,7 @@ namespace AniviaReborn
 
         public static void escape()
         {
-            Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+            Orbwalker.SetOrbwalkingPoint(Game.CursorPos);
 
             var enemy = (from champ in ObjectManager.Get<Obj_AI_Hero>() where Player.Distance(champ.ServerPosition) < 2500 && champ.IsEnemy && champ.IsValid select champ).ToList();
             enemy.OrderBy(x => rObj.Position.Distance(x.ServerPosition));
