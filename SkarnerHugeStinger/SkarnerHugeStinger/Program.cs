@@ -251,7 +251,7 @@ namespace SkarnerHugeStinger
             //check if player is dead
             if (Player.IsDead) return;
 
-            Orbwalker.SetAttacks(true);
+            Orbwalker.SetAttack(true);
 
             if (menu.Item("towerR").GetValue<bool>())
                 checkUnderTower();

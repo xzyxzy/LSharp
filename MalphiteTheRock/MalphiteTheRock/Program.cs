@@ -215,7 +215,7 @@ namespace MalphiteTheRock
 
             RMec();
 
-            Orbwalker.SetAttacks(true);
+            Orbwalker.SetAttack(true);
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
