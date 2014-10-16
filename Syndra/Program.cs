@@ -115,10 +115,7 @@ namespace Syndra
 
             //Farming menu:
             Config.AddSubMenu(new Menu("Farm", "Farm"));
-            Config.SubMenu("Farm")
-                .AddItem(
-                    new MenuItem("UseQFarm", "Use Q").SetValue(
-                        new StringList(new[] { "Freeze", "LaneClear", "Both", "No" }, 2)));
+            Config.SubMenu("Farm").AddItem(new MenuItem("UseQFarm", "Use Q").SetValue(new StringList(new[] { "Freeze", "LaneClear", "Both", "No" }, 2)));
             Config.SubMenu("Farm")
                 .AddItem(
                     new MenuItem("UseWFarm", "Use W").SetValue(
@@ -362,7 +359,7 @@ namespace Syndra
                 {
                     if (W.InRange(wTarget.Position) && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
                     {
-                        W.Cast(wTarget, packets(), true);
+                        W.Cast(wTarget, false, true);
                     }
                 }
 
