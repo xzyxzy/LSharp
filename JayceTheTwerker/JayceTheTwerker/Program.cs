@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
+using LX_Orbwalker;
 using Color = System.Drawing.Color;
 
 namespace JayceTheTwerker
@@ -14,9 +15,6 @@ namespace JayceTheTwerker
     class Program
     {
         public const string ChampionName = "Jayce";
-
-        //Orbwalker instance
-        public static Orbwalking.Orbwalker Orbwalker;
 
         //Spells
         public static List<Spell> SpellList = new List<Spell>();
@@ -92,20 +90,20 @@ namespace JayceTheTwerker
             menu = new Menu(ChampionName, ChampionName, true);
 
             //Orbwalker submenu
-            menu.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
+            var orbwalkerMenu = new Menu("My Orbwalker", "my_Orbwalker");
+            LXOrbwalker.AddToMenu(orbwalkerMenu);
+            menu.AddSubMenu(orbwalkerMenu);
 
             //Target selector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
             SimpleTs.AddToMenu(targetSelectorMenu);
             menu.AddSubMenu(targetSelectorMenu);
 
-            //Orbwalk
-            Orbwalker = new Orbwalking.Orbwalker(menu.SubMenu("Orbwalking"));
 
             //Keys
             menu.AddSubMenu(new Menu("Keys", "Keys"));
-            menu.SubMenu("Keys").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Orbwalk").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            menu.SubMenu("Keys").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Farm").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Keys").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Combo_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Keys").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
             menu.SubMenu("Keys").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Keys").AddItem(new MenuItem("shootMouse", "Shoot QE Mouse").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
 
@@ -174,7 +172,7 @@ namespace JayceTheTwerker
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             GameObject.OnCreate += OnCreate;
             GameObject.OnDelete += OnDelete;
-            Orbwalking.AfterAttack += Orbwalking_AfterAttack;
+            LXOrbwalker.AfterAttack += Orbwalking_AfterAttack;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             Game.PrintChat(Player.ChampionName + " Loaded by --- xSalice, If you like my Assemblies, please feel free to donate to keep me motivated! :D");
@@ -533,6 +531,8 @@ namespace JayceTheTwerker
 
         public static void castQCannonMouse()
         {
+            LXOrbwalker.Orbwalk(Game.CursorPos, null);
+
             if (HammerTime && !R.IsReady())
                 return;
 
@@ -619,8 +619,6 @@ namespace JayceTheTwerker
         {
             //check if player is dead
             if (Player.IsDead) return;
-
-            Orbwalker.SetAttack(true);
 
             //cd check
             ProcessCooldowns();
