@@ -380,7 +380,7 @@ namespace KatarinaKittyKill
                     if (Player.Distance(target.ServerPosition) <= E.Range && 
                         (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.W)) > target.Health + 20)
                     {
-                        if (E.IsReady() && Q.IsReady())
+                        if (E.IsReady() && Q.IsReady() && W.IsReady())
                         {
                             cancelUlt(target);
                             Q.Cast(target, packets());
