@@ -92,7 +92,7 @@ namespace KatarinaKittyKill
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("eDis", "E only if >").SetValue(new Slider(0, 0, 700)));
-            menu.SubMenu("Combo").AddItem(new MenuItem("smartE", "Smart E with R CD ").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("smartE", "Smart E with R CD ").SetValue(false));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("comboMode", "Mode").SetValue(new StringList(new[] { "QEW", "EQW" }, 0)));
 
@@ -206,67 +206,71 @@ namespace KatarinaKittyKill
 
             var eDis = menu.Item("eDis").GetValue<Slider>().Value;
 
-            if (mode == 0)//qwe
+            if (!Target.HasBuffOfType(BuffType.Invulnerability))
             {
-                if (Target != null && DFG.IsReady() && E.IsReady() && menu.Item("dfg").GetValue<bool>())
+                if (mode == 0)//qwe
                 {
-                    DFG.Cast(Target);
+                    if (Target != null && DFG.IsReady() && E.IsReady() && menu.Item("dfg").GetValue<bool>())
+                    {
+                        DFG.Cast(Target);
+                    }
+
+                    if (useQ && Q.IsReady() && Player.Distance(Target) <= Q.Range && Target != null)
+                    {
+                        Q.Cast(Target, packets());
+                    }
+
+                    if (useE && Target != null && E.IsReady() && Player.Distance(Target) < E.Range && Player.Distance(Target) > eDis)
+                    {
+                        if (menu.Item("smartE").GetValue<bool>() && countEnemiesNearPosition(Target.ServerPosition, 500) > 2 && (!R.IsReady() || !(rSpell.State == SpellState.Surpressed && R.Level > 0)))
+                            return;
+
+                        E.Cast(Target, packets());
+                    }
+
+                }
+                else if (mode == 1)//eqw
+                {
+                    if (Target != null && DFG.IsReady() && E.IsReady() && menu.Item("dfg").GetValue<bool>())
+                    {
+                        DFG.Cast(Target);
+                    }
+
+                    if (useE && Target != null && E.IsReady() && Player.Distance(Target) < E.Range && Player.Distance(Target) > eDis)
+                    {
+                        if (menu.Item("smartE").GetValue<bool>() && countEnemiesNearPosition(Target.ServerPosition, 500) > 2 && (!R.IsReady() || !(rSpell.State == SpellState.Surpressed && R.Level > 0)))
+                            return;
+
+                        E.Cast(Target, packets());
+                    }
+
+                    if (useQ && Q.IsReady() && Player.Distance(Target) <= Q.Range && Target != null)
+                    {
+                        Q.Cast(Target, packets());
+                    }
                 }
 
-                if (useQ && Q.IsReady() && Player.Distance(Target) <= Q.Range && Target != null)
+                //Ignite
+                if (Target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
+                    Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 {
-                    Q.Cast(Target, packets());
+                    if (IgniteMode == 0 && GetComboDamage(Target) > Target.Health)
+                    {
+                        Player.SummonerSpellbook.CastSpell(IgniteSlot, Target);
+                    }
                 }
 
-                if (useE && Target != null && E.IsReady() && Player.Distance(Target) < E.Range && Player.Distance(Target) > eDis)
+                if (useW && Target != null && W.IsReady() && Player.Distance(Target) <= W.Range)
                 {
-                    if (menu.Item("smartE").GetValue<bool>() && countEnemiesNearPosition(Target.ServerPosition, 500) > 2 && (!R.IsReady() || !(rSpell.State == SpellState.Surpressed && R.Level > 0)))
-                        return;
-
-                    E.Cast(Target, packets());
+                    W.Cast();
                 }
 
-            }else if(mode == 1)//eqw
-            {
-                if (Target != null && DFG.IsReady() && E.IsReady() && menu.Item("dfg").GetValue<bool>())
+                if (useR && Target != null && R.IsReady() && countEnemiesNearPosition(Player.ServerPosition, R.Range) > 0)
                 {
-                    DFG.Cast(Target);
+                    if (!Q.IsReady() && !E.IsReady() && !W.IsReady())
+                        R.Cast();
+                    return;
                 }
-
-                if (useE && Target != null && E.IsReady() && Player.Distance(Target) < E.Range && Player.Distance(Target) > eDis)
-                {
-                    if (menu.Item("smartE").GetValue<bool>() && countEnemiesNearPosition(Target.ServerPosition, 500) > 2 && (!R.IsReady() || !(rSpell.State == SpellState.Surpressed && R.Level > 0)))
-                        return;
-
-                    E.Cast(Target, packets());
-                }
-
-                if (useQ && Q.IsReady() && Player.Distance(Target) <= Q.Range && Target != null)
-                {
-                    Q.Cast(Target, packets());
-                }
-            }
-
-            //Ignite
-            if (Target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
-            {
-                if (IgniteMode == 0 && GetComboDamage(Target) > Target.Health)
-                {
-                    Player.SummonerSpellbook.CastSpell(IgniteSlot, Target);
-                }
-            }
-
-            if (useW && Target != null && W.IsReady() && Player.Distance(Target) <= W.Range)
-            {
-                W.Cast();
-            }
-
-            if (useR && Target != null && R.IsReady() && countEnemiesNearPosition(Player.ServerPosition, R.Range) > 0)
-            {
-                if(!Q.IsReady() && !E.IsReady() && !W.IsReady())
-                R.Cast();
-                return;
             }
         }
 
