@@ -57,7 +57,7 @@ namespace KatarinaKittyKill
 
             IgniteSlot = Player.GetSpellSlot("SummonerDot");
 
-            DFG = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
+            DFG = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline || Utility.Map.GetMap()._MapType == Utility.Map.MapType.CrystalScar ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -372,6 +372,20 @@ namespace KatarinaKittyKill
                             cancelUlt(target);
                             E.Cast(target, packets());
                             //Game.PrintChat("ks 3");
+                            return;
+                        }
+                    }
+                    
+                    //QEW
+                    if (Player.Distance(target.ServerPosition) <= E.Range && 
+                        (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.W)) > target.Health + 20)
+                    {
+                        if (E.IsReady() && Q.IsReady())
+                        {
+                            cancelUlt(target);
+                            Q.Cast(target, packets());
+                            E.Cast(target, packets());
+                            W.Cast();
                             return;
                         }
                     }
