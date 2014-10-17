@@ -667,8 +667,11 @@ namespace KatarinaKittyKill
                 {
                     if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < Damage.GetSpellDamage(Player, minion, SpellSlot.W) - 10)
                     {
-                        W.Cast();
-                        return;
+                        if (Player.Distance(minion.ServerPosition) < W.Range)
+                        {
+                            W.Cast();
+                            return;
+                        }
                     }
                 }
             }
