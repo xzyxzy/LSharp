@@ -320,7 +320,7 @@ namespace KatarinaKittyKill
 
         public static void smartKS()
         {
-            if (menu.Item("smartKS").GetValue<bool>())
+            if (!menu.Item("smartKS").GetValue<bool>())
                 return;
 
             var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where Player.Distance(champ.ServerPosition) <= 1375 && champ.IsEnemy select champ).ToList();
