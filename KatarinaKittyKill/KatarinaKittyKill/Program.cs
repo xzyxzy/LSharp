@@ -116,6 +116,7 @@ namespace KatarinaKittyKill
             menu.SubMenu("KillSteal").AddItem(new MenuItem("smartKS", "Use Smart KS System").SetValue(true));
             menu.SubMenu("KillSteal").AddItem(new MenuItem("wardKs", "Use Jump KS").SetValue(true));
             menu.SubMenu("KillSteal").AddItem(new MenuItem("rKS", "Use R for KS").SetValue(true));
+            menu.SubMenu("KillSteal").AddItem(new MenuItem("rCancel", "NO R Cancel for KS").SetValue(false));
 
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
@@ -323,12 +324,15 @@ namespace KatarinaKittyKill
             if (!menu.Item("smartKS").GetValue<bool>())
                 return;
 
+            if (menu.Item("rCancel").GetValue<bool>() && countEnemiesNearPosition(Player.ServerPosition, 570) > 1)
+                return;
+
             var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where Player.Distance(champ.ServerPosition) <= 1375 && champ.IsEnemy select champ).ToList();
             nearChamps.OrderBy(x => x.Health);
 
             foreach (var target in nearChamps)
             {
-                if (target != null && !target.IsDead)
+                if (target != null && !target.IsDead && !target.HasBuffOfType(BuffType.Invulnerability))
                 {
                     if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
                             Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Player.Distance(target.ServerPosition) <= 600)
@@ -385,7 +389,8 @@ namespace KatarinaKittyKill
                             cancelUlt(target);
                             Q.Cast(target, packets());
                             E.Cast(target, packets());
-                            W.Cast();
+                            if(Player.Distance(target.ServerPosition) < W.Range)
+                                W.Cast();
                             return;
                         }
                     }
@@ -397,7 +402,8 @@ namespace KatarinaKittyKill
                         {
                             cancelUlt(target);
                             E.Cast(target, packets());
-                            W.Cast();
+                            if (Player.Distance(target.ServerPosition) < W.Range)
+                                W.Cast();
                             //Game.PrintChat("ks 5");
                             return;
                         }
@@ -487,9 +493,9 @@ namespace KatarinaKittyKill
         {
             foreach (var target in ObjectManager.Get<Obj_AI_Hero>())
             {
-                if (target != null && !target.IsDead && target.IsEnemy && Player.Distance(target.ServerPosition) <= W.Range)
+                if (target != null && !target.IsDead && target.IsEnemy && Player.Distance(target.ServerPosition) <= W.Range && target.IsValidTarget(W.Range))
                 {
-                    if (Player.Distance(target) < W.Range && W.IsReady())
+                    if (Player.Distance(target.ServerPosition) < W.Range && W.IsReady())
                         W.Cast();
                 }
             }
