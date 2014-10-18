@@ -336,7 +336,7 @@ namespace KatarinaKittyKill
 
             foreach (var target in nearChamps)
             {
-                if (target != null && !target.IsDead && !target.HasBuffOfType(BuffType.Invulnerability))
+                if (target != null && !target.IsDead && !target.HasBuffOfType(BuffType.Invulnerability) && target.IsValidTarget(1375))
                 {
                     if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
                             Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Player.Distance(target.ServerPosition) <= 600)
