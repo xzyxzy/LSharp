@@ -334,7 +334,7 @@ namespace JayceTheTwerker
         {
             foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>())
             {
-                if (enemy != null && !enemy.IsDead && enemy.IsEnemy && Player.Distance(enemy.ServerPosition) <= QCharge.Range)
+                if (enemy != null && !enemy.IsDead && enemy.IsEnemy && Player.Distance(enemy.ServerPosition) <= QCharge.Range && enemy.IsValidTarget(QCharge.Range))
                 {
                     //Q
                     if ((Player.GetSpellDamage(enemy, SpellSlot.Q) - 20) > enemy.Health && canQcd == 0 && Q.GetPrediction(enemy).Hitchance >= HitChance.High && Player.Distance(enemy.ServerPosition) <= Q.Range){
