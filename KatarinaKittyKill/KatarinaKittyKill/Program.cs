@@ -71,7 +71,7 @@ namespace KatarinaKittyKill
             var orbwalkerMenu = new Menu("My Orbwalker", "my_Orbwalker");
             LXOrbwalker.AddToMenu(orbwalkerMenu);
             menu.AddSubMenu(orbwalkerMenu);
-
+            
             //Target selector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
             SimpleTs.AddToMenu(targetSelectorMenu);
@@ -206,7 +206,7 @@ namespace KatarinaKittyKill
 
             var eDis = menu.Item("eDis").GetValue<Slider>().Value;
 
-            if (!Target.HasBuffOfType(BuffType.Invulnerability))
+            if (!Target.HasBuffOfType(BuffType.Invulnerability) && Target.IsValidTarget(E.Range))
             {
                 if (mode == 0)//qwe
                 {
@@ -308,7 +308,7 @@ namespace KatarinaKittyKill
                     Q.Cast(qTarget, packets());
                 }
             }
-            else if (mode == 2)
+            else if(mode == 2)
             {
                 if (useQ && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && qTarget != null)
                 {
@@ -370,7 +370,7 @@ namespace KatarinaKittyKill
                         }
                     }
 
-                    //dfg + E
+                    //dfg + e
                     if (Player.Distance(target.ServerPosition) <= E.Range &&
                         (Player.GetItemDamage(target, Damage.DamageItems.Dfg) + (Player.GetSpellDamage(target, SpellSlot.E)) * 1.2) > target.Health + 20)
                     {
@@ -383,9 +383,9 @@ namespace KatarinaKittyKill
                             return;
                         }
                     }
-
+                    
                     //QEW
-                    if (Player.Distance(target.ServerPosition) <= E.Range &&
+                    if (Player.Distance(target.ServerPosition) <= E.Range && 
                         (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.W)) > target.Health + 20)
                     {
                         if (E.IsReady() && Q.IsReady() && W.IsReady())
@@ -393,7 +393,7 @@ namespace KatarinaKittyKill
                             cancelUlt(target);
                             Q.Cast(target, packets());
                             E.Cast(target, packets());
-                            if (Player.Distance(target.ServerPosition) < W.Range)
+                            if(Player.Distance(target.ServerPosition) < W.Range)
                                 W.Cast();
                             return;
                         }
@@ -488,7 +488,7 @@ namespace KatarinaKittyKill
                 var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where Player.Distance(champ.ServerPosition) <= 1375 && champ.IsEnemy select champ).ToList();
                 nearChamps.OrderBy(x => x.Health);
 
-                if (nearChamps.FirstOrDefault() != null)
+                if (nearChamps.FirstOrDefault() != null && nearChamps.FirstOrDefault().IsValidTarget(1375))
                     LXOrbwalker.Orbwalk(nearChamps.FirstOrDefault().ServerPosition, null);
             }
         }
@@ -526,14 +526,14 @@ namespace KatarinaKittyKill
             }
 
             foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero =>
-                E.IsReady() && Q.IsReady() && hero.Distance(target.ServerPosition) < Q.Range && hero.Distance(Player) < E.Range))
+                E.IsReady() && Q.IsReady() && hero.Distance(target.ServerPosition) < Q.Range && hero.Distance(Player) < E.Range && hero.IsValidTarget(E.Range)))
             {
                 E.Cast(hero);
                 return;
             }
 
             foreach (Obj_AI_Minion minion in ObjectManager.Get<Obj_AI_Minion>().Where(minion =>
-                E.IsReady() && Q.IsReady() && minion.Distance(target.ServerPosition) < Q.Range && minion.Distance(Player) < E.Range))
+                E.IsReady() && Q.IsReady() && minion.Distance(target.ServerPosition) < Q.Range && minion.Distance(Player) < E.Range && minion.IsValidTarget(E.Range)))
             {
                 E.Cast(minion);
                 return;
@@ -568,11 +568,10 @@ namespace KatarinaKittyKill
 
         }
 
-        public static void wardJump()
-        {
+        public static void wardJump(){
             //wardWalk(Game.CursorPos);
 
-            foreach (Obj_AI_Minion ward in ObjectManager.Get<Obj_AI_Minion>().Where(ward =>
+            foreach (Obj_AI_Minion ward in ObjectManager.Get<Obj_AI_Minion>().Where(ward => 
                 E.IsReady() && ward.Name.ToLower().Contains("ward") && ward.Distance(Game.CursorPos) < 130 && ward.Distance(Player) < E.Range))
             {
                 E.Cast(ward);
@@ -580,14 +579,14 @@ namespace KatarinaKittyKill
             }
 
             foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero =>
-                E.IsReady() && hero.Distance(Game.CursorPos) < 130 && hero.Distance(Player) < E.Range))
+                E.IsReady() && hero.Distance(Game.CursorPos) < 130 && hero.Distance(Player) < E.Range && hero.IsValidTarget(E.Range)))
             {
                 E.Cast(hero);
                 return;
             }
 
             foreach (Obj_AI_Minion minion in ObjectManager.Get<Obj_AI_Minion>().Where(minion =>
-                E.IsReady() && minion.Distance(Game.CursorPos) < 130 && minion.Distance(Player) < E.Range))
+                E.IsReady() && minion.Distance(Game.CursorPos) < 130 && minion.Distance(Player) < E.Range && minion.IsValidTarget(E.Range)))
             {
                 E.Cast(minion);
                 return;
@@ -723,7 +722,7 @@ namespace KatarinaKittyKill
                 shouldCancel();
                 return;
             }
-
+           
             if (menu.Item("Wardjump").GetValue<KeyBind>().Active)
             {
                 wardJump();
@@ -738,7 +737,7 @@ namespace KatarinaKittyKill
 
                 if (menu.Item("lastHit").GetValue<KeyBind>().Active)
                     lastHit();
-
+                
                 if (menu.Item("LaneClearActive").GetValue<KeyBind>().Active)
                     Farm();
 
