@@ -244,10 +244,10 @@ namespace JayceTheTwerker
                     if (useW2 && Player.Distance(q2Target) <= 300 && W.IsReady())
                         W.Cast();
 
-                    if (useQ2 && Player.Distance(q2Target) <= Q2.Range + q2Target.BoundingRadius)
+                    if (useQ2 && Player.Distance(q2Target) <= Q2.Range + q2Target.BoundingRadius && Q2.IsReady())
                         Q2.Cast(q2Target, menu.Item("packet").GetValue<bool>());
 
-                    if (useE2 && eCheck(e2Target, useQ, useW) && Player.Distance(e2Target) <= E2.Range + q2Target.BoundingRadius)
+                    if (useE2 && eCheck(e2Target, useQ, useW) && Player.Distance(e2Target) <= E2.Range + q2Target.BoundingRadius && E2.IsReady())
                         E2.Cast(q2Target, menu.Item("packet").GetValue<bool>());
                 }
 
@@ -266,13 +266,13 @@ namespace JayceTheTwerker
 
                 if (HammerTime)
                 {
-                    if (useW2 && Player.Distance(q2Target) <= 300)
+                    if (useW2 && Player.Distance(q2Target) <= 300 && W.IsReady())
                         W.Cast();
 
-                    if(useQ2 && Player.Distance(q2Target) <= Q2.Range + q2Target.BoundingRadius)
+                    if(useQ2 && Player.Distance(q2Target) <= Q2.Range + q2Target.BoundingRadius && Q2.IsReady())
                         Q2.Cast(q2Target, menu.Item("packet").GetValue<bool>());
 
-                    if (useE2 && Player.Distance(q2Target) <= E2.Range + q2Target.BoundingRadius)
+                    if (useE2 && Player.Distance(q2Target) <= E2.Range + q2Target.BoundingRadius && E2.IsReady())
                         E2.Cast(q2Target, menu.Item("packet").GetValue<bool>());
                 }
 
@@ -341,7 +341,7 @@ namespace JayceTheTwerker
                         if(HammerTime && R.IsReady())
                             R.Cast();
 
-                        if (!HammerTime)
+                        if (!HammerTime && Q.IsReady())
                             Q.Cast(enemy, menu.Item("packet").GetValue<bool>());
                     }
 
@@ -362,7 +362,7 @@ namespace JayceTheTwerker
                         if (!HammerTime && R.IsReady())
                             R.Cast();
 
-                        if (HammerTime)
+                        if (HammerTime && Q2.IsReady() && E2.IsReady())
                         {
                             Q2.Cast(enemy, menu.Item("packet").GetValue<bool>());
                             E2.Cast(enemy, menu.Item("packet").GetValue<bool>());
@@ -376,7 +376,7 @@ namespace JayceTheTwerker
                         if (!HammerTime && R.IsReady())
                             R.Cast();
 
-                        if (HammerTime)
+                        if (HammerTime && Q2.IsReady())
                         {
                             Q2.Cast(enemy, menu.Item("packet").GetValue<bool>());
                             return;
@@ -389,7 +389,7 @@ namespace JayceTheTwerker
                         if (!HammerTime && R.IsReady() && enemy.Health > 80)
                             R.Cast();
 
-                        if (HammerTime)
+                        if (HammerTime && E2.IsReady())
                         {
                             E2.Cast(enemy, menu.Item("packet").GetValue<bool>());
                             return;
@@ -405,7 +405,7 @@ namespace JayceTheTwerker
             {
                 //switch to hammer
                 if ((canQcd != 0 || !useQ) &&
-                    (canWcd != 0 && !hyperCharged() || !useW) &&
+                    (canWcd != 0 && !hyperCharged() || !useW) && R.IsReady() &&
                      hammerAllReady() && !HammerTime && Player.Distance(target.ServerPosition) < 650 &&
                      (useQ2 || useW2 || useE2))
                 {
@@ -416,7 +416,7 @@ namespace JayceTheTwerker
             }
 
             //switch to cannon
-            if (((canQcd == 0 && useQ) || (canWcd == 0 && useW) )
+            if (((canQcd == 0 && useQ) || (canWcd == 0 && useW) && R.IsReady())
                 && HammerTime)
             {
                 //Game.PrintChat("Cannon Time");
@@ -424,7 +424,7 @@ namespace JayceTheTwerker
                 return;
             }
 
-            if(hamQcd != 0 && hamWcd !=0 && hamEcd != 0 && HammerTime){
+            if(hamQcd != 0 && hamWcd !=0 && hamEcd != 0 && HammerTime && R.IsReady()){
                 R.Cast();
                 return;
             }
@@ -495,14 +495,14 @@ namespace JayceTheTwerker
                 {
                     if (!lagFree)
                     {
-                        if (Player.Distance(target) < 250)
+                        if (Player.Distance(target) < 250 && E.IsReady() && QCharge.IsReady())
                         {
                             E.Cast(vecClose, menu.Item("packet").GetValue<bool>());
                             QCharge.Cast(tarPred.CastPosition, menu.Item("packet").GetValue<bool>());
                             firstE = true;
                             return;
                         }
-                        else
+                        else if (QCharge.IsReady())
                         {
                             ePos = GateVector;
                             QCharge.Cast(tarPred.CastPosition, menu.Item("packet").GetValue<bool>());
@@ -510,18 +510,16 @@ namespace JayceTheTwerker
                             return;
                         }
                     }
-                    else
+                    else if(E.IsReady() && QCharge.IsReady())
                     {
                         E.Cast(GateVector, menu.Item("packet").GetValue<bool>());
                         QCharge.Cast(tarPred.CastPosition, menu.Item("packet").GetValue<bool>());
                         return;
                     }
                 }
-
-                Q.Cast(tarPred.CastPosition, menu.Item("packet").GetValue<bool>());
             }
 
-            if ((menu.Item("UseQAlways").GetValue<bool>() || !useE) && canQcd == 0 && Q.GetPrediction(target).Hitchance >= HitChance.High && Player.Distance(target.ServerPosition) <= Q.Range)
+            if ((menu.Item("UseQAlways").GetValue<bool>() || !useE) && canQcd == 0 && Q.GetPrediction(target).Hitchance >= HitChance.High && Player.Distance(target.ServerPosition) <= Q.Range && Q.IsReady())
             {
                 Q.Cast(target, menu.Item("packet").GetValue<bool>());
                 return;
@@ -549,13 +547,13 @@ namespace JayceTheTwerker
                 var gateDis = menu.Item("gatePlace").GetValue<Slider>().Value;
                 var GateVector = Player.ServerPosition + Vector3.Normalize(Game.CursorPos - Player.ServerPosition) * gateDis;
 
-                if(!lagFree){
+                if(!lagFree && Q.IsReady()){
                     ePos = GateVector;
                     Q.Cast(Game.CursorPos, menu.Item("packet").GetValue<bool>());
                     firstE = true;
                     return;
                 }
-                else
+                else if(E.IsReady() && Q.IsReady())
                 {
                     E.Cast(GateVector, menu.Item("packet").GetValue<bool>());
                     Q.Cast(Game.CursorPos, menu.Item("packet").GetValue<bool>());
@@ -656,7 +654,7 @@ namespace JayceTheTwerker
             {
                 if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
                 {
-                    if (canWcd == 0 && Player.Distance(target) < 600 && !HammerTime && W.Level > 0)
+                    if (canWcd == 0 && Player.Distance(target) < 600 && !HammerTime && W.Level > 0 && W.IsReady())
                         if (useWCombo)
                         {
                             Orbwalking.ResetAutoAttackTimer();
@@ -666,7 +664,7 @@ namespace JayceTheTwerker
 
                 if (menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
                 {
-                    if (canWcd == 0 && Player.Distance(target) < 600 && !HammerTime && W.Level > 0)
+                    if (canWcd == 0 && Player.Distance(target) < 600 && !HammerTime && W.Level > 0 && W.IsReady())
                         if (useWHarass)
                         {
                             Orbwalking.ResetAutoAttackTimer();
@@ -733,12 +731,12 @@ namespace JayceTheTwerker
 
             if (unit == ObjectManager.Player.Name && name == "JayceShockBlastMis")
             {
-                if (ePos != Vector3.Zero && canEcd == 0)
+                if (ePos != Vector3.Zero && canEcd == 0 && E.IsReady())
                 {
                     E.Cast(ePos, menu.Item("packet").GetValue<bool>());
                     firstE = false;
                 }
-                else if (menu.Item("forceGate").GetValue<bool>() && canEcd == 0 && Player.Distance(spell.Position) < 250)
+                else if (menu.Item("forceGate").GetValue<bool>() && canEcd == 0 && Player.Distance(spell.Position) < 250 && E.IsReady())
                 {
                     E.Cast(spell.EndPosition, menu.Item("packet").GetValue<bool>());
                     firstE = false;
@@ -768,10 +766,13 @@ namespace JayceTheTwerker
         {
             if (!menu.Item("UseGap").GetValue<bool>()) return;
 
-            if (hamEcd == 0 && gapcloser.Sender.IsValidTarget(E2.Range + gapcloser.Sender.BoundingRadius))
+            if (hamEcd == 0 && gapcloser.Sender.IsValidTarget(E2.Range + gapcloser.Sender.BoundingRadius)){
                 if (!HammerTime && R.IsReady())
                     R.Cast();
-                E2.Cast(gapcloser.Sender, menu.Item("packet").GetValue<bool>());
+
+                if(E2.IsReady())
+                    E2.Cast(gapcloser.Sender, menu.Item("packet").GetValue<bool>());
+            }
         }
 
         private static void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
@@ -782,13 +783,17 @@ namespace JayceTheTwerker
             {
                 if (!HammerTime && R.IsReady())
                     R.Cast();
-                Q2.Cast(unit, menu.Item("packet").GetValue<bool>());
+
+                if(Q2.IsReady())
+                    Q2.Cast(unit, menu.Item("packet").GetValue<bool>());
             }
 
             if (Player.Distance(unit) < E2.Range + unit.BoundingRadius && unit != null && hamEcd == 0)
             {
                 if (!HammerTime && R.IsReady())
                     R.Cast();
+
+                if(E2.IsReady())
                 E2.Cast(unit, menu.Item("packet").GetValue<bool>());
             }
         }
