@@ -370,11 +370,11 @@ namespace KatarinaKittyKill
                         }
                     }
 
-                    //dfg + q
+                    //dfg + e
                     if (Player.Distance(target.ServerPosition) <= E.Range &&
                         (Player.GetItemDamage(target, Damage.DamageItems.Dfg) + (Player.GetSpellDamage(target, SpellSlot.E)) * 1.2) > target.Health + 20)
                     {
-                        if (DFG.IsReady() && Q.IsReady())
+                        if (DFG.IsReady() && E.IsReady())
                         {
                             DFG.Cast(target);
                             cancelUlt(target);
