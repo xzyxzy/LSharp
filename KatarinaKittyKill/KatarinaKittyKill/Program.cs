@@ -488,7 +488,7 @@ namespace KatarinaKittyKill
                 var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where Player.Distance(champ.ServerPosition) <= 1375 && champ.IsEnemy select champ).ToList();
                 nearChamps.OrderBy(x => x.Health);
 
-                if(nearChamps.FirstOrDefault() != null)
+                if (nearChamps.FirstOrDefault() != null && nearChamps.FirstOrDefault().IsValidTarget(1375))
                     LXOrbwalker.Orbwalk(nearChamps.FirstOrDefault().ServerPosition, null);
             }
         }
