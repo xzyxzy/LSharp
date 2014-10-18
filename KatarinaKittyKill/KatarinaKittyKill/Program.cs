@@ -663,7 +663,7 @@ namespace KatarinaKittyKill
             {
                 foreach (var minion in allMinions)
                 {
-                    if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < Damage.GetSpellDamage(Player, minion, SpellSlot.Q) - 10)
+                    if (minion.IsValidTarget(Q.Range) && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < Damage.GetSpellDamage(Player, minion, SpellSlot.Q) - 10)
                     {
                         Q.CastOnUnit(minion, packets());
                         return;
@@ -675,7 +675,7 @@ namespace KatarinaKittyKill
             {
                 foreach (var minion in allMinions)
                 {
-                    if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < Damage.GetSpellDamage(Player, minion, SpellSlot.W) - 10)
+                    if (minion.IsValidTarget(W.Range) && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < Damage.GetSpellDamage(Player, minion, SpellSlot.W) - 10)
                     {
                         if (Player.Distance(minion.ServerPosition) < W.Range)
                         {
@@ -697,7 +697,7 @@ namespace KatarinaKittyKill
             var useQ = menu.Item("UseQFarm").GetValue<bool>();
             var useW = menu.Item("UseWFarm").GetValue<bool>();
 
-            if (useQ && allMinionsQ.Count > 0 && Q.IsReady())
+            if (useQ && allMinionsQ.Count > 0 && Q.IsReady() && allMinionsQ[0].IsValidTarget(Q.Range))
             {
                 Q.Cast(allMinionsQ[0], packets());
             }
