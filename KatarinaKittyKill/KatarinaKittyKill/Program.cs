@@ -206,7 +206,7 @@ namespace KatarinaKittyKill
 
             var eDis = menu.Item("eDis").GetValue<Slider>().Value;
 
-            if (!Target.HasBuffOfType(BuffType.Invulnerability))
+            if (!Target.HasBuffOfType(BuffType.Invulnerability) && Target.IsValidTarget(E.Range))
             {
                 if (mode == 0)//qwe
                 {
@@ -526,14 +526,14 @@ namespace KatarinaKittyKill
             }
 
             foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero =>
-                E.IsReady() && Q.IsReady() && hero.Distance(target.ServerPosition) < Q.Range && hero.Distance(Player) < E.Range))
+                E.IsReady() && Q.IsReady() && hero.Distance(target.ServerPosition) < Q.Range && hero.Distance(Player) < E.Range && hero.IsValidTarget(E.Range)))
             {
                 E.Cast(hero);
                 return;
             }
 
             foreach (Obj_AI_Minion minion in ObjectManager.Get<Obj_AI_Minion>().Where(minion =>
-                E.IsReady() && Q.IsReady() && minion.Distance(target.ServerPosition) < Q.Range && minion.Distance(Player) < E.Range))
+                E.IsReady() && Q.IsReady() && minion.Distance(target.ServerPosition) < Q.Range && minion.Distance(Player) < E.Range && minion.IsValidTarget(E.Range)))
             {
                 E.Cast(minion);
                 return;
@@ -579,14 +579,14 @@ namespace KatarinaKittyKill
             }
 
             foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero =>
-                E.IsReady() && hero.Distance(Game.CursorPos) < 130 && hero.Distance(Player) < E.Range))
+                E.IsReady() && hero.Distance(Game.CursorPos) < 130 && hero.Distance(Player) < E.Range && hero.IsValidTarget(E.Range)))
             {
                 E.Cast(hero);
                 return;
             }
 
             foreach (Obj_AI_Minion minion in ObjectManager.Get<Obj_AI_Minion>().Where(minion =>
-                E.IsReady() && minion.Distance(Game.CursorPos) < 130 && minion.Distance(Player) < E.Range))
+                E.IsReady() && minion.Distance(Game.CursorPos) < 130 && minion.Distance(Player) < E.Range && minion.IsValidTarget(E.Range)))
             {
                 E.Cast(minion);
                 return;
