@@ -61,10 +61,10 @@ namespace Syndra
 
             DFG = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
 
-            Q.SetSkillshot(0.7f, 100f, float.MaxValue, false, SkillshotType.SkillshotCircle);
-            W.SetSkillshot(0.25f, 175f, 1475f, false, SkillshotType.SkillshotCircle);
+            Q.SetSkillshot(0.6f, 125f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            W.SetSkillshot(0.25f, 140f, 1600f, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.25f, (float)(45 * 0.5), 2500f, false, SkillshotType.SkillshotCircle);
-            EQ.SetSkillshot(float.MaxValue, 55f, 2100f, false, SkillshotType.SkillshotCircle);
+            EQ.SetSkillshot(float.MaxValue, 55f, 2000f, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -243,7 +243,7 @@ namespace Syndra
         private static void UseE(Obj_AI_Base enemy)
         {
             foreach (var orb in OrbManager.GetOrbs(true))
-                if (Player.Distance(orb) < E.Range + 100 && E.IsReady())
+                if (Player.Distance(orb) < E.Range + 100)
                 {
                     var startPoint = orb.To2D().Extend(Player.ServerPosition.To2D(), 100);
                     var endPoint = Player.ServerPosition.To2D()
@@ -251,12 +251,12 @@ namespace Syndra
                     EQ.Delay = E.Delay + Player.Distance(orb) / E.Speed;
                     EQ.From = orb;
                     var enemyPred = EQ.GetPrediction(enemy);
-                    if (enemyPred.Hitchance >= HitChance.High &&
+                    if (enemyPred.Hitchance >= HitChance.High && E.IsReady() &&
                         enemyPred.UnitPosition.To2D().Distance(startPoint, endPoint, false) <
                         EQ.Width + enemy.BoundingRadius)
                     {
                         E.Cast(orb, packets());
-                        E.LastCastAttemptT = Environment.TickCount;
+                        W.LastCastAttemptT = Environment.TickCount;
                         return;
                     }
                 }
@@ -264,7 +264,7 @@ namespace Syndra
 
         private static void UseQE(Obj_AI_Base enemy)
         {
-            EQ.Delay =  Q.Range / E.Speed;
+            EQ.Delay = E.Delay + Q.Range / E.Speed;
             EQ.From = Player.ServerPosition.To2D().Extend(enemy.ServerPosition.To2D(), Q.Range).To3D();
 
             var prediction = EQ.GetPrediction(enemy);
@@ -290,7 +290,7 @@ namespace Syndra
         {
             var damage = 0d;
 
-            if (Q.IsReady(420))
+            if (Q.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.Q) - 10;
 
             if (DFG.IsReady())
@@ -301,6 +301,9 @@ namespace Syndra
 
             if (E.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
+
+            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+                damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
 
             if (R.IsReady())
                 damage += Math.Min(7, Player.Spellbook.GetSpell(SpellSlot.R).Ammo) * Player.GetSpellDamage(enemy, SpellSlot.R, 1) - 20;
@@ -323,7 +326,7 @@ namespace Syndra
 
         private static void UseSpells(bool useQ, bool useW, bool useE, bool useR, bool useQE, bool useIgnite, bool isHarass)
         {
-            var qTarget = SimpleTs.GetTarget(Q.Range + (isHarass ? Q.Width/3 : Q.Width), SimpleTs.DamageType.Magical);
+            var qTarget = SimpleTs.GetTarget(Q.Range + (isHarass ? Q.Width / 3 : Q.Width), SimpleTs.DamageType.Magical);
             var wTarget = SimpleTs.GetTarget(W.Range + W.Width, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
             var qeTarget = SimpleTs.GetTarget(EQ.Range, SimpleTs.DamageType.Magical);
@@ -342,23 +345,24 @@ namespace Syndra
                 }
 
             //W
-            if (useW && W.IsReady())
-                if (Player.Spellbook.GetSpell(SpellSlot.W).ToggleState == 1 && qeTarget != null)
+            if (useW)
+                if (Player.Spellbook.GetSpell(SpellSlot.W).ToggleState == 1 && W.IsReady() && qeTarget != null)
                 {
                     //WObject
                     var gObjectPos = GetGrabableObjectPos(wTarget == null);
 
-                    if (gObjectPos.To2D().IsValid() && Environment.TickCount - W.LastCastAttemptT > Game.Ping + 150 && Environment.TickCount - E.LastCastAttemptT > Game.Ping + 150)
+                    if (gObjectPos.To2D().IsValid() && Environment.TickCount - W.LastCastAttemptT > Game.Ping + 100 && Environment.TickCount - E.LastCastAttemptT > Game.Ping + 100 && W.IsReady())
                     {
                         W.Cast(gObjectPos);
                         W.LastCastAttemptT = Environment.TickCount;
                     }
                 }
-                else if (wTarget != null && Player.Spellbook.GetSpell(SpellSlot.W).ToggleState != 1 &&
+                else if (wTarget != null && Player.Spellbook.GetSpell(SpellSlot.W).ToggleState != 1 && W.IsReady() &&
                          Environment.TickCount - W.LastCastAttemptT > Game.Ping + 100)
                 {
-                    if (W.InRange(wTarget.Position) && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
+                    if (OrbManager.WObject(false) != null && W.IsReady() && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
                     {
+                        W.From = OrbManager.WObject(false).ServerPosition;
                         W.Cast(wTarget, false, true);
                     }
                 }
@@ -368,7 +372,7 @@ namespace Syndra
                         Config.Item("DontUlt" + rTarget.BaseSkinName).GetValue<bool>() == false) && useR;
 
             //DFG (and ult if ready)
-            if (rTarget != null && useR && getUltDmg(rTarget) > rTarget.Health && DFG.IsReady())
+            if (rTarget != null && useR && comboDamage > rTarget.Health && DFG.IsReady())
             {
                 DFG.Cast(rTarget);
                 if (R.IsReady())
@@ -380,7 +384,7 @@ namespace Syndra
             //R
             if (rTarget != null && useR && R.IsReady() && !Q.IsReady() && !DFG.IsReady())
             {
-                if (getUltDmg(rTarget) > rTarget.Health)
+                if (comboDamage > rTarget.Health)
                 {
                     R.Cast(rTarget);
                 }
@@ -401,12 +405,12 @@ namespace Syndra
                 UseQE(qeTarget);
 
             //WE
-            if (wTarget == null && qeTarget != null && E.IsReady() && useE && OrbManager.WObject(true) != null && W.IsReady())
+            if (wTarget == null && qeTarget != null && E.IsReady() && useE && OrbManager.WObject(true) != null)
             {
                 EQ.Delay = E.Delay + Q.Range / W.Speed;
                 EQ.From = Player.ServerPosition.To2D().Extend(qeTarget.ServerPosition.To2D(), Q.Range).To3D();
                 var prediction = EQ.GetPrediction(qeTarget);
-                if (prediction.Hitchance >= HitChance.High)
+                if (prediction.Hitchance >= HitChance.High && W.IsReady())
                 {
                     W.Cast(Player.ServerPosition.To2D().Extend(prediction.CastPosition.To2D(), Q.Range - 100));
                     WEComboT = Environment.TickCount;
