@@ -372,7 +372,7 @@ namespace Syndra
                         Config.Item("DontUlt" + rTarget.BaseSkinName).GetValue<bool>() == false) && useR;
 
             //DFG (and ult if ready)
-            if (rTarget != null && useR && comboDamage > rTarget.Health && DFG.IsReady())
+            if (rTarget != null && useR && getUltDmg(rTarget) > rTarget.Health && DFG.IsReady())
             {
                 DFG.Cast(rTarget);
                 if (R.IsReady())
@@ -384,7 +384,7 @@ namespace Syndra
             //R
             if (rTarget != null && useR && R.IsReady() && !Q.IsReady() && !DFG.IsReady())
             {
-                if (comboDamage > rTarget.Health)
+                if (getUltDmg(rTarget) > rTarget.Health)
                 {
                     R.Cast(rTarget);
                 }
