@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
+using LX_Orbwalker;
 using Color = System.Drawing.Color;
 
 namespace OriannaWreckingBalls
@@ -14,9 +15,6 @@ namespace OriannaWreckingBalls
     class Program
     {
         public const string ChampionName = "Orianna";
-
-        //Orbwalker instance
-        public static Orbwalking.Orbwalker Orbwalker;
 
         //Spells
         public static List<Spell> SpellList = new List<Spell>();
@@ -69,25 +67,33 @@ namespace OriannaWreckingBalls
             menu = new Menu(ChampionName, ChampionName, true);
 
             //Orbwalker submenu
-            menu.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
+            var orbwalkerMenu = new Menu("My Orbwalker", "my_Orbwalker");
+            LXOrbwalker.AddToMenu(orbwalkerMenu);
+            menu.AddSubMenu(orbwalkerMenu);
 
             //Target selector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
             SimpleTs.AddToMenu(targetSelectorMenu);
             menu.AddSubMenu(targetSelectorMenu);
 
-            //Orbwalk
-            Orbwalker = new Orbwalking.Orbwalker(menu.SubMenu("Orbwalking"));
+            //Keys
+            menu.AddSubMenu(new Menu("Keys", "Keys"));
+            menu.SubMenu("Keys").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Combo_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Keys").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Harass_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Keys").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
+            menu.SubMenu("Keys").AddItem(new MenuItem("LastHitQQ", "Last hit with Q").SetValue(new KeyBind("A".ToCharArray()[0], KeyBindType.Press)));
+            menu.SubMenu("Keys").AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("qHit", "Q HitChance").SetValue(new Slider(3, 1, 4)));
+            menu.SubMenu("Combo").AddItem(new MenuItem("qBehind", "Q Behind").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("UseEDmg", "Use E to Dmg").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("killR", "R Multi Only Toggle").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
-            menu.SubMenu("Combo").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Orbwalk").GetValue<KeyBind>().Key, KeyBindType.Press)));
 
             //Harass menu:
             menu.AddSubMenu(new Menu("Harass", "Harass"));
@@ -95,17 +101,13 @@ namespace OriannaWreckingBalls
             menu.SubMenu("Harass").AddItem(new MenuItem("qHit2", "Q HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Use W").SetValue(false));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
-            menu.SubMenu("Harass").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Farm").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            menu.SubMenu("Harass").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
 
             //Farming menu:
             menu.AddSubMenu(new Menu("Farm", "Farm"));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseQFarm", "Use Q").SetValue(false));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseWFarm", "Use W").SetValue(false));
             menu.SubMenu("Farm").AddItem(new MenuItem("qFarm", "Only Q/W if > minion").SetValue(new Slider(3, 0, 5)));
-            menu.SubMenu("Farm").AddItem(new MenuItem("LastHitQQ", "Last hit with Q").SetValue(new KeyBind("A".ToCharArray()[0], KeyBindType.Press)));
-            menu.SubMenu("Farm").AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind(menu.Item("LaneClear").GetValue<KeyBind>().Key, KeyBindType.Press)));
-
+            
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
@@ -115,7 +117,6 @@ namespace OriannaWreckingBalls
             menu.SubMenu("Misc").AddItem(new MenuItem("blockR", "Block R if no enemy").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("overK", "OverKill Check").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
-            //menu.SubMenu("Combo").AddItem(new MenuItem("autoEDmg", "E If HP < %").SetValue(new Slider(2, 0, 5)));
 
             menu.SubMenu("Misc").AddSubMenu(new Menu("Auto use R on", "intR"));
 
@@ -379,6 +380,22 @@ namespace OriannaWreckingBalls
                         {
                             if (!ally.IsMe && ally.IsAlly && Player.Distance(ally.ServerPosition) <= E.Range && ally != null)
                             {
+                                //dmg enemy with E
+                                if (menu.Item("UseEDmg").GetValue<bool>())
+                                {
+                                    var prediction3 = GetP(Player.ServerPosition, E, target, true);
+                                    Object[] obj = VectorPointProjectionOnLineSegment(Player.ServerPosition.To2D(), ally.ServerPosition.To2D(), prediction3.UnitPosition.To2D());
+                                    var isOnseg = (bool)obj[2];
+                                    var PointLine = (Vector2)obj[1];
+
+                                    if (E.IsReady() && isOnseg && prediction3.UnitPosition.Distance(PointLine.To3D()) < E.Width)
+                                    {
+                                        //Game.PrintChat("Dmg 1");
+                                        E.CastOnUnit(ally, packets());
+                                        return;
+                                    }
+                                }
+
                                 var allyRange = target.Distance(ally.ServerPosition) / Q.Speed + ally.Distance(Player.ServerPosition) / E.Speed;
                                 if (allyRange < MinTravelTime)
                                 {
@@ -398,6 +415,22 @@ namespace OriannaWreckingBalls
                 case 1:
                     if (qpos != null)
                     {
+                        //dmg enemy with E
+                        if (menu.Item("UseEDmg").GetValue<bool>())
+                        {
+                            var prediction = GetP(qpos.Position, E, target, true);
+                            Object[] obj = VectorPointProjectionOnLineSegment(qpos.Position.To2D(), Player.ServerPosition.To2D(), prediction.UnitPosition.To2D());
+                            var isOnseg = (bool)obj[2];
+                            var PointLine = (Vector2)obj[1];
+
+                            if (E.IsReady() && isOnseg && prediction.UnitPosition.Distance(PointLine.To3D()) < E.Width)
+                            {
+                                //Game.PrintChat("Dmg 2");
+                                E.CastOnUnit(Player, packets());
+                                return;
+                            }
+                        }
+
                         var TravelTime2 = target.Distance(qpos.Position) / Q.Speed;
                         var MinTravelTime2 = target.Distance(Player.ServerPosition) / Q.Speed + Player.Distance(qpos.Position) / E.Speed;
 
@@ -416,8 +449,24 @@ namespace OriannaWreckingBalls
                         foreach (var ally in ObjectManager.Get<Obj_AI_Hero>())
                         {
 
-                            if (ally.IsMe && ally.IsAlly && Player.Distance(ally.ServerPosition) <= E.Range && ally != null)
+                            if (!ally.IsMe && ally.IsAlly && Player.Distance(ally.ServerPosition) <= E.Range && ally != null)
                             {
+                                //dmg enemy with E
+                                if (menu.Item("UseEDmg").GetValue<bool>())
+                                {
+                                    var prediction2 = GetP(qpos.Position, E, target, true);
+                                    Object[] obj = VectorPointProjectionOnLineSegment(qpos.Position.To2D(), ally.ServerPosition.To2D(), prediction2.UnitPosition.To2D());
+                                    var isOnseg = (bool)obj[2];
+                                    var PointLine = (Vector2)obj[1];
+
+                                    if (E.IsReady() && isOnseg && prediction2.UnitPosition.Distance(PointLine.To3D()) < E.Width)
+                                    {
+                                        //Game.PrintChat("Dmg 3");
+                                        E.CastOnUnit(ally, packets());
+                                        return;
+                                    }
+                                }
+
                                 var allyRange2 = target.Distance(ally.ServerPosition) / Q.Speed + ally.Distance(qpos.Position) / E.Speed;
 
                                 if (allyRange2 < MinTravelTime3)
@@ -490,7 +539,20 @@ namespace OriannaWreckingBalls
                 case 0:
                     if (Q.IsReady() && Q.GetPrediction(target).Hitchance >= hitC && Player.Distance(target) <= Q.Range + Q.Width)
                     {
-                        Q.Cast(target, packets());
+                        if (menu.Item("qBehind").GetValue<bool>())
+                        {
+                            var vec = target.ServerPosition - Player.ServerPosition;
+                            var CastBehind = Q.GetPrediction(target).CastPosition + Vector3.Normalize(vec) * 75;
+
+                            //Game.PrintChat("yehhhhwew1");
+                            Q.Cast(CastBehind, packets());
+                            return;
+                        }
+                        else
+                        {
+                            Q.Cast(target, packets());
+                            return;
+                        }
                     }
                     break;
                 //on map
@@ -501,7 +563,20 @@ namespace OriannaWreckingBalls
 
                         if (Q.IsReady() && prediction.Hitchance >= hitC && Player.Distance(target) <= Q.Range + Q.Width)
                         {
-                            Q.Cast(prediction.CastPosition, packets());
+                            if (menu.Item("qBehind").GetValue<bool>())
+                            {
+                                var vec = target.ServerPosition - Player.ServerPosition;
+                                var CastBehind = prediction.CastPosition + Vector3.Normalize(vec) * 75;
+
+                                //Game.PrintChat("yehhhh2");
+                                Q.Cast(CastBehind, packets());
+                                return;
+                            }
+                            else
+                            {
+                                Q.Cast(prediction.CastPosition, packets());
+                                return;
+                            }
                         }
                     }
                     else
@@ -517,7 +592,20 @@ namespace OriannaWreckingBalls
 
                         if (Q.IsReady() && prediction2.Hitchance >= hitC && Player.Distance(target) <= Q.Range + Q.Width)
                         {
-                            Q.Cast(prediction2.CastPosition, packets());
+                            if (menu.Item("qBehind").GetValue<bool>())
+                            {
+                                var vec = target.ServerPosition - Player.ServerPosition;
+                                var CastBehind = prediction2.CastPosition + Vector3.Normalize(vec) * 75;
+
+                                //Game.PrintChat("yehhhh3");
+                                Q.Cast(CastBehind, packets());
+                                return;
+                            }
+                            else
+                            {
+                                Q.Cast(prediction2.CastPosition, packets());
+                                return;
+                            }
                         }
                     }
                     else
@@ -595,6 +683,52 @@ namespace OriannaWreckingBalls
 
             if (hit >= minHit && R.IsReady())
                 R.Cast();
+        }
+
+        //credit to dien
+        public static Object[] VectorPointProjectionOnLineSegment(Vector2 v1, Vector2 v2, Vector2 v3)
+        {
+            float cx = v3.X;
+            float cy = v3.Y;
+            float ax = v1.X;
+            float ay = v1.Y;
+            float bx = v2.X;
+            float by = v2.Y;
+            float rL = ((cx - ax) * (bx - ax) + (cy - ay) * (by - ay)) /
+                       ((float)Math.Pow(bx - ax, 2) + (float)Math.Pow(by - ay, 2));
+            var pointLine = new Vector2(ax + rL * (bx - ax), ay + rL * (by - ay));
+            float rS;
+            if (rL < 0)
+            {
+                rS = 0;
+            }
+            else if (rL > 1)
+            {
+                rS = 1;
+            }
+            else
+            {
+                rS = rL;
+            }
+            bool isOnSegment;
+            if (rS.CompareTo(rL) == 0)
+            {
+                isOnSegment = true;
+            }
+            else
+            {
+                isOnSegment = false;
+            }
+            var pointSegment = new Vector2();
+            if (isOnSegment)
+            {
+                pointSegment = pointLine;
+            }
+            else
+            {
+                pointSegment = new Vector2(ax + rS * (bx - ax), ay + rS * (by - ay));
+            }
+            return new object[3] { pointSegment, pointLine, isOnSegment };
         }
 
         public static int countR()
@@ -898,12 +1032,10 @@ namespace OriannaWreckingBalls
             onGainBuff();
 
             checkWMec();
-            checkRMec();
-
-            Orbwalker.SetAttack(true);
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
+                checkRMec();
                 Combo();
             }
             else
