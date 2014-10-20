@@ -84,6 +84,7 @@ namespace KatarinaKittyKill
             menu.SubMenu("Key").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Key").AddItem(new MenuItem("lastHit", "Lasthit!").SetValue(new KeyBind(menu.Item("LastHit_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
             menu.SubMenu("Key").AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Key").AddItem(new MenuItem("jFarm", "Jungle Farm").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
             menu.SubMenu("Key").AddItem(new MenuItem("Wardjump", "Escape/Ward jump").SetValue(new KeyBind(menu.Item("Flee_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
 
             //Combo menu:
@@ -688,10 +689,29 @@ namespace KatarinaKittyKill
 
         private static void Farm()
         {
-            if (!Orbwalking.CanMove(40)) return;
-
             var allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly);
             var allMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, W.Range, MinionTypes.All, MinionTeam.NotAlly);
+
+            var useQ = menu.Item("UseQFarm").GetValue<bool>();
+            var useW = menu.Item("UseWFarm").GetValue<bool>();
+
+            if (useQ && allMinionsQ.Count > 0 && Q.IsReady() && allMinionsQ[0].IsValidTarget(Q.Range))
+            {
+                Q.Cast(allMinionsQ[0], packets());
+            }
+
+            if (useW && W.IsReady())
+            {
+                var wPos = E.GetCircularFarmLocation(allMinionsW);
+                if (wPos.MinionsHit >= 3)
+                    W.Cast();
+            }
+        }
+
+        private static void JungleFarm()
+        {
+            var allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Neutral);
+            var allMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, W.Range, MinionTypes.All, MinionTeam.Neutral);
 
             var useQ = menu.Item("UseQFarm").GetValue<bool>();
             var useW = menu.Item("UseWFarm").GetValue<bool>();
@@ -739,11 +759,15 @@ namespace KatarinaKittyKill
                 if (menu.Item("LaneClearActive").GetValue<KeyBind>().Active)
                     Farm();
 
+                if (menu.Item("jFarm").GetValue<KeyBind>().Active)
+                    JungleFarm();
+
                 if (menu.Item("HarassActive").GetValue<KeyBind>().Active)
                     Harass();
 
                 if (menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
                     Harass();
+
             }
 
             if (menu.Item("autoWz").GetValue<bool>())
