@@ -61,7 +61,7 @@ namespace Syndra
                 var networkId = packet.ReadInteger();
                 var leByte = packet.ReadByte();
                 var active = (leByte == 0x01 || leByte == 0xDD || leByte == 0xDF || leByte == 0xDB);
-                
+
                 if (ActiveRecv)
                 {
                     Activebyte = leByte;
@@ -77,7 +77,7 @@ namespace Syndra
                 {
                     WObjectNetworkId = -1;
                     Activebyte = 0x00;
-                }  
+                }
             }
         }
 
