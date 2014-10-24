@@ -9,7 +9,7 @@ using SharpDX;
 
 #endregion
 
-namespace Syndra
+namespace SyndraMod
 {
     public static class OrbManager
     {

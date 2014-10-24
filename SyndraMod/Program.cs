@@ -10,7 +10,7 @@ using Color = System.Drawing.Color;
 
 #endregion
 
-namespace Syndra
+namespace SyndraMod
 {
     internal class Program
     {
