@@ -10,7 +10,7 @@ using Color = System.Drawing.Color;
 
 #endregion
 
-namespace Syndra
+namespace xSyndra
 {
     internal class Program
     {
@@ -191,9 +191,8 @@ namespace Syndra
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPossibleToInterrupt;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             Orbwalking.BeforeAttack += Orbwalking_BeforeAttack;
-            Game.PrintChat("If it fails to use W, Please go to Appdata -> Roaming -> Leaguesharp folder and clear it and test again before reporting!");
             Game.PrintChat(ChampionName + " Loaded! --- By esk0r, Modified and tweaked by xSalice");
-            
+            Game.PrintChat("If it fails to use W, Please go to %Appdata% -> Roaming -> Leaguesharp folder and clear it and test again before reporting!");
         }
         public static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
