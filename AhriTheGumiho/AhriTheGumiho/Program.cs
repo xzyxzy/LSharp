@@ -273,7 +273,7 @@ namespace AhriTheGumiho
 
             if (useW && eTarget != null && W.IsReady() && Player.Distance(eTarget) <= W.Range && shouldW(eTarget, Source))
             {
-                W.Cast(Player.ServerPosition, packets());
+                W.Cast();
             }
             if (Source == "Harass" && menu.Item("longQ").GetValue<bool>())
             {
@@ -489,7 +489,7 @@ namespace AhriTheGumiho
                         (Player.GetItemDamage(target, Damage.DamageItems.Dfg) + Player.GetSpellDamage(target, SpellSlot.W) * 1.2) > target.Health)
                     {
                         DFG.Cast(target);
-                        W.Cast(target, packets());
+                        W.Cast();
                         return;
                     }
 
@@ -514,7 +514,7 @@ namespace AhriTheGumiho
 
                     if (Player.Distance(target.ServerPosition) <= W.Range && (Player.GetSpellDamage(target, SpellSlot.W)) > target.Health && W.IsReady())
                     {
-                        W.Cast(Player.ServerPosition, packets());
+                        W.Cast();
                         return;
                     }
 
@@ -582,7 +582,7 @@ namespace AhriTheGumiho
             }
 
             if (useW && allMinionsW.Count > 0 && W.IsReady())
-                W.Cast(Player.ServerPosition, packets());
+                W.Cast();
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
