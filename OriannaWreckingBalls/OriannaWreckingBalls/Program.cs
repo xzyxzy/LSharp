@@ -825,6 +825,7 @@ namespace OriannaWreckingBalls
                 {
                     if (ballStatus == 0)
                     {
+                        hit = 0;
                         var prediction = GetP(Player.ServerPosition, Q, enemy, true);
 
                         if (Q.IsReady() && Player.Distance(enemy) <= Q.Range)
