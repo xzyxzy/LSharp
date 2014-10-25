@@ -114,7 +114,7 @@ namespace AzirSaliceTheEmperor
             menu.SubMenu("Spell").AddSubMenu(new Menu("RSpell", "RSpell"));
             menu.SubMenu("Spell").SubMenu("RSpell").AddItem(new MenuItem("rHP", "if HP <").SetValue(new Slider(20, 0, 100)));
             menu.SubMenu("Spell").SubMenu("RSpell").AddItem(new MenuItem("rHit", "If Hit >= Target").SetValue(new Slider(3, 0, 5)));
-            menu.SubMenu("Spell").SubMenu("RSpell").AddItem(new MenuItem("eKill", "R Enemy Into Wall").SetValue(true));
+            menu.SubMenu("Spell").SubMenu("RSpell").AddItem(new MenuItem("rWall", "R Enemy Into Wall").SetValue(true));
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
@@ -697,7 +697,7 @@ namespace AzirSaliceTheEmperor
             if (pred.AoeTargetsHitCount >= rHit && pred.Hitchance >= HitChance.High)
                 return true;
 
-            if (wallStun(target) && GetComboDamage(target) > target.Health/2)
+            if (wallStun(target) && GetComboDamage(target) > target.Health / 2 && menu.Item("rWall").GetValue<bool>())
             {
                 //Game.PrintChat("Walled");
                 return true;
