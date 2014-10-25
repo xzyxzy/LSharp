@@ -367,10 +367,14 @@ namespace AzirSaliceTheEmperor
                 {
                     Vector3 qVec = Player.ServerPosition + Vector3.Normalize(Game.CursorPos - Player.ServerPosition) * 800;
 
+                    var slave = getNearestSoilderToMouse();
+
+                    int delay = (int) Math.Ceiling(slave.Distance(Player.ServerPosition));
+
                     if (QExtend.IsReady() || qSpell.State == SpellState.Surpressed)
                         Q.Cast(qVec, packets());
 
-                    Utility.DelayAction.Add(300, () => E.Cast(getNearestSoilderToMouse().ServerPosition, packets()));
+                    Utility.DelayAction.Add(delay, () => E.Cast(getNearestSoilderToMouse().ServerPosition, packets()));
                     return;
                 }
                 else if (W.IsReady())
