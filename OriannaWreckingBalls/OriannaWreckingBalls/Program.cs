@@ -565,7 +565,7 @@ namespace OriannaWreckingBalls
                         }
                         else
                         {
-                            Q.Cast(target, packets());
+                            Q.Cast(Q.GetPrediction(target).CastPosition, packets());
                             return;
                         }
                     }
