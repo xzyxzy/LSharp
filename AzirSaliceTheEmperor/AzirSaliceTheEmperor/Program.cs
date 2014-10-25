@@ -249,6 +249,10 @@ namespace AzirSaliceTheEmperor
             // Game.PrintChat("Spell state: " + qSpell.State);
             var IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
 
+            //R
+            if (useR && R.IsReady() && shouldR(qTarget, Source) && Player.Distance(qTarget) < R.Range)
+                R.Cast(qTarget);
+
             //WQ
             if (soilderCount() == 0 && useQ && useW && W.IsReady() && (Q.IsReady() || qSpell.State == SpellState.Surpressed) && menu.Item("wQ").GetValue<bool>())
             {
@@ -283,9 +287,6 @@ namespace AzirSaliceTheEmperor
                 castE(soilderTarget, Source);
             }
 
-            //R
-            if (useR && R.IsReady() && shouldR(qTarget, Source) && Player.Distance(qTarget) < R.Range)
-                R.Cast(qTarget);
 
             //AutoAtk
             attackTarget(soilderTarget);
