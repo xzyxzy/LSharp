@@ -513,13 +513,13 @@ namespace AzirSaliceTheEmperor
         {
             if (Player.Distance(target) < 1200)
             {
-                if (Player.Distance(target) < 450 && canAttack())
+                if (Player.Distance(target) < 450)
                 {
                     //Game.PrintChat("W Cast1");
                     W.Cast(target);
                     return;
                 }
-                else if (Player.Distance(target) < 600 && canAttack())
+                else if (Player.Distance(target) < 600)
                 {
                     Vector3 wVec = Player.ServerPosition + Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * 450;
 
