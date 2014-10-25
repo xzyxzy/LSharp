@@ -150,6 +150,8 @@ namespace OriannaWreckingBalls
             menu.SubMenu("Drawings")
                 .AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
             menu.SubMenu("Drawings")
+                .AddItem(new MenuItem("rModeDraw", "R mode").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
+            menu.SubMenu("Drawings")
                 .AddItem(dmgAfterComboItem);
             menu.AddToMainMenu();
 
@@ -901,6 +903,19 @@ namespace OriannaWreckingBalls
                 var menuItem = menu.Item(spell.Slot + "Range").GetValue<Circle>();
                 if (menuItem.Active)
                     Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
+            }
+            if (menu.Item("rModeDraw").GetValue<Circle>().Active)
+            {
+                if (menu.Item("killR").GetValue<KeyBind>().Active)
+                {
+                    var wts = Drawing.WorldToScreen(Player.Position);
+                    Drawing.DrawText(wts[0], wts[1], Color.White, "R Multi On");
+                }
+                else
+                {
+                    var wts = Drawing.WorldToScreen(Player.Position);
+                    Drawing.DrawText(wts[0], wts[1], Color.Red, "R Multi Off");
+                }
             }
 
         }
