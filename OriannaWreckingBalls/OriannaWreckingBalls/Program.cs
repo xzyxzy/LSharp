@@ -24,6 +24,8 @@ namespace OriannaWreckingBalls
         public static Spell E;
         public static Spell R;
 
+        public static SpellSlot IgniteSlot;
+
         //ball manager
         public static GameObject qpos;
         public static bool IsBallMoving = false;
@@ -63,6 +65,8 @@ namespace OriannaWreckingBalls
             SpellList.Add(E);
             SpellList.Add(R);
 
+            IgniteSlot = Player.GetSpellSlot("SummonerDot");
+
             //Create the menu
             menu = new Menu(ChampionName, ChampionName, true);
 
@@ -94,6 +98,7 @@ namespace OriannaWreckingBalls
             menu.SubMenu("Combo").AddItem(new MenuItem("UseEDmg", "Use E to Dmg").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("killR", "R Multi Only Toggle").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
+            menu.SubMenu("Combo").AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
 
             //Harass menu:
             menu.AddSubMenu(new Menu("Harass", "Harass"));
@@ -228,7 +233,6 @@ namespace OriannaWreckingBalls
             var eTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
 
-            
             if (useE && eTarget != null && E.IsReady())
             {
                 castE(eTarget);
@@ -242,6 +246,15 @@ namespace OriannaWreckingBalls
             if (useQ && Q.IsReady())
             {
                 castQ(qTarget, source);
+            }
+
+            //Ignite
+            if (qTarget != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            {
+                if (GetComboDamage(qTarget) > qTarget.Health)
+                {
+                    Player.SummonerSpellbook.CastSpell(IgniteSlot, qTarget);
+                }
             }
 
             if (useR && rTarget != null && R.IsReady())
