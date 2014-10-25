@@ -291,6 +291,24 @@ namespace AzirSaliceTheEmperor
             attackTarget(soilderTarget);
         }
 
+        public static bool wallStun(Obj_AI_Hero target)
+        {
+            var pred = R.GetPrediction(target);
+
+            var PushedPos = pred.CastPosition + Vector3.Normalize(pred.CastPosition - Player.ServerPosition) * 250;
+
+            if (IsWall(PushedPos))
+                return true;
+
+            return false;
+        }
+
+        public static bool IsWall(Vector3 position)
+        {
+            var cFlags = NavMesh.GetCollisionFlags(position);
+            return (cFlags == CollisionFlags.Wall || cFlags == CollisionFlags.Building || cFlags == CollisionFlags.Prop);
+        }
+
         public static void smartKS()
         {
             if (!menu.Item("smartKS").GetValue<bool>())
@@ -678,6 +696,12 @@ namespace AzirSaliceTheEmperor
             var pred = R.GetPrediction(target);
             if (pred.AoeTargetsHitCount >= rHit && pred.Hitchance >= HitChance.High)
                 return true;
+
+            if (wallStun(target) && GetComboDamage(target) > target.Health/2)
+            {
+                //Game.PrintChat("Walled");
+                return true;
+            }
 
             return false;
         }
