@@ -573,23 +573,32 @@ namespace KatarinaKittyKill
             //wardWalk(Game.CursorPos);
 
             foreach (Obj_AI_Minion ward in ObjectManager.Get<Obj_AI_Minion>().Where(ward => 
-                E.IsReady() && ward.Name.ToLower().Contains("ward") && ward.Distance(Game.CursorPos) < 400 && ward.Distance(Player) < E.Range))
+                ward.Name.ToLower().Contains("ward") && ward.Distance(Game.CursorPos) < 200))
             {
-                E.Cast(ward);
-                return;
+                if (E.IsReady())
+                {
+                    E.CastOnUnit(ward);
+                    return;
+                }
             }
 
-            foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => E.IsReady() && hero.Distance(Game.CursorPos) < 400 && Player.Distance(hero.ServerPosition) < E.Range))
+            foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.Distance(Game.CursorPos) < 200))
             {
-                E.Cast(hero);
-                return;
+                if (E.IsReady())
+                {
+                    E.CastOnUnit(hero);
+                    return;
+                }
             }
 
             foreach (Obj_AI_Minion minion in ObjectManager.Get<Obj_AI_Minion>().Where(minion =>
-                E.IsReady() && minion.Distance(Game.CursorPos) < 400 && minion.Distance(Player) < E.Range))
+                minion.Distance(Game.CursorPos) < 200 ))
             {
-                E.Cast(minion);
-                return;
+                if (E.IsReady())
+                {
+                    E.CastOnUnit(minion);
+                    return;
+                }
             }
 
             if (Environment.TickCount <= lastPlaced + 3000 || !E.IsReady()) return;
