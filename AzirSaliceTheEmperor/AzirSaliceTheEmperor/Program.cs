@@ -28,6 +28,8 @@ namespace AzirSaliceTheEmperor
         public static SpellDataInst qSpell = spellBook.GetSpell(SpellSlot.Q);
         public static SpellDataInst eSpell = spellBook.GetSpell(SpellSlot.E);
 
+        public static Obj_AI_Hero wTargetsss = null;
+
         public static SpellSlot IgniteSlot;
 
         //Menu
@@ -289,7 +291,7 @@ namespace AzirSaliceTheEmperor
 
 
             //AutoAtk
-            attackTarget(soilderTarget);
+            //attackTarget(soilderTarget);
         }
 
         public static bool wallStun(Obj_AI_Hero target)
@@ -540,6 +542,8 @@ namespace AzirSaliceTheEmperor
                 {
                     //Game.PrintChat("W Cast1");
                     W.Cast(target);
+                    if (canAttack())
+                        Player.IssueOrder(GameObjectOrder.AttackUnit, target);
                     return;
                 }
                 else if (Player.Distance(target) < 600)
@@ -550,6 +554,8 @@ namespace AzirSaliceTheEmperor
                     if (W.IsReady())
                     {
                         W.Cast(wVec);
+                        if (canAttack())
+                            Player.IssueOrder(GameObjectOrder.AttackUnit, target);
                         return;
                     }
                 }
@@ -853,23 +859,13 @@ namespace AzirSaliceTheEmperor
         {
             var allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range + Q.Width, MinionTypes.All);
             var allMinionsE = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range + Q.Width, MinionTypes.All);
+            var allMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, W.Range + W.Width, MinionTypes.All);
 
             var useQ = menu.Item("UseQFarm").GetValue<bool>();
             var min = menu.Item("qFarm").GetValue<Slider>().Value;
 
             
             int hit = 0;
-
-            if (soilderCount() > 1)
-            {
-                foreach (var enemy in allMinionsQ)
-                {
-                    var slave = getNearestSoilderToEnemy(enemy);
-
-                    if (slave.Distance(enemy) < 390 && canAttack() && Player.Distance(slave) < 800)
-                        LXOrbwalker.Orbwalk(Player.ServerPosition, enemy);
-                }
-            }
 
             if (useQ && (Q.IsReady() || qSpell.State == SpellState.Surpressed))
             {
@@ -904,7 +900,9 @@ namespace AzirSaliceTheEmperor
                 }
                 else if (W.IsReady())
                 {
-                    W.Cast(Player.ServerPosition);
+                    var wpred = W.GetCircularFarmLocation(allMinionsW);
+                    W.Cast(wpred.Position);
+
                     foreach (var enemy in allMinionsQ)
                     {
                         hit = 0;
