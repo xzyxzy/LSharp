@@ -250,10 +250,12 @@ namespace LissandraLetitGoLetItGOOOOO
                 if (collision.Count > 0 && Player.Distance(qTarget) <= Q2.Range)
                 {
                     Q.Cast(qPred.CastPosition, packets());
+                    return;
                 }
-                else if(Q.GetPrediction(qTarget).Hitchance >= getHit(Source) && Player.Distance(qTarget) < Q.Range)
+                if(Q.GetPrediction(qTarget).Hitchance >= getHit(Source) && Player.Distance(qTarget) < Q.Range)
                 {
                     Q.Cast(qTarget, packets());
+                    return;
                 }
             }
 
@@ -610,6 +612,11 @@ namespace LissandraLetitGoLetItGOOOOO
                 var menuItem = menu.Item(spell.Slot + "Range").GetValue<Circle>();
                 if (menuItem.Active)
                     Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
+            }
+
+            if (menu.Item("qExtend").GetValue<Circle>().Active)
+            {
+                Utility.DrawCircle(Player.Position, Q2.Range, Color.Aquamarine);
             }
 
         }
