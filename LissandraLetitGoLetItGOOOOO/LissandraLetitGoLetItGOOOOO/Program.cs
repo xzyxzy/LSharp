@@ -237,7 +237,7 @@ namespace LissandraLetitGoLetItGOOOOO
             if (useW && qTarget != null && W.IsReady())
             {
                 var wPred = GetPCircle(Player.ServerPosition, W, qTarget, true);
-                if(wPred.Hitchance > HitChance.High && Player.Distance(qTarget) <= W.Range + qTarget.BoundingRadius)
+                if(wPred.Hitchance > HitChance.High && Player.Distance(qTarget) <= W.Range)
                     W.Cast();
             }
 
