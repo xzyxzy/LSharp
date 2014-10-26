@@ -217,15 +217,6 @@ namespace LissandraLetitGoLetItGOOOOO
                 E.Cast(eTarget, packets());
             }
 
-            //dfg
-            if (GetComboDamage(qTarget) > qTarget.Health + 20)
-            {
-                if (qTarget != null && DFG.IsReady() && E.IsReady() && menu.Item("dfg").GetValue<bool>())
-                {
-                    DFG.Cast(qTarget);
-                }
-            }
-
             //R
             if (useR && qTarget != null && R.IsReady() && Player.Distance(qTarget) < R.Range)
             {
@@ -286,7 +277,7 @@ namespace LissandraLetitGoLetItGOOOOO
         {
             if (GetComboDamage(target) > target.Health + 20)
             {
-                if (target != null && DFG.IsReady() && E.IsReady() && menu.Item("dfg").GetValue<bool>())
+                if (target != null && DFG.IsReady() && menu.Item("dfg").GetValue<bool>())
                 {
                     DFG.Cast(target);
                 }
@@ -297,7 +288,7 @@ namespace LissandraLetitGoLetItGOOOOO
 
             if ((Player.GetItemDamage(target, Damage.DamageItems.Dfg) + (Player.GetSpellDamage(target, SpellSlot.R) * 1.2)) > target.Health + 20)
             {
-                if (target != null && DFG.IsReady() && E.IsReady() && menu.Item("dfg").GetValue<bool>())
+                if (target != null && DFG.IsReady() && menu.Item("dfg").GetValue<bool>())
                 {
                     DFG.Cast(target);
                 }
