@@ -217,6 +217,15 @@ namespace LissandraLetitGoLetItGOOOOO
                 E.Cast(eTarget, packets());
             }
 
+            //dfg
+            if (GetComboDamage(qTarget) > qTarget.Health + 20)
+            {
+                if (qTarget != null && DFG.IsReady() && E.IsReady() && menu.Item("dfg").GetValue<bool>())
+                {
+                    DFG.Cast(qTarget);
+                }
+            }
+
             //R
             if (useR && qTarget != null && R.IsReady() && Player.Distance(qTarget) < R.Range)
             {
