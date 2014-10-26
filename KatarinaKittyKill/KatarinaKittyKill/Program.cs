@@ -573,7 +573,7 @@ namespace KatarinaKittyKill
             //wardWalk(Game.CursorPos);
 
             foreach (Obj_AI_Minion ward in ObjectManager.Get<Obj_AI_Minion>().Where(ward => 
-                ward.Name.ToLower().Contains("ward") && ward.Distance(Game.CursorPos) < 300))
+                ward.Name.ToLower().Contains("ward") && ward.Distance(Game.CursorPos) < 250))
             {
                 if (E.IsReady())
                 {
@@ -582,7 +582,7 @@ namespace KatarinaKittyKill
                 }
             }
 
-            foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.Distance(Game.CursorPos) < 300))
+            foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.Distance(Game.CursorPos) < 250))
             {
                 if (E.IsReady())
                 {
@@ -592,7 +592,7 @@ namespace KatarinaKittyKill
             }
 
             foreach (Obj_AI_Minion minion in ObjectManager.Get<Obj_AI_Minion>().Where(minion =>
-                minion.Distance(Game.CursorPos) < 300 ))
+                minion.Distance(Game.CursorPos) < 250 ))
             {
                 if (E.IsReady())
                 {
