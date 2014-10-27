@@ -641,7 +641,7 @@ namespace AhriTheGumiho
             if (!menu.Item("UseGap").GetValue<bool>()) return;
 
             if (E.IsReady() && gapcloser.Sender.IsValidTarget(E.Range))
-                E.Cast();
+                E.Cast(gapcloser.Sender);
         }
 
         private static void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
