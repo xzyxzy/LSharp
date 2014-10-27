@@ -122,6 +122,20 @@ namespace VeigarLittleEvil
             menu.SubMenu("Misc").AddItem(new MenuItem("smartKS", "Use Smart KS System").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("printTar", "Print Selected Target").SetValue(true));
 
+            menu.SubMenu("Misc").AddSubMenu(new Menu("Dont use R on", "DontUlt"));
+
+            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != Player.Team))
+                menu.SubMenu("Misc")
+                    .SubMenu("DontUlt")
+                    .AddItem(new MenuItem("DontUlt" + enemy.BaseSkinName, enemy.BaseSkinName).SetValue(false));
+
+            menu.SubMenu("Misc").AddSubMenu(new Menu("Dont use DFG on", "DontDFG"));
+
+            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != Player.Team))
+                menu.SubMenu("Misc")
+                    .SubMenu("DontDFG")
+                    .AddItem(new MenuItem("DontDFG" + enemy.BaseSkinName, enemy.BaseSkinName).SetValue(false));
+
             //Damage after combo:
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
             Utility.HpBarDamageIndicator.DamageToUnit = GetComboDamage;
@@ -236,7 +250,8 @@ namespace VeigarLittleEvil
             //dfg
             if (target != null && DFG.IsReady() && menu.Item("dfg").GetValue<bool>() && GetComboDamage(target) > target.Health + 30 && Source == "Combo" && hasMana)
             {
-                DFG.Cast(target);
+                if ((menu.Item("DontDFG" + target.BaseSkinName) != null && menu.Item("DontDFG" + target.BaseSkinName).GetValue<bool>() == false))
+                    DFG.Cast(target);
             }
 
             //Ignite
@@ -254,10 +269,14 @@ namespace VeigarLittleEvil
                 Q.CastOnUnit(target, packets());
             }
 
-            if (useR && target != null && R.IsReady())
+            if (target != null && R.IsReady())
             {
-                castR(target);
-                return;
+                useR = rTarget(target) && useR;
+                if (useR)
+                {
+                    castR(target);
+                    return;
+                }
             }
 
         }
@@ -330,52 +349,6 @@ namespace VeigarLittleEvil
 
             foreach (var target in nearChamps)
             {
-                //ignite
-                if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                                Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Player.Distance(target.ServerPosition) <= 600)
-                {
-                    var IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
-                    if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)
-                    {
-                        Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
-                    }
-                }
-
-                //dfg + Q + R
-                if (DFG.IsReady() && Q.IsReady() && R.IsReady() && Player.Distance(target.ServerPosition) <= 750 && Player.Distance(target.ServerPosition) < Q.Range &&
-                    Player.GetItemDamage(target, Damage.DamageItems.Dfg) + ((Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.R)) * 1.2) > target.Health + 60)
-                {
-                    DFG.Cast(target);
-                    Q.CastOnUnit(target, packets());
-                    R.CastOnUnit(target, packets());
-                    return;
-                }
-
-                //dfg + Q
-                if (DFG.IsReady() && Q.IsReady() && Player.Distance(target.ServerPosition) <= 750 && Player.Distance(target.ServerPosition) < Q.Range &&
-                    Player.GetItemDamage(target, Damage.DamageItems.Dfg) + (Player.GetSpellDamage(target, SpellSlot.Q) *1.2) > target.Health + 30)
-                {
-                    DFG.Cast(target);
-                    Q.CastOnUnit(target, packets());
-                    return;
-                }
-
-                //dfg + R
-                if (DFG.IsReady() && R.IsReady() && Player.Distance(target.ServerPosition) <= 750 && Player.Distance(target.ServerPosition) < R.Range &&
-                    Player.GetItemDamage(target, Damage.DamageItems.Dfg) + (Player.GetSpellDamage(target, SpellSlot.R) * 1.2) > target.Health + 50)
-                {
-                    DFG.Cast(target);
-                    R.CastOnUnit(target, packets());
-                    return;
-                }
-
-                //dfg
-                if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health + 30 && Player.Distance(target.ServerPosition) <= 750)
-                {
-                    DFG.Cast(target);
-                    return;
-                }
-
                 //Q
                 if (Player.Distance(target.ServerPosition) <= Q.Range && (Player.GetSpellDamage(target, SpellSlot.Q)) > target.Health + 30)
                 {
@@ -389,13 +362,74 @@ namespace VeigarLittleEvil
                 //R
                 if (Player.Distance(target.ServerPosition) <= R.Range && (Player.GetSpellDamage(target, SpellSlot.R)) > target.Health + 50)
                 {
-                    if (R.IsReady())
+                    if (R.IsReady() && rTarget(target))
                     {
                         R.CastOnUnit(target, packets());
                         return;
                     }
                 }
+
+                if ((menu.Item("DontDFG" + target.BaseSkinName) != null && menu.Item("DontDFG" + target.BaseSkinName).GetValue<bool>() == false))
+                {
+                    //dfg + Q + R
+                    if (DFG.IsReady() && Q.IsReady() && R.IsReady() && Player.Distance(target.ServerPosition) <= 750 && Player.Distance(target.ServerPosition) < Q.Range &&
+                        Player.GetItemDamage(target, Damage.DamageItems.Dfg) + ((Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.R)) * 1.2) > target.Health + 60)
+                    {
+                        if (rTarget(target))
+                        {
+                            DFG.Cast(target);
+                            Q.CastOnUnit(target, packets());
+                            R.CastOnUnit(target, packets());
+                            return;
+                        }
+                    }
+
+                    //dfg + Q
+                    if (DFG.IsReady() && Q.IsReady() && Player.Distance(target.ServerPosition) <= 750 && Player.Distance(target.ServerPosition) < Q.Range &&
+                        Player.GetItemDamage(target, Damage.DamageItems.Dfg) + (Player.GetSpellDamage(target, SpellSlot.Q) * 1.2) > target.Health + 30)
+                    {
+                        DFG.Cast(target);
+                        Q.CastOnUnit(target, packets());
+                        return;
+                    }
+
+                    //dfg + R
+                    if (DFG.IsReady() && R.IsReady() && Player.Distance(target.ServerPosition) <= 750 && Player.Distance(target.ServerPosition) < R.Range &&
+                        Player.GetItemDamage(target, Damage.DamageItems.Dfg) + (Player.GetSpellDamage(target, SpellSlot.R) * 1.2) > target.Health + 50)
+                    {
+                        if (rTarget(target))
+                        {
+                            DFG.Cast(target);
+                            R.CastOnUnit(target, packets());
+                            return;
+                        }
+                    }
+
+                    //dfg
+                    if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health + 30 && Player.Distance(target.ServerPosition) <= 750)
+                    {
+                        DFG.Cast(target);
+                        return;
+                    }
+
+                    //ignite
+                    if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
+                                    Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Player.Distance(target.ServerPosition) <= 600)
+                    {
+                        var IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
+                        if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)
+                        {
+                            Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                        }
+                    }
+                }
             }
+        }
+
+        public static bool rTarget(Obj_AI_Hero target){
+            if ((menu.Item("DontUlt" + target.BaseSkinName) != null && menu.Item("DontUlt" + target.BaseSkinName).GetValue<bool>() == false))
+                return true;
+            return false;
         }
 
         public static bool manaCheck()
