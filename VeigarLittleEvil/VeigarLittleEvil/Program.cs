@@ -443,7 +443,7 @@ namespace VeigarLittleEvil
             {
                 foreach (var minion in allMinions)
                 {
-                    if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1200)) < Damage.GetSpellDamage(Player, minion, SpellSlot.Q) - 25)
+                    if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1100)) < Damage.GetSpellDamage(Player, minion, SpellSlot.Q) - 25)
                     {
                         if (Q.IsReady())
                         {
