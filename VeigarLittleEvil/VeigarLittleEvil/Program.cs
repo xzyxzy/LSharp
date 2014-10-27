@@ -91,6 +91,7 @@ namespace VeigarLittleEvil
             menu.SubMenu("Keys").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
             menu.SubMenu("Keys").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Keys").AddItem(new MenuItem("LastHitQQ", "Last hit with Q").SetValue(new KeyBind("A".ToCharArray()[0], KeyBindType.Press)));
+            menu.SubMenu("Keys").AddItem(new MenuItem("LastHitQQ2", "Last hit with Q(Togg)").SetValue(new KeyBind("J".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Keys").AddItem(new MenuItem("wPoke", "Cast W Only on Stun").SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Toggle)));
 
             //Combo menu:
@@ -468,6 +469,11 @@ namespace VeigarLittleEvil
             else
             {
                 if (menu.Item("LastHitQQ").GetValue<KeyBind>().Active)
+                {
+                    lastHit();
+                }
+
+                if (menu.Item("LastHitQQ2").GetValue<KeyBind>().Active)
                 {
                     lastHit();
                 }
