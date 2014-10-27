@@ -189,6 +189,8 @@ namespace LissandraLetitGoLetItGOOOOO
             if (DFG.IsReady())
                 damage = damage * 1.2;
 
+            damage = damage - 15;
+
             return (float)damage;
         }
 
