@@ -28,6 +28,7 @@ namespace KatarinaKittyKill
 
         public static SpellSlot IgniteSlot;
 
+        public static Obj_AI_Hero selectedTarget = null;
         //Menu
         public static Menu menu;
 
@@ -89,6 +90,8 @@ namespace KatarinaKittyKill
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
+            menu.SubMenu("Combo").AddItem(new MenuItem("tsModes", "TS Modes").SetValue(new StringList(new[] { "Orbwalker/LessCast", "Low HP%", "NearMouse", "CurrentHP" }, 0)));
+            menu.SubMenu("Combo").AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
@@ -126,7 +129,7 @@ namespace KatarinaKittyKill
             menu.SubMenu("Misc").AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("igniteMode", "Mode").SetValue(new StringList(new[] { "Combo", "KS" }, 0)));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoWz", "Auto W Enemy").SetValue(true));
-
+            menu.SubMenu("Misc").AddItem(new MenuItem("printTar", "Print Selected Target").SetValue(true));
 
             //Damage after combo:
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
@@ -155,6 +158,7 @@ namespace KatarinaKittyKill
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             GameObject.OnCreate += GameObject_OnCreate;
+            Game.OnGameSendPacket += Game_OnGameSendPacket;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
@@ -200,7 +204,7 @@ namespace KatarinaKittyKill
 
         public static void combo(bool useQ, bool useW, bool useE, bool useR)
         {
-            var Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+            var Target = getTarget();
 
             var mode = menu.Item("comboMode").GetValue<StringList>().SelectedIndex;
             var IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
@@ -273,6 +277,64 @@ namespace KatarinaKittyKill
                     return;
                 }
             }
+        }
+
+        public static Obj_AI_Hero getTarget()
+        {
+            var tsMode = menu.Item("tsModes").GetValue<StringList>().SelectedIndex;
+            var focusSelected = menu.Item("selected").GetValue<bool>();
+
+            if (focusSelected && selectedTarget != null)
+            {
+                if (Player.Distance(selectedTarget) < 1600 && !selectedTarget.IsDead && selectedTarget.IsVisible && selectedTarget.IsEnemy)
+                {
+                    //Game.PrintChat("focusing selected target");
+                    LXOrbwalker.ForcedTarget = selectedTarget;
+                    return selectedTarget;
+                }
+                else
+                {
+                    selectedTarget = null;
+                }
+            }
+
+
+            var getTar = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+
+            if (tsMode == 0)
+                return getTar;
+
+            foreach (var target in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < E.Range && x.IsValidTarget(E.Range) && !x.IsDead && x.IsEnemy && x.IsVisible))
+            {
+                if (tsMode == 1)
+                {
+                    var tar1hp = target.Health / target.MaxHealth * 100;
+                    var tar2hp = getTar.Health / getTar.MaxHealth * 100;
+                    if (tar1hp < tar2hp)
+                        getTar = target;
+                }
+
+                if (tsMode == 2)
+                {
+                    if (target.Distance(Game.CursorPos) < getTar.Distance(Game.CursorPos))
+                        getTar = target;
+                }
+
+                if (tsMode == 3)
+                {
+                    if (target.Health < getTar.Health)
+                        getTar = target;
+                }
+            }
+
+            if (getTar != null)
+            {
+                LXOrbwalker.ForcedTarget = getTar;
+                //Game.PrintChat("Focus Mode on: " + getTar.BaseSkinName);
+                return getTar;
+            }
+
+            return null;
         }
 
         public static void harass(bool useQ, bool useW, bool useE, bool useR)
@@ -800,5 +862,21 @@ namespace KatarinaKittyKill
 
         }
 
+        private static void Game_OnGameSendPacket(GamePacketEventArgs args)
+        {
+            if (args.PacketData[0] != Packet.C2S.SetTarget.Header)
+            {
+                return;
+            }
+
+            var decoded = Packet.C2S.SetTarget.Decoded(args.PacketData);
+
+            if (decoded.NetworkId != 0 && decoded.Unit.IsValid && !decoded.Unit.IsMe)
+            {
+                selectedTarget = (Obj_AI_Hero)decoded.Unit;
+                if (menu.Item("printTar").GetValue<bool>())
+                    Game.PrintChat("Selected Target: " + decoded.Unit.BaseSkinName);
+            }
+        }
     }
 }
