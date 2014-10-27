@@ -214,6 +214,7 @@ namespace VeigarLittleEvil
             if (useE && target != null && E.IsReady() && Player.Distance(target) < E.Range)
             {
                 castE(target);
+                return;
             }
 
             if (useW && target != null && W.IsReady() && Player.Distance(target) <= W.Range)
