@@ -401,52 +401,6 @@ namespace KatarinaKittyKill
             {
                 if (target != null && !target.IsDead && !target.HasBuffOfType(BuffType.Invulnerability) && target.IsValidTarget(1375))
                 {
-                    if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                            Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Player.Distance(target.ServerPosition) <= 600)
-                    {
-                        var IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
-                        if (IgniteMode == 1 && Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health)
-                        {
-                            Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
-                        }
-                    }
-
-                    //dfg
-                    if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health + 20 && Player.Distance(target.ServerPosition) <= 750)
-                    {
-                        DFG.Cast(target);
-                        //Game.PrintChat("ks 1");
-                        return;
-                    }
-
-                    //dfg + q
-                    if (Player.Distance(target.ServerPosition) <= Q.Range &&
-                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) + (Player.GetSpellDamage(target, SpellSlot.Q)) * 1.2) > target.Health + 20)
-                    {
-                        if (DFG.IsReady() && Q.IsReady())
-                        {
-                            DFG.Cast(target);
-                            cancelUlt(target);
-                            Q.Cast(target, packets());
-                            //Game.PrintChat("ks 2");
-                            return;
-                        }
-                    }
-
-                    //dfg + e
-                    if (Player.Distance(target.ServerPosition) <= E.Range &&
-                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) + (Player.GetSpellDamage(target, SpellSlot.E)) * 1.2) > target.Health + 20)
-                    {
-                        if (DFG.IsReady() && E.IsReady())
-                        {
-                            DFG.Cast(target);
-                            cancelUlt(target);
-                            E.Cast(target, packets());
-                            //Game.PrintChat("ks 3");
-                            return;
-                        }
-                    }
-                    
                     //QEW
                     if (Player.Distance(target.ServerPosition) <= E.Range && 
                         (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.W)) > target.Health + 20)
@@ -528,6 +482,53 @@ namespace KatarinaKittyKill
                             R.Cast();
                             //Game.PrintChat("ks 8");
                             return;
+                        }
+                    }
+
+                    //dfg
+                    if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health + 20 && Player.Distance(target.ServerPosition) <= 750)
+                    {
+                        DFG.Cast(target);
+                        //Game.PrintChat("ks 1");
+                        return;
+                    }
+
+                    //dfg + q
+                    if (Player.Distance(target.ServerPosition) <= Q.Range &&
+                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) + (Player.GetSpellDamage(target, SpellSlot.Q)) * 1.2) > target.Health + 20)
+                    {
+                        if (DFG.IsReady() && Q.IsReady())
+                        {
+                            DFG.Cast(target);
+                            cancelUlt(target);
+                            Q.Cast(target, packets());
+                            //Game.PrintChat("ks 2");
+                            return;
+                        }
+                    }
+
+                    //dfg + e
+                    if (Player.Distance(target.ServerPosition) <= E.Range &&
+                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) + (Player.GetSpellDamage(target, SpellSlot.E)) * 1.2) > target.Health + 20)
+                    {
+                        if (DFG.IsReady() && E.IsReady())
+                        {
+                            DFG.Cast(target);
+                            cancelUlt(target);
+                            E.Cast(target, packets());
+                            //Game.PrintChat("ks 3");
+                            return;
+                        }
+                    }
+
+                    //ignite
+                    if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
+                        Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Player.Distance(target.ServerPosition) <= 600)
+                    {
+                        var IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
+                        if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health)
+                        {
+                            Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
                         }
                     }
                 }
@@ -857,7 +858,7 @@ namespace KatarinaKittyKill
             {
                 var menuItem = menu.Item(spell.Slot + "Range").GetValue<Circle>();
                 if (menuItem.Active)
-                    Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
+                    Utility.DrawCircle(Player.Position, spell.Range, (spell.IsReady()) ? Color.Cyan : Color.DarkRed);
             }
 
         }
