@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
+using LX_Orbwalker;
 using Color = System.Drawing.Color;
 
 namespace BlitzcrankGrabDAT
@@ -15,9 +16,7 @@ namespace BlitzcrankGrabDAT
     {
         public const string ChampionName = "Blitzcrank";
 
-        //Orbwalker instance
-        public static Orbwalking.Orbwalker Orbwalker;
-
+        
         //Spells
         public static List<Spell> SpellList = new List<Spell>();
 
@@ -60,16 +59,21 @@ namespace BlitzcrankGrabDAT
             menu = new Menu(ChampionName, ChampionName, true);
 
             //Orbwalker submenu
-            menu.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
+            var orbwalkerMenu = new Menu("My Orbwalker", "my_Orbwalker");
+            LXOrbwalker.AddToMenu(orbwalkerMenu);
+            menu.AddSubMenu(orbwalkerMenu);
 
             //Target selector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
             SimpleTs.AddToMenu(targetSelectorMenu);
             menu.AddSubMenu(targetSelectorMenu);
 
-            //Orbwalk
-            Orbwalker = new Orbwalking.Orbwalker(menu.SubMenu("Orbwalking"));
-
+            //Keys
+            menu.AddSubMenu(new Menu("Keys", "Keys"));
+            menu.SubMenu("Keys").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Combo_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Keys").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Keys").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
+            menu.SubMenu("Keys").AddItem(new MenuItem("panic", "Panic Key(no spell)").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
@@ -79,7 +83,14 @@ namespace BlitzcrankGrabDAT
             menu.SubMenu("Combo").AddItem(new MenuItem("QE", "Use E on Grab").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("useRQ", "Use R After Q").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Orbwalk").GetValue<KeyBind>().Key, KeyBindType.Press)));
+
+            //Q Menu
+            menu.AddSubMenu(new Menu("qMenu", "qMenu"));
+            menu.SubMenu("qMenu").AddItem(new MenuItem("qRange2", "Q Min Range Slider").SetValue(new Slider(300, 1, 950)));
+            menu.SubMenu("qMenu").AddItem(new MenuItem("qRange", "Q Max Range Slider").SetValue(new Slider(900, 1, 950)));
+            menu.SubMenu("qMenu").AddItem(new MenuItem("qSlow", "Auto Q Slow").SetValue(true));
+            menu.SubMenu("qMenu").AddItem(new MenuItem("qImmobile", "Auto Q Immobile").SetValue(true));
+            menu.SubMenu("qMenu").AddItem(new MenuItem("qDashing", "Auto Q Dashing").SetValue(true));
 
             //Harass menu:
             menu.AddSubMenu(new Menu("Harass", "Harass"));
@@ -87,21 +98,14 @@ namespace BlitzcrankGrabDAT
             menu.SubMenu("Harass").AddItem(new MenuItem("qHit2", "Q HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Use W").SetValue(false));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
-            menu.SubMenu("Harass").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Farm").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            menu.SubMenu("Harass").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
 
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("qRange2", "Q Min Range Slider").SetValue(new Slider(300, 1, 950)));
-            menu.SubMenu("Misc").AddItem(new MenuItem("qRange", "Q Max Range Slider").SetValue(new Slider(900, 1, 950)));
-            menu.SubMenu("Misc").AddItem(new MenuItem("qSlow", "Auto Q Slow").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("qImmobile", "Auto Q Immobile").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("qDashing", "Auto Q Dashing").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("resetE", "Use E AA reset Only").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoR", "Use R if hit").SetValue(new Slider(3, 0, 5)));
-            menu.SubMenu("Misc").AddItem(new MenuItem("panic", "Panic Key(no spell)").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
+            
 
             menu.SubMenu("Misc").AddSubMenu(new Menu("Don't use Q on", "intR"));
 
@@ -137,8 +141,7 @@ namespace BlitzcrankGrabDAT
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
-            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-            Orbwalking.AfterAttack += Orbwalking_AfterAttack;
+            LXOrbwalker.AfterAttack += Orbwalking_AfterAttack;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
@@ -160,7 +163,6 @@ namespace BlitzcrankGrabDAT
 
         private static void Combo()
         {
-            Orbwalker.SetAttack(!(Q.IsReady()));
             UseSpells(menu.Item("UseQCombo").GetValue<bool>(), menu.Item("UseWCombo").GetValue<bool>(),
                 menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>(), "Combo");
         }
@@ -233,13 +235,14 @@ namespace BlitzcrankGrabDAT
 
             if (useQ && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && qTarget != null && (Q.GetPrediction(qTarget).Hitchance >= hitC || shouldUseQ(qTarget)) && useQonEnemy(qTarget))
             {
-                Q.Cast(qTarget, packets());
-
                 if (QE && useE && E.IsReady())
                     E.Cast();
+
+                Q.Cast(qTarget, packets());
+                return;
             }
 
-            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < 300 && !menu.Item("resetE").GetValue<bool>() && !Q.IsReady())
+            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < 300 && !menu.Item("resetE").GetValue<bool>())
             {
                 E.Cast();
             }
@@ -328,11 +331,11 @@ namespace BlitzcrankGrabDAT
             //check if player is dead
             if (Player.IsDead) return;
 
-            Orbwalker.SetAttack(true);
-
             if (menu.Item("panic").GetValue<KeyBind>().Active)
             {
-                Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+                if (W.IsReady())
+                    W.Cast();
+                LXOrbwalker.Orbwalk(Game.CursorPos, null);
                 return;
             }
 
@@ -360,7 +363,6 @@ namespace BlitzcrankGrabDAT
         {
             if (target.HasBuffOfType(BuffType.SpellImmunity))
             {
-                //Game.PrintChat("Spell immune");
                 return false;
             }
 
@@ -422,11 +424,6 @@ namespace BlitzcrankGrabDAT
                     Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
                 }
             }
-
-        }
-
-        public static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs attack)
-        {
 
         }
 
