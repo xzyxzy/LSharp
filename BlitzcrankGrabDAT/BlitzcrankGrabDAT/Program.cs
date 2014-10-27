@@ -387,7 +387,7 @@ namespace BlitzcrankGrabDAT
             var useECombo = menu.Item("UseECombo").GetValue<bool>();
             var useEHarass = menu.Item("UseEHarass").GetValue<bool>();
 
-            if (unit.IsMe)
+            if (unit.IsMe && menu.Item("resetE").GetValue<bool>())
             {
                 if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
                 {
