@@ -53,12 +53,12 @@ namespace OriannaWreckingBalls
             Q = new Spell(SpellSlot.Q, 825);
             W = new Spell(SpellSlot.W, 250);
             E = new Spell(SpellSlot.E, 1095);
-            R = new Spell(SpellSlot.R, 390);
+            R = new Spell(SpellSlot.R, 370);
 
             Q.SetSkillshot(0f, 90, 1250, false, SkillshotType.SkillshotLine);
             W.SetSkillshot(0f, 250, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.25f, 145, 1700, false, SkillshotType.SkillshotLine);
-            R.SetSkillshot(0.60f, 390, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            R.SetSkillshot(0.60f, 370, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -115,8 +115,8 @@ namespace OriannaWreckingBalls
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("autoW", "Use W if hit").SetValue(new Slider(2, 0, 5)));
-            menu.SubMenu("Misc").AddItem(new MenuItem("autoR", "Use R if hit").SetValue(new Slider(3, 0, 5)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("autoW", "Use W if hit").SetValue(new Slider(2, 1, 5)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("autoR", "Use R if hit").SetValue(new Slider(3, 1, 5)));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoE", "E If HP < %").SetValue(new Slider(40, 0, 100)));
             menu.SubMenu("Misc").AddItem(new MenuItem("blockR", "Block R if no enemy").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("overK", "OverKill Check").SetValue(true));
