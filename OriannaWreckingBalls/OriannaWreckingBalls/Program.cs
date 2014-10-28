@@ -925,6 +925,11 @@ namespace OriannaWreckingBalls
 
             if (castedSlot == SpellSlot.Q)
             {
+                if (ballStatus == 0)
+                    CurrentBallPosition = Player.ServerPosition;
+                else
+                    CurrentBallPosition = qpos.Position;
+
                 IsBallMoving = true;
                 Utility.DelayAction.Add((int)Math.Max(1, 1000 * (args.End.Distance(CurrentBallPosition) - Game.Ping - 0.1) / Q.Speed), () =>
                 {
@@ -933,6 +938,7 @@ namespace OriannaWreckingBalls
                     IsBallMoving = false;
                     Game.PrintChat("Stopped");
                 });
+
             }
 
             if (castedSlot == SpellSlot.E)
