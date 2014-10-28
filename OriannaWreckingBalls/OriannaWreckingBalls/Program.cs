@@ -234,9 +234,6 @@ namespace OriannaWreckingBalls
             var eTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
 
-            if (Player.IsAutoAttacking)
-                return;
-
             if (useE && eTarget != null && E.IsReady())
             {
                 castE(eTarget);
@@ -253,7 +250,7 @@ namespace OriannaWreckingBalls
             }
 
             //Ignite
-            if (qTarget != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (qTarget != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && source == "Combo")
             {
                 if (GetComboDamage(qTarget) > qTarget.Health)
                 {
@@ -934,6 +931,7 @@ namespace OriannaWreckingBalls
                     CurrentBallPosition = args.End;
                     ballStatus = 1;
                     IsBallMoving = false;
+                    Game.PrintChat("Stopped");
                 });
             }
 
