@@ -936,7 +936,7 @@ namespace OriannaWreckingBalls
                     CurrentBallPosition = args.End;
                     ballStatus = 1;
                     IsBallMoving = false;
-                    Game.PrintChat("Stopped");
+                    //Game.PrintChat("Stopped");
                 });
 
             }
