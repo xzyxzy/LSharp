@@ -234,6 +234,9 @@ namespace OriannaWreckingBalls
             var eTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
 
+            if (Player.IsAutoAttacking)
+                return;
+
             if (useE && eTarget != null && E.IsReady())
             {
                 castE(eTarget);
