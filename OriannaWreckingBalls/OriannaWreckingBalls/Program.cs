@@ -92,7 +92,6 @@ namespace OriannaWreckingBalls
             menu.AddSubMenu(new Menu("Combo", "Combo"));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("qHit", "Q HitChance").SetValue(new Slider(3, 1, 4)));
-            menu.SubMenu("Combo").AddItem(new MenuItem("qBehind", "Q Behind").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseEDmg", "Use E to Dmg").SetValue(true));
@@ -239,7 +238,7 @@ namespace OriannaWreckingBalls
             {
                 castE(eTarget);
             }
-
+           
             if (useW && wTarget != null && W.IsReady())
             {
                 castW(wTarget);
@@ -273,9 +272,9 @@ namespace OriannaWreckingBalls
                     }
                 }
 
-                if (!(menu.Item("killR").GetValue<KeyBind>().Active))
+                if (!(menu.Item("killR").GetValue<KeyBind>().Active))//check if multi
                 {
-                    if (menu.Item("overK").GetValue<bool>() && (Player.GetSpellDamage(rTarget, SpellSlot.Q) *2) >= rTarget.Health)
+                    if (menu.Item("overK").GetValue<bool>() && (Player.GetSpellDamage(rTarget, SpellSlot.Q) *1) >= rTarget.Health)
                     {
                         return;
                     }
@@ -302,7 +301,7 @@ namespace OriannaWreckingBalls
                 case 0:
                     var prediction = GetPCircle(Player.ServerPosition, W, target, true);
 
-                    if (W.IsReady() && target.Distance(Player.ServerPosition) <= W.Width && prediction.CastPosition.Distance(Player.ServerPosition) <= W.Width)
+                    if (W.IsReady() && prediction.UnitPosition.Distance(Player.ServerPosition) < W.Width)
                     {
                         W.Cast();
                     }
@@ -311,19 +310,23 @@ namespace OriannaWreckingBalls
                 //on map
                 case 1:
                     var prediction2 = GetPCircle(qpos.Position, W, target, true);
-
-                    if (W.IsReady() && target.Distance(qpos.Position) <= W.Width && prediction2.CastPosition.Distance(qpos.Position) <= W.Width)
+                    if (qpos != null)
                     {
-                        W.Cast();
+                        if (W.IsReady() && prediction2.UnitPosition.Distance(qpos.Position) < W.Width)
+                        {
+                            W.Cast();
+                        }
                     }
                     break;
                 //on ally
                 case 2:
                     var prediction3 = GetPCircle(qpos.Position, W, target, true);
-
-                    if (W.IsReady() && target.Distance(qpos.Position) <= W.Width && prediction3.CastPosition.Distance(qpos.Position) <= W.Width)
+                    if (qpos != null)
                     {
-                        W.Cast();
+                        if (W.IsReady() && prediction3.UnitPosition.Distance(qpos.Position) < W.Width)
+                        {
+                            W.Cast();
+                        }
                     }
                     break;
             }
@@ -339,7 +342,7 @@ namespace OriannaWreckingBalls
                 case 0:
                     var prediction = GetPCircle(Player.ServerPosition, R, target, true);
 
-                    if (R.IsReady() && target.Distance(Player.ServerPosition) <= R.Width && prediction.CastPosition.Distance(Player.ServerPosition) <= R.Width)
+                    if (R.IsReady() && prediction.UnitPosition.Distance(Player.ServerPosition) <= R.Width)
                     {
                         R.Cast();
                     }
@@ -348,7 +351,7 @@ namespace OriannaWreckingBalls
                 case 1:
                     var prediction2 = GetPCircle(qpos.Position, R, target, true);
 
-                    if (R.IsReady() && target.Distance(qpos.Position) <= R.Width && prediction2.CastPosition.Distance(qpos.Position) <= R.Width)
+                    if (R.IsReady() && prediction2.UnitPosition.Distance(qpos.Position) <= R.Width)
                     {
                         R.Cast();
                     }
@@ -357,7 +360,7 @@ namespace OriannaWreckingBalls
                 case 2:
                     var prediction3 = GetPCircle(qpos.Position, R, target, true);
 
-                    if (R.IsReady() && target.Distance(qpos.Position) <= R.Width && prediction3.CastPosition.Distance(qpos.Position) <= R.Width)
+                    if (R.IsReady() && prediction3.UnitPosition.Distance(qpos.Position) <= R.Width)
                     {
                         R.Cast();
                     }
@@ -552,46 +555,24 @@ namespace OriannaWreckingBalls
             {
                 //on self
                 case 0:
+                    //Game.PrintChat("Rawr");
                     if (Q.IsReady() && Q.GetPrediction(target).Hitchance >= hitC && Player.Distance(target) <= Q.Range + Q.Width)
                     {
-                        if (menu.Item("qBehind").GetValue<bool>())
-                        {
-                            var vec = target.ServerPosition - Player.ServerPosition;
-                            var CastBehind = Q.GetPrediction(target).CastPosition + Vector3.Normalize(vec) * 75;
-
-                            //Game.PrintChat("yehhhhwew1");
-                            Q.Cast(CastBehind, packets());
-                            return;
-                        }
-                        else
-                        {
-                            Q.Cast(Q.GetPrediction(target).CastPosition, packets());
-                            return;
-                        }
+                        Q.Cast(Q.GetPrediction(target).CastPosition, packets());
+                        return;
                     }
                     break;
                 //on map
                 case 1:
                     if (qpos != null)
                     {
+                        //Game.PrintChat("Rawr2");
                         var prediction = GetP(qpos.Position, Q, target, true);
 
                         if (Q.IsReady() && prediction.Hitchance >= hitC && Player.Distance(target) <= Q.Range + Q.Width)
                         {
-                            if (menu.Item("qBehind").GetValue<bool>())
-                            {
-                                var vec = target.ServerPosition - Player.ServerPosition;
-                                var CastBehind = prediction.CastPosition + Vector3.Normalize(vec) * 75;
-
-                                //Game.PrintChat("yehhhh2");
-                                Q.Cast(CastBehind, packets());
-                                return;
-                            }
-                            else
-                            {
-                                Q.Cast(prediction.CastPosition, packets());
-                                return;
-                            }
+                            Q.Cast(prediction.CastPosition, packets());
+                            return;
                         }
                     }
                     else
@@ -603,24 +584,13 @@ namespace OriannaWreckingBalls
                 case 2:
                     if (qpos != null)
                     {
+                        //Game.PrintChat("Rawr3");
                         var prediction2 = GetP(qpos.Position, Q, target, true);
 
                         if (Q.IsReady() && prediction2.Hitchance >= hitC && Player.Distance(target) <= Q.Range + Q.Width)
                         {
-                            if (menu.Item("qBehind").GetValue<bool>())
-                            {
-                                var vec = target.ServerPosition - Player.ServerPosition;
-                                var CastBehind = prediction2.CastPosition + Vector3.Normalize(vec) * 75;
-
-                                //Game.PrintChat("yehhhh3");
-                                Q.Cast(CastBehind, packets());
-                                return;
-                            }
-                            else
-                            {
-                                Q.Cast(prediction2.CastPosition, packets());
-                                return;
-                            }
+                            Q.Cast(prediction2.CastPosition, packets());
+                            return;
                         }
                     }
                     else
@@ -633,10 +603,13 @@ namespace OriannaWreckingBalls
 
         public static void checkWMec()
         {
+            if (!W.IsReady())
+                return;
+
             int hit = 0;
             var minHit = menu.Item("autoW").GetValue<Slider>().Value;
 
-            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy))
+            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy && enemy.IsValidTarget()))
             {
                 if (enemy != null && !enemy.IsDead)
                 {
@@ -644,18 +617,21 @@ namespace OriannaWreckingBalls
                     {
                         var prediction = GetPCircle(Player.ServerPosition, W, enemy, true);
 
-                        if (W.IsReady() && enemy.Distance(Player.ServerPosition) <= W.Width && prediction.CastPosition.Distance(Player.ServerPosition) <= W.Width)
+                        if (W.IsReady() && prediction.UnitPosition.Distance(Player.ServerPosition) < W.Width)
                         {
                             hit++;
                         }
                     }
                     else if (ballStatus == 1 || ballStatus == 2)
                     {
-                        var prediction2 = GetPCircle(qpos.Position, W, enemy, true);
-
-                        if (W.IsReady() && enemy.Distance(qpos.Position) <= W.Width && prediction2.CastPosition.Distance(qpos.Position) <= W.Width)
+                        if (qpos != null)
                         {
-                            hit++;
+                            var prediction2 = GetPCircle(qpos.Position, W, enemy, true);
+
+                            if (W.IsReady() && prediction2.UnitPosition.Distance(qpos.Position) < W.Width)
+                            {
+                                hit++;
+                            }
                         }
                     }
                 }
@@ -669,9 +645,13 @@ namespace OriannaWreckingBalls
 
         public static void checkRMec()
         {
+            if (!R.IsReady())
+                return;
+
             int hit = 0;
             var minHit = menu.Item("autoR").GetValue<Slider>().Value;
-            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy))
+
+            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy && enemy.IsValidTarget()))
             {
                 if (enemy != null && !enemy.IsDead)
                 {
@@ -679,18 +659,21 @@ namespace OriannaWreckingBalls
                     {
                         var prediction = GetPCircle(Player.ServerPosition, R, enemy, true);
 
-                        if (R.IsReady() && enemy.Distance(Player.ServerPosition) <= R.Width && prediction.CastPosition.Distance(Player.ServerPosition) <= R.Width)
+                        if (R.IsReady() && prediction.UnitPosition.Distance(Player.ServerPosition) <= R.Width)
                         {
                             hit++;
                         }
                     }
                     else if (ballStatus == 1 || ballStatus == 2)
                     {
-                        var prediction2 = GetPCircle(qpos.Position, R, enemy, true);
-
-                        if(R.IsReady() && enemy.Distance(qpos.Position) <= R.Width && prediction2.CastPosition.Distance(qpos.Position) <= R.Width)
+                        if (qpos != null)
                         {
-                            hit++;
+                            var prediction2 = GetPCircle(qpos.Position, R, enemy, true);
+
+                            if (R.IsReady() && prediction2.UnitPosition.Distance(qpos.Position) <= R.Width)
+                            {
+                                hit++;
+                            }
                         }
                     }
                 }
@@ -748,8 +731,11 @@ namespace OriannaWreckingBalls
 
         public static int countR()
         {
+            if (!R.IsReady())
+                return 0;
+
             int hit = 0;
-            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy))
+            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy && enemy.IsValidTarget()))
             {
                 if (enemy != null && !enemy.IsDead)
                 {
@@ -757,18 +743,21 @@ namespace OriannaWreckingBalls
                     {
                         var prediction = GetPCircle(Player.ServerPosition, R, enemy, true);
 
-                        if (R.IsReady() && enemy.Distance(Player.ServerPosition) <= R.Width && prediction.CastPosition.Distance(Player.ServerPosition) <= R.Width)
+                        if (R.IsReady() && prediction.UnitPosition.Distance(Player.ServerPosition) <= R.Width)
                         {
                             hit++;
                         }
                     }
                     else if (ballStatus == 1 || ballStatus == 2)
                     {
-                        var prediction2 = GetPCircle(qpos.Position, R, enemy, true);
-
-                        if (R.IsReady() && enemy.Distance(qpos.Position) <= R.Width && prediction2.CastPosition.Distance(qpos.Position) <= R.Width)
+                        if (qpos != null)
                         {
-                            hit++;
+                            var prediction2 = GetPCircle(qpos.Position, R, enemy, true);
+
+                            if (R.IsReady() && prediction2.UnitPosition.Distance(qpos.Position) <= R.Width)
+                            {
+                                hit++;
+                            }
                         }
                     }
                 }
@@ -1060,8 +1049,6 @@ namespace OriannaWreckingBalls
 
             onGainBuff();
 
-            checkWMec();
-
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 checkRMec();
@@ -1082,6 +1069,8 @@ namespace OriannaWreckingBalls
                     lastHit();
                 }
             }
+
+            checkWMec();
         }
 
     }
