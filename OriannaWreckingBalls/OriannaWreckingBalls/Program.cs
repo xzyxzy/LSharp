@@ -234,19 +234,17 @@ namespace OriannaWreckingBalls
             var eTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
             var rTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
 
-            if (useE && eTarget != null && E.IsReady())
-            {
-                castE(eTarget);
-            }
-           
-            if (useW && wTarget != null && W.IsReady())
-            {
-                castW(wTarget);
-            }
-
             if (useQ && Q.IsReady())
             {
                 castQ(qTarget, source);
+            }
+
+            if (IsBallMoving)
+                return;
+
+            if (useW && wTarget != null && W.IsReady())
+            {
+                castW(wTarget);
             }
 
             //Ignite
@@ -256,6 +254,11 @@ namespace OriannaWreckingBalls
                 {
                     Player.SummonerSpellbook.CastSpell(IgniteSlot, qTarget);
                 }
+            }
+
+            if (useE && eTarget != null && E.IsReady())
+            {
+                castE(eTarget);
             }
 
             if (useR && rTarget != null && R.IsReady())
@@ -274,7 +277,7 @@ namespace OriannaWreckingBalls
 
                 if (!(menu.Item("killR").GetValue<KeyBind>().Active))//check if multi
                 {
-                    if (menu.Item("overK").GetValue<bool>() && (Player.GetSpellDamage(rTarget, SpellSlot.Q) *1) >= rTarget.Health)
+                    if (menu.Item("overK").GetValue<bool>() && (Player.GetSpellDamage(rTarget, SpellSlot.Q) *2) >= rTarget.Health)
                     {
                         return;
                     }
