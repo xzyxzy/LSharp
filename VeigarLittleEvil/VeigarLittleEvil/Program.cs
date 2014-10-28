@@ -93,6 +93,7 @@ namespace VeigarLittleEvil
             menu.SubMenu("Keys").AddItem(new MenuItem("LastHitQQ", "Last hit with Q").SetValue(new KeyBind("A".ToCharArray()[0], KeyBindType.Press)));
             menu.SubMenu("Keys").AddItem(new MenuItem("LastHitQQ2", "Last hit with Q(Togg)").SetValue(new KeyBind("J".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Keys").AddItem(new MenuItem("wPoke", "Cast W Only on Stun").SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Toggle)));
+            menu.SubMenu("Keys").AddItem(new MenuItem("escape", "Escape").SetValue(new KeyBind(menu.Item("Flee_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
@@ -218,6 +219,8 @@ namespace VeigarLittleEvil
 
             var hasMana = manaCheck();
 
+            var dmg = GetComboDamage(target);
+
             if (Source == "Harass")
             {
                 var mana = menu.Item("mana").GetValue<Slider>().Value;
@@ -274,8 +277,7 @@ namespace VeigarLittleEvil
                 useR = rTarget(target) && useR;
                 if (useR)
                 {
-                    castR(target);
-                    return;
+                    castR(target, dmg);
                 }
             }
 
@@ -454,7 +456,7 @@ namespace VeigarLittleEvil
             
         }
 
-        public static void castR(Obj_AI_Hero target)
+        public static void castR(Obj_AI_Hero target,float dmg)
         {
             if (menu.Item("overKill").GetValue<bool>() && Player.GetSpellDamage(target, SpellSlot.Q) > target.Health)
                 return;
@@ -462,7 +464,7 @@ namespace VeigarLittleEvil
             if (Player.Distance(target) > R.Range)
                 return;
 
-            if (GetComboDamage(target) > target.Health + 20)
+            if (dmg > target.Health + 20)
                 R.CastOnUnit(target, packets());
 
         }
@@ -489,6 +491,14 @@ namespace VeigarLittleEvil
             }
         }
 
+        public static Obj_AI_Hero getNearestEnemy(Obj_AI_Hero unit)
+        {
+            return ObjectManager.Get<Obj_AI_Hero>()
+                .Where(x => x.IsEnemy && x.IsValid)
+                .OrderBy(x => unit.ServerPosition.Distance(x.ServerPosition))
+                .FirstOrDefault();
+        }
+
         private static void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
@@ -496,7 +506,13 @@ namespace VeigarLittleEvil
 
             smartKS();
 
-            if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
+            if (menu.Item("escape").GetValue<KeyBind>().Active)
+            {
+                if (E.IsReady())
+                    castE(getNearestEnemy(Player));
+                LXOrbwalker.Orbwalk(Game.CursorPos, null);
+            }
+            else if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 Combo();
             }
