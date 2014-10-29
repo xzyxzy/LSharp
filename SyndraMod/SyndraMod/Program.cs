@@ -258,7 +258,7 @@ namespace Syndra
                         EQ.Width + enemy.BoundingRadius)
                     {
                         E.Cast(orb, packets());
-                        W.LastCastAttemptT = Environment.TickCount;
+                        E.LastCastAttemptT = Environment.TickCount;
                         return;
                     }
                 }
