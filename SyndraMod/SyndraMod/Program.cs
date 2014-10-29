@@ -360,7 +360,7 @@ namespace Syndra
                     }
                 }
                 else if (wTarget != null && Player.Spellbook.GetSpell(SpellSlot.W).ToggleState != 1 && W.IsReady() &&
-                         Environment.TickCount - W.LastCastAttemptT > Game.Ping + 50)
+                         Environment.TickCount - W.LastCastAttemptT > Game.Ping + 100)
                 {
                     if (OrbManager.WObject(false) != null && W.IsReady())
                     {
