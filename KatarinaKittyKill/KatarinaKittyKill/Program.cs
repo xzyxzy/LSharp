@@ -209,14 +209,14 @@ namespace KatarinaKittyKill
             if (E.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
-            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
-                damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
-
             if (R.IsReady() || (rSpell.State == SpellState.Surpressed && R.Level > 0))
                 damage += Player.GetSpellDamage(enemy, SpellSlot.R)*8;
 
             if (DFG.IsReady())
                 damage = damage*1.2;
+
+            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+                damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
 
             return (float) damage;
         }

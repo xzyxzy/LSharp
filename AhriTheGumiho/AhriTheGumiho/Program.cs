@@ -206,9 +206,6 @@ namespace AhriTheGumiho
             if (W.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.W);
 
-            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
-                damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
-
             if (R.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.R)*2; //* Player.Spellbook.GetSpell(SpellSlot.R).Ammo;
 
@@ -222,6 +219,9 @@ namespace AhriTheGumiho
                 damage = damage*1.2;
             else if (enemy.HasBuffOfType(BuffType.Charm))
                 damage = damage*1.2;
+
+            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+                damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
 
             if (E.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
