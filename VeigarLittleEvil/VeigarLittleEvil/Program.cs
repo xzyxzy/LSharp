@@ -527,8 +527,8 @@ namespace VeigarLittleEvil
                 foreach (Obj_AI_Base minion in allMinions)
                 {
                     if (minion.IsValidTarget() &&
-                        HealthPrediction.GetHealthPrediction(minion, (int) (Player.Distance(minion)*1000/1100), 45) <
-                        Player.GetSpellDamage(minion, SpellSlot.Q) - 25)
+                        HealthPrediction.GetHealthPrediction(minion, (int)((minion.Distance(Player) / 1500) * 1000 + .25f * 1000), 100) <
+                        Player.GetSpellDamage(minion, SpellSlot.Q) - 35)
                     {
                         if (Q.IsReady())
                         {
