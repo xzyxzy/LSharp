@@ -139,6 +139,7 @@ namespace KatarinaKittyKill
             menu.AddSubMenu(new Menu("Farm", "Farm"));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseQFarm", "Use Q Farm").SetValue(false));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseWFarm", "Use W Farm").SetValue(false));
+            menu.SubMenu("Farm").AddItem(new MenuItem("UseEFarm", "Use E Farm").SetValue(false));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseQHit", "Use Q Last Hit").SetValue(false));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseWHit", "Use W Last Hit").SetValue(false));
 
@@ -825,15 +826,23 @@ namespace KatarinaKittyKill
         {
             List<Obj_AI_Base> allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range,
                 MinionTypes.All, MinionTeam.NotAlly);
+            List<Obj_AI_Base> allMinionsE = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range,
+                MinionTypes.All, MinionTeam.NotAlly);
             List<Obj_AI_Base> allMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, W.Range,
                 MinionTypes.All, MinionTeam.NotAlly);
 
             var useQ = menu.Item("UseQFarm").GetValue<bool>();
             var useW = menu.Item("UseWFarm").GetValue<bool>();
+            var useE = menu.Item("UseEFarm").GetValue<bool>();
 
             if (useQ && allMinionsQ.Count > 0 && Q.IsReady() && allMinionsQ[0].IsValidTarget(Q.Range))
             {
                 Q.Cast(allMinionsQ[0], packets());
+            }
+
+            if (useE && allMinionsQ.Count > 0 && E.IsReady() && allMinionsQ[0].IsValidTarget(E.Range))
+            {
+                E.Cast(allMinionsE[0], packets());
             }
 
             if (useW && W.IsReady())
