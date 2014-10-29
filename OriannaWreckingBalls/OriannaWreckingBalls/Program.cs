@@ -819,43 +819,21 @@ namespace OriannaWreckingBalls
                 {
                     if (ballStatus == 0)
                     {
-                        hit = 0;
-                        var prediction = GetP(Player.ServerPosition, Q, enemy, true);
+                        Q.From = Player.ServerPosition;
+                        var pred = Q.GetCircularFarmLocation(allMinionsQ,Q.Width + 15);
 
-                        if (Q.IsReady() && Player.Distance(enemy) <= Q.Range)
-                        {
-                            foreach (var enemy2 in allMinionsW)
-                                {
-                                    if (enemy2.Distance(prediction.CastPosition) < Q.Width)
-                                        hit++;
-                                }
-
-                                if (hit >= min)
-                                {
-                                    if (prediction.Hitchance >= HitChance.High)
-                                        Q.Cast(prediction.CastPosition, packets());
-
-                                }
-                        }
+                        if (pred.MinionsHit >= min)
+                            Q.Cast(pred.Position, packets());
                     }
                     else if (ballStatus == 1 || ballStatus == 2)
                     {
-                        var prediction = GetP(qpos.Position, Q, enemy, true);
+                        if(qpos != null)
+                            Q.From = qpos.Position;
 
-                        if (Q.IsReady() && Player.Distance(enemy) <= Q.Range)
-                        {
-                            foreach (var enemy2 in allMinionsW)
-                            {
-                                if (enemy2.Distance(prediction.CastPosition) < Q.Width && Q.IsReady())
-                                    hit++;
-                                    
-                            }
-                            if (hit >= min)
-                            {
-                                if (prediction.Hitchance >= HitChance.High && Q.IsReady())
-                                    Q.Cast(prediction.CastPosition, packets());
-                            }
-                        }
+                        var pred = Q.GetCircularFarmLocation(allMinionsQ, Q.Width + 15);
+
+                        if (pred.MinionsHit >= min)
+                            Q.Cast(pred.Position, packets());
                     }
                 }
             }
