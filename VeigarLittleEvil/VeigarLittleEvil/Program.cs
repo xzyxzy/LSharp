@@ -235,17 +235,17 @@ namespace VeigarLittleEvil
                 return;
             }
 
-            if (useW && target != null && W.IsReady() && Player.Distance(target) <= W.Range)
+            if (useW && target != null && Player.Distance(target) <= W.Range)
             {
                 if (menu.Item("wPoke").GetValue<KeyBind>().Active)
                 {
-                    if (W.GetPrediction(target).Hitchance == HitChance.Immobile)
+                    if (W.GetPrediction(target).Hitchance == HitChance.Immobile && W.IsReady())
                         W.Cast(target, packets());
                 }
                 else 
                 {
                     var pred = Prediction.GetPrediction(target, 1.25f);
-                    if(pred.Hitchance >= HitChance.High)
+                    if (pred.Hitchance >= HitChance.High && W.IsReady())
                         W.Cast(pred.CastPosition, packets());
                 }
             }
@@ -464,7 +464,7 @@ namespace VeigarLittleEvil
             if (Player.Distance(target) > R.Range)
                 return;
 
-            if (dmg > target.Health + 20)
+            if (dmg > target.Health + 20 && R.IsReady())
                 R.CastOnUnit(target, packets());
 
         }
@@ -479,7 +479,7 @@ namespace VeigarLittleEvil
             {
                 foreach (var minion in allMinions)
                 {
-                    if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1100)) < Damage.GetSpellDamage(Player, minion, SpellSlot.Q) - 25)
+                    if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1100), 100) < Damage.GetSpellDamage(Player, minion, SpellSlot.Q) - 25)
                     {
                         if (Q.IsReady())
                         {
