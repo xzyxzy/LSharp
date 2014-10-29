@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using LeagueSharp;
 using LeagueSharp.Common;
-using SharpDX;
 using LX_Orbwalker;
+using SharpDX;
 using Color = System.Drawing.Color;
 
 namespace KatarinaKittyKill
 {
-    class Program
+    internal class Program
     {
         public const string ChampionName = "Katarina";
 
@@ -36,6 +33,9 @@ namespace KatarinaKittyKill
         public static Items.Item DFG;
 
         private static Obj_AI_Hero Player;
+        private static int lastPlaced;
+        private static Vector3 lastWardPos;
+
         private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -58,7 +58,10 @@ namespace KatarinaKittyKill
 
             IgniteSlot = Player.GetSpellSlot("SummonerDot");
 
-            DFG = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline || Utility.Map.GetMap()._MapType == Utility.Map.MapType.CrystalScar ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
+            DFG = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline ||
+                  Utility.Map.GetMap()._MapType == Utility.Map.MapType.CrystalScar
+                ? new Items.Item(3188, 750)
+                : new Items.Item(3128, 750);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -72,7 +75,7 @@ namespace KatarinaKittyKill
             var orbwalkerMenu = new Menu("My Orbwalker", "my_Orbwalker");
             LXOrbwalker.AddToMenu(orbwalkerMenu);
             menu.AddSubMenu(orbwalkerMenu);
-            
+
             //Target selector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
             SimpleTs.AddToMenu(targetSelectorMenu);
@@ -80,17 +83,40 @@ namespace KatarinaKittyKill
 
             //Key 
             menu.AddSubMenu(new Menu("Key", "Key"));
-            menu.SubMenu("Key").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Combo_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            menu.SubMenu("Key").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            menu.SubMenu("Key").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
-            menu.SubMenu("Key").AddItem(new MenuItem("lastHit", "Lasthit!").SetValue(new KeyBind(menu.Item("LastHit_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            menu.SubMenu("Key").AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            menu.SubMenu("Key").AddItem(new MenuItem("jFarm", "Jungle Farm").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
-            menu.SubMenu("Key").AddItem(new MenuItem("Wardjump", "Escape/Ward jump").SetValue(new KeyBind(menu.Item("Flee_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("ComboActive", "Combo!").SetValue(
+                        new KeyBind(menu.Item("Combo_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("HarassActive", "Harass!").SetValue(
+                        new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0],
+                        KeyBindType.Toggle)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("lastHit", "Lasthit!").SetValue(
+                        new KeyBind(menu.Item("LastHit_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("LaneClearActive", "Farm!").SetValue(
+                        new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("jFarm", "Jungle Farm").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("Wardjump", "Escape/Ward jump").SetValue(
+                        new KeyBind(menu.Item("Flee_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
-            menu.SubMenu("Combo").AddItem(new MenuItem("tsModes", "TS Modes").SetValue(new StringList(new[] { "Orbwalker/LessCast", "Low HP%", "NearMouse", "CurrentHP" }, 0)));
+            menu.SubMenu("Combo")
+                .AddItem(
+                    new MenuItem("tsModes", "TS Modes").SetValue(
+                        new StringList(new[] {"Orbwalker/LessCast", "Low HP%", "NearMouse", "CurrentHP"}, 0)));
             menu.SubMenu("Combo").AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
@@ -98,14 +124,16 @@ namespace KatarinaKittyKill
             menu.SubMenu("Combo").AddItem(new MenuItem("eDis", "E only if >").SetValue(new Slider(0, 0, 700)));
             menu.SubMenu("Combo").AddItem(new MenuItem("smartE", "Smart E with R CD ").SetValue(false));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("comboMode", "Mode").SetValue(new StringList(new[] { "QEW", "EQW" }, 0)));
+            menu.SubMenu("Combo")
+                .AddItem(new MenuItem("comboMode", "Mode").SetValue(new StringList(new[] {"QEW", "EQW"}, 0)));
 
             //Harass menu:
             menu.AddSubMenu(new Menu("Harass", "Harass"));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Use Q").SetValue(true));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Use W").SetValue(false));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
-            menu.SubMenu("Harass").AddItem(new MenuItem("harassMode", "Mode").SetValue(new StringList(new[] { "QEW", "EQW", "QW" }, 2)));
+            menu.SubMenu("Harass")
+                .AddItem(new MenuItem("harassMode", "Mode").SetValue(new StringList(new[] {"QEW", "EQW", "QW"}, 2)));
 
             //Farming menu:
             menu.AddSubMenu(new Menu("Farm", "Farm"));
@@ -127,18 +155,20 @@ namespace KatarinaKittyKill
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("dfg", "Use DFG").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("igniteMode", "Mode").SetValue(new StringList(new[] { "Combo", "KS" }, 0)));
+            menu.SubMenu("Misc")
+                .AddItem(new MenuItem("igniteMode", "Mode").SetValue(new StringList(new[] {"Combo", "KS"}, 0)));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoWz", "Auto W Enemy").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("printTar", "Print Selected Target").SetValue(true));
 
             //Damage after combo:
-            var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
+            MenuItem dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
             Utility.HpBarDamageIndicator.DamageToUnit = GetComboDamage;
             Utility.HpBarDamageIndicator.Enabled = dmgAfterComboItem.GetValue<bool>();
-            dmgAfterComboItem.ValueChanged += delegate(object sender, OnValueChangeEventArgs eventArgs)
-            {
-                Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
-            };
+            dmgAfterComboItem.ValueChanged +=
+                delegate(object sender, OnValueChangeEventArgs eventArgs)
+                {
+                    Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
+                };
 
             //Drawings menu:
             menu.AddSubMenu(new Menu("Drawings", "Drawings"));
@@ -164,10 +194,10 @@ namespace KatarinaKittyKill
 
         private static float GetComboDamage(Obj_AI_Base enemy)
         {
-            var damage = 0d;
+            double damage = 0d;
 
             if (DFG.IsReady())
-                damage += Player.GetItemDamage(enemy, Damage.DamageItems.Dfg) / 1.2;
+                damage += Player.GetItemDamage(enemy, Damage.DamageItems.Dfg)/1.2;
 
             if (Q.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.Q) + Player.GetSpellDamage(enemy, SpellSlot.Q, 1);
@@ -182,12 +212,12 @@ namespace KatarinaKittyKill
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
 
             if (R.IsReady() || (rSpell.State == SpellState.Surpressed && R.Level > 0))
-                damage += Player.GetSpellDamage(enemy, SpellSlot.R) * 8;
+                damage += Player.GetSpellDamage(enemy, SpellSlot.R)*8;
 
             if (DFG.IsReady())
-                damage = damage * 1.2;
+                damage = damage*1.2;
 
-            return (float)damage;
+            return (float) damage;
         }
 
         private static void Combo()
@@ -204,16 +234,16 @@ namespace KatarinaKittyKill
 
         public static void combo(bool useQ, bool useW, bool useE, bool useR)
         {
-            var Target = getTarget();
+            Obj_AI_Hero Target = getTarget();
 
-            var mode = menu.Item("comboMode").GetValue<StringList>().SelectedIndex;
-            var IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
+            int mode = menu.Item("comboMode").GetValue<StringList>().SelectedIndex;
+            int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
 
-            var eDis = menu.Item("eDis").GetValue<Slider>().Value;
+            int eDis = menu.Item("eDis").GetValue<Slider>().Value;
 
             if (!Target.HasBuffOfType(BuffType.Invulnerability) && Target.IsValidTarget(E.Range))
             {
-                if (mode == 0)//qwe
+                if (mode == 0) //qwe
                 {
                     if (Target != null && DFG.IsReady() && E.IsReady() && menu.Item("dfg").GetValue<bool>())
                     {
@@ -225,25 +255,30 @@ namespace KatarinaKittyKill
                         Q.Cast(Target, packets());
                     }
 
-                    if (useE && Target != null && E.IsReady() && Player.Distance(Target) < E.Range && Player.Distance(Target) > eDis)
+                    if (useE && Target != null && E.IsReady() && Player.Distance(Target) < E.Range &&
+                        Player.Distance(Target) > eDis)
                     {
-                        if (menu.Item("smartE").GetValue<bool>() && countEnemiesNearPosition(Target.ServerPosition, 500) > 2 && (!R.IsReady() || !(rSpell.State == SpellState.Surpressed && R.Level > 0)))
+                        if (menu.Item("smartE").GetValue<bool>() &&
+                            countEnemiesNearPosition(Target.ServerPosition, 500) > 2 &&
+                            (!R.IsReady() || !(rSpell.State == SpellState.Surpressed && R.Level > 0)))
                             return;
 
                         E.Cast(Target, packets());
                     }
-
                 }
-                else if (mode == 1)//eqw
+                else if (mode == 1) //eqw
                 {
                     if (Target != null && DFG.IsReady() && E.IsReady() && menu.Item("dfg").GetValue<bool>())
                     {
                         DFG.Cast(Target);
                     }
 
-                    if (useE && Target != null && E.IsReady() && Player.Distance(Target) < E.Range && Player.Distance(Target) > eDis)
+                    if (useE && Target != null && E.IsReady() && Player.Distance(Target) < E.Range &&
+                        Player.Distance(Target) > eDis)
                     {
-                        if (menu.Item("smartE").GetValue<bool>() && countEnemiesNearPosition(Target.ServerPosition, 500) > 2 && (!R.IsReady() || !(rSpell.State == SpellState.Surpressed && R.Level > 0)))
+                        if (menu.Item("smartE").GetValue<bool>() &&
+                            countEnemiesNearPosition(Target.ServerPosition, 500) > 2 &&
+                            (!R.IsReady() || !(rSpell.State == SpellState.Surpressed && R.Level > 0)))
                             return;
 
                         E.Cast(Target, packets());
@@ -270,46 +305,50 @@ namespace KatarinaKittyKill
                     W.Cast();
                 }
 
-                if (useR && Target != null && R.IsReady() && countEnemiesNearPosition(Player.ServerPosition, R.Range) > 0)
+                if (useR && Target != null && R.IsReady() &&
+                    countEnemiesNearPosition(Player.ServerPosition, R.Range) > 0)
                 {
                     if (!Q.IsReady() && !E.IsReady() && !W.IsReady())
                         R.Cast();
-                    return;
                 }
             }
         }
 
         public static Obj_AI_Hero getTarget()
         {
-            var tsMode = menu.Item("tsModes").GetValue<StringList>().SelectedIndex;
+            int tsMode = menu.Item("tsModes").GetValue<StringList>().SelectedIndex;
             var focusSelected = menu.Item("selected").GetValue<bool>();
 
             if (focusSelected && selectedTarget != null)
             {
-                if (Player.Distance(selectedTarget) < 1600 && !selectedTarget.IsDead && selectedTarget.IsVisible && selectedTarget.IsEnemy)
+                if (Player.Distance(selectedTarget) < 1600 && !selectedTarget.IsDead && selectedTarget.IsVisible &&
+                    selectedTarget.IsEnemy)
                 {
                     //Game.PrintChat("focusing selected target");
                     LXOrbwalker.ForcedTarget = selectedTarget;
                     return selectedTarget;
                 }
-                else
-                {
-                    selectedTarget = null;
-                }
+                selectedTarget = null;
             }
 
 
-            var getTar = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero getTar = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
 
             if (tsMode == 0)
                 return getTar;
 
-            foreach (var target in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < E.Range && x.IsValidTarget(E.Range) && !x.IsDead && x.IsEnemy && x.IsVisible))
+            foreach (
+                Obj_AI_Hero target in
+                    ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(
+                            x =>
+                                Player.Distance(x) < E.Range && x.IsValidTarget(E.Range) && !x.IsDead && x.IsEnemy &&
+                                x.IsVisible))
             {
                 if (tsMode == 1)
                 {
-                    var tar1hp = target.Health / target.MaxHealth * 100;
-                    var tar2hp = getTar.Health / getTar.MaxHealth * 100;
+                    float tar1hp = target.Health/target.MaxHealth*100;
+                    float tar2hp = getTar.Health/getTar.MaxHealth*100;
                     if (tar1hp < tar2hp)
                         getTar = target;
                 }
@@ -339,14 +378,14 @@ namespace KatarinaKittyKill
 
         public static void harass(bool useQ, bool useW, bool useE, bool useR)
         {
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
-            var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
-            var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
-            var mode = menu.Item("harassMode").GetValue<StringList>().SelectedIndex;
+            int mode = menu.Item("harassMode").GetValue<StringList>().SelectedIndex;
 
-            if (mode == 0)//qwe
+            if (mode == 0) //qwe
             {
                 if (useQ && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && qTarget != null)
                 {
@@ -357,9 +396,8 @@ namespace KatarinaKittyKill
                 {
                     E.Cast(eTarget, packets());
                 }
-
             }
-            else if (mode == 1)//eqw
+            else if (mode == 1) //eqw
             {
                 if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range)
                 {
@@ -371,7 +409,7 @@ namespace KatarinaKittyKill
                     Q.Cast(qTarget, packets());
                 }
             }
-            else if(mode == 2)
+            else if (mode == 2)
             {
                 if (useQ && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && qTarget != null)
                 {
@@ -383,7 +421,6 @@ namespace KatarinaKittyKill
             {
                 W.Cast();
             }
-
         }
 
         public static void smartKS()
@@ -394,30 +431,36 @@ namespace KatarinaKittyKill
             if (menu.Item("rCancel").GetValue<bool>() && countEnemiesNearPosition(Player.ServerPosition, 570) > 1)
                 return;
 
-            var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where Player.Distance(champ.ServerPosition) <= 1375 && champ.IsEnemy select champ).ToList();
+            List<Obj_AI_Hero> nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>()
+                where Player.Distance(champ.ServerPosition) <= 1375 && champ.IsEnemy
+                select champ).ToList();
             nearChamps.OrderBy(x => x.Health);
 
-            foreach (var target in nearChamps)
+            foreach (Obj_AI_Hero target in nearChamps)
             {
-                if (target != null && !target.IsDead && !target.HasBuffOfType(BuffType.Invulnerability) && target.IsValidTarget(1375))
+                if (target != null && !target.IsDead && !target.HasBuffOfType(BuffType.Invulnerability) &&
+                    target.IsValidTarget(1375))
                 {
                     //QEW
-                    if (Player.Distance(target.ServerPosition) <= E.Range && 
-                        (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.W)) > target.Health + 20)
+                    if (Player.Distance(target.ServerPosition) <= E.Range &&
+                        (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.Q) +
+                         Player.GetSpellDamage(target, SpellSlot.W)) > target.Health + 20)
                     {
                         if (E.IsReady() && Q.IsReady() && W.IsReady())
                         {
                             cancelUlt(target);
                             Q.Cast(target, packets());
                             E.Cast(target, packets());
-                            if(Player.Distance(target.ServerPosition) < W.Range)
+                            if (Player.Distance(target.ServerPosition) < W.Range)
                                 W.Cast();
                             return;
                         }
                     }
 
                     //E + W
-                    if (Player.Distance(target.ServerPosition) <= E.Range && (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.W)) > target.Health + 20)
+                    if (Player.Distance(target.ServerPosition) <= E.Range &&
+                        (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.W)) >
+                        target.Health + 20)
                     {
                         if (E.IsReady() && W.IsReady())
                         {
@@ -431,7 +474,9 @@ namespace KatarinaKittyKill
                     }
 
                     //E + Q
-                    if (Player.Distance(target.ServerPosition) <= E.Range && (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.Q)) > target.Health + 20)
+                    if (Player.Distance(target.ServerPosition) <= E.Range &&
+                        (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.Q)) >
+                        target.Health + 20)
                     {
                         if (E.IsReady() && Q.IsReady())
                         {
@@ -453,7 +498,9 @@ namespace KatarinaKittyKill
                             //Game.PrintChat("ks 7");
                             return;
                         }
-                        else if (Q.IsReady() && E.IsReady() && Player.Distance(target.ServerPosition) <= 1375 && menu.Item("wardKs").GetValue<bool>() && countEnemiesNearPosition(target.ServerPosition, 500) < 3)
+                        if (Q.IsReady() && E.IsReady() && Player.Distance(target.ServerPosition) <= 1375 &&
+                            menu.Item("wardKs").GetValue<bool>() &&
+                            countEnemiesNearPosition(target.ServerPosition, 500) < 3)
                         {
                             cancelUlt(target);
                             jumpKS(target);
@@ -463,7 +510,8 @@ namespace KatarinaKittyKill
                     }
 
                     //E
-                    if (Player.Distance(target.ServerPosition) <= E.Range && (Player.GetSpellDamage(target, SpellSlot.E)) > target.Health + 20)
+                    if (Player.Distance(target.ServerPosition) <= E.Range &&
+                        (Player.GetSpellDamage(target, SpellSlot.E)) > target.Health + 20)
                     {
                         if (E.IsReady())
                         {
@@ -475,7 +523,9 @@ namespace KatarinaKittyKill
                     }
 
                     //R
-                    if (Player.Distance(target.ServerPosition) <= E.Range && (Player.GetSpellDamage(target, SpellSlot.R) * 5) > target.Health + 20 && menu.Item("rKS").GetValue<bool>())
+                    if (Player.Distance(target.ServerPosition) <= E.Range &&
+                        (Player.GetSpellDamage(target, SpellSlot.R)*5) > target.Health + 20 &&
+                        menu.Item("rKS").GetValue<bool>())
                     {
                         if (R.IsReady())
                         {
@@ -486,7 +536,8 @@ namespace KatarinaKittyKill
                     }
 
                     //dfg
-                    if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health + 20 && Player.Distance(target.ServerPosition) <= 750)
+                    if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health + 20 &&
+                        Player.Distance(target.ServerPosition) <= 750)
                     {
                         DFG.Cast(target);
                         //Game.PrintChat("ks 1");
@@ -495,7 +546,8 @@ namespace KatarinaKittyKill
 
                     //dfg + q
                     if (Player.Distance(target.ServerPosition) <= Q.Range &&
-                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) + (Player.GetSpellDamage(target, SpellSlot.Q)) * 1.2) > target.Health + 20)
+                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
+                         (Player.GetSpellDamage(target, SpellSlot.Q))*1.2) > target.Health + 20)
                     {
                         if (DFG.IsReady() && Q.IsReady())
                         {
@@ -509,7 +561,8 @@ namespace KatarinaKittyKill
 
                     //dfg + e
                     if (Player.Distance(target.ServerPosition) <= E.Range &&
-                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) + (Player.GetSpellDamage(target, SpellSlot.E)) * 1.2) > target.Health + 20)
+                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
+                         (Player.GetSpellDamage(target, SpellSlot.E))*1.2) > target.Health + 20)
                     {
                         if (DFG.IsReady() && E.IsReady())
                         {
@@ -523,9 +576,10 @@ namespace KatarinaKittyKill
 
                     //ignite
                     if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                        Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Player.Distance(target.ServerPosition) <= 600)
+                        Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
+                        Player.Distance(target.ServerPosition) <= 600)
                     {
-                        var IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
+                        int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
                         if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health)
                         {
                             Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
@@ -540,16 +594,16 @@ namespace KatarinaKittyKill
             if (Player.IsChannelingImportantSpell())
             {
                 LXOrbwalker.Orbwalk(target.ServerPosition, null);
-                return;
             }
-
         }
 
         public static void shouldCancel()
         {
             if (countEnemiesNearPosition(Player.ServerPosition, 600) < 1)
             {
-                var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where Player.Distance(champ.ServerPosition) <= 1375 && champ.IsEnemy select champ).ToList();
+                List<Obj_AI_Hero> nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>()
+                    where Player.Distance(champ.ServerPosition) <= 1375 && champ.IsEnemy
+                    select champ).ToList();
                 nearChamps.OrderBy(x => x.Health);
 
                 if (nearChamps.FirstOrDefault() != null && nearChamps.FirstOrDefault().IsValidTarget(1375))
@@ -559,9 +613,10 @@ namespace KatarinaKittyKill
 
         public static void autoW()
         {
-            foreach (var target in ObjectManager.Get<Obj_AI_Hero>())
+            foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>())
             {
-                if (target != null && !target.IsDead && target.IsEnemy && Player.Distance(target.ServerPosition) <= W.Range && target.IsValidTarget(W.Range))
+                if (target != null && !target.IsDead && target.IsEnemy &&
+                    Player.Distance(target.ServerPosition) <= W.Range && target.IsValidTarget(W.Range))
                 {
                     if (Player.Distance(target.ServerPosition) < W.Range && W.IsReady())
                         W.Cast();
@@ -571,33 +626,33 @@ namespace KatarinaKittyKill
 
         //wardjump
         //-------------------------------------------------
-        private static int lastPlaced = 0;
-        private static Vector3 lastWardPos = new Vector3();
 
         public static void wardWalk(Vector3 pos)
         {
             LXOrbwalker.Orbwalk(pos, null);
-            return;
         }
 
         public static void jumpKS(Obj_AI_Hero target)
         {
             foreach (Obj_AI_Minion ward in ObjectManager.Get<Obj_AI_Minion>().Where(ward =>
-                E.IsReady() && Q.IsReady() && ward.Name.ToLower().Contains("ward") && ward.Distance(target.ServerPosition) < Q.Range && ward.Distance(Player) < E.Range))
+                E.IsReady() && Q.IsReady() && ward.Name.ToLower().Contains("ward") &&
+                ward.Distance(target.ServerPosition) < Q.Range && ward.Distance(Player) < E.Range))
             {
                 E.Cast(ward);
                 return;
             }
 
             foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero =>
-                E.IsReady() && Q.IsReady() && hero.Distance(target.ServerPosition) < Q.Range && hero.Distance(Player) < E.Range && hero.IsValidTarget(E.Range)))
+                E.IsReady() && Q.IsReady() && hero.Distance(target.ServerPosition) < Q.Range &&
+                hero.Distance(Player) < E.Range && hero.IsValidTarget(E.Range)))
             {
                 E.Cast(hero);
                 return;
             }
 
             foreach (Obj_AI_Minion minion in ObjectManager.Get<Obj_AI_Minion>().Where(minion =>
-                E.IsReady() && Q.IsReady() && minion.Distance(target.ServerPosition) < Q.Range && minion.Distance(Player) < E.Range && minion.IsValidTarget(E.Range)))
+                E.IsReady() && Q.IsReady() && minion.Distance(target.ServerPosition) < Q.Range &&
+                minion.Distance(Player) < E.Range && minion.IsValidTarget(E.Range)))
             {
                 E.Cast(minion);
                 return;
@@ -611,7 +666,8 @@ namespace KatarinaKittyKill
 
             if (E.IsReady() && Q.IsReady())
             {
-                Vector3 position = Player.ServerPosition + Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * 590;
+                Vector3 position = Player.ServerPosition +
+                                   Vector3.Normalize(target.ServerPosition - Player.ServerPosition)*590;
 
                 if (target.Distance(position) < Q.Range)
                 {
@@ -627,15 +683,14 @@ namespace KatarinaKittyKill
             if (Player.Distance(target) < Q.Range)
             {
                 Q.Cast(target, packets());
-                return;
             }
-
         }
 
-        public static void wardJump(){
+        public static void wardJump()
+        {
             //wardWalk(Game.CursorPos);
 
-            foreach (Obj_AI_Minion ward in ObjectManager.Get<Obj_AI_Minion>().Where(ward => 
+            foreach (Obj_AI_Minion ward in ObjectManager.Get<Obj_AI_Minion>().Where(ward =>
                 ward.Name.ToLower().Contains("ward") && ward.Distance(Game.CursorPos) < 250))
             {
                 if (E.IsReady())
@@ -645,7 +700,8 @@ namespace KatarinaKittyKill
                 }
             }
 
-            foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.Distance(Game.CursorPos) < 250))
+            foreach (
+                Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.Distance(Game.CursorPos) < 250))
             {
                 if (E.IsReady())
                 {
@@ -655,7 +711,7 @@ namespace KatarinaKittyKill
             }
 
             foreach (Obj_AI_Minion minion in ObjectManager.Get<Obj_AI_Minion>().Where(minion =>
-                minion.Distance(Game.CursorPos) < 250 ))
+                minion.Distance(Game.CursorPos) < 250))
             {
                 if (E.IsReady())
                 {
@@ -672,7 +728,7 @@ namespace KatarinaKittyKill
             Vector3 delta = cursorPos - myPos;
             delta.Normalize();
 
-            Vector3 wardPosition = myPos + delta * (600 - 5);
+            Vector3 wardPosition = myPos + delta*(600 - 5);
 
             InventorySlot invSlot = FindBestWardItem();
             if (invSlot == null) return;
@@ -684,14 +740,15 @@ namespace KatarinaKittyKill
 
         private static SpellDataInst GetItemSpell(InventorySlot invSlot)
         {
-            return ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => (int)spell.Slot == invSlot.Slot + 4);
+            return ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => (int) spell.Slot == invSlot.Slot + 4);
         }
+
         private static InventorySlot FindBestWardItem()
         {
-            var slot = Items.GetWardSlot();
+            InventorySlot slot = Items.GetWardSlot();
             if (slot == default(InventorySlot)) return null;
 
-            var sdi = GetItemSpell(slot);
+            SpellDataInst sdi = GetItemSpell(slot);
 
             if (sdi != default(SpellDataInst) && sdi.State == SpellState.Ready)
             {
@@ -700,11 +757,11 @@ namespace KatarinaKittyKill
             return null;
         }
 
-        static void GameObject_OnCreate(GameObject sender, EventArgs args)
+        private static void GameObject_OnCreate(GameObject sender, EventArgs args)
         {
             if (Environment.TickCount < lastPlaced + 300)
             {
-                Obj_AI_Minion ward = (Obj_AI_Minion)sender;
+                var ward = (Obj_AI_Minion) sender;
                 if (ward.Name.ToLower().Contains("ward") && ward.Distance(lastWardPos) < 500 && E.IsReady())
                 {
                     E.Cast(ward);
@@ -725,17 +782,20 @@ namespace KatarinaKittyKill
 
         public static void lastHit()
         {
-            var allMinions = MinionManager.GetMinions(Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly);
-            var allMinionsW = MinionManager.GetMinions(Player.ServerPosition, W.Range);
+            List<Obj_AI_Base> allMinions = MinionManager.GetMinions(Player.ServerPosition, Q.Range, MinionTypes.All,
+                MinionTeam.NotAlly);
+            List<Obj_AI_Base> allMinionsW = MinionManager.GetMinions(Player.ServerPosition, W.Range);
 
             var useQ = menu.Item("UseQHit").GetValue<bool>();
             var useW = menu.Item("UseWHit").GetValue<bool>();
 
             if (Q.IsReady() && useQ)
             {
-                foreach (var minion in allMinions)
+                foreach (Obj_AI_Base minion in allMinions)
                 {
-                    if (minion.IsValidTarget(Q.Range) && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < Damage.GetSpellDamage(Player, minion, SpellSlot.Q) - 10)
+                    if (minion.IsValidTarget(Q.Range) &&
+                        HealthPrediction.GetHealthPrediction(minion, (int) (Player.Distance(minion)*1000/1400)) <
+                        Player.GetSpellDamage(minion, SpellSlot.Q) - 20)
                     {
                         Q.CastOnUnit(minion, packets());
                         return;
@@ -745,9 +805,11 @@ namespace KatarinaKittyKill
 
             if (W.IsReady() && useW)
             {
-                foreach (var minion in allMinions)
+                foreach (Obj_AI_Base minion in allMinions)
                 {
-                    if (minion.IsValidTarget(W.Range) && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < Damage.GetSpellDamage(Player, minion, SpellSlot.W) - 10)
+                    if (minion.IsValidTarget(W.Range) &&
+                        HealthPrediction.GetHealthPrediction(minion, (int) (Player.Distance(minion)*1000)) <
+                        Player.GetSpellDamage(minion, SpellSlot.W) - 80)
                     {
                         if (Player.Distance(minion.ServerPosition) < W.Range)
                         {
@@ -761,8 +823,10 @@ namespace KatarinaKittyKill
 
         private static void Farm()
         {
-            var allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly);
-            var allMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, W.Range, MinionTypes.All, MinionTeam.NotAlly);
+            List<Obj_AI_Base> allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range,
+                MinionTypes.All, MinionTeam.NotAlly);
+            List<Obj_AI_Base> allMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, W.Range,
+                MinionTypes.All, MinionTeam.NotAlly);
 
             var useQ = menu.Item("UseQFarm").GetValue<bool>();
             var useW = menu.Item("UseWFarm").GetValue<bool>();
@@ -774,7 +838,7 @@ namespace KatarinaKittyKill
 
             if (useW && W.IsReady())
             {
-                var wPos = E.GetCircularFarmLocation(allMinionsW);
+                MinionManager.FarmLocation wPos = E.GetCircularFarmLocation(allMinionsW);
                 if (wPos.MinionsHit >= 3)
                     W.Cast();
             }
@@ -782,8 +846,10 @@ namespace KatarinaKittyKill
 
         private static void JungleFarm()
         {
-            var allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Neutral);
-            var allMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, W.Range, MinionTypes.All, MinionTeam.Neutral);
+            List<Obj_AI_Base> allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range,
+                MinionTypes.All, MinionTeam.Neutral);
+            List<Obj_AI_Base> allMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, W.Range,
+                MinionTypes.All, MinionTeam.Neutral);
 
             var useQ = menu.Item("UseQFarm").GetValue<bool>();
             var useW = menu.Item("UseWFarm").GetValue<bool>();
@@ -795,7 +861,7 @@ namespace KatarinaKittyKill
 
             if (useW && W.IsReady())
             {
-                var wPos = E.GetCircularFarmLocation(allMinionsW);
+                MinionManager.FarmLocation wPos = E.GetCircularFarmLocation(allMinionsW);
                 if (wPos.MinionsHit >= 3)
                     W.Cast();
             }
@@ -813,7 +879,7 @@ namespace KatarinaKittyKill
                 shouldCancel();
                 return;
             }
-           
+
             if (menu.Item("Wardjump").GetValue<KeyBind>().Active)
             {
                 wardJump();
@@ -824,10 +890,9 @@ namespace KatarinaKittyKill
             }
             else
             {
-
                 if (menu.Item("lastHit").GetValue<KeyBind>().Active)
                     lastHit();
-                
+
                 if (menu.Item("LaneClearActive").GetValue<KeyBind>().Active)
                     Farm();
 
@@ -839,12 +904,10 @@ namespace KatarinaKittyKill
 
                 if (menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
                     Harass();
-
             }
 
             if (menu.Item("autoWz").GetValue<bool>())
                 autoW();
-
         }
 
         public static bool packets()
@@ -854,13 +917,12 @@ namespace KatarinaKittyKill
 
         private static void Drawing_OnDraw(EventArgs args)
         {
-            foreach (var spell in SpellList)
+            foreach (Spell spell in SpellList)
             {
                 var menuItem = menu.Item(spell.Slot + "Range").GetValue<Circle>();
                 if (menuItem.Active)
                     Utility.DrawCircle(Player.Position, spell.Range, (spell.IsReady()) ? Color.Cyan : Color.DarkRed);
             }
-
         }
 
         private static void Game_OnGameSendPacket(GamePacketEventArgs args)
@@ -870,11 +932,11 @@ namespace KatarinaKittyKill
                 return;
             }
 
-            var decoded = Packet.C2S.SetTarget.Decoded(args.PacketData);
+            Packet.C2S.SetTarget.Struct decoded = Packet.C2S.SetTarget.Decoded(args.PacketData);
 
             if (decoded.NetworkId != 0 && decoded.Unit.IsValid && !decoded.Unit.IsMe)
             {
-                selectedTarget = (Obj_AI_Hero)decoded.Unit;
+                selectedTarget = (Obj_AI_Hero) decoded.Unit;
                 if (menu.Item("printTar").GetValue<bool>())
                     Game.PrintChat("Selected Target: " + decoded.Unit.BaseSkinName);
             }
