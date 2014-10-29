@@ -359,12 +359,13 @@ namespace Syndra
                         W.LastCastAttemptT = Environment.TickCount;
                     }
                 }
-                else if (wTarget != null && Player.Spellbook.GetSpell(SpellSlot.W).ToggleState != 1 && W.IsReady())
+                else if (wTarget != null && Player.Spellbook.GetSpell(SpellSlot.W).ToggleState != 1 && W.IsReady() &&
+                         Environment.TickCount - W.LastCastAttemptT > Game.Ping + 50)
                 {
                     if (OrbManager.WObject(false) != null && W.IsReady())
                     {
                         W.From = OrbManager.WObject(false).ServerPosition;
-                        if (W.GetPrediction(wTarget).Hitchance >= HitChance.High)
+                        //if (W.GetPrediction(wTarget).Hitchance >= HitChance.High)
                             W.Cast(wTarget, false, true);
                     }
                 }
