@@ -427,7 +427,7 @@ namespace Syndra
             {
                 W.LastCastAttemptT = Environment.TickCount + 400;
                 E.Cast(args.End, packets());
-                E.LastCastAttemptT = Environment.TickCount + 200;
+                E.LastCastAttemptT = Environment.TickCount + 100;
             }
 
             if (sender.IsMe && Environment.TickCount - WEComboT < 500 &&
