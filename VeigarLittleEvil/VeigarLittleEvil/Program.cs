@@ -267,13 +267,13 @@ namespace VeigarLittleEvil
                 if (menu.Item("wPoke").GetValue<KeyBind>().Active)
                 {
                     if (W.GetPrediction(target).Hitchance == HitChance.Immobile && W.IsReady())
-                        W.Cast(target, packets());
+                        W.Cast(target, Packets());
                 }
                 else
                 {
                     PredictionOutput pred = Prediction.GetPrediction(target, 1.25f);
                     if (pred.Hitchance >= HitChance.High && W.IsReady())
-                        W.Cast(pred.CastPosition, packets());
+                        W.Cast(pred.CastPosition, Packets());
                 }
             }
 
@@ -298,7 +298,7 @@ namespace VeigarLittleEvil
 
             if (useQ && Q.IsReady() && Player.Distance(target) <= Q.Range && target != null)
             {
-                Q.CastOnUnit(target, packets());
+                Q.CastOnUnit(target, Packets());
             }
 
             if (target != null && R.IsReady())
@@ -391,7 +391,7 @@ namespace VeigarLittleEvil
                 {
                     if (Q.IsReady())
                     {
-                        Q.CastOnUnit(target, packets());
+                        Q.CastOnUnit(target, Packets());
                         return;
                     }
                 }
@@ -402,7 +402,7 @@ namespace VeigarLittleEvil
                 {
                     if (R.IsReady() && rTarget(target))
                     {
-                        R.CastOnUnit(target, packets());
+                        R.CastOnUnit(target, Packets());
                         return;
                     }
                 }
@@ -420,8 +420,8 @@ namespace VeigarLittleEvil
                         if (rTarget(target))
                         {
                             Dfg.Cast(target);
-                            Q.CastOnUnit(target, packets());
-                            R.CastOnUnit(target, packets());
+                            Q.CastOnUnit(target, Packets());
+                            R.CastOnUnit(target, Packets());
                             return;
                         }
                     }
@@ -433,7 +433,7 @@ namespace VeigarLittleEvil
                         (Player.GetSpellDamage(target, SpellSlot.Q)*1.2) > target.Health + 30)
                     {
                         Dfg.Cast(target);
-                        Q.CastOnUnit(target, packets());
+                        Q.CastOnUnit(target, Packets());
                         return;
                     }
 
@@ -446,7 +446,7 @@ namespace VeigarLittleEvil
                         if (rTarget(target))
                         {
                             Dfg.Cast(target);
-                            R.CastOnUnit(target, packets());
+                            R.CastOnUnit(target, Packets());
                             return;
                         }
                     }
@@ -513,7 +513,7 @@ namespace VeigarLittleEvil
                 return;
 
             if (dmg > target.Health + 20 && R.IsReady())
-                R.CastOnUnit(target, packets());
+                R.CastOnUnit(target, Packets());
         }
 
         public static void lastHit()
@@ -532,7 +532,7 @@ namespace VeigarLittleEvil
                     {
                         if (Q.IsReady())
                         {
-                            Q.Cast(minion, packets());
+                            Q.Cast(minion, Packets());
                             return;
                         }
                     }
@@ -540,7 +540,7 @@ namespace VeigarLittleEvil
             }
         }
 
-        public static Obj_AI_Hero getNearestEnemy(Obj_AI_Hero unit)
+        public static Obj_AI_Hero GetNearestEnemy(Obj_AI_Hero unit)
         {
             return ObjectManager.Get<Obj_AI_Hero>()
                 .Where(x => x.IsEnemy && x.IsValid)
@@ -558,7 +558,7 @@ namespace VeigarLittleEvil
             if (menu.Item("escape").GetValue<KeyBind>().Active)
             {
                 if (E.IsReady())
-                    castE(getNearestEnemy(Player));
+                    castE(GetNearestEnemy(Player));
                 LXOrbwalker.Orbwalk(Game.CursorPos, null);
             }
             else if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
@@ -585,7 +585,7 @@ namespace VeigarLittleEvil
             }
         }
 
-        public static bool packets()
+        public static bool Packets()
         {
             return menu.Item("packet").GetValue<bool>();
         }
