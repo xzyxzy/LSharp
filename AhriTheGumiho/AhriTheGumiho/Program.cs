@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
 using Color = System.Drawing.Color;
+using LX_Orbwalker;
 
 namespace AhriTheGumiho
 {
-    class Program
+    internal class Program
     {
         public const string ChampionName = "Ahri";
 
@@ -30,11 +28,13 @@ namespace AhriTheGumiho
         public static int rTimer;
         public static int rTimeLeft;
 
+        public static SpellSlot IgniteSlot;
+        public static Obj_AI_Hero SelectedTarget = null;
         //mana 
-        public static int[] qMana = { 55, 55, 60, 65, 70, 75 };
-        public static int[] wMana = { 50, 50, 50, 50, 50, 50 };
-        public static int[] eMana = { 85, 85, 85, 85, 85, 85 };
-        public static int[] rMana = { 100, 100, 100, 100, 100, 100};
+        public static int[] qMana = {55, 55, 60, 65, 70, 75};
+        public static int[] wMana = {50, 50, 50, 50, 50, 50};
+        public static int[] eMana = {85, 85, 85, 85, 85, 85};
+        public static int[] rMana = {100, 100, 100, 100, 100, 100};
         //items
         public static Items.Item DFG;
 
@@ -42,6 +42,7 @@ namespace AhriTheGumiho
         public static Menu menu;
 
         private static Obj_AI_Hero Player;
+
         private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -57,50 +58,76 @@ namespace AhriTheGumiho
             //intalize spell
             Q = new Spell(SpellSlot.Q, 900);
             W = new Spell(SpellSlot.W, 800);
-            E = new Spell(SpellSlot.E, 825);
+            E = new Spell(SpellSlot.E, 950);
             R = new Spell(SpellSlot.R, 850);
 
-            Q.SetSkillshot(0.25f, 65, 1600, false, SkillshotType.SkillshotLine);
-            E.SetSkillshot(0.25f, 40, 1300, true, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0.5f, 100, 1100, false, SkillshotType.SkillshotLine);
+            E.SetSkillshot(0.5f, 60, 1200, true, SkillshotType.SkillshotLine);
 
             SpellList.Add(Q);
             SpellList.Add(W);
             SpellList.Add(E);
             SpellList.Add(R);
 
-            DFG = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
+            IgniteSlot = Player.GetSpellSlot("SummonerDot");
+
+            DFG = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline
+                ? new Items.Item(3188, 750)
+                : new Items.Item(3128, 750);
 
             //Create the menu
             menu = new Menu(ChampionName, ChampionName, true);
 
             //Orbwalker submenu
-            menu.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
+            var orbwalkerMenu = new Menu("My Orbwalker", "my_Orbwalker");
+            LXOrbwalker.AddToMenu(orbwalkerMenu);
+            menu.AddSubMenu(orbwalkerMenu);
 
             //Target selector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
             SimpleTs.AddToMenu(targetSelectorMenu);
             menu.AddSubMenu(targetSelectorMenu);
 
-            //Orbwalk
-            Orbwalker = new Orbwalking.Orbwalker(menu.SubMenu("Orbwalking"));
-
             //key
             menu.AddSubMenu(new Menu("Key", "Key"));
-            menu.SubMenu("Key").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Orbwalk").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            menu.SubMenu("Key").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Farm").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            menu.SubMenu("Key").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
-            menu.SubMenu("Key").AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind(menu.Item("LaneClear").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            menu.SubMenu("Key").AddItem(new MenuItem("charmCombo", "Q if Charmed in Combo").SetValue(new KeyBind("I".ToCharArray()[0], KeyBindType.Toggle)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("ComboActive", "Combo!").SetValue(
+                        new KeyBind(menu.Item("Combo_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("HarassActive", "Harass!").SetValue(
+                        new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0],
+                        KeyBindType.Toggle)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("LaneClearActive", "Farm!").SetValue(
+                        new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("charmCombo", "Q if Charmed in Combo").SetValue(new KeyBind("I".ToCharArray()[0],
+                        KeyBindType.Toggle)));
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
+            menu.SubMenu("Combo")
+            .AddItem(
+                new MenuItem("tsModes", "TS Modes").SetValue(
+            new StringList(new[] { "Orbwalk/LessCast", "Low HP%", "NearMouse", "CurrentHP" }, 0)));
+            menu.SubMenu("Combo").AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("qHit", "Q/E HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("rSpeed", "Use All R fast Duel").SetValue(true));
-            
+            menu.SubMenu("Combo").AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
+            menu.SubMenu("Combo")
+                .AddItem(new MenuItem("igniteMode", "Mode").SetValue(new StringList(new[] { "Combo", "KS" }, 0)));
+
             //Harass menu:
             menu.AddSubMenu(new Menu("Harass", "Harass"));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Use Q").SetValue(true));
@@ -124,15 +151,17 @@ namespace AhriTheGumiho
             menu.SubMenu("Misc").AddItem(new MenuItem("dfgCharm", "Require Charmed to DFG").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("EQ", "Use Q onTop of E").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("smartKS", "Smart KS").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("printTar", "Print Selected Target").SetValue(true));
 
             //Damage after combo:
-            var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
+            MenuItem dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
             Utility.HpBarDamageIndicator.DamageToUnit = GetComboDamage;
             Utility.HpBarDamageIndicator.Enabled = dmgAfterComboItem.GetValue<bool>();
-            dmgAfterComboItem.ValueChanged += delegate(object sender, OnValueChangeEventArgs eventArgs)
-            {
-                Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
-            };
+            dmgAfterComboItem.ValueChanged +=
+                delegate(object sender, OnValueChangeEventArgs eventArgs)
+                {
+                    Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
+                };
 
             //Drawings menu:
             menu.AddSubMenu(new Menu("Drawings", "Drawings"));
@@ -145,7 +174,9 @@ namespace AhriTheGumiho
             menu.SubMenu("Drawings")
                 .AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
             menu.SubMenu("Drawings")
-                .AddItem(new MenuItem("cursor", "Draw R Dash Range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
+                .AddItem(
+                    new MenuItem("cursor", "Draw R Dash Range").SetValue(new Circle(false,
+                        Color.FromArgb(100, 255, 0, 255))));
             menu.SubMenu("Drawings")
                 .AddItem(dmgAfterComboItem);
             menu.AddToMainMenu();
@@ -155,12 +186,13 @@ namespace AhriTheGumiho
             Drawing.OnDraw += Drawing_OnDraw;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
+            Game.OnGameSendPacket += Game_OnGameSendPacket;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
         private static float GetComboDamage(Obj_AI_Base enemy)
         {
-            var damage = 0d;
+            double damage = 0d;
 
             if (Q.IsReady())
             {
@@ -169,29 +201,32 @@ namespace AhriTheGumiho
             }
 
             if (DFG.IsReady())
-                damage += Player.GetItemDamage(enemy, Damage.DamageItems.Dfg) / 1.2;
+                damage += Player.GetItemDamage(enemy, Damage.DamageItems.Dfg)/1.2;
 
             if (W.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.W);
 
+            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+                damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
+
             if (R.IsReady())
-                damage += Player.GetSpellDamage(enemy, SpellSlot.R) * 2;//* Player.Spellbook.GetSpell(SpellSlot.R).Ammo;
+                damage += Player.GetSpellDamage(enemy, SpellSlot.R)*2; //* Player.Spellbook.GetSpell(SpellSlot.R).Ammo;
 
             if (DFG.IsReady() && E.IsReady())
-                damage = damage * 1.44;
+                damage = damage*1.44;
             else if (DFG.IsReady() && enemy.HasBuffOfType(BuffType.Charm))
-                damage = damage * 1.44;
+                damage = damage*1.44;
             else if (E.IsReady())
-                damage = damage * 1.2;
+                damage = damage*1.2;
             else if (DFG.IsReady())
-                damage = damage * 1.2;
+                damage = damage*1.2;
             else if (enemy.HasBuffOfType(BuffType.Charm))
-                damage = damage * 1.2;
-            
+                damage = damage*1.2;
+
             if (E.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
-            return (float)damage;
+            return (float) damage;
         }
 
         private static void Combo()
@@ -206,17 +241,79 @@ namespace AhriTheGumiho
                 menu.Item("UseEHarass").GetValue<bool>(), false, "Harass");
         }
 
+        public static Obj_AI_Hero getTarget()
+        {
+            int tsMode = menu.Item("tsModes").GetValue<StringList>().SelectedIndex;
+            var focusSelected = menu.Item("selected").GetValue<bool>();
+
+            if (focusSelected && SelectedTarget != null)
+            {
+                if (Player.Distance(SelectedTarget) < 1300 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
+                    SelectedTarget.IsEnemy)
+                {
+                    //Game.PrintChat("focusing selected target");
+                    LXOrbwalker.ForcedTarget = SelectedTarget;
+                    return SelectedTarget;
+                }
+                SelectedTarget = null;
+            }
+
+
+            Obj_AI_Hero getTar = SimpleTs.GetTarget(1300, SimpleTs.DamageType.Magical);
+
+            if (tsMode == 0)
+                return getTar;
+
+            foreach (
+                Obj_AI_Hero target in
+                    ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(
+                            x =>
+                                Player.Distance(x) < E.Range && x.IsValidTarget(E.Range) && !x.IsDead && x.IsEnemy &&
+                                x.IsVisible))
+            {
+                if (tsMode == 1)
+                {
+                    float tar1hp = target.Health / target.MaxHealth * 100;
+                    float tar2hp = getTar.Health / getTar.MaxHealth * 100;
+                    if (tar1hp < tar2hp)
+                        getTar = target;
+                }
+
+                if (tsMode == 2)
+                {
+                    if (target.Distance(Game.CursorPos) < getTar.Distance(Game.CursorPos))
+                        getTar = target;
+                }
+
+                if (tsMode == 3)
+                {
+                    if (target.Health < getTar.Health)
+                        getTar = target;
+                }
+            }
+
+            if (getTar != null)
+            {
+                LXOrbwalker.ForcedTarget = getTar;
+                //Game.PrintChat("Focus Mode on: " + getTar.BaseSkinName);
+                return getTar;
+            }
+
+            return null;
+        }
+
         private static void UseSpells(bool useQ, bool useW, bool useE, bool useR, string Source)
         {
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
-            var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
-            var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
-            var rETarget = SimpleTs.GetTarget(450 + E.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero eTarget = getTarget();
+            Obj_AI_Hero rETarget = getTarget();
+
+            int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
 
             var hitC = HitChance.High;
-            var qHit = menu.Item("qHit").GetValue<Slider>().Value;
-            var harassQHit = menu.Item("qHit2").GetValue<Slider>().Value;
+            int qHit = menu.Item("qHit").GetValue<Slider>().Value;
+            int harassQHit = menu.Item("qHit2").GetValue<Slider>().Value;
+            var dmg = GetComboDamage(eTarget);
 
             // HitChance.Low = 3, Medium , High .... etc..
             if (Source == "Combo")
@@ -256,7 +353,17 @@ namespace AhriTheGumiho
                 }
             }
 
-            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range && E.GetPrediction(eTarget).Hitchance >= hitC)
+            //DFG
+            if (eTarget != null && dmg > eTarget.Health - 300 && DFG.IsReady() && Source == "Combo" && Player.Distance(eTarget) <= 750 &&
+                (eTarget.HasBuffOfType(BuffType.Charm) || !menu.Item("dfgCharm").GetValue<bool>()))
+            {
+                //Game.PrintChat("TRying!!!");
+                DFG.Cast(eTarget);
+            }
+
+            //E
+            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range &&
+                E.GetPrediction(eTarget).Hitchance >= hitC)
             {
                 E.Cast(eTarget, packets());
                 if (menu.Item("EQ").GetValue<bool>() && Q.IsReady())
@@ -266,18 +373,26 @@ namespace AhriTheGumiho
                 return;
             }
 
-            if (eTarget != null && GetComboDamage(eTarget) > eTarget.Health && DFG.IsReady() && (eTarget.HasBuffOfType(BuffType.Charm) || !menu.Item("dfgCharm").GetValue<bool>()))
+            //Ignite
+            if (eTarget != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && !E.IsReady() &&
+                Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Source == "Combo")
             {
-                DFG.Cast(eTarget);
+                if (IgniteMode == 0 && GetComboDamage(eTarget) > eTarget.Health)
+                {
+                    Player.SummonerSpellbook.CastSpell(IgniteSlot, eTarget);
+                }
             }
 
-            if (useW && eTarget != null && W.IsReady() && Player.Distance(eTarget) <= W.Range && shouldW(eTarget, Source))
+            //W
+            if (useW && eTarget != null && W.IsReady() && Player.Distance(eTarget) <= W.Range &&
+                shouldW(eTarget, Source))
             {
                 W.Cast();
             }
             if (Source == "Harass" && menu.Item("longQ").GetValue<bool>())
             {
-                if (useQ && Q.IsReady() && Player.Distance(eTarget) <= Q.Range && eTarget != null && shouldQ(eTarget, Source) && Player.Distance(eTarget) > 600)
+                if (useQ && Q.IsReady() && Player.Distance(eTarget) <= Q.Range && eTarget != null &&
+                    shouldQ(eTarget, Source) && Player.Distance(eTarget) > 600)
                 {
                     if (Q.GetPrediction(eTarget).Hitchance >= hitC)
                     {
@@ -285,7 +400,9 @@ namespace AhriTheGumiho
                         return;
                     }
                 }
-            }else if (useQ && Q.IsReady() && Player.Distance(eTarget) <= Q.Range && eTarget != null && shouldQ(eTarget, Source))
+            }
+            else if (useQ && Q.IsReady() && Player.Distance(eTarget) <= Q.Range && eTarget != null &&
+                     shouldQ(eTarget, Source))
             {
                 if (Q.GetPrediction(eTarget).Hitchance >= hitC)
                 {
@@ -294,35 +411,33 @@ namespace AhriTheGumiho
                 }
             }
 
+            //R
             if (useR && eTarget != null && R.IsReady() && Player.Distance(eTarget) < R.Range)
             {
                 if (E.IsReady())
                 {
                     if (checkREQ(rETarget))
                         E.Cast(rETarget, packets());
-                    return;
                 }
-                else if (shouldR(eTarget) && R.IsReady())
+                if (shouldR(eTarget) && R.IsReady())
                 {
                     R.Cast(Game.CursorPos, packets());
                     rTimer = Environment.TickCount - 250;
-                    return;
                 }
-                else if (rTimeLeft > 9500 && rOn && R.IsReady())
+                if (rTimeLeft > 9500 && rOn && R.IsReady())
                 {
                     R.Cast(Game.CursorPos, packets());
                     rTimer = Environment.TickCount - 250;
-                    return;
                 }
             }
-
         }
 
         public static bool shouldQ(Obj_AI_Hero target, string Source)
         {
             if (Source == "Combo")
             {
-                if ((Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1)) > target.Health)
+                if ((Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1)) >
+                    target.Health)
                     return true;
 
                 if (rOn)
@@ -333,12 +448,12 @@ namespace AhriTheGumiho
 
                 if (target.HasBuffOfType(BuffType.Charm))
                     return true;
-
             }
 
             if (Source == "Harass")
             {
-                if ((Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1)) > target.Health)
+                if ((Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1)) >
+                    target.Health)
                     return true;
 
                 if (rOn)
@@ -369,7 +484,6 @@ namespace AhriTheGumiho
 
                 if (target.HasBuffOfType(BuffType.Charm))
                     return true;
-
             }
             if (Source == "Harass")
             {
@@ -394,11 +508,11 @@ namespace AhriTheGumiho
             if (!manaCheck())
                 return false;
 
-            var dashVector = Player.Position + Vector3.Normalize(Game.CursorPos - Player.Position) * 425;
+            Vector3 dashVector = Player.Position + Vector3.Normalize(Game.CursorPos - Player.Position)*425;
             if (Player.Distance(Game.CursorPos) < 75 && target.Distance(dashVector) > 525)
                 return false;
 
-            if (menu.Item("rSpeed").GetValue<bool>() && countEnemiesNearPosition(Game.CursorPos, 1500) < 2)
+            if (menu.Item("rSpeed").GetValue<bool>() && countEnemiesNearPosition(Game.CursorPos, 1500) < 2 && GetComboDamage(target) > target.Health - 100)
                 return true;
 
             if (GetComboDamage(target) > target.Health && !rOn)
@@ -413,7 +527,7 @@ namespace AhriTheGumiho
             if (countAlliesNearPosition(Game.CursorPos, 1000) > 2 && rTimeLeft > 3500)
                 return true;
 
-            if (Player.GetSpellDamage(target, SpellSlot.R) *2 > target.Health)
+            if (Player.GetSpellDamage(target, SpellSlot.R)*2 > target.Health)
                 return true;
 
             if (rOn && rTimeLeft > 9500)
@@ -424,7 +538,6 @@ namespace AhriTheGumiho
 
         public static bool checkREQ(Obj_AI_Hero target)
         {
-            
             if (Player.Distance(Game.CursorPos) < 75)
                 return false;
 
@@ -432,12 +545,12 @@ namespace AhriTheGumiho
             {
                 if (target.Distance(Game.CursorPos) <= E.Range && E.IsReady())
                 {
-                    var dashVector = Player.Position + Vector3.Normalize(Game.CursorPos - Player.Position) * 425;
-                    var addedDelay = Player.Distance(dashVector) / 2200;
+                    Vector3 dashVector = Player.Position + Vector3.Normalize(Game.CursorPos - Player.Position)*425;
+                    float addedDelay = Player.Distance(dashVector)/2200;
 
                     //Game.PrintChat("added delay: " + addedDelay);
 
-                    var pred = GetP(Game.CursorPos, E, target, addedDelay, false);
+                    PredictionOutput pred = GetP(Game.CursorPos, E, target, addedDelay, false);
                     if (pred.Hitchance >= HitChance.High && R.IsReady())
                     {
                         //Game.PrintChat("R-E Mode Intiate!");
@@ -467,18 +580,21 @@ namespace AhriTheGumiho
 
         public static void checkKS()
         {
-            foreach (var target in ObjectManager.Get<Obj_AI_Hero>())
+            foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < 1300 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
             {
-                if (target != null && !target.IsDead && target.IsEnemy && Player.Distance(target.ServerPosition) <= 1200)
+                if (target != null)
                 {
-                    if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health && Player.Distance(target.ServerPosition) <= 750)
+                    if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health &&
+                        Player.Distance(target.ServerPosition) <= 750)
                     {
                         DFG.Cast(target);
                         return;
                     }
 
                     if (DFG.IsReady() && Player.Distance(target.ServerPosition) <= 750 && Q.IsReady() &&
-                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) + (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1))*1.2) > target.Health)
+                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
+                         (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1))*
+                         1.2) > target.Health)
                     {
                         DFG.Cast(target);
                         Q.Cast(target, packets());
@@ -486,56 +602,76 @@ namespace AhriTheGumiho
                     }
 
                     if (DFG.IsReady() && Player.Distance(target.ServerPosition) <= 750 && W.IsReady() &&
-                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) + Player.GetSpellDamage(target, SpellSlot.W) * 1.2) > target.Health)
+                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
+                         Player.GetSpellDamage(target, SpellSlot.W)*1.2) > target.Health)
                     {
                         DFG.Cast(target);
                         W.Cast();
                         return;
                     }
 
-                    if (Player.Distance(target.ServerPosition) <= W.Range && 
-                        (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1) + Player.GetSpellDamage(target, SpellSlot.W)) > target.Health && Q.IsReady() && Q.IsReady())
+                    if (Player.Distance(target.ServerPosition) <= W.Range &&
+                        (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1) +
+                         Player.GetSpellDamage(target, SpellSlot.W)) > target.Health && Q.IsReady() && Q.IsReady())
                     {
                         Q.Cast(target, packets());
                         return;
                     }
 
-                    if (Player.Distance(target.ServerPosition) <= Q.Range && (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1)) > target.Health && Q.IsReady())
+                    if (Player.Distance(target.ServerPosition) <= Q.Range &&
+                        (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1)) >
+                        target.Health && Q.IsReady())
                     {
                         Q.Cast(target, packets());
                         return;
                     }
 
-                    if (Player.Distance(target.ServerPosition) <= E.Range && (Player.GetSpellDamage(target, SpellSlot.E)) > target.Health & E.IsReady())
+                    if (Player.Distance(target.ServerPosition) <= E.Range &&
+                        (Player.GetSpellDamage(target, SpellSlot.E)) > target.Health & E.IsReady())
                     {
                         E.Cast(target, packets());
                         return;
                     }
 
-                    if (Player.Distance(target.ServerPosition) <= W.Range && (Player.GetSpellDamage(target, SpellSlot.W)) > target.Health && W.IsReady())
+                    if (Player.Distance(target.ServerPosition) <= W.Range &&
+                        (Player.GetSpellDamage(target, SpellSlot.W)) > target.Health && W.IsReady())
                     {
                         W.Cast();
                         return;
                     }
 
-                    var dashVector = Player.Position + Vector3.Normalize(target.ServerPosition - Player.Position) * 425;
-                    if (Player.Distance(target.ServerPosition) <= R.Range && (Player.GetSpellDamage(target, SpellSlot.R)) > target.Health && R.IsReady() && rOn && target.Distance(dashVector) < 425 && R.IsReady())
+                    Vector3 dashVector = Player.Position +
+                                         Vector3.Normalize(target.ServerPosition - Player.Position)*425;
+                    if (Player.Distance(target.ServerPosition) <= R.Range &&
+                        (Player.GetSpellDamage(target, SpellSlot.R)) > target.Health && R.IsReady() && rOn &&
+                        target.Distance(dashVector) < 425 && R.IsReady())
                     {
                         R.Cast(dashVector, packets());
                     }
 
+                    //ignite
+                    if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
+                        Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
+                        Player.Distance(target.ServerPosition) <= 600)
+                    {
+                        int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
+                        if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)
+                        {
+                            Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                        }
+                    }
                 }
             }
         }
 
         public static bool manaCheck()
         {
-            var totalMana = qMana[Q.Level] + wMana[W.Level] + eMana[E.Level] + rMana[R.Level];
+            int totalMana = qMana[Q.Level] + wMana[W.Level] + eMana[E.Level] + rMana[R.Level];
             var checkMana = menu.Item("mana").GetValue<bool>();
 
             if (Player.Mana >= totalMana || checkMana)
                 return true;
-            
+
             return false;
         }
 
@@ -546,7 +682,6 @@ namespace AhriTheGumiho
 
         public static PredictionOutput GetP(Vector3 pos, Spell spell, Obj_AI_Base target, float delay, bool aoe)
         {
-
             return Prediction.GetPrediction(new PredictionInput
             {
                 Unit = target,
@@ -566,15 +701,17 @@ namespace AhriTheGumiho
         {
             if (!Orbwalking.CanMove(40)) return;
 
-            var allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly);
-            var allMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, W.Range, MinionTypes.All, MinionTeam.NotAlly);
+            List<Obj_AI_Base> allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range,
+                MinionTypes.All, MinionTeam.NotAlly);
+            List<Obj_AI_Base> allMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, W.Range,
+                MinionTypes.All, MinionTeam.NotAlly);
 
             var useQ = menu.Item("UseQFarm").GetValue<bool>();
             var useW = menu.Item("UseWFarm").GetValue<bool>();
 
             if (useQ && Q.IsReady())
             {
-                var qPos = Q.GetLineFarmLocation(allMinionsQ);
+                MinionManager.FarmLocation qPos = Q.GetLineFarmLocation(allMinionsQ);
                 if (qPos.MinionsHit >= 3)
                 {
                     Q.Cast(qPos.Position, packets());
@@ -590,11 +727,9 @@ namespace AhriTheGumiho
             //check if player is dead
             if (Player.IsDead) return;
 
-            Orbwalker.SetAttack(true);
-
             rOn = isRActive();
 
-            if(rOn)
+            if (rOn)
                 rTimeLeft = Environment.TickCount - rTimer;
 
             //ks check
@@ -625,7 +760,7 @@ namespace AhriTheGumiho
 
         private static void Drawing_OnDraw(EventArgs args)
         {
-            foreach (var spell in SpellList)
+            foreach (Spell spell in SpellList)
             {
                 var menuItem = menu.Item(spell.Slot + "Range").GetValue<Circle>();
                 if (menuItem.Active)
@@ -653,10 +788,24 @@ namespace AhriTheGumiho
                 if (E.GetPrediction(unit).Hitchance >= HitChance.High && E.IsReady())
                     E.Cast(unit, packets());
             }
-
-
         }
 
+        private static void Game_OnGameSendPacket(GamePacketEventArgs args)
+        {
+            //ty trees
+            if (args.PacketData[0] != Packet.C2S.SetTarget.Header)
+            {
+                return;
+            }
 
+            var decoded = Packet.C2S.SetTarget.Decoded(args.PacketData);
+
+            if (decoded.NetworkId != 0 && decoded.Unit.IsValid && !decoded.Unit.IsMe)
+            {
+                SelectedTarget = (Obj_AI_Hero)decoded.Unit;
+                if (menu.Item("printTar").GetValue<bool>())
+                    Game.PrintChat("Selected Target: " + decoded.Unit.BaseSkinName);
+            }
+        }
     }
 }
