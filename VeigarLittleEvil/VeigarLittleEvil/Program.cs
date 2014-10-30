@@ -250,7 +250,8 @@ namespace VeigarLittleEvil
                 int mana = menu.Item("mana").GetValue<Slider>().Value;
                 float manaPercent = Player.Mana/Player.MaxMana*100;
 
-                if (manaPercent < mana) ;
+                if (manaPercent < mana)
+                    return;
             }
 
             if (useE && target != null && E.IsReady() && Player.Distance(target) < E.Range)
@@ -266,7 +267,7 @@ namespace VeigarLittleEvil
                     if (W.GetPrediction(target).Hitchance == HitChance.Immobile && W.IsReady())
                         W.Cast(target, Packets());
                 }
-                else
+                else if(W.IsReady())
                 {
                     PredictionOutput pred = Prediction.GetPrediction(target, 1.25f);
                     if (pred.Hitchance >= HitChance.High && W.IsReady())
