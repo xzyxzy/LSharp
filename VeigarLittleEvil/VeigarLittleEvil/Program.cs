@@ -264,8 +264,9 @@ namespace VeigarLittleEvil
             {
                 if (menu.Item("wPoke").GetValue<KeyBind>().Active)
                 {
-                    if (W.GetPrediction(target).Hitchance == HitChance.Immobile && W.IsReady())
-                        W.Cast(target, Packets());
+                    var pred = W.GetPrediction(target);
+                    if (pred.Hitchance == HitChance.Immobile && W.IsReady())
+                        W.Cast(pred.CastPosition, Packets());
                 }
                 else if(W.IsReady())
                 {
