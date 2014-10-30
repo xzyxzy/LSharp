@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using LeagueSharp;
 using LeagueSharp.Common;
+using LX_Orbwalker;
 using SharpDX;
 using Color = System.Drawing.Color;
 
 namespace AniviaReborn
 {
-    class Program
+    internal class Program
     {
         public const string ChampionName = "Anivia";
 
@@ -26,7 +24,15 @@ namespace AniviaReborn
         public static Spell E;
         public static Spell R;
 
-        public static float[] wWidth = { 400f, 500f, 600f, 700f, 800f };
+        public static float[] wWidth = {400f, 500f, 600f, 700f, 800f};
+
+        public static SpellSlot IgniteSlot;
+
+        //mana manager
+        public static int[] qMana = {80, 80, 90, 100, 110, 120};
+        public static int[] wMana = {70, 70, 70, 70, 70, 70};
+        public static int[] eMana = {80, 50, 60, 70, 80, 90};
+        public static int[] rMana = {75, 75, 75, 75, 75};
 
         //Spell Obj
         //Q
@@ -45,7 +51,9 @@ namespace AniviaReborn
         //Menu
         public static Menu menu;
 
+        public static Obj_AI_Hero SelectedTarget = null;
         private static Obj_AI_Hero Player;
+
         private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -73,35 +81,62 @@ namespace AniviaReborn
             SpellList.Add(E);
             SpellList.Add(R);
 
+            IgniteSlot = Player.GetSpellSlot("SummonerDot");
+
             //Create the menu
             menu = new Menu(ChampionName, ChampionName, true);
 
             //Orbwalker submenu
-            menu.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
+            var orbwalkerMenu = new Menu("My Orbwalker", "my_Orbwalker");
+            LXOrbwalker.AddToMenu(orbwalkerMenu);
+            menu.AddSubMenu(orbwalkerMenu);
 
             //Target selector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
             SimpleTs.AddToMenu(targetSelectorMenu);
             menu.AddSubMenu(targetSelectorMenu);
 
-            //Orbwalk
-            Orbwalker = new Orbwalking.Orbwalker(menu.SubMenu("Orbwalking"));
 
             //key menu
             menu.AddSubMenu(new Menu("Key", "Key"));
-            menu.SubMenu("Key").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Orbwalk").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            menu.SubMenu("Key").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Farm").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            menu.SubMenu("Key").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
-            menu.SubMenu("Key").AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind(menu.Item("LaneClear").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            menu.SubMenu("Key").AddItem(new MenuItem("snipe", "W/Q Snipe").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
-            menu.SubMenu("Key").AddItem(new MenuItem("escape", "RUN FOR YOUR LIFE!").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("ComboActive", "Combo!").SetValue(
+                        new KeyBind(menu.Item("Combo_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("HarassActive", "Harass!").SetValue(
+                        new KeyBind(menu.Item("Harass_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0],
+                        KeyBindType.Toggle)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("LaneClearActive", "Farm!").SetValue(
+                        new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("snipe", "W/Q Snipe").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+            menu.SubMenu("Key")
+                .AddItem(
+                    new MenuItem("escape", "RUN FOR YOUR LIFE!").SetValue(new KeyBind("Z".ToCharArray()[0],
+                        KeyBindType.Press)));
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
+            menu.SubMenu("Combo")
+                .AddItem(
+                    new MenuItem("tsModes", "TS Modes").SetValue(
+                        new StringList(new[] {"Orbwalker/LessCast", "Low HP%", "NearMouse", "CurrentHP"}, 0)));
+            menu.SubMenu("Combo").AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
+            menu.SubMenu("Combo")
+                .AddItem(new MenuItem("igniteMode", "Mode").SetValue(new StringList(new[] {"Combo", "KS"}, 0)));
 
             //Harass menu:
             menu.AddSubMenu(new Menu("Harass", "Harass"));
@@ -115,7 +150,7 @@ namespace AniviaReborn
             menu.SubMenu("Farm").AddItem(new MenuItem("UseQFarm", "Use Q").SetValue(false));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseEFarm", "Use E").SetValue(false));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseRFarm", "Use R").SetValue(false));
-            
+
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use Spells to Interrupt").SetValue(true));
@@ -125,15 +160,18 @@ namespace AniviaReborn
             menu.SubMenu("Misc").AddItem(new MenuItem("detonateQ", "Auto Detonate Q").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("detonateQ2", "Pop Q Behind Enemy").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("wallKill", "Wall Enemy on killable").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("smartKS", "Use Smart KS System").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("printTar", "Print Selected Target").SetValue(true));
 
             //Damage after combo:
-            var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
+            MenuItem dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
             Utility.HpBarDamageIndicator.DamageToUnit = GetComboDamage;
             Utility.HpBarDamageIndicator.Enabled = dmgAfterComboItem.GetValue<bool>();
-            dmgAfterComboItem.ValueChanged += delegate(object sender, OnValueChangeEventArgs eventArgs)
-            {
-                Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
-            };
+            dmgAfterComboItem.ValueChanged +=
+                delegate(object sender, OnValueChangeEventArgs eventArgs)
+                {
+                    Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
+                };
 
             //Drawings menu:
             menu.AddSubMenu(new Menu("Drawings", "Drawings"));
@@ -157,30 +195,33 @@ namespace AniviaReborn
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             GameObject.OnCreate += OnCreate;
             GameObject.OnDelete += OnDelete;
+            Game.OnGameSendPacket += Game_OnGameSendPacket;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
         private static float GetComboDamage(Obj_AI_Base enemy)
         {
-            var damage = 0d;
+            double damage = 0d;
 
             if (Q.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.Q);
 
             if (E.IsReady() & (Q.IsReady() || R.IsReady()))
-                damage += Player.GetSpellDamage(enemy, SpellSlot.E) * 2;
-            else if(E.IsReady())
+                damage += Player.GetSpellDamage(enemy, SpellSlot.E)*2;
+            else if (E.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
-            if (R.IsReady())
-                damage += Player.GetSpellDamage(enemy, SpellSlot.R) * 3;
+            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+                damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
 
-            return (float)damage;
+            if (R.IsReady())
+                damage += Player.GetSpellDamage(enemy, SpellSlot.R)*3;
+
+            return (float) damage;
         }
 
         private static void Combo()
         {
-            Orbwalker.SetAttack(!(Q.IsReady()));
             UseSpells(menu.Item("UseQCombo").GetValue<bool>(), menu.Item("UseWCombo").GetValue<bool>(),
                 menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>(), "Combo");
         }
@@ -193,37 +234,195 @@ namespace AniviaReborn
 
         private static void UseSpells(bool useQ, bool useW, bool useE, bool useR, string Source)
         {
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
-            var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
-            var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero target = getTarget();
 
-            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range && shouldE(eTarget, Source))
+            int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
+            float dmg = GetComboDamage(target);
+            bool hasMana = manaCheck();
+
+            if (useE && target != null && E.IsReady() && Player.Distance(target) < E.Range && shouldE(target, Source))
             {
-                E.CastOnUnit(eTarget, packets());
+                E.CastOnUnit(target, packets());
             }
 
-            if (useQ && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && qTarget != null && Q.GetPrediction(qTarget).Hitchance >= HitChance.High && shouldQ(qTarget))
+            if (useQ && Q.IsReady() && Player.Distance(target) <= Q.Range && target != null &&
+                Q.GetPrediction(target).Hitchance >= HitChance.High && shouldQ(target))
             {
-                var qPos2 = Q.GetPrediction(qTarget).CastPosition;
+                Vector3 qPos2 = Q.GetPrediction(target).CastPosition;
                 var vec = new Vector3(qPos2.X - Player.ServerPosition.X, 0, qPos2.Z - Player.ServerPosition.Z);
-                var CastBehind = qPos2 + Vector3.Normalize(vec) * 100;
+                Vector3 CastBehind = qPos2 + Vector3.Normalize(vec)*100;
 
                 qPos = CastBehind;
-                Q.Cast(qTarget, packets());
+                Q.Cast(target, packets());
             }
 
-            if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range && shouldUseW(qTarget))
+            //Ignite
+            if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
+                Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Source == "Combo" && hasMana)
             {
-                castW(wTarget);
+                if (IgniteMode == 0 && dmg > target.Health)
+                {
+                    Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                }
             }
 
-            if (useR && rTarget != null && R.IsReady() && Player.Distance(rTarget) < R.Range && R.GetPrediction(rTarget).Hitchance >= HitChance.High)
+            if (useW && target != null && W.IsReady() && Player.Distance(target) <= W.Range && shouldUseW(target))
             {
-                if(shouldR(rTarget, Source))
-                    R.Cast(rTarget);
+                castW(target);
             }
 
+            if (useR && target != null && R.IsReady() && Player.Distance(target) < R.Range &&
+                R.GetPrediction(target).Hitchance >= HitChance.High)
+            {
+                if (shouldR(target, Source))
+                    R.Cast(target);
+            }
+        }
+
+        public static bool manaCheck()
+        {
+            int totalMana = qMana[Q.Level] + wMana[W.Level] + eMana[E.Level] + rMana[R.Level];
+
+            if (Player.Mana >= totalMana)
+                return true;
+
+            return false;
+        }
+
+        public static Obj_AI_Hero getTarget()
+        {
+            int tsMode = menu.Item("tsModes").GetValue<StringList>().SelectedIndex;
+            var focusSelected = menu.Item("selected").GetValue<bool>();
+
+            if (focusSelected && SelectedTarget != null)
+            {
+                if (Player.Distance(SelectedTarget) < 1300 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
+                    SelectedTarget.IsEnemy)
+                {
+                    //Game.PrintChat("focusing selected target");
+                    LXOrbwalker.ForcedTarget = SelectedTarget;
+                    return SelectedTarget;
+                }
+                SelectedTarget = null;
+            }
+
+
+            Obj_AI_Hero getTar = SimpleTs.GetTarget(1200, SimpleTs.DamageType.Magical);
+
+            if (tsMode == 0)
+                return getTar;
+
+            foreach (
+                Obj_AI_Hero target in
+                    ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(
+                            x =>
+                                Player.Distance(x) < E.Range && x.IsValidTarget(E.Range) && !x.IsDead && x.IsEnemy &&
+                                x.IsVisible))
+            {
+                if (tsMode == 1)
+                {
+                    float tar1hp = target.Health/target.MaxHealth*100;
+                    float tar2hp = getTar.Health/getTar.MaxHealth*100;
+                    if (tar1hp < tar2hp)
+                        getTar = target;
+                }
+
+                if (tsMode == 2)
+                {
+                    if (target.Distance(Game.CursorPos) < getTar.Distance(Game.CursorPos))
+                        getTar = target;
+                }
+
+                if (tsMode == 3)
+                {
+                    if (target.Health < getTar.Health)
+                        getTar = target;
+                }
+            }
+
+            if (getTar != null)
+            {
+                LXOrbwalker.ForcedTarget = getTar;
+                //Game.PrintChat("Focus Mode on: " + getTar.BaseSkinName);
+                return getTar;
+            }
+
+            return null;
+        }
+
+        public static void smartKS()
+        {
+            if (!menu.Item("smartKS").GetValue<bool>())
+                return;
+
+            foreach (
+                Obj_AI_Hero target in
+                    ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(x => Player.Distance(x) < 1300 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
+            {
+                if (target != null)
+                {
+                    //ER
+                    if (Player.Distance(target.ServerPosition) <= R.Range && !rFirstCreated && 
+                        (Player.GetSpellDamage(target, SpellSlot.R) + Player.GetSpellDamage(target, SpellSlot.E)*2) >
+                        target.Health + 50)
+                    {
+                        if (R.IsReady() && E.IsReady())
+                        {
+                            E.CastOnUnit(target, packets());
+                            R.CastOnUnit(target, packets());
+                            return;
+                        }
+                    }
+
+                    //QR
+                    if (Player.Distance(target.ServerPosition) <= R.Range && !qFirstCreated &&
+                        (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.R)) >
+                        target.Health + 30)
+                    {
+                        if (W.IsReady() && R.IsReady())
+                        {
+                            W.Cast(target, packets());
+                            return;
+                        }
+                    }
+
+                    //Q
+                    if (Player.Distance(target.ServerPosition) <= Q.Range && !qFirstCreated &&
+                        (Player.GetSpellDamage(target, SpellSlot.Q)) > target.Health + 30)
+                    {
+                        if (Q.IsReady())
+                        {
+                            Q.Cast(target, packets());
+                            return;
+                        }
+                    }
+
+                    //E
+                    if (Player.Distance(target.ServerPosition) <= E.Range &&
+                        (Player.GetSpellDamage(target, SpellSlot.E)) > target.Health + 30)
+                    {
+                        if (E.IsReady())
+                        {
+                            E.CastOnUnit(target, packets());
+                            return;
+                        }
+                    }
+
+                    //ignite
+                    if (menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
+                        Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
+                        Player.Distance(target.ServerPosition) <= 600)
+                    {
+                        int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
+                        if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)
+                        {
+                            Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                        }
+                    }
+                }
+            }
         }
 
         public static bool shouldQ(Obj_AI_Hero target)
@@ -266,15 +465,16 @@ namespace AniviaReborn
 
             if (R.IsReady() && Player.Distance(target) <= R.Range - 25 && Player.Distance(target.ServerPosition) > 250)
                 return true;
-                
+
             return false;
         }
+
         public static bool shouldUseW(Obj_AI_Hero target)
         {
             if (GetComboDamage(target) >= target.Health - 20 && menu.Item("wallKill").GetValue<bool>())
                 return true;
 
-            if(rFirstCreated && rObj != null)
+            if (rFirstCreated && rObj != null)
             {
                 if (rObj.Position.Distance(target.ServerPosition) > 300)
                 {
@@ -287,11 +487,12 @@ namespace AniviaReborn
 
         public static void castW(Obj_AI_Hero target)
         {
-            var pred = W.GetPrediction(target);
-            var vec = new Vector3(pred.CastPosition.X - Player.ServerPosition.X, 0, pred.CastPosition.Z - Player.ServerPosition.Z);
-            var CastBehind = pred.CastPosition + Vector3.Normalize(vec) * 125;
+            PredictionOutput pred = W.GetPrediction(target);
+            var vec = new Vector3(pred.CastPosition.X - Player.ServerPosition.X, 0,
+                pred.CastPosition.Z - Player.ServerPosition.Z);
+            Vector3 CastBehind = pred.CastPosition + Vector3.Normalize(vec)*125;
 
-            if(W.IsReady())
+            if (W.IsReady())
                 W.Cast(CastBehind, packets());
         }
 
@@ -305,11 +506,12 @@ namespace AniviaReborn
 
         public static void castWEscape(Obj_AI_Hero target)
         {
-            var pred = W.GetPrediction(target);
-            var vec = new Vector3(pred.CastPosition.X - Player.ServerPosition.X, 0, pred.CastPosition.Z - Player.ServerPosition.Z);
-            var CastBehind = pred.CastPosition - Vector3.Normalize(vec) * 125;
+            PredictionOutput pred = W.GetPrediction(target);
+            var vec = new Vector3(pred.CastPosition.X - Player.ServerPosition.X, 0,
+                pred.CastPosition.Z - Player.ServerPosition.Z);
+            Vector3 CastBehind = pred.CastPosition - Vector3.Normalize(vec)*125;
 
-            if(W.IsReady())
+            if (W.IsReady())
                 W.Cast(CastBehind, packets());
         }
 
@@ -322,7 +524,10 @@ namespace AniviaReborn
         {
             var Q2 = menu.Item("detonateQ2").GetValue<bool>();
 
-            foreach (Obj_AI_Hero enemy in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < 1300 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
+            foreach (
+                Obj_AI_Hero enemy in
+                    ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(x => Player.Distance(x) < 1300 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
             {
                 if (enemy != null)
                 {
@@ -337,9 +542,10 @@ namespace AniviaReborn
                                 return;
                         }
                         else
+                        {
                             Q.Cast();
-
-                        return;
+                            return;
+                        }
                     }
                 }
             }
@@ -355,35 +561,45 @@ namespace AniviaReborn
 
             return false;
         }
+
         public static void snipe()
         {
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero qTarget = getTarget();
 
             Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
 
-            if(W.IsReady() && Q.IsReady() && Player.Distance(qTarget.ServerPosition) < W.Range)
+            if (W.IsReady() && Q.IsReady() && Player.Distance(qTarget.ServerPosition) < W.Range)
                 castW(qTarget);
 
-            if (!W.IsReady() && Q.IsReady() && Player.Distance(qTarget.ServerPosition) < Q.Range && Q.GetPrediction(qTarget).Hitchance >= HitChance.High && !qFirstCreated)
+            if (!W.IsReady() && Q.IsReady() && Player.Distance(qTarget.ServerPosition) < Q.Range &&
+                Q.GetPrediction(qTarget).Hitchance >= HitChance.High && !qFirstCreated)
             {
                 Q.Cast(Q.GetPrediction(qTarget).CastPosition, packets());
                 qFirstCreated = true;
-                return;
             }
         }
 
         public static void checkR()
         {
             int hit = 0;
-            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsValidTarget()))
+            foreach (
+                Obj_AI_Hero enemy in
+                    ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(
+                            x =>
+                                rObj.Position.Distance(x.ServerPosition) < 500 && x.IsValidTarget() && x.IsEnemy &&
+                                !x.IsDead))
             {
-                if (rObj != null && enemy != null && R.IsReady() && rObj.Position.Distance(enemy.ServerPosition) < 450 + 50)
+                if (enemy != null)
                 {
-                    hit++;
+                    if (rObj != null && R.IsReady() && rObj.Position.Distance(enemy.ServerPosition) < 475)
+                    {
+                        hit++;
+                    }
                 }
             }
 
-            if (hit < 1 && R.IsReady() && rObj != null && rFirstCreated  && R.IsReady())
+            if (hit < 1 && R.IsReady() && rObj != null && rFirstCreated && R.IsReady())
             {
                 R.Cast();
             }
@@ -391,12 +607,16 @@ namespace AniviaReborn
 
         public static void escape()
         {
-            //Orbwalker.SetOrbwalkingPoint(Game.CursorPos);
+            if (LXOrbwalker.CanMove())
+                LXOrbwalker.Orbwalk(Game.CursorPos, null);
 
-            var enemy = (from champ in ObjectManager.Get<Obj_AI_Hero>() where Player.Distance(champ.ServerPosition) < 2500 && champ.IsEnemy && champ.IsValid select champ).ToList();
+            List<Obj_AI_Hero> enemy = (from champ in ObjectManager.Get<Obj_AI_Hero>()
+                where Player.Distance(champ.ServerPosition) < 2500 && champ.IsEnemy && champ.IsValid
+                select champ).ToList();
             enemy.OrderBy(x => rObj.Position.Distance(x.ServerPosition));
 
-            if (Q.IsReady() && Player.Distance(enemy.FirstOrDefault()) <= Q.Range && enemy != null && Q.GetPrediction(enemy.FirstOrDefault()).Hitchance >= HitChance.High && !qFirstCreated)
+            if (Q.IsReady() && Player.Distance(enemy.FirstOrDefault()) <= Q.Range && enemy != null &&
+                Q.GetPrediction(enemy.FirstOrDefault()).Hitchance >= HitChance.High && !qFirstCreated)
             {
                 Q.Cast(enemy.FirstOrDefault(), packets());
                 qFirstCreated = true;
@@ -405,18 +625,19 @@ namespace AniviaReborn
             if (enemy != null && W.IsReady() && Player.Distance(enemy.FirstOrDefault()) <= W.Range)
             {
                 castWEscape(enemy.FirstOrDefault());
-                return;
             }
-
         }
 
         private static void Farm()
         {
             if (!Orbwalking.CanMove(40)) return;
 
-            var allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly);
-            var allMinionsR = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, R.Range, MinionTypes.All, MinionTeam.NotAlly);
-            var allMinionsE = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
+            List<Obj_AI_Base> allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range,
+                MinionTypes.All, MinionTeam.NotAlly);
+            List<Obj_AI_Base> allMinionsR = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, R.Range,
+                MinionTypes.All, MinionTeam.NotAlly);
+            List<Obj_AI_Base> allMinionsE = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range,
+                MinionTypes.All, MinionTeam.NotAlly);
 
             var useQ = menu.Item("UseQFarm").GetValue<bool>();
             var useE = menu.Item("UseEFarm").GetValue<bool>();
@@ -426,7 +647,7 @@ namespace AniviaReborn
 
             if (useQ && Q.IsReady() && !qFirstCreated)
             {
-                var qPos = Q.GetLineFarmLocation(allMinionsQ);
+                MinionManager.FarmLocation qPos = Q.GetLineFarmLocation(allMinionsQ);
                 if (qPos.MinionsHit >= 3)
                 {
                     Q.Cast(qPos.Position, packets());
@@ -435,7 +656,7 @@ namespace AniviaReborn
 
             if (useR & R.IsReady() && !rFirstCreated)
             {
-                var rPos = R.GetCircularFarmLocation(allMinionsR);
+                MinionManager.FarmLocation rPos = R.GetCircularFarmLocation(allMinionsR);
                 if (Player.Distance(rPos.Position) < R.Range)
                     R.Cast(rPos.Position);
             }
@@ -444,7 +665,7 @@ namespace AniviaReborn
             {
                 if (useQ && Q.IsReady())
                 {
-                    foreach (var enemy in allMinionsQ)
+                    foreach (Obj_AI_Base enemy in allMinionsQ)
                     {
                         if (enemy.Distance(qMissle.Position) < 75)
                             hit++;
@@ -457,7 +678,7 @@ namespace AniviaReborn
 
             if (rFirstCreated)
             {
-                foreach (var enemy in allMinionsR)
+                foreach (Obj_AI_Base enemy in allMinionsR)
                 {
                     if (enemy.Distance(rObj.Position) < 400)
                         hit++;
@@ -485,8 +706,6 @@ namespace AniviaReborn
                 return;
             }
 
-            Orbwalker.SetAttack(true);
-
             //detonate Q check
             var detQ = menu.Item("detonateQ").GetValue<bool>();
             if (detQ && qFirstCreated)
@@ -496,6 +715,10 @@ namespace AniviaReborn
             var rCheck = menu.Item("checkR").GetValue<bool>();
             if (rCheck && rFirstCreated && !menu.Item("LaneClearActive").GetValue<KeyBind>().Active && rByMe)
                 checkR();
+
+
+            //check ks
+            smartKS();
 
             if (menu.Item("escape").GetValue<KeyBind>().Active)
             {
@@ -507,7 +730,6 @@ namespace AniviaReborn
             }
             else
             {
-
                 if (menu.Item("snipe").GetValue<KeyBind>().Active)
                     snipe();
 
@@ -529,7 +751,7 @@ namespace AniviaReborn
 
         private static void Drawing_OnDraw(EventArgs args)
         {
-            foreach (var spell in SpellList)
+            foreach (Spell spell in SpellList)
             {
                 var menuItem = menu.Item(spell.Slot + "Range").GetValue<Circle>();
                 if (menuItem.Active)
@@ -560,7 +782,8 @@ namespace AniviaReborn
 
             if (W.IsReady() && gapcloser.Sender.IsValidTarget(W.Range))
             {
-                var vec = Player.ServerPosition - Vector3.Normalize(Player.ServerPosition - gapcloser.Sender.ServerPosition) * 1;
+                Vector3 vec = Player.ServerPosition -
+                              Vector3.Normalize(Player.ServerPosition - gapcloser.Sender.ServerPosition)*1;
                 W.Cast(vec, packets());
             }
         }
@@ -584,7 +807,7 @@ namespace AniviaReborn
         private static void OnCreate(GameObject obj, EventArgs args)
         {
             //if(Player.Distance(obj.Position) < 300)
-                //Game.PrintChat("OBJ: " + obj.Name);
+            //Game.PrintChat("OBJ: " + obj.Name);
 
             if (Player.Distance(obj.Position) < 1500)
             {
@@ -598,12 +821,13 @@ namespace AniviaReborn
                 //R
                 if (obj != null && obj.IsValid && obj.Name.Contains("cryo_storm"))
                 {
-                    if (menu.Item("ComboActive").GetValue<KeyBind>().Active || menu.Item("LaneClearActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
+                    if (menu.Item("ComboActive").GetValue<KeyBind>().Active ||
+                        menu.Item("LaneClearActive").GetValue<KeyBind>().Active ||
+                        menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
                         rByMe = true;
 
                     rObj = obj;
                     rFirstCreated = true;
-                    return;
                 }
             }
         }
@@ -611,7 +835,7 @@ namespace AniviaReborn
         private static void OnDelete(GameObject obj, EventArgs args)
         {
             //if (Player.Distance(obj.Position) < 300)
-                //Game.PrintChat("OBJ2: " + obj.Name);
+            //Game.PrintChat("OBJ2: " + obj.Name);
 
             if (Player.Distance(obj.Position) < 1500)
             {
@@ -641,6 +865,21 @@ namespace AniviaReborn
             }
         }
 
+        private static void Game_OnGameSendPacket(GamePacketEventArgs args)
+        {
+            if (args.PacketData[0] != Packet.C2S.SetTarget.Header)
+            {
+                return;
+            }
 
+            Packet.C2S.SetTarget.Struct decoded = Packet.C2S.SetTarget.Decoded(args.PacketData);
+
+            if (decoded.NetworkId != 0 && decoded.Unit.IsValid && !decoded.Unit.IsMe)
+            {
+                SelectedTarget = (Obj_AI_Hero) decoded.Unit;
+                if (menu.Item("printTar").GetValue<bool>())
+                    Game.PrintChat("Selected Target: " + decoded.Unit.BaseSkinName);
+            }
+        }
     }
 }
