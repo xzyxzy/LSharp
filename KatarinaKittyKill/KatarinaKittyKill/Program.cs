@@ -432,14 +432,10 @@ namespace KatarinaKittyKill
             if (menu.Item("rCancel").GetValue<bool>() && countEnemiesNearPosition(Player.ServerPosition, 570) > 1)
                 return;
 
-            List<Obj_AI_Hero> nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>()
-                where Player.Distance(champ.ServerPosition) <= 1375 && champ.IsEnemy
-                select champ).ToList();
-            nearChamps.OrderBy(x => x.Health);
-
-            foreach (Obj_AI_Hero target in nearChamps)
+            foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < 1375 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
             {
-                if (target != null && !target.IsDead && !target.HasBuffOfType(BuffType.Invulnerability) &&
+               
+                if (target != null && !target.HasBuffOfType(BuffType.Invulnerability) &&
                     target.IsValidTarget(1375))
                 {
                     //QEW
