@@ -322,32 +322,35 @@ namespace AniviaReborn
         {
             var Q2 = menu.Item("detonateQ2").GetValue<bool>();
 
-            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsValidTarget()))
+            foreach (Obj_AI_Hero enemy in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < 1300 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
             {
-                if (qMissle != null && shouldDetonate(enemy) && enemy != null && Q.IsReady())
+                if (enemy != null)
                 {
-                    //check if user wnat chill to behind target
-                    if (Q2)
+                    if (qMissle != null && shouldDetonate(enemy) && Q.IsReady())
                     {
-                        if (checkChilled(enemy))
-                            Q.Cast();
+                        //check if user wnat chill to behind target
+                        if (Q2)
+                        {
+                            if (checkChilled(enemy))
+                                Q.Cast();
+                            else
+                                return;
+                        }
                         else
-                            return;
-                    }
-                    else
-                        Q.Cast();
+                            Q.Cast();
 
-                    return;
+                        return;
+                    }
                 }
             }
         }
 
         public static bool shouldDetonate(Obj_AI_Hero target)
         {
-            if (target.ServerPosition.Distance(qMissle.Position) < 110)
+            if (target.ServerPosition.To2D().Distance(qPos.To2D()) < 110)
                 return true;
 
-            if (qMissle.Position.Distance(qPos) < 50)
+            if (target.ServerPosition.To2D().Distance(qPos.To2D()) < 50)
                 return true;
 
             return false;
