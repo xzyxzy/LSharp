@@ -459,16 +459,17 @@ namespace VeigarLittleEvil
                         return;
                     }
 
-                    //ignite
-                    if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                        Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
-                        Player.Distance(target.ServerPosition) <= 600)
+                }
+
+                //ignite
+                if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
+                    Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
+                    Player.Distance(target.ServerPosition) <= 600)
+                {
+                    int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
+                    if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)
                     {
-                        int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
-                        if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)
-                        {
-                            Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
-                        }
+                        Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
                     }
                 }
             }
