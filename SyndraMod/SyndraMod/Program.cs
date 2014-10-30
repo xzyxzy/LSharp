@@ -365,8 +365,8 @@ namespace Syndra
                     if (OrbManager.WObject(false) != null && W.IsReady())
                     {
                         W.From = OrbManager.WObject(false).ServerPosition;
-                        //if (W.GetPrediction(wTarget).Hitchance >= HitChance.High)
-                        W.Cast(wTarget, false, true);
+                        if (W.GetPrediction(wTarget).Hitchance >= HitChance.High)
+                            W.Cast(wTarget, false, true);
                     }
                 }
 
