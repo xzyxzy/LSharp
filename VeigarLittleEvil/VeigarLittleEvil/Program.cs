@@ -380,98 +380,97 @@ namespace VeigarLittleEvil
             if (!menu.Item("smartKS").GetValue<bool>())
                 return;
 
-            List<Obj_AI_Hero> nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>()
-                where Player.Distance(champ.ServerPosition) <= 900 && champ.IsEnemy
-                select champ).ToList();
-            nearChamps.OrderBy(x => x.Health);
-
-            foreach (Obj_AI_Hero target in nearChamps)
+            foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < 900 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
             {
-                //Q
-                if (Player.Distance(target.ServerPosition) <= Q.Range &&
-                    (Player.GetSpellDamage(target, SpellSlot.Q)) > target.Health + 30)
+                if (target != null)
                 {
-                    if (Q.IsReady())
+                    //Q
+                    if (Player.Distance(target.ServerPosition) <= Q.Range &&
+                        (Player.GetSpellDamage(target, SpellSlot.Q)) > target.Health + 30)
                     {
-                        Q.CastOnUnit(target, Packets());
-                        return;
+                        if (Q.IsReady())
+                        {
+                            Q.CastOnUnit(target, Packets());
+                            return;
+                        }
                     }
-                }
 
-                //R
-                if (Player.Distance(target.ServerPosition) <= R.Range &&
-                    (Player.GetSpellDamage(target, SpellSlot.R)) > target.Health + 50)
-                {
-                    if (R.IsReady() && rTarget(target))
+                    //R
+                    if (Player.Distance(target.ServerPosition) <= R.Range &&
+                        (Player.GetSpellDamage(target, SpellSlot.R)) > target.Health + 50)
                     {
-                        R.CastOnUnit(target, Packets());
-                        return;
+                        if (R.IsReady() && rTarget(target))
+                        {
+                            R.CastOnUnit(target, Packets());
+                            return;
+                        }
                     }
-                }
 
-                if ((menu.Item("DontDFG" + target.BaseSkinName) != null &&
-                     menu.Item("DontDFG" + target.BaseSkinName).GetValue<bool>() == false))
-                {
-                    //dfg + Q + R
-                    if (Dfg.IsReady() && Q.IsReady() && R.IsReady() && Player.Distance(target.ServerPosition) <= 750 &&
-                        Player.Distance(target.ServerPosition) < Q.Range &&
-                        Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
-                        ((Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.R))*1.2) >
-                        target.Health + 60)
+                    if ((menu.Item("DontDFG" + target.BaseSkinName) != null &&
+                         menu.Item("DontDFG" + target.BaseSkinName).GetValue<bool>() == false))
                     {
-                        if (rTarget(target))
+                        //dfg + Q + R
+                        if (Dfg.IsReady() && Q.IsReady() && R.IsReady() && Player.Distance(target.ServerPosition) <= 750 &&
+                            Player.Distance(target.ServerPosition) < Q.Range &&
+                            Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
+                            ((Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.R))*
+                             1.2) >
+                            target.Health + 60)
+                        {
+                            if (rTarget(target))
+                            {
+                                Dfg.Cast(target);
+                                Q.CastOnUnit(target, Packets());
+                                R.CastOnUnit(target, Packets());
+                                return;
+                            }
+                        }
+
+                        //dfg + Q
+                        if (Dfg.IsReady() && Q.IsReady() && Player.Distance(target.ServerPosition) <= 750 &&
+                            Player.Distance(target.ServerPosition) < Q.Range &&
+                            Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
+                            (Player.GetSpellDamage(target, SpellSlot.Q)*1.2) > target.Health + 30)
                         {
                             Dfg.Cast(target);
                             Q.CastOnUnit(target, Packets());
-                            R.CastOnUnit(target, Packets());
                             return;
                         }
-                    }
 
-                    //dfg + Q
-                    if (Dfg.IsReady() && Q.IsReady() && Player.Distance(target.ServerPosition) <= 750 &&
-                        Player.Distance(target.ServerPosition) < Q.Range &&
-                        Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
-                        (Player.GetSpellDamage(target, SpellSlot.Q)*1.2) > target.Health + 30)
-                    {
-                        Dfg.Cast(target);
-                        Q.CastOnUnit(target, Packets());
-                        return;
-                    }
+                        //dfg + R
+                        if (Dfg.IsReady() && R.IsReady() && Player.Distance(target.ServerPosition) <= 750 &&
+                            Player.Distance(target.ServerPosition) < R.Range &&
+                            Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
+                            (Player.GetSpellDamage(target, SpellSlot.R)*1.2) > target.Health + 50)
+                        {
+                            if (rTarget(target))
+                            {
+                                Dfg.Cast(target);
+                                R.CastOnUnit(target, Packets());
+                                return;
+                            }
+                        }
 
-                    //dfg + R
-                    if (Dfg.IsReady() && R.IsReady() && Player.Distance(target.ServerPosition) <= 750 &&
-                        Player.Distance(target.ServerPosition) < R.Range &&
-                        Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
-                        (Player.GetSpellDamage(target, SpellSlot.R)*1.2) > target.Health + 50)
-                    {
-                        if (rTarget(target))
+                        //dfg
+                        if (Dfg.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health + 30 &&
+                            Player.Distance(target.ServerPosition) <= 750)
                         {
                             Dfg.Cast(target);
-                            R.CastOnUnit(target, Packets());
                             return;
                         }
+
                     }
 
-                    //dfg
-                    if (Dfg.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health + 30 &&
-                        Player.Distance(target.ServerPosition) <= 750)
+                    //ignite
+                    if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
+                        Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
+                        Player.Distance(target.ServerPosition) <= 600)
                     {
-                        Dfg.Cast(target);
-                        return;
-                    }
-
-                }
-
-                //ignite
-                if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                    Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
-                    Player.Distance(target.ServerPosition) <= 600)
-                {
-                    int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
-                    if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)
-                    {
-                        Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                        int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
+                        if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)
+                        {
+                            Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                        }
                     }
                 }
             }
