@@ -71,7 +71,6 @@ namespace VeigarLittleEvil
                 ? new Items.Item(3188, 750)
                 : new Items.Item(3128, 750);
 
-
             //Create the menu
             menu = new Menu(ChampionName, ChampionName, true);
 
@@ -220,6 +219,15 @@ namespace VeigarLittleEvil
             if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
 
+            if (Items.HasItem(3155, (Obj_AI_Hero)enemy))
+            {
+                damage = damage - 250;
+            }
+
+            if (Items.HasItem(3156, (Obj_AI_Hero)enemy))
+            {
+                damage = damage - 400;
+            }
             return (float) damage;
         }
 
