@@ -322,7 +322,7 @@ namespace KatarinaKittyKill
 
             if (focusSelected && selectedTarget != null)
             {
-                if (Player.Distance(selectedTarget) < 1600 && !selectedTarget.IsDead && selectedTarget.IsVisible &&
+                if (Player.Distance(selectedTarget) < 1200 && !selectedTarget.IsDead && selectedTarget.IsVisible &&
                     selectedTarget.IsEnemy)
                 {
                     //Game.PrintChat("focusing selected target");
