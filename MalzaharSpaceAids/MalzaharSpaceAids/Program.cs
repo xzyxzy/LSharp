@@ -104,7 +104,6 @@ namespace MalzaharSpaceAids
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
-            menu.AddSubMenu(new Menu("Combo", "Combo"));
             menu.SubMenu("Combo")
                 .AddItem(
                     new MenuItem("tsModes", "TS Modes").SetValue(
