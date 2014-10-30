@@ -344,7 +344,7 @@ namespace MalzaharSpaceAids
                     }
 
                     //WR
-                    if (Player.Distance(target.ServerPosition) <= W.Range &&
+                    if (Player.Distance(target.ServerPosition) <= R.Range &&
                         (Player.GetSpellDamage(target, SpellSlot.W) * 3 + Player.GetSpellDamage(target, SpellSlot.R)) > target.Health + 30)
                     {
                         if (W.IsReady() && R.IsReady())
