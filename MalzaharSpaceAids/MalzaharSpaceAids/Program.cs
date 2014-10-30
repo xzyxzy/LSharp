@@ -343,6 +343,28 @@ namespace MalzaharSpaceAids
                         }
                     }
 
+                    //WR
+                    if (Player.Distance(target.ServerPosition) <= W.Range &&
+                        (Player.GetSpellDamage(target, SpellSlot.W) * 3 + Player.GetSpellDamage(target, SpellSlot.R)) > target.Health + 30)
+                    {
+                        if (W.IsReady() && R.IsReady())
+                        {
+                            W.Cast(target, packets());
+                            return;
+                        }
+                    }
+
+                    //W
+                    if (Player.Distance(target.ServerPosition) <= W.Range &&
+                        (Player.GetSpellDamage(target, SpellSlot.W)) > target.Health + 30)
+                    {
+                        if (W.IsReady())
+                        {
+                            W.Cast(target, packets());
+                            return;
+                        }
+                    }
+
                     //Q
                     if (Player.Distance(target.ServerPosition) <= Q.Range &&
                         (Player.GetSpellDamage(target, SpellSlot.Q)) > target.Health + 30)
