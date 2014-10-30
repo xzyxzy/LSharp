@@ -208,17 +208,14 @@ namespace VeigarLittleEvil
             if (Q.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.Q);
 
-            if (W.IsReady())
-                damage += Player.GetSpellDamage(enemy, SpellSlot.W);
-
-            if (E.IsReady())
-                damage += Player.GetSpellDamage(enemy, SpellSlot.E);
-
             if (R.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.R);
 
             if (Dfg.IsReady())
                 damage = damage*1.2;
+
+            if (W.IsReady())
+                damage += Player.GetSpellDamage(enemy, SpellSlot.W);
 
             if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
