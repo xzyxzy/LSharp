@@ -111,7 +111,21 @@ namespace OriannaWreckingBalls
             menu.SubMenu("Farm").AddItem(new MenuItem("UseQFarm", "Use Q").SetValue(false));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseWFarm", "Use W").SetValue(false));
             menu.SubMenu("Farm").AddItem(new MenuItem("qFarm", "Only Q/W if > minion").SetValue(new Slider(3, 0, 5)));
-            
+
+            //intiator list:
+            menu.AddSubMenu((new Menu("Initiator", "Initiator")));
+
+            foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly))
+            {
+                foreach (var intiator in Initiator.InitatorList)
+                {
+                    if (intiator.HeroName == hero.BaseSkinName)
+                    {
+                        menu.SubMenu("Initiator").AddItem(new MenuItem(intiator.spellName, intiator.spellName)).SetValue(false);
+                    }
+                }
+            }
+
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
@@ -900,6 +914,23 @@ namespace OriannaWreckingBalls
 
         public static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
+            //intiator
+            var allies = ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly && !hero.IsDead && hero.Distance(Player) < 1600).OrderBy(h => h.Distance(args.End));
+            foreach (var a in allies)
+            {
+                foreach (var spell in Initiator.InitatorList)
+                {
+                    if (args.SData.Name == spell.SDataName)
+                    {
+                        if (menu.Item(spell.spellName).GetValue<bool>())
+                        {
+                            if(E.IsReady() && Player.Distance(unit) < E.Range)
+                                E.CastOnUnit(unit, packets());
+                        }
+                    }
+                }
+            }
+
             SpellSlot castedSlot = ObjectManager.Player.GetSpellSlot(args.SData.Name, false);
 
             if (!unit.IsMe) return;
