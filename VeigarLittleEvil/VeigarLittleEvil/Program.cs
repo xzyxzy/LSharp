@@ -290,17 +290,19 @@ namespace VeigarLittleEvil
             if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
                 Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Source == "Combo" && hasMana)
             {
-                if (IgniteMode == 0 && GetComboDamage(target) > target.Health)
+                if (IgniteMode == 0 && dmg > target.Health)
                 {
                     Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
                 }
             }
 
+            //Q
             if (useQ && Q.IsReady() && Player.Distance(target) <= Q.Range && target != null)
             {
                 Q.CastOnUnit(target, Packets());
             }
 
+            //R
             if (target != null && R.IsReady())
             {
                 useR = rTarget(target) && useR;
