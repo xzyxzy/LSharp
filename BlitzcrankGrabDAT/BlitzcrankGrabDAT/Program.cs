@@ -16,7 +16,8 @@ namespace BlitzcrankGrabDAT
     {
         public const string ChampionName = "Blitzcrank";
 
-        
+        public static Obj_AI_Hero SelectedTarget = null;
+
         //Spells
         public static List<Spell> SpellList = new List<Spell>();
 
@@ -76,6 +77,11 @@ namespace BlitzcrankGrabDAT
             menu.SubMenu("Keys").AddItem(new MenuItem("panic", "Panic Key(no spell)").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
+            menu.SubMenu("Combo")
+             .AddItem(
+                 new MenuItem("tsModes", "TS Modes").SetValue(
+                     new StringList(new[] { "Orbwalker/LessCast", "Low HP%", "NearMouse", "CurrentHP" }, 0)));
+            menu.SubMenu("Combo").AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("qHit", "Q HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
@@ -105,7 +111,7 @@ namespace BlitzcrankGrabDAT
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("resetE", "Use E AA reset Only").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoR", "Use R if hit").SetValue(new Slider(3, 0, 5)));
-            
+            menu.SubMenu("Misc").AddItem(new MenuItem("printTar", "Print Selected Target").SetValue(true));
 
             menu.SubMenu("Misc").AddSubMenu(new Menu("Don't use Q on", "intR"));
 
@@ -142,6 +148,7 @@ namespace BlitzcrankGrabDAT
             Drawing.OnDraw += Drawing_OnDraw;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             LXOrbwalker.AfterAttack += Orbwalking_AfterAttack;
+            Game.OnGameSendPacket += Game_OnGameSendPacket;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
@@ -173,12 +180,71 @@ namespace BlitzcrankGrabDAT
                 menu.Item("UseEHarass").GetValue<bool>(), false, "Harass");
         }
 
+        public static Obj_AI_Hero getTarget()
+        {
+            int tsMode = menu.Item("tsModes").GetValue<StringList>().SelectedIndex;
+            var focusSelected = menu.Item("selected").GetValue<bool>();
+
+            if (focusSelected && SelectedTarget != null)
+            {
+                if (Player.Distance(SelectedTarget) < 1200 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
+                    SelectedTarget.IsEnemy)
+                {
+                    //Game.PrintChat("focusing selected target");
+                    LXOrbwalker.ForcedTarget = SelectedTarget;
+                    return SelectedTarget;
+                }
+                SelectedTarget = null;
+            }
+
+
+            Obj_AI_Hero getTar = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+
+            if (tsMode == 0)
+                return getTar;
+
+            foreach (
+                Obj_AI_Hero target in
+                    ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(
+                            x =>
+                                Player.Distance(x) < E.Range && x.IsValidTarget(E.Range) && !x.IsDead && x.IsEnemy &&
+                                x.IsVisible))
+            {
+                if (tsMode == 1)
+                {
+                    float tar1hp = target.Health / target.MaxHealth * 100;
+                    float tar2hp = getTar.Health / getTar.MaxHealth * 100;
+                    if (tar1hp < tar2hp)
+                        getTar = target;
+                }
+
+                if (tsMode == 2)
+                {
+                    if (target.Distance(Game.CursorPos) < getTar.Distance(Game.CursorPos))
+                        getTar = target;
+                }
+
+                if (tsMode == 3)
+                {
+                    if (target.Health < getTar.Health)
+                        getTar = target;
+                }
+            }
+
+            if (getTar != null)
+            {
+                LXOrbwalker.ForcedTarget = getTar;
+                //Game.PrintChat("Focus Mode on: " + getTar.BaseSkinName);
+                return getTar;
+            }
+
+            return null;
+        }
+
         private static void UseSpells(bool useQ, bool useW, bool useE, bool useR, string Source)
         {
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
-            var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
-            var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
+            var target = getTarget();
 
             var hitC = HitChance.High;
             var qHit = menu.Item("qHit").GetValue<Slider>().Value;
@@ -228,26 +294,26 @@ namespace BlitzcrankGrabDAT
                 }
             }
 
-            if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= 1200)
+            if (useW && target != null && W.IsReady() && Player.Distance(target) <= 500)
             {
                 W.Cast();
             }
 
-            if (useQ && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && qTarget != null && (Q.GetPrediction(qTarget).Hitchance >= hitC || shouldUseQ(qTarget)) && useQonEnemy(qTarget))
+            if (useQ && Q.IsReady() && Player.Distance(target) <= Q.Range && target != null && (Q.GetPrediction(target).Hitchance >= hitC || shouldUseQ(target)) && useQonEnemy(target))
             {
                 if (QE && useE && E.IsReady())
                     E.Cast();
 
-                Q.Cast(qTarget, packets());
+                Q.Cast(target, packets());
                 return;
             }
 
-            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < 300 && !menu.Item("resetE").GetValue<bool>())
+            if (useE && target != null && E.IsReady() && Player.Distance(target) < 300 && !menu.Item("resetE").GetValue<bool>())
             {
                 E.Cast();
             }
 
-            if (useR && rTarget != null && R.IsReady() && Player.Distance(rTarget) < R.Range)
+            if (useR && target != null && R.IsReady() && Player.Distance(target) < R.Range)
             {
                 if (RQ && Q.IsReady())
                     return;
@@ -440,6 +506,24 @@ namespace BlitzcrankGrabDAT
             if (Player.Distance(unit) < R.Range && unit != null & R.IsReady())
             {
                 R.Cast();
+            }
+        }
+
+        private static void Game_OnGameSendPacket(GamePacketEventArgs args)
+        {
+            //ty trees
+            if (args.PacketData[0] != Packet.C2S.SetTarget.Header)
+            {
+                return;
+            }
+
+            var decoded = Packet.C2S.SetTarget.Decoded(args.PacketData);
+
+            if (decoded.NetworkId != 0 && decoded.Unit.IsValid && !decoded.Unit.IsMe && decoded.Unit.IsEnemy)
+            {
+                SelectedTarget = (Obj_AI_Hero)decoded.Unit;
+                if (menu.Item("printTar").GetValue<bool>())
+                    Game.PrintChat("Selected Target: " + decoded.Unit.BaseSkinName);
             }
         }
     }
