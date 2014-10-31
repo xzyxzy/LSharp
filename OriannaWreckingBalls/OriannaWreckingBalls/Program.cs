@@ -56,7 +56,7 @@ namespace OriannaWreckingBalls
             E = new Spell(SpellSlot.E, 1095);
             R = new Spell(SpellSlot.R, 370);
 
-            Q.SetSkillshot(0f, 90, 1250, false, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0.5f, 80, 1200, false, SkillshotType.SkillshotLine);
             W.SetSkillshot(0f, 250, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.25f, 145, 1700, false, SkillshotType.SkillshotLine);
             R.SetSkillshot(0.60f, 370, float.MaxValue, false, SkillshotType.SkillshotCircle);
