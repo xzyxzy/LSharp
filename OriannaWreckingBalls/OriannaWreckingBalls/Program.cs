@@ -26,6 +26,7 @@ namespace OriannaWreckingBalls
 
         public static SpellSlot IgniteSlot;
 
+        public static Obj_AI_Hero SelectedTarget = null;
         //ball manager
         public static GameObject qpos;
         public static bool IsBallMoving = false;
@@ -90,6 +91,11 @@ namespace OriannaWreckingBalls
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
+            menu.SubMenu("Combo")
+                .AddItem(
+                    new MenuItem("tsModes", "TS Modes").SetValue(
+                        new StringList(new[] { "Orbwalker/LessCast", "Low HP%", "NearMouse", "CurrentHP" }, 0)));
+            menu.SubMenu("Combo").AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("qHit", "Q HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
@@ -135,6 +141,7 @@ namespace OriannaWreckingBalls
             menu.SubMenu("Misc").AddItem(new MenuItem("blockR", "Block R if no enemy").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("overK", "OverKill Check").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("printTar", "Print Selected Target").SetValue(true));
 
             menu.SubMenu("Misc").AddSubMenu(new Menu("Auto use R on", "intR"));
 
@@ -215,6 +222,68 @@ namespace OriannaWreckingBalls
             });
         }
 
+        public static Obj_AI_Hero getTarget()
+        {
+            int tsMode = menu.Item("tsModes").GetValue<StringList>().SelectedIndex;
+            var focusSelected = menu.Item("selected").GetValue<bool>();
+
+            if (focusSelected && SelectedTarget != null)
+            {
+                if (Player.Distance(SelectedTarget) < 1600 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
+                    SelectedTarget.IsEnemy)
+                {
+                    //Game.PrintChat("focusing selected target");
+                    LXOrbwalker.ForcedTarget = SelectedTarget;
+                    return SelectedTarget;
+                }
+                SelectedTarget = null;
+            }
+
+
+            Obj_AI_Hero getTar = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+
+            if (tsMode == 0)
+                return getTar;
+
+            foreach (
+                Obj_AI_Hero target in
+                    ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(
+                            x =>
+                                Player.Distance(x) < 1000 && x.IsValidTarget(E.Range) && !x.IsDead && x.IsEnemy &&
+                                x.IsVisible))
+            {
+                if (tsMode == 1)
+                {
+                    float tar1hp = target.Health / target.MaxHealth * 100;
+                    float tar2hp = getTar.Health / getTar.MaxHealth * 100;
+                    if (tar1hp < tar2hp)
+                        getTar = target;
+                }
+
+                if (tsMode == 2)
+                {
+                    if (target.Distance(Game.CursorPos) < getTar.Distance(Game.CursorPos))
+                        getTar = target;
+                }
+
+                if (tsMode == 3)
+                {
+                    if (target.Health < getTar.Health)
+                        getTar = target;
+                }
+            }
+
+            if (getTar != null)
+            {
+                LXOrbwalker.ForcedTarget = getTar;
+                //Game.PrintChat("Focus Mode on: " + getTar.BaseSkinName);
+                return getTar;
+            }
+
+            return null;
+        }
+
         private static float GetComboDamage(Obj_AI_Base enemy)
         {
             var damage = 0d;
@@ -243,41 +312,38 @@ namespace OriannaWreckingBalls
 
         private static void UseSpells(bool useQ, bool useW, bool useE, bool useR, String source)
         {
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            var wTarget = SimpleTs.GetTarget(2000, SimpleTs.DamageType.Magical);
-            var eTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
-            var rTarget = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
+            var target = getTarget();
 
             if (useQ && Q.IsReady())
             {
-                castQ(qTarget, source);
+                castQ(target, source);
             }
 
             if (IsBallMoving)
                 return;
 
-            if (useW && wTarget != null && W.IsReady())
+            if (useW && target != null && W.IsReady())
             {
-                castW(wTarget);
+                castW(target);
             }
 
             //Ignite
-            if (qTarget != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && source == "Combo")
+            if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && source == "Combo")
             {
-                if (GetComboDamage(qTarget) > qTarget.Health)
+                if (GetComboDamage(target) > target.Health)
                 {
-                    Player.SummonerSpellbook.CastSpell(IgniteSlot, qTarget);
+                    Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
                 }
             }
 
-            if (useE && eTarget != null && E.IsReady())
+            if (useE && target != null && E.IsReady())
             {
-                castE(eTarget);
+                castE(target);
             }
 
-            if (useR && rTarget != null && R.IsReady())
+            if (useR && target != null && R.IsReady())
             {
-                if (menu.Item("intR" + rTarget.BaseSkinName) != null )
+                if (menu.Item("intR" + target.BaseSkinName) != null )
                 {
                     foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy))
                     {
@@ -291,14 +357,14 @@ namespace OriannaWreckingBalls
 
                 if (!(menu.Item("killR").GetValue<KeyBind>().Active))//check if multi
                 {
-                    if (menu.Item("overK").GetValue<bool>() && (Player.GetSpellDamage(rTarget, SpellSlot.Q) *2) >= rTarget.Health)
+                    if (menu.Item("overK").GetValue<bool>() && (Player.GetSpellDamage(target, SpellSlot.Q) *2) >= target.Health)
                     {
                         return;
                     }
                     else
                     {
-                        if (GetComboDamage(rTarget) >= rTarget.Health - 100)
-                            castR(rTarget);
+                        if (GetComboDamage(target) >= target.Health - 100)
+                            castR(target);
                     }
                 }
             }
@@ -1053,6 +1119,19 @@ namespace OriannaWreckingBalls
 
         private static void Game_OnSendPacket(GamePacketEventArgs args)
         {
+            if (args.PacketData[0] != Packet.C2S.SetTarget.Header)
+            {
+                return;
+            }
+
+            var decoded = Packet.C2S.SetTarget.Decoded(args.PacketData);
+
+            if (decoded.NetworkId != 0 && decoded.Unit.IsValid && !decoded.Unit.IsMe)
+            {
+                SelectedTarget = (Obj_AI_Hero)decoded.Unit;
+                if (menu.Item("printTar").GetValue<bool>())
+                    Game.PrintChat("Selected Target: " + decoded.Unit.BaseSkinName);
+            }
 
             if (args.PacketData[0] == Packet.C2S.Cast.Header)
             {
