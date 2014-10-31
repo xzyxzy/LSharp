@@ -800,7 +800,7 @@ namespace AhriTheGumiho
 
             var decoded = Packet.C2S.SetTarget.Decoded(args.PacketData);
 
-            if (decoded.NetworkId != 0 && decoded.Unit.IsValid && !decoded.Unit.IsMe)
+            if (decoded.NetworkId != 0 && decoded.Unit.IsValid && !decoded.Unit.IsMe && decoded.Unit.IsEnemy)
             {
                 SelectedTarget = (Obj_AI_Hero)decoded.Unit;
                 if (menu.Item("printTar").GetValue<bool>())
