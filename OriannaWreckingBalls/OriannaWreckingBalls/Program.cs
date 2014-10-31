@@ -229,7 +229,7 @@ namespace OriannaWreckingBalls
 
             if (focusSelected && SelectedTarget != null)
             {
-                if (Player.Distance(SelectedTarget) < 1600 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
+                if (Player.Distance(SelectedTarget) < 1200 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
                     SelectedTarget.IsEnemy)
                 {
                     //Game.PrintChat("focusing selected target");
