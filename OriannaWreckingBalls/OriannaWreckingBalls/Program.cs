@@ -885,7 +885,7 @@ namespace OriannaWreckingBalls
             foreach (var spell in SpellList)
             {
                 var menuItem = menu.Item(spell.Slot + "Range").GetValue<Circle>();
-                if (spell.Slot == SpellSlot.R || spell.Slot == SpellSlot.W)
+                if ((spell.Slot == SpellSlot.R && menuItem.Active) || (spell.Slot == SpellSlot.W && menuItem.Active))
                 {
                     if(ballStatus == 0)
                         Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
