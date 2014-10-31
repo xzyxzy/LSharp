@@ -67,12 +67,12 @@ namespace AniviaReborn
             if (Player.BaseSkinName != ChampionName) return;
 
             //intalize spell
-            Q = new Spell(SpellSlot.Q, 1100);
+            Q = new Spell(SpellSlot.Q, 1000);
             W = new Spell(SpellSlot.W, 950);
             E = new Spell(SpellSlot.E, 650);
             R = new Spell(SpellSlot.R, 625);
 
-            Q.SetSkillshot(.25f, 75f, 650f, false, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(.5f, 110f, 750f, false, SkillshotType.SkillshotLine);
             W.SetSkillshot(.25f, 1f, float.MaxValue, false, SkillshotType.SkillshotLine);
             R.SetSkillshot(.25f, 200f, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
@@ -522,29 +522,18 @@ namespace AniviaReborn
 
         public static void detonateQ()
         {
-            var Q2 = menu.Item("detonateQ2").GetValue<bool>();
-
             foreach (
                 Obj_AI_Hero enemy in
                     ObjectManager.Get<Obj_AI_Hero>()
-                        .Where(x => Player.Distance(x) < 1300 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
+                        .Where(x => Player.Distance(x) < 1200 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
             {
                 if (enemy != null)
                 {
-                    if (qMissle != null && shouldDetonate(enemy) && Q.IsReady())
+                    if (qMissle != null && Q.IsReady())
                     {
-                        //check if user wnat chill to behind target
-                        if (Q2)
-                        {
-                            if (checkChilled(enemy))
-                                Q.Cast();
-                            else
-                                return;
-                        }
-                        else
+                        if (shouldDetonate(enemy))
                         {
                             Q.Cast();
-                            return;
                         }
                     }
                 }
@@ -553,10 +542,12 @@ namespace AniviaReborn
 
         public static bool shouldDetonate(Obj_AI_Hero target)
         {
-            if (target.ServerPosition.To2D().Distance(qPos.To2D()) < 110)
+            var Q2 = menu.Item("detonateQ2").GetValue<bool>();
+            if(Q2)
+            if (target.ServerPosition.To2D().Distance(qPos.To2D()) < 50 || checkChilled(target))
                 return true;
 
-            if (target.ServerPosition.To2D().Distance(qPos.To2D()) < 50)
+            if (target.ServerPosition.To2D().Distance(qMissle.Position.To2D()) < 110)
                 return true;
 
             return false;
@@ -667,7 +658,7 @@ namespace AniviaReborn
                 {
                     foreach (Obj_AI_Base enemy in allMinionsQ)
                     {
-                        if (enemy.Distance(qMissle.Position) < 75)
+                        if (enemy.Distance(qMissle.Position) < 110)
                             hit++;
                     }
                 }
