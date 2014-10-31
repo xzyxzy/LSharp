@@ -348,7 +348,7 @@ namespace OriannaWreckingBalls
             {
                 if (menu.Item("intR" + target.BaseSkinName) != null )
                 {
-                    foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy))
+                    foreach (Obj_AI_Hero enemy in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < 1500 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
                     {
                         if (enemy != null && !enemy.IsDead && menu.Item("intR" + enemy.BaseSkinName).GetValue<bool>() == true)
                         {
@@ -480,9 +480,9 @@ namespace OriannaWreckingBalls
                         var TravelTime = target.Distance(Player.ServerPosition) / Q.Speed;
                         var MinTravelTime = 10000f;
 
-                        foreach (var ally in ObjectManager.Get<Obj_AI_Hero>())
+                        foreach (var ally in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly && Player.Distance(x.ServerPosition) <= E.Range && !x.IsMe))
                         {
-                            if (!ally.IsMe && ally.IsAlly && Player.Distance(ally.ServerPosition) <= E.Range && ally != null)
+                            if (ally != null)
                             {
                                 //dmg enemy with E
                                 if (menu.Item("UseEDmg").GetValue<bool>())
@@ -550,10 +550,9 @@ namespace OriannaWreckingBalls
                         var TravelTime3 = target.Distance(qpos.Position) / Q.Speed;
                         var MinTravelTime3 = 10000f;
 
-                        foreach (var ally in ObjectManager.Get<Obj_AI_Hero>())
+                        foreach (var ally in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsAlly && Player.Distance(x.ServerPosition) <= E.Range && !x.IsMe))
                         {
-
-                            if (!ally.IsMe && ally.IsAlly && Player.Distance(ally.ServerPosition) <= E.Range && ally != null)
+                            if (ally != null)
                             {
                                 //dmg enemy with E
                                 if (menu.Item("UseEDmg").GetValue<bool>())
@@ -695,9 +694,9 @@ namespace OriannaWreckingBalls
             int hit = 0;
             var minHit = menu.Item("autoW").GetValue<Slider>().Value;
 
-            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy && enemy.IsValidTarget()))
+            foreach (Obj_AI_Hero enemy in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < 1500 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
             {
-                if (enemy != null && !enemy.IsDead)
+                if (enemy != null)
                 {
                     if (ballStatus == 0)
                     {
@@ -723,8 +722,6 @@ namespace OriannaWreckingBalls
                 }
             }
 
-                    
-                    
             if (hit >= minHit && W.IsReady())
                 W.Cast();
         }
@@ -737,9 +734,9 @@ namespace OriannaWreckingBalls
             int hit = 0;
             var minHit = menu.Item("autoR").GetValue<Slider>().Value;
 
-            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy && enemy.IsValidTarget()))
+            foreach (Obj_AI_Hero enemy in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < 1500 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
             {
-                if (enemy != null && !enemy.IsDead)
+                if (enemy != null )
                 {
                     if (ballStatus == 0)
                     {
@@ -821,9 +818,9 @@ namespace OriannaWreckingBalls
                 return 0;
 
             int hit = 0;
-            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy && enemy.IsValidTarget()))
+            foreach (Obj_AI_Hero enemy in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < 1500 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
             {
-                if (enemy != null && !enemy.IsDead)
+                if (enemy != null )
                 {
                     if (ballStatus == 0)
                     {
@@ -990,6 +987,8 @@ namespace OriannaWreckingBalls
 
         public static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
+            if (!unit.IsMe || !unit.IsAlly) return;
+
             //intiator
             var allies = ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly && !hero.IsDead && hero.Distance(Player) < 1600).OrderBy(h => h.Distance(args.End));
             foreach (var a in allies)
@@ -1008,8 +1007,6 @@ namespace OriannaWreckingBalls
             }
 
             SpellSlot castedSlot = ObjectManager.Player.GetSpellSlot(args.SData.Name, false);
-
-            if (!unit.IsMe) return;
 
             if (castedSlot == SpellSlot.Q)
             {
