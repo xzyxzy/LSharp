@@ -698,7 +698,7 @@ namespace KatarinaKittyKill
             }
 
             foreach (
-                Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.Distance(Game.CursorPos) < 250))
+                Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.Distance(Game.CursorPos) < 250 && !hero.IsDead && hero.IsValidTarget()))
             {
                 if (E.IsReady())
                 {
@@ -708,7 +708,7 @@ namespace KatarinaKittyKill
             }
 
             foreach (Obj_AI_Minion minion in ObjectManager.Get<Obj_AI_Minion>().Where(minion =>
-                minion.Distance(Game.CursorPos) < 250))
+                minion.Distance(Game.CursorPos) < 250 && minion.IsValidTarget()))
             {
                 if (E.IsReady())
                 {
@@ -844,7 +844,7 @@ namespace KatarinaKittyKill
             if (useW && W.IsReady())
             {
                 MinionManager.FarmLocation wPos = E.GetCircularFarmLocation(allMinionsW);
-                if (wPos.MinionsHit >= 3)
+                if (wPos.MinionsHit >= 2)
                     W.Cast();
             }
         }
