@@ -765,7 +765,7 @@ namespace OriannaWreckingBalls
                 {
                     PredictionOutput prediction = GetPCircle(CurrentBallPosition, R, enemy, true);
 
-                    if (R.IsReady() && prediction.UnitPosition.Distance(Player.ServerPosition) <= R.Width)
+                    if (R.IsReady() && prediction.UnitPosition.Distance(CurrentBallPosition) <= R.Width)
                     {
                         hit++;
                     }
