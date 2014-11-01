@@ -126,8 +126,11 @@ namespace VeigarLittleEvil
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("waitW", "Wait For W to E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("dfg", "Use DFG").SetValue(true));
+            menu.SubMenu("Combo")
+                .AddItem(new MenuItem("dfgMode", "Mode").SetValue(new StringList(new[] { "Combo", "DFG-R" }, 0)));
             menu.SubMenu("Combo").AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
             menu.SubMenu("Combo")
                 .AddItem(new MenuItem("igniteMode", "Mode").SetValue(new StringList(new[] {"Combo", "KS"}, 0)));
@@ -248,10 +251,12 @@ namespace VeigarLittleEvil
             Obj_AI_Hero target = getTarget();
 
             int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
+            int dfgMode = menu.Item("dfgMode").GetValue<StringList>().SelectedIndex;
 
             bool hasMana = manaCheck();
 
             float dmg = GetComboDamage(target);
+            bool waitW = menu.Item("waitW").GetValue<bool>();
 
             if (Source == "Harass")
             {
@@ -264,8 +269,11 @@ namespace VeigarLittleEvil
 
             if (useE && target != null && E.IsReady() && Player.Distance(target) < E.Range)
             {
-                castE(target);
-                return;
+                if (!waitW || W.IsReady())
+                {
+                    castE(target);
+                    return;
+                }
             }
 
             if (useW && target != null && Player.Distance(target) <= W.Range)
@@ -274,7 +282,7 @@ namespace VeigarLittleEvil
                 {
                     var pred = W.GetPrediction(target);
                     if (pred.Hitchance == HitChance.Immobile && W.IsReady())
-                        W.Cast(pred.CastPosition, Packets());
+                        W.Cast(target.ServerPosition, Packets());
                 }
                 else if(W.IsReady())
                 {
@@ -285,7 +293,7 @@ namespace VeigarLittleEvil
             }
 
             //dfg
-            if (target != null && Dfg.IsReady() && menu.Item("dfg").GetValue<bool>() &&
+            if (target != null && Dfg.IsReady() && menu.Item("dfg").GetValue<bool>() && dfgMode == 0 && 
                 GetComboDamage(target) > target.Health + 30 && Source == "Combo" && hasMana)
             {
                 if ((menu.Item("DontDFG" + target.BaseSkinName) != null &&
@@ -521,8 +529,21 @@ namespace VeigarLittleEvil
             if (Player.Distance(target) > R.Range)
                 return;
 
-            if (dmg > target.Health + 20 && R.IsReady())
+            //dfg + R
+            if (Dfg.IsReady() && R.IsReady() && Player.Distance(target.ServerPosition) < R.Range &&
+                Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
+                (Player.GetSpellDamage(target, SpellSlot.R) * 1.2) > target.Health + 50)
+            {
+                Dfg.Cast(target);
                 R.CastOnUnit(target, Packets());
+                return;
+            }
+
+            if (dmg > target.Health + 20 && R.IsReady())
+            {
+                R.CastOnUnit(target, Packets());
+                return;
+            }
         }
 
         public static void lastHit()
