@@ -155,7 +155,7 @@ namespace YorickMILFDigger
                 {
                     HeroName = "Ezreal",
                     SpellName = "EzrealMysticShot",
-                    SDataName = "EzrealMysticShotMissile"
+                    SDataName = "EzrealMysticShot"
                 });
 
             #endregion Ezreal

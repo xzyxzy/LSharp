@@ -218,31 +218,20 @@ namespace YorickMILFDigger
 
         public static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
-            if (!unit.IsEnemy) return;
+            if (!unit.IsEnemy || Player.Distance(unit.ServerPosition) > 1300) return;
 
-            //intiator
-            var enemy =
-                ObjectManager.Get<Obj_AI_Hero>()
-                    .Where(hero => hero.IsEnemy && !hero.IsDead && hero.Distance(Player) < 1600)
-                    .OrderBy(h => h.Distance(args.End));
-            foreach (var a in enemy)
+            foreach (var spell in SpellCollision.Spells)
             {
-                foreach (var spell in SpellCollision.Spells)
+                if (args.SData.Name == spell.SDataName)
                 {
-                    if (args.SData.Name == spell.SDataName)
+                    if (menu.Item(spell.SpellName).GetValue<bool>())
                     {
-                        if (menu.Item(spell.SpellName).GetValue<bool>())
+                        if (W.IsReady() && Player.Distance(args.End) < 300)
                         {
-                            //Game.PrintChat("rawr");
-                            if (W.IsReady())
-                            {
-                                var vec = Player.ServerPosition +
-                                          Vector3.Normalize(args.Start - Player.ServerPosition)*200;
+                            var vec = Player.ServerPosition + Vector3.Normalize(args.Start - Player.ServerPosition)*200;
+                            Game.PrintChat("blocking");
+                            W.Cast(vec);
 
-                                Game.PrintChat("blocking");
-                                W.Cast(vec);
-
-                            }
                         }
                     }
                 }
