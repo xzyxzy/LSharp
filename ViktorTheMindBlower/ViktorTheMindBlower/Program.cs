@@ -396,6 +396,7 @@ namespace ViktorTheMindBlower
         }
         private static void Combo()
         {
+            LXOrbwalker.SetAttack(!(Q.IsReady()));
             UseSpells(menu.Item("UseQCombo").GetValue<bool>(), menu.Item("UseWCombo").GetValue<bool>(),
                 menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>(), "Combo");
         }
@@ -418,6 +419,8 @@ namespace ViktorTheMindBlower
                 lastR = Environment.TickCount - 250;
             }
             
+            LXOrbwalker.SetAttack(true);
+
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 mecR();
