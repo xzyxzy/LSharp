@@ -689,7 +689,7 @@ namespace OriannaWreckingBalls
 
         public static void checkWMec()
         {
-            if (!W.IsReady())
+            if (!W.IsReady() || IsBallMoving)
                 return;
 
             int hit = 0;
@@ -729,7 +729,7 @@ namespace OriannaWreckingBalls
 
         public static void checkRMec()
         {
-            if (!R.IsReady())
+            if (!R.IsReady() || IsBallMoving)
                 return;
 
             int hit = 0;
@@ -769,7 +769,7 @@ namespace OriannaWreckingBalls
 
         public static void checkRMecGlobal()
         {
-            if (!R.IsReady())
+            if (!R.IsReady() || IsBallMoving)
                 return;
 
             int hit = 0;
