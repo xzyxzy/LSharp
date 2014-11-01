@@ -8,6 +8,7 @@ using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
 using Color = System.Drawing.Color;
+using LX_Orbwalker;
 
 namespace ViktorTheMindBlower
 {
@@ -15,8 +16,6 @@ namespace ViktorTheMindBlower
     {
         public const string ChampionName = "Viktor";
 
-        //Orbwalker instance
-        public static Orbwalkerz.Orbwalker Orbwalker;
 
         //Spells
         public static List<Spell> SpellList = new List<Spell>();
@@ -30,6 +29,16 @@ namespace ViktorTheMindBlower
         public static GameObject rObj = null;
         public static bool activeR = false;
         public static int lastR;
+
+        public static SpellSlot IgniteSlot;
+
+        public static Obj_AI_Hero SelectedTarget = null;
+
+        //mana manager
+        public static int[] qMana = { 45, 45 , 50 , 55 , 60 , 65 };
+        public static int[] wMana = { 65, 65, 65, 65, 65, 65 };
+        public static int[] eMana = { 70, 70 , 80 , 90 , 100 , 110 };
+        public static int[] rMana = { 100, 100, 100, 100 };
 
         //Menu
         public static Menu menu;
@@ -66,57 +75,80 @@ namespace ViktorTheMindBlower
             SpellList.Add(E2);
             SpellList.Add(R);
 
+            IgniteSlot = Player.GetSpellSlot("SummonerDot");
+
             //Create the menu
             menu = new Menu(ChampionName, ChampionName, true);
 
             //Orbwalker submenu
-            menu.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
+            var orbwalkerMenu = new Menu("My Orbwalker", "my_Orbwalker");
+            LXOrbwalker.AddToMenu(orbwalkerMenu);
+            menu.AddSubMenu(orbwalkerMenu);
 
             //Target selector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
             SimpleTs.AddToMenu(targetSelectorMenu);
             menu.AddSubMenu(targetSelectorMenu);
 
-            //Orbwalk
-            Orbwalker = new Orbwalkerz.Orbwalker(menu.SubMenu("Orbwalking"));
+            //Keys
+            menu.AddSubMenu(new Menu("Keys", "Keys"));
+            menu.SubMenu("Keys").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Combo_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Keys").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Harass_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Keys").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
+            menu.SubMenu("Keys").AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Keys").AddItem(new MenuItem("LastHitQQ", "Last hit with Q").SetValue(new KeyBind("A".ToCharArray()[0], KeyBindType.Press)));
+
+            //Spell Menu
+            menu.AddSubMenu(new Menu("Spell", "Spell"));
+
+            //Q Menu
+            menu.SubMenu("Spell").AddSubMenu(new Menu("QSpell", "QSpell"));
+            menu.SubMenu("Spell").SubMenu("QSpell").AddItem(new MenuItem("QAARange", "Q only if in AA Range").SetValue(true));
+            menu.SubMenu("Spell").SubMenu("QSpell").AddItem(new MenuItem("autoAtk", "AA after Q in Range").SetValue(true));
+            //W Menu
+            menu.SubMenu("Spell").AddSubMenu(new Menu("WSpell", "WSpell"));
+            menu.SubMenu("Spell").SubMenu("WSpell").AddItem(new MenuItem("wSlow", "Auto W Slow").SetValue(true));
+            menu.SubMenu("Spell").SubMenu("WSpell").AddItem(new MenuItem("wImmobile", "Auto W Immobile").SetValue(true));
+            menu.SubMenu("Spell").SubMenu("WSpell").AddItem(new MenuItem("wDashing", "Auto W Dashing").SetValue(true));
+            menu.SubMenu("Spell").SubMenu("WSpell").AddItem(new MenuItem("useW_Hit", "Auto W if hit In Combo").SetValue(new Slider(2, 1, 5)));
+            //R
+            menu.SubMenu("Spell").AddSubMenu(new Menu("RSpell", "RSpell"));
+            menu.SubMenu("Spell").SubMenu("RSpell").AddItem(new MenuItem("useR_Hit", "Auto R if hit In Combo").SetValue(new Slider(2, 1, 5)));
+            menu.SubMenu("Spell").SubMenu("RSpell").AddItem(new MenuItem("rAlways", "Ult Always Combo").SetValue(new KeyBind("K".ToCharArray()[0], KeyBindType.Toggle)));
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
+            menu.SubMenu("Combo")
+                .AddItem(
+                    new MenuItem("tsModes", "TS Modes").SetValue(
+                        new StringList(new[] { "Orbwalker/LessCast", "Low HP%", "NearMouse", "CurrentHP" }, 0)));
+            menu.SubMenu("Combo").AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("wSlow", "Auto W Slow").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("wImmobile", "Auto W Immobile").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("wDashing", "Auto W Dashing").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("wMulti", "W only Multitarget").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("QAARange", "Q only if in AA Range").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("eHit", "E HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(menu.Item("Orbwalk").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Combo").AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
+            menu.SubMenu("Combo")
+                .AddItem(new MenuItem("igniteMode", "Mode").SetValue(new StringList(new[] { "Combo", "KS" }, 0)));
 
             //Harass menu:
             menu.AddSubMenu(new Menu("Harass", "Harass"));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Use Q").SetValue(true));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
             menu.SubMenu("Harass").AddItem(new MenuItem("eHit2", "E HitChance").SetValue(new Slider(4, 1, 4)));
-            menu.SubMenu("Harass").AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind(menu.Item("Farm").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            menu.SubMenu("Harass").AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
 
             //Farming menu:
             menu.AddSubMenu(new Menu("Farm", "Farm"));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseQFarm", "Use Q").SetValue(false));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseEFarm", "Use E").SetValue(false));
-            menu.SubMenu("Farm").AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind(menu.Item("LaneClear").GetValue<KeyBind>().Key, KeyBindType.Press)));
-            menu.SubMenu("Farm").AddItem(new MenuItem("LastHitQQ", "Last hit with Q").SetValue(new KeyBind("A".ToCharArray()[0], KeyBindType.Press)));
 
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("autoAtk", "AA after Q in Range").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("useW_Hit", "Auto W if hit In Combo").SetValue(new Slider(2, 5, 0)));
-            menu.SubMenu("Misc").AddItem(new MenuItem("rAlways", "Ult Always Combo").SetValue(new KeyBind("K".ToCharArray()[0], KeyBindType.Toggle)));
-            menu.SubMenu("Misc").AddItem(new MenuItem("useR_Hit", "Auto R if hit In Combo").SetValue(new Slider(2, 5, 0)));
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets to cast").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("printTar", "Print Selected Target").SetValue(true));
+
             //Damage after combo:
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
             Utility.HpBarDamageIndicator.DamageToUnit = GetComboDamage;
@@ -149,72 +181,17 @@ namespace ViktorTheMindBlower
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             GameObject.OnCreate += OnCreate;
             GameObject.OnDelete += OnDelete;
-            Orbwalking.AfterAttack += AfterAttack;
-            //Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
+            LXOrbwalker.AfterAttack += AfterAttack;
+            Game.OnGameSendPacket += Game_OnGameSendPacket;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
-        }
-
-        public static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
-        {
-            SpellSlot castedSlot = ObjectManager.Player.GetSpellSlot(args.SData.Name, false);
-
-            if (!unit.IsMe) return;
-
-            Game.PrintChat("Spell: " + args.SData.Name);
-
-        }
-
-        private static void OnCreate(GameObject obj, EventArgs args)
-        {
-            //if (Player.Distance(obj.Position) < 400 && obj.Name != "missile")
-                //Game.PrintChat("Obj: " + obj.Name);
-
-            if (Player.Distance(obj.Position) < 3000)
-            {
-                if (obj != null && obj.IsValid && obj.Name.Contains("Viktor_Base_R"))
-                {
-                    //Game.PrintChat("woot");
-                    activeR = true;
-                    rObj = obj;
-                }
-            }
-            
-        }
-
-        private static void OnDelete(GameObject obj, EventArgs args)
-        {
-            //if (Player.Distance(obj.Position) < 400 && obj.Name != "missile")
-                //Game.PrintChat("Obj2: " + obj.Name);
-            if (Player.Distance(obj.Position) < 3000)
-            {
-                if (obj != null && obj.IsValid && obj.Name.Contains("Viktor_Base_R"))
-                {
-                    //Game.PrintChat("woot2");
-                    activeR = false;
-                    rObj = null;
-                }
-            }
-        }
-
-        private static void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
-        {
-            if (!menu.Item("UseInt").GetValue<bool>()) return;
-
-            if (Player.Distance(unit) < R.Range && R.IsReady())
-            {
-                R.Cast(unit.ServerPosition, menu.Item("packet").GetValue<bool>());
-            }
         }
 
         public static void AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
         {
             if (unit.IsMe && chargeQ)
             {
-                Orbwalker.SetMovement(true);
                 chargeQ = false;
             }
-
-            chargeQ = false;
         }
 
         private static float GetComboDamage(Obj_AI_Base enemy)
@@ -233,73 +210,192 @@ namespace ViktorTheMindBlower
                 damage += 5 * Player.GetSpellDamage(enemy, SpellSlot.R, 1);
             }
 
+            if (activeR)
+                damage += Player.GetSpellDamage(enemy, SpellSlot.R, 1);
+
+            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+                damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
+
             return (float)damage;
+        }
+
+        public static Obj_AI_Hero getTarget()
+        {
+            int tsMode = menu.Item("tsModes").GetValue<StringList>().SelectedIndex;
+            var focusSelected = menu.Item("selected").GetValue<bool>();
+
+            if (focusSelected && SelectedTarget != null)
+            {
+                if (Player.Distance(SelectedTarget) < 1400 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
+                    SelectedTarget.IsEnemy)
+                {
+                    //Game.PrintChat("focusing selected target");
+                    LXOrbwalker.ForcedTarget = SelectedTarget;
+                    return SelectedTarget;
+                }
+                SelectedTarget = null;
+            }
+
+
+            Obj_AI_Hero getTar = SimpleTs.GetTarget(1200, SimpleTs.DamageType.Magical);
+
+            if (tsMode == 0)
+                return getTar;
+
+            foreach (
+                Obj_AI_Hero target in
+                    ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(
+                            x =>
+                                Player.Distance(x) < 1200 && x.IsValidTarget(1200) && !x.IsDead && x.IsEnemy &&
+                                x.IsVisible))
+            {
+                if (tsMode == 1)
+                {
+                    float tar1hp = target.Health / target.MaxHealth * 100;
+                    float tar2hp = getTar.Health / getTar.MaxHealth * 100;
+                    if (tar1hp < tar2hp)
+                        getTar = target;
+                }
+
+                if (tsMode == 2)
+                {
+                    if (target.Distance(Game.CursorPos) < getTar.Distance(Game.CursorPos))
+                        getTar = target;
+                }
+
+                if (tsMode == 3)
+                {
+                    if (target.Health < getTar.Health)
+                        getTar = target;
+                }
+            }
+
+            if (getTar != null)
+            {
+                LXOrbwalker.ForcedTarget = getTar;
+                //Game.PrintChat("Focus Mode on: " + getTar.BaseSkinName);
+                return getTar;
+            }
+
+            return null;
+        }
+
+        public static bool packets()
+        {
+            return menu.Item("packet").GetValue<bool>();
         }
 
         private static void UseSpells(bool useQ, bool useW, bool useE, bool useR, String Source)
         {
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
-            var eTarget2 = SimpleTs.GetTarget(1200, SimpleTs.DamageType.Magical);
-            var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
-            var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
+            var target = getTarget();
+            var dmg = GetComboDamage(target);
+            int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
+            bool hasMana = manaCheck();
 
-            var immobile = menu.Item("wSlow").GetValue<bool>();
-            var slow = menu.Item("wImmobile").GetValue<bool>();
-            var dashing = menu.Item("wImmobile").GetValue<bool>();
-
-            if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range
-                && (!(menu.Item("wMulti").GetValue<bool>()) || GetComboDamage(wTarget) >= wTarget.Health || W.GetPrediction(wTarget).Hitchance == HitChance.Immobile && immobile ||
-                wTarget.HasBuffOfType(BuffType.Slow) && slow || W.GetPrediction(wTarget).Hitchance == HitChance.Dashing && dashing || Player.Distance(wTarget.ServerPosition) < 300))
+            if (useW && target != null && W.IsReady() && Player.Distance(target) <= W.Range && shouldW(target))
             {
-                W.Cast(wTarget, menu.Item("packet").GetValue<bool>());
+                W.Cast(target, packets());
             }
+
             if(menu.Item("QAARange").GetValue<bool>()){
-                if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) <= Player.AttackRange) // Q only in AA range for guaranteed AutoAttack
+                if (useQ && target != null && Q.IsReady() && Player.Distance(target) <= Player.AttackRange) // Q only in AA range for guaranteed AutoAttack
                 {
-                    Q.CastOnUnit(qTarget, menu.Item("packet").GetValue<bool>());
-                       Player.IssueOrder(GameObjectOrder.AttackUnit, qTarget);
+                    Q.CastOnUnit(target, packets());
+                    Player.IssueOrder(GameObjectOrder.AttackUnit, target);
                     return;
                 }
             }
-            else{
-            if (useQ && qTarget != null && Q.IsReady() && Player.Distance(qTarget) <= Q.Range)
+            else if (useQ && target != null && Q.IsReady() && Player.Distance(target) <= Q.Range)
             {
-                Q.CastOnUnit(qTarget, menu.Item("packet").GetValue<bool>());
+                Q.CastOnUnit(target, packets());
 
                 //force auto
                 if (menu.Item("autoAtk").GetValue<bool>())
                 {
-                    Player.IssueOrder(GameObjectOrder.AttackUnit, qTarget);
+                    Player.IssueOrder(GameObjectOrder.AttackUnit, target);
                 }
                 return;
             }
+
+            if (useR && target != null && R.IsReady() && Player.Distance(target) <= R.Range && !activeR && shouldR(target))
+            {
+                R.Cast(target.ServerPosition, packets());
             }
 
-            if (useR && rTarget != null && R.IsReady() && (GetComboDamage(rTarget) > qTarget.Health || menu.Item("rAlways").GetValue<KeyBind>().Active) && Player.Distance(rTarget) <= R.Range && !activeR)
+            //Ignite
+            if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
+                Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Source == "Combo" && hasMana)
             {
-                R.Cast(rTarget.ServerPosition, menu.Item("packet").GetValue<bool>());
+                if (IgniteMode == 0 && dmg > target.Health)
+                {
+                    Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                }
             }
 
             if (useE && E.IsReady())
             {
 
-                if (Player.Distance(eTarget2.ServerPosition) <= 1200 && Player.Distance(eTarget2.ServerPosition) > E.Range && eTarget2 != null)
+                if (Player.Distance(target.ServerPosition) <= 1200 && Player.Distance(target.ServerPosition) > E.Range && target != null)
                 {
+                    Game.PrintChat("rawr");
                     eCalc2(Source);
                     return;
                 }
-                else if (eTarget.Distance(Player.ServerPosition) <= E.Range && eTarget != null)
+                else if (target.Distance(Player.ServerPosition) <= E.Range && target != null)
                 {
-                    eCalc(eTarget, Source);
+                    eCalc(target, Source);
                     return;
                 }
             }
         }
 
+        public static bool manaCheck()
+        {
+            int totalMana = qMana[Q.Level] + wMana[W.Level] + eMana[E.Level] + rMana[R.Level];
+
+            if (Player.Mana >= totalMana)
+                return true;
+
+            return false;
+        }
+
+        public static bool shouldW(Obj_AI_Hero target)
+        {
+            if (GetComboDamage(target) >= target.Health)
+                return true;
+
+            var immobile = menu.Item("wSlow").GetValue<bool>();
+            var slow = menu.Item("wImmobile").GetValue<bool>();
+            var dashing = menu.Item("wImmobile").GetValue<bool>();
+
+            if (W.GetPrediction(target).Hitchance == HitChance.Immobile && immobile)
+                return true;
+
+            if (target.HasBuffOfType(BuffType.Slow) && slow)
+                return true;
+
+            if (W.GetPrediction(target).Hitchance == HitChance.Dashing && dashing)
+                return true;
+
+            if (Player.Distance(target.ServerPosition) < 300)
+                return true;
+
+            return false;
+        }
+
+        public static bool shouldR(Obj_AI_Hero target)
+        {
+            if (GetComboDamage(target) > target.Health)
+                return true;
+
+            if (menu.Item("rAlways").GetValue<KeyBind>().Active)
+                return true;
+
+            return false;
+        }
         private static void Combo()
         {
-            Orbwalker.SetAttacks(!(Q.IsReady()));
             UseSpells(menu.Item("UseQCombo").GetValue<bool>(), menu.Item("UseWCombo").GetValue<bool>(),
                 menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>(), "Combo");
         }
@@ -314,8 +410,6 @@ namespace ViktorTheMindBlower
         {
             //check if player is dead
             if (Player.IsDead) return;
-
-            Orbwalker.SetAttacks(true);
 
             int rTimeLeft = Environment.TickCount - lastR;
             if ((rTimeLeft <= 500))
@@ -349,11 +443,17 @@ namespace ViktorTheMindBlower
         {
             if (activeR)
             {
-                var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where rObj.Position.Distance(champ.ServerPosition) < 2500 && champ.IsEnemy select champ).ToList();
-                nearChamps.OrderBy(x => rObj.Position.Distance(x.ServerPosition));
-
-                if(R.IsReady())
-                R.Cast(nearChamps.FirstOrDefault().ServerPosition, menu.Item("packet").GetValue<bool>());
+                foreach (
+                    Obj_AI_Hero target in
+                        ObjectManager.Get<Obj_AI_Hero>()
+                            .Where(x => rObj.Position.Distance(x.ServerPosition) < 1500 && x.IsValidTarget() && x.IsEnemy && !x.IsDead).OrderBy(x=> x.Health))
+                {
+                    if (target != null)
+                    {
+                        if (R.IsReady())
+                            R.Cast(target.ServerPosition, packets());
+                    }
+                }
             }
         }
 
@@ -382,52 +482,12 @@ namespace ViktorTheMindBlower
 
         private static void castE(Vector2 source, Vector2 destination)
         {
-            Packet.C2S.Cast.Encoded(new Packet.C2S.Cast.Struct(0, SpellSlot.E, -1, source.X, source.Y, destination.X, destination.Y)).Send();
+            Packet.C2S.Cast.Encoded(new Packet.C2S.Cast.Struct(0, SpellSlot.E, Player.NetworkId, source.X, source.Y, destination.X, destination.Y)).Send();
         }
 
         public static void eCalc(Obj_AI_Hero eTarget, String Source)
         {
-            var hitC = HitChance.High;
-            var qHit = menu.Item("eHit").GetValue<Slider>().Value;
-            var harassQHit = menu.Item("eHit2").GetValue<Slider>().Value;
-
-            // HitChance.Low = 3, Medium , High .... etc..
-            if (Source == "Combo")
-            {
-                switch (qHit)
-                {
-                    case 1:
-                        hitC = HitChance.Low;
-                        break;
-                    case 2:
-                        hitC = HitChance.Medium;
-                        break;
-                    case 3:
-                        hitC = HitChance.High;
-                        break;
-                    case 4:
-                        hitC = HitChance.VeryHigh;
-                        break;
-                }
-            }
-            else if (Source == "Harass")
-            {
-                switch (harassQHit)
-                {
-                    case 1:
-                        hitC = HitChance.Low;
-                        break;
-                    case 2:
-                        hitC = HitChance.Medium;
-                        break;
-                    case 3:
-                        hitC = HitChance.High;
-                        break;
-                    case 4:
-                        hitC = HitChance.VeryHigh;
-                        break;
-                }
-            }
+            var hitC = GethitChance(Source);
 
             //case where target is in range of E
             if (Player.Distance(eTarget.ServerPosition) <= E.Range && eTarget != null)
@@ -464,6 +524,26 @@ namespace ViktorTheMindBlower
 
         public static void eCalc2(String Source)
         {
+            var hitC = GethitChance(Source);
+            Game.PrintChat("rawr");
+            var eTarget2 = getTarget();
+
+            if (eTarget2 != null && Player.Distance(eTarget2) <= 1200)
+            {   
+                // Get initial start point at the border of cast radius
+                Vector3 startPos = Player.Position + Vector3.Normalize(eTarget2.ServerPosition - Player.Position) * (E.Range - 50);
+                var pred = GetP(startPos, E2, eTarget2, true);
+
+                if (pred.Hitchance >= hitC && E.IsReady())
+                {
+                    castE(startPos, pred.CastPosition);
+                    return;
+                }
+            }
+        }
+
+        public static HitChance GethitChance(string Source)
+        {
             var hitC = HitChance.High;
             var qHit = menu.Item("eHit").GetValue<Slider>().Value;
             var harassQHit = menu.Item("eHit2").GetValue<Slider>().Value;
@@ -506,20 +586,7 @@ namespace ViktorTheMindBlower
                 }
             }
 
-            var eTarget2 = SimpleTs.GetTarget(1200, SimpleTs.DamageType.Magical);
-
-            if (eTarget2 != null && Player.Distance(eTarget2) <= 1200)
-            {   
-                // Get initial start point at the border of cast radius
-                Vector3 startPos = Player.Position + Vector3.Normalize(eTarget2.ServerPosition - Player.Position) * (E.Range - 50);
-                var pred = GetP(startPos, E2, eTarget2, true);
-
-                if (pred.Hitchance >= hitC && E.IsReady())
-                {
-                    castE(startPos, pred.CastPosition);
-                    return;
-                }
-            }
+            return hitC;
         }
 
         public static void mecR()
@@ -527,13 +594,20 @@ namespace ViktorTheMindBlower
             var minHit = menu.Item("useR_Hit").GetValue<Slider>().Value;
             if (minHit == 0)
                 return;
-            var rTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
-
-            if(rTarget != null && rTarget.Distance(Player.ServerPosition) <= R.Range && R.IsReady())
-                if (R.GetPrediction(rTarget).Hitchance >= HitChance.High)
+            foreach (
+                Obj_AI_Base target in
+                    ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(x => Player.Distance(x) < R.Range && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
+            {
+                if (target != null && target.Distance(Player.ServerPosition) <= R.Range && R.IsReady())
                 {
-                    R.CastIfWillHit(rTarget, 2);
+                    var pred = R.GetPrediction(target);
+                    if (pred.AoeTargetsHitCount > minHit)
+                    {
+                        R.Cast(pred.CastPosition);
+                    }
                 }
+            }
         }
 
         public static void mecW()
@@ -542,13 +616,20 @@ namespace ViktorTheMindBlower
             if (minHit == 0)
                 return;
 
-            var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
-
-            if (wTarget != null && wTarget.Distance(Player.ServerPosition) <= W.Range && W.IsReady())
-                if (W.GetPrediction(wTarget).Hitchance >= HitChance.High)
+            foreach (
+                Obj_AI_Base target in
+                    ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(x => Player.Distance(x) < W.Range && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
+            {
+                if (target != null && target.Distance(Player.ServerPosition) <= R.Range && R.IsReady())
                 {
-                    W.CastIfWillHit(wTarget, 2);
+                    var pred = W.GetPrediction(target);
+                    if (pred.AoeTargetsHitCount > minHit)
+                    {
+                        W.Cast(pred.CastPosition);
+                    }
                 }
+            }
         }
 
         public static void lastHit()
@@ -611,7 +692,65 @@ namespace ViktorTheMindBlower
                 if (menu2.Active)
                     Utility.DrawCircle(Player.Position, 1200, menuItem.Color);
             }
+        }
 
+        private static void OnCreate(GameObject obj, EventArgs args)
+        {
+            //if (Player.Distance(obj.Position) < 400 && obj.Name != "missile")
+            //Game.PrintChat("Obj: " + obj.Name);
+
+            if (Player.Distance(obj.Position) < 3000)
+            {
+                if (obj != null && obj.IsValid && obj.Name.Contains("Viktor_Base_R"))
+                {
+                    //Game.PrintChat("woot");
+                    activeR = true;
+                    rObj = obj;
+                }
+            }
+
+        }
+
+        private static void OnDelete(GameObject obj, EventArgs args)
+        {
+            //if (Player.Distance(obj.Position) < 400 && obj.Name != "missile")
+            //Game.PrintChat("Obj2: " + obj.Name);
+            if (Player.Distance(obj.Position) < 3000)
+            {
+                if (obj != null && obj.IsValid && obj.Name.Contains("Viktor_Base_R"))
+                {
+                    //Game.PrintChat("woot2");
+                    activeR = false;
+                    rObj = null;
+                }
+            }
+        }
+
+        private static void Game_OnGameSendPacket(GamePacketEventArgs args)
+        {
+            if (args.PacketData[0] != Packet.C2S.SetTarget.Header)
+            {
+                return;
+            }
+
+            var decoded = Packet.C2S.SetTarget.Decoded(args.PacketData);
+
+            if (decoded.NetworkId != 0 && decoded.Unit.IsValid && !decoded.Unit.IsMe && decoded.Unit.IsEnemy)
+            {
+                SelectedTarget = (Obj_AI_Hero)decoded.Unit;
+                if (menu.Item("printTar").GetValue<bool>())
+                    Game.PrintChat("Selected Target: " + decoded.Unit.BaseSkinName);
+            }
+        }
+
+        private static void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        {
+            if (!menu.Item("UseInt").GetValue<bool>()) return;
+
+            if (Player.Distance(unit) < R.Range && R.IsReady())
+            {
+                R.Cast(unit.ServerPosition, menu.Item("packet").GetValue<bool>());
+            }
         }
     }
 }
