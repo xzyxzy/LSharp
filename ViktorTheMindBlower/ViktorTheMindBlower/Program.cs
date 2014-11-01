@@ -449,7 +449,7 @@ namespace ViktorTheMindBlower
                 foreach (
                     Obj_AI_Hero target in
                         ObjectManager.Get<Obj_AI_Hero>()
-                            .Where(x => rObj.Position.Distance(x.ServerPosition) < 1500 && x.IsValidTarget() && x.IsEnemy && !x.IsDead).OrderBy(x=> x.Health))
+                            .Where(x => rObj.Position.Distance(x.ServerPosition) < 1500 && x.IsEnemy && !x.IsDead).OrderBy(x=> x.Health))
                 {
                     if (target != null)
                     {
