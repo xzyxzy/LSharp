@@ -233,7 +233,7 @@ namespace YorickMILFDigger
                     {
                         if (menu.Item(spell.SpellName).GetValue<bool>())
                         {
-                            Game.PrintChat("rawr");
+                            //Game.PrintChat("rawr");
                             if (W.IsReady())
                             {
                                 var vec = Player.ServerPosition +
