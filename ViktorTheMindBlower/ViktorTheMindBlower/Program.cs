@@ -338,7 +338,7 @@ namespace ViktorTheMindBlower
 
                 if (Player.Distance(target.ServerPosition) <= 1200 && Player.Distance(target.ServerPosition) > E.Range && target != null)
                 {
-                    Game.PrintChat("rawr");
+                    //Game.PrintChat("rawr");
                     eCalc2(Source);
                     return;
                 }
@@ -528,7 +528,7 @@ namespace ViktorTheMindBlower
         public static void eCalc2(String Source)
         {
             var hitC = GethitChance(Source);
-            Game.PrintChat("rawr");
+            //Game.PrintChat("rawr");
             var eTarget2 = getTarget();
 
             if (eTarget2 != null && Player.Distance(eTarget2) <= 1200)
