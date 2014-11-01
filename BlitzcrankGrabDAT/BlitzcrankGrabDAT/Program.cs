@@ -208,7 +208,7 @@ namespace BlitzcrankGrabDAT
                     ObjectManager.Get<Obj_AI_Hero>()
                         .Where(
                             x =>
-                                Player.Distance(x) < E.Range && x.IsValidTarget(E.Range) && !x.IsDead && x.IsEnemy &&
+                                Player.Distance(x) < Q.Range && x.IsValidTarget(Q.Range) && !x.IsDead && x.IsEnemy &&
                                 x.IsVisible))
             {
                 if (tsMode == 1)
