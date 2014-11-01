@@ -733,7 +733,7 @@ namespace OriannaWreckingBalls
                 return;
 
             int hit = 0;
-            var minHit = menu.Item("autoR").GetValue<Slider>().Value;
+            var minHit = menu.Item("autoRCombo").GetValue<Slider>().Value;
 
             foreach (Obj_AI_Hero enemy in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < 1500 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
             {
@@ -773,7 +773,7 @@ namespace OriannaWreckingBalls
                 return;
 
             int hit = 0;
-            var minHit = menu.Item("autoRCombo").GetValue<Slider>().Value;
+            var minHit = menu.Item("autoR").GetValue<Slider>().Value;
 
             foreach (Obj_AI_Hero enemy in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < 1500 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
             {
