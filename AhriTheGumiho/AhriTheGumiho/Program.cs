@@ -259,7 +259,7 @@ namespace AhriTheGumiho
             }
 
 
-            Obj_AI_Hero getTar = SimpleTs.GetTarget(1300, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero getTar = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
 
             if (tsMode == 0)
                 return getTar;
@@ -269,7 +269,7 @@ namespace AhriTheGumiho
                     ObjectManager.Get<Obj_AI_Hero>()
                         .Where(
                             x =>
-                                Player.Distance(x) < 1300 && x.IsValidTarget(1300) && !x.IsDead && x.IsEnemy &&
+                                Player.Distance(x) < Q.Range && x.IsValidTarget(Q.Range) && !x.IsDead && x.IsEnemy &&
                                 x.IsVisible))
             {
                 if (tsMode == 1)

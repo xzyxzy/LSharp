@@ -102,6 +102,7 @@ namespace OriannaWreckingBalls
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseEDmg", "Use E to Dmg").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("autoRCombo", "Use R if hit").SetValue(new Slider(3, 1, 5)));
             menu.SubMenu("Combo").AddItem(new MenuItem("killR", "R Multi Only Toggle").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
             menu.SubMenu("Combo").AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
 
@@ -766,6 +767,46 @@ namespace OriannaWreckingBalls
                 R.Cast();
         }
 
+        public static void checkRMecGlobal()
+        {
+            if (!R.IsReady())
+                return;
+
+            int hit = 0;
+            var minHit = menu.Item("autoRCombo").GetValue<Slider>().Value;
+
+            foreach (Obj_AI_Hero enemy in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < 1500 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
+            {
+                if (enemy != null)
+                {
+                    if (ballStatus == 0)
+                    {
+                        var prediction = GetPCircle(Player.ServerPosition, R, enemy, true);
+
+                        if (R.IsReady() && prediction.UnitPosition.Distance(Player.ServerPosition) <= R.Width)
+                        {
+                            hit++;
+                        }
+                    }
+                    else if (ballStatus == 1 || ballStatus == 2)
+                    {
+                        if (qpos != null)
+                        {
+                            var prediction2 = GetPCircle(qpos.Position, R, enemy, true);
+
+                            if (R.IsReady() && prediction2.UnitPosition.Distance(qpos.Position) <= R.Width)
+                            {
+                                hit++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (hit >= minHit && R.IsReady())
+                R.Cast();
+        }
+
         //credit to dien
         public static Object[] VectorPointProjectionOnLineSegment(Vector2 v1, Vector2 v2, Vector2 v3)
         {
@@ -1153,6 +1194,8 @@ namespace OriannaWreckingBalls
             if (Player.IsDead) return;
 
             onGainBuff();
+
+            checkRMecGlobal();
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
