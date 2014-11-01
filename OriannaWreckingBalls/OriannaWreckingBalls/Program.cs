@@ -402,7 +402,7 @@ namespace OriannaWreckingBalls
 
             PredictionOutput prediction = GetPCircle(CurrentBallPosition, W, target, true);
 
-            if (W.IsReady() && prediction.UnitPosition.Distance(Player.ServerPosition) < W.Width)
+            if (W.IsReady() && prediction.UnitPosition.Distance(CurrentBallPosition) < W.Width)
             {
                 W.Cast();
             }
@@ -415,7 +415,7 @@ namespace OriannaWreckingBalls
 
             PredictionOutput prediction = GetPCircle(CurrentBallPosition, R, target, true);
 
-            if (R.IsReady() && prediction.UnitPosition.Distance(Player.ServerPosition) <= R.Width)
+            if (R.IsReady() && prediction.UnitPosition.Distance(CurrentBallPosition) <= R.Width)
             {
                 R.Cast();
             }
