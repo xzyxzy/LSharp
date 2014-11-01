@@ -637,7 +637,7 @@ namespace OriannaWreckingBalls
                 {
                     PredictionOutput prediction = GetPCircle(CurrentBallPosition, W, enemy, true);
 
-                    if (W.IsReady() && prediction.UnitPosition.Distance(Player.ServerPosition) < W.Width)
+                    if (W.IsReady() && prediction.UnitPosition.Distance(CurrentBallPosition) < W.Width)
                     {
                         hit++;
                     }
@@ -665,7 +665,7 @@ namespace OriannaWreckingBalls
                 {
                     PredictionOutput prediction = GetPCircle(CurrentBallPosition, R, enemy, true);
 
-                    if (R.IsReady() && prediction.UnitPosition.Distance(Player.ServerPosition) <= R.Width)
+                    if (R.IsReady() && prediction.UnitPosition.Distance(CurrentBallPosition) <= R.Width)
                     {
                         hit++;
                     }
@@ -693,7 +693,7 @@ namespace OriannaWreckingBalls
                 {
                     PredictionOutput prediction = GetPCircle(CurrentBallPosition, R, enemy, true);
 
-                    if (R.IsReady() && prediction.UnitPosition.Distance(Player.ServerPosition) <= R.Width)
+                    if (R.IsReady() && prediction.UnitPosition.Distance(CurrentBallPosition) <= R.Width)
                     {
                         hit++;
                     }
@@ -893,7 +893,7 @@ namespace OriannaWreckingBalls
                 return;
             }
 
-            //ballStatus = 1;
+            ballStatus = 1;
         }
 
         public static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
