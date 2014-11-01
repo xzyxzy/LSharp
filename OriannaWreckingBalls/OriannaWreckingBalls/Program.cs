@@ -1038,6 +1038,7 @@ namespace OriannaWreckingBalls
                 {
                     if (args.SData.Name == spell.SDataName)
                     {
+                        Game.PrintChat("Rawr");
                         if (menu.Item(spell.spellName).GetValue<bool>())
                         {
                             if(E.IsReady() && Player.Distance(unit) < E.Range)
