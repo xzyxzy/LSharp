@@ -537,16 +537,15 @@ namespace AzirSaliceTheEmperor
 
                                 Q.Cast(CastBehind, packets());
                                 E.Cast(slave.ServerPosition, packets());
-                                return;
                             }
                         }
                     }
                 }
                 if (R.IsReady())
                 {
-                    if (Player.Distance(target) < 50)
+                    if (Player.Distance(target) < 100)
                     {
-                        Game.PrintChat("rawr");
+                        //Game.PrintChat("rawr");
                         R.Cast(rVec);
                     }
                 }
@@ -567,13 +566,12 @@ namespace AzirSaliceTheEmperor
                     W.Cast(wVec);
                     QExtend.Cast(CastBehind, packets());
                     E.Cast(getNearestSoilderToEnemy(target).ServerPosition, packets());
-                    return;
                 }
                 if (R.IsReady())
                 {
-                    if (Player.Distance(target) < 50)
+                    if (Player.Distance(target) < 100)
                     {
-                        Game.PrintChat("rawr2");
+                        //Game.PrintChat("rawr2");
                         R.Cast(rVec);
                     }
                 }
