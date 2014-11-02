@@ -543,7 +543,7 @@ namespace AzirSaliceTheEmperor
                 }
                 if (R.IsReady())
                 {
-                    if (Player.Distance(target) < 100)
+                    if (Player.Distance(target) < 140)
                     {
                         //Game.PrintChat("rawr");
                         R.Cast(rVec);
@@ -569,7 +569,7 @@ namespace AzirSaliceTheEmperor
                 }
                 if (R.IsReady())
                 {
-                    if (Player.Distance(target) < 100)
+                    if (Player.Distance(target) < 140)
                     {
                         //Game.PrintChat("rawr2");
                         R.Cast(rVec);
