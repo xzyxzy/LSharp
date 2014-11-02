@@ -32,6 +32,7 @@ namespace AzirSaliceTheEmperor
 
         public static SpellSlot IgniteSlot;
 
+        public static Vector3 rVec;
         //Menu
         public static Menu menu;
 
@@ -55,12 +56,12 @@ namespace AzirSaliceTheEmperor
             QExtend = new Spell(SpellSlot.Q, 1150);
             W = new Spell(SpellSlot.W, 450);
             E = new Spell(SpellSlot.E, 2000);
-            R = new Spell(SpellSlot.R, 500);
+            R = new Spell(SpellSlot.R, 400);
 
             Q.SetSkillshot(0.1f, 100, 1700, false, SkillshotType.SkillshotLine);
             QExtend.SetSkillshot(0.1f, 100, 1700, false, SkillshotType.SkillshotLine);
             E.SetSkillshot(0.25f, 100, 1200, false, SkillshotType.SkillshotLine);
-            R.SetSkillshot(0.50f, 700, float.MaxValue, false, SkillshotType.SkillshotLine);
+            R.SetSkillshot(0.75f, 700, float.MaxValue, false, SkillshotType.SkillshotLine);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -136,6 +137,7 @@ namespace AzirSaliceTheEmperor
             //killsteal
             menu.AddSubMenu(new Menu("KillSteal", "KillSteal"));
             menu.SubMenu("KillSteal").AddItem(new MenuItem("smartKS", "Use Smart KS System").SetValue(true));
+            menu.SubMenu("KillSteal").AddItem(new MenuItem("eKS", "Use E KS").SetValue(false));
             menu.SubMenu("KillSteal").AddItem(new MenuItem("wqKS", "Use WQ KS").SetValue(true));
             menu.SubMenu("KillSteal").AddItem(new MenuItem("qeKS", "Use WQE KS").SetValue(true));
             menu.SubMenu("KillSteal").AddItem(new MenuItem("rKS", "Use R KS").SetValue(true));
@@ -149,6 +151,7 @@ namespace AzirSaliceTheEmperor
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use E to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use E for GapCloser").SetValue(true));
+            menu.SubMenu("Misc").AddItem(new MenuItem("fastEscape", "Escape Mode 2").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("insecDelay", "Insec Delay").SetValue(new Slider(300, 200, 1000)));
 
@@ -298,7 +301,7 @@ namespace AzirSaliceTheEmperor
         {
             var pred = R.GetPrediction(target);
 
-            var PushedPos = pred.CastPosition + Vector3.Normalize(pred.CastPosition - Player.ServerPosition) * 250;
+            var PushedPos = pred.CastPosition + Vector3.Normalize(pred.CastPosition - Player.ServerPosition) * 200;
 
             if (IsWall(PushedPos))
                 return true;
@@ -363,35 +366,85 @@ namespace AzirSaliceTheEmperor
         {
             Vector3 wVec = Player.ServerPosition + Vector3.Normalize(Game.CursorPos - Player.ServerPosition) * 450;
 
-            if (E.IsReady() || eSpell.State == SpellState.Surpressed)
+            if (menu.Item("fastEscape").GetValue<bool>())
             {
-                if (soilderCount() > 0)
+                if (W.IsReady() || soilderCount() > 0)
                 {
-                    Vector3 qVec = Player.ServerPosition + Vector3.Normalize(Game.CursorPos - Player.ServerPosition) * 800;
-
-                    var slave = getNearestSoilderToMouse();
-
-                    int delay = (int) Math.Ceiling(slave.Distance(Player.ServerPosition));
-
-                    if (QExtend.IsReady() || qSpell.State == SpellState.Surpressed)
-                        Q.Cast(qVec, packets());
-
-                    Utility.DelayAction.Add(delay, () => E.Cast(getNearestSoilderToMouse().ServerPosition, packets()));
-                    return;
-                }
-                else if (W.IsReady())
-                {
-                    W.Cast(wVec);
-
-                    if (E.IsReady() || eSpell.State == SpellState.Surpressed)
-                        E.Cast(wVec, packets());
-
-                    if (QExtend.IsReady() || qSpell.State == SpellState.Surpressed)
+                    if ((E.IsReady() || eSpell.State == SpellState.Surpressed))
                     {
-                        Vector3 qVec = Player.ServerPosition + Vector3.Normalize(Game.CursorPos - Player.ServerPosition) * 800;
+                        W.Cast(wVec);
+                        W.LastCastAttemptT = Environment.TickCount;
+                    }
 
-                        Utility.DelayAction.Add(300, () => Q.Cast(qVec, packets()));
+                    if ((QExtend.IsReady() || qSpell.State == SpellState.Surpressed) &&
+                        ((Environment.TickCount - E.LastCastAttemptT < Game.Ping + 500 &&
+                          Environment.TickCount - E.LastCastAttemptT > Game.Ping + 50) || E.IsReady()))
+                    {
+                        if (Environment.TickCount - W.LastCastAttemptT > Game.Ping + 300 || eSpell.State == SpellState.Cooldown || !W.IsReady())
+                        {
+                            Vector3 qVec = Player.ServerPosition +
+                                           Vector3.Normalize(Game.CursorPos - Player.ServerPosition) * 800;
+
+                            var lastAttempt = (int)qVec.Distance(getNearestSoilderToMouse().ServerPosition) / 1000;
+
+                            Q.Cast(qVec, packets());
+                            Q.LastCastAttemptT = Environment.TickCount + lastAttempt;
+                            return;
+                        }
+                    }
+
+                    if ((E.IsReady() || eSpell.State == SpellState.Surpressed))
+                    {
+                        if (Player.Distance(Game.CursorPos) > getNearestSoilderToMouse().Distance(Game.CursorPos) && Environment.TickCount - Q.LastCastAttemptT > Game.Ping)
+                        {
+                            E.Cast(getNearestSoilderToMouse().ServerPosition, packets());
+                            E.LastCastAttemptT = Environment.TickCount - 250;
+                            //Game.PrintChat("Rawr2");
+                            return;
+                        }
+                        if (Environment.TickCount - W.LastCastAttemptT < Game.Ping + 300 && (Q.IsReady() || qSpell.State == SpellState.Surpressed))
+                        {
+                            E.Cast(wVec, packets());
+                            E.LastCastAttemptT = Environment.TickCount - 250;
+                            //Game.PrintChat("Rawr1");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (E.IsReady() || eSpell.State == SpellState.Surpressed)
+                {
+                    if (soilderCount() > 0)
+                    {
+                        Vector3 qVec = Player.ServerPosition +
+                                       Vector3.Normalize(Game.CursorPos - Player.ServerPosition)*800;
+
+                        var slave = getNearestSoilderToMouse();
+
+                        int delay = (int) Math.Ceiling(slave.Distance(Player.ServerPosition));
+
+                        if (QExtend.IsReady() || qSpell.State == SpellState.Surpressed)
+                            Q.Cast(qVec, packets());
+
+                        Utility.DelayAction.Add(delay,
+                            () => E.Cast(getNearestSoilderToMouse().ServerPosition, packets()));
                         return;
+                    }
+                    if (W.IsReady())
+                    {
+                        W.Cast(wVec);
+
+                        if (E.IsReady() || eSpell.State == SpellState.Surpressed)
+                            E.Cast(wVec, packets());
+
+                        if (QExtend.IsReady() || qSpell.State == SpellState.Surpressed)
+                        {
+                            Vector3 qVec = Player.ServerPosition +
+                                           Vector3.Normalize(Game.CursorPos - Player.ServerPosition)*800;
+
+                            Utility.DelayAction.Add(300, () => Q.Cast(qVec, packets()));
+                        }
                     }
                 }
             }
@@ -475,20 +528,26 @@ namespace AzirSaliceTheEmperor
                         if (target != null && Player.Distance(target) < 800)
                         {
                             var qPred = GetP(slave.ServerPosition, QExtend, target, true);
+                            var vec = target.ServerPosition - Player.ServerPosition;
+                            var CastBehind = qPred.CastPosition + Vector3.Normalize(vec) * 75;
+                            rVec = qPred.CastPosition - Vector3.Normalize(vec) * 300;
 
                             if (Q.IsReady() && (E.IsReady() || eSpell.State == SpellState.Surpressed) && R.IsReady() && qPred.Hitchance >= getQHitchance())
                             {
-                                var vec = target.ServerPosition - Player.ServerPosition;
-                                var CastBehind = qPred.CastPosition + Vector3.Normalize(vec) * 75;
-                                var rVec = qPred.CastPosition - Vector3.Normalize(vec) * 400;
 
                                 Q.Cast(CastBehind, packets());
                                 E.Cast(slave.ServerPosition, packets());
-                                Utility.DelayAction.Add(delay, () => R.Cast(rVec));
                                 return;
-
                             }
                         }
+                    }
+                }
+                if (R.IsReady())
+                {
+                    if (Player.Distance(target) < 50)
+                    {
+                        Game.PrintChat("rawr");
+                        R.Cast(rVec);
                     }
                 }
             }
@@ -503,13 +562,20 @@ namespace AzirSaliceTheEmperor
                 {
                     var vec = target.ServerPosition - Player.ServerPosition;
                     var CastBehind = qPred.CastPosition + Vector3.Normalize(vec) * 75;
-                    var rVec = Player.Position;
+                    rVec = Player.Position;
 
                     W.Cast(wVec);
                     QExtend.Cast(CastBehind, packets());
                     E.Cast(getNearestSoilderToEnemy(target).ServerPosition, packets());
-                    Utility.DelayAction.Add(delay, () => R.Cast(rVec));
                     return;
+                }
+                if (R.IsReady())
+                {
+                    if (Player.Distance(target) < 50)
+                    {
+                        Game.PrintChat("rawr2");
+                        R.Cast(rVec);
+                    }
                 }
             }
         }
@@ -625,7 +691,7 @@ namespace AzirSaliceTheEmperor
             if (soilderCount() < 1)
                 return;
 
-            var slaves = (from obj in ObjectManager.Get<Obj_AI_Base>() where obj.Name == "AzirSoldier" && obj.IsAlly && target.Distance(obj.ServerPosition) < 3000 select obj).ToList();
+            var slaves = (from obj in ObjectManager.Get<Obj_AI_Base>() where obj.Name == "AzirSoldier" && obj.IsAlly && target.Distance(obj.ServerPosition) < 2000 select obj).ToList();
 
             if (Player.Distance(target) > 1200 && menu.Item("eGap").GetValue<bool>())
             {
@@ -648,7 +714,6 @@ namespace AzirSaliceTheEmperor
                     if (E.IsReady() && isOnseg && PointLine.Distance(ePred.UnitPosition.To2D()) < E.Width && shouldE(target, source))
                     {
                         E.Cast(slave.ServerPosition, packets());
-                        //Game.PrintChat("casting E");
                         return;
                     }
                 }
@@ -680,7 +745,7 @@ namespace AzirSaliceTheEmperor
             if (menu.Item("eKill").GetValue<bool>() && GetComboDamage(target) > target.Health + 15)
                 return true;
 
-            if (Player.GetSpellDamage(target, SpellSlot.E) > target.Health + 10)
+            if (menu.Item("eKS").GetValue<bool>() && Player.GetSpellDamage(target, SpellSlot.E) > target.Health + 10)
                 return true;
 
             //hp 
@@ -705,7 +770,7 @@ namespace AzirSaliceTheEmperor
 
             var rHit = menu.Item("rHit").GetValue<Slider>().Value;
             var pred = R.GetPrediction(target);
-            if (pred.AoeTargetsHitCount >= rHit && pred.Hitchance >= HitChance.High)
+            if (pred.AoeTargetsHitCount >= rHit)
                 return true;
 
             if (wallStun(target) && GetComboDamage(target) > target.Health / 2 && menu.Item("rWall").GetValue<bool>())
