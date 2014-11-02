@@ -537,13 +537,14 @@ namespace AzirSaliceTheEmperor
 
                                 Q.Cast(CastBehind, packets());
                                 E.Cast(slave.ServerPosition, packets());
+                                E.LastCastAttemptT = Environment.TickCount;
                             }
                         }
                     }
                 }
                 if (R.IsReady())
                 {
-                    if (Player.Distance(target) < 140)
+                    if (Player.Distance(target) < 200 && Environment.TickCount - E.LastCastAttemptT > Game.Ping + 150)
                     {
                         //Game.PrintChat("rawr");
                         R.Cast(rVec);
@@ -569,7 +570,7 @@ namespace AzirSaliceTheEmperor
                 }
                 if (R.IsReady())
                 {
-                    if (Player.Distance(target) < 140)
+                    if (Player.Distance(target) < 200 && Environment.TickCount - E.LastCastAttemptT > Game.Ping + 150)
                     {
                         //Game.PrintChat("rawr2");
                         R.Cast(rVec);
