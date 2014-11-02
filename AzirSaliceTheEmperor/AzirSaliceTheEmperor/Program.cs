@@ -153,7 +153,6 @@ namespace AzirSaliceTheEmperor
             menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use E for GapCloser").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("fastEscape", "Escape Mode 2").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("insecDelay", "Insec Delay").SetValue(new Slider(300, 200, 1000)));
 
             //Damage after combo:
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
@@ -514,8 +513,6 @@ namespace AzirSaliceTheEmperor
 
             if (target == null)
                 return;
-
-            var delay = menu.Item("insecDelay").GetValue<Slider>().Value;
 
             if (soilderCount() > 0)
             {
