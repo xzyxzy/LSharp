@@ -413,7 +413,7 @@ namespace ViktorTheMindBlower
             if (Player.IsDead) return;
 
             int rTimeLeft = Environment.TickCount - lastR;
-            if ((rTimeLeft <= 500))
+            if ((rTimeLeft <= 400))
             {
                 autoR();
                 lastR = Environment.TickCount - 250;
@@ -454,7 +454,10 @@ namespace ViktorTheMindBlower
                     if (target != null)
                     {
                         if (R.IsReady())
+                        {
                             R.Cast(target.ServerPosition, packets());
+                            return;
+                        }
                     }
                 }
             }
