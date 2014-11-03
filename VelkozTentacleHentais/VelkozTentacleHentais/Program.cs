@@ -57,7 +57,7 @@ namespace VelkozTentacleHentais
 
             //intalize spell
             Q = new Spell(SpellSlot.Q, 1000);
-            QSplit = new Spell(SpellSlot.Q, 850);
+            QSplit = new Spell(SpellSlot.Q, 900);
             QDummy = new Spell(SpellSlot.Q, (float) Math.Sqrt(Math.Pow(Q.Range, 2) + Math.Pow(QSplit.Range, 2)));
             W = new Spell(SpellSlot.W, 900);
             E = new Spell(SpellSlot.E, 850);
