@@ -417,7 +417,7 @@ namespace VelkozTentacleHentais
 
             if (focusSelected && SelectedTarget != null)
             {
-                if (Player.Distance(SelectedTarget) < 1600 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
+                if (Player.Distance(SelectedTarget) < 1500 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
                     SelectedTarget.IsEnemy)
                 {
                     //Game.PrintChat("focusing selected target");
@@ -427,8 +427,12 @@ namespace VelkozTentacleHentais
                 SelectedTarget = null;
             }
 
-
             Obj_AI_Hero getTar = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
+
+            if (R.IsReady())
+                getTar = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
+            else
+                getTar = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
 
             if (tsMode == 0)
                 return getTar;
