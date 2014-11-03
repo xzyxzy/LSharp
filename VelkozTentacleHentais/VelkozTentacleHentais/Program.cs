@@ -298,9 +298,6 @@ namespace VelkozTentacleHentais
             if (E.IsReady())
                 stack ++;
 
-            if (R.IsReady())
-                stack += 3;
-
             stack = stack/3;
 
             stack = Math.Floor(stack);
@@ -331,7 +328,8 @@ namespace VelkozTentacleHentais
                     dmg += ultDmg*div;
                 }
 
-            dmg += 25 + (10*Player.Level);
+            if(div > 2)
+                dmg += 25 + (10*Player.Level);
 
             
             return (float) dmg;
@@ -682,14 +680,14 @@ namespace VelkozTentacleHentais
                 }
             }
 
-            if (args.PacketData[0] == 0xFE)
+            /*if (args.PacketData[0] == 0xFE)
             {
                 var p = new GamePacket(args.PacketData);
                 if (p.ReadInteger(1) == ObjectManager.Player.NetworkId && p.Size() > 9)
                 {
                     args.Process = false;
                 }
-            }
+            }*/
 
             if (args.PacketData[0] != Packet.C2S.SetTarget.Header)
             {
