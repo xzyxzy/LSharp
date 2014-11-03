@@ -56,7 +56,7 @@ namespace AzirSaliceTheEmperor
             QExtend = new Spell(SpellSlot.Q, 1150);
             W = new Spell(SpellSlot.W, 450);
             E = new Spell(SpellSlot.E, 2000);
-            R = new Spell(SpellSlot.R, 400);
+            R = new Spell(SpellSlot.R, 450);
 
             Q.SetSkillshot(0.1f, 100, 1700, false, SkillshotType.SkillshotLine);
             QExtend.SetSkillshot(0.1f, 100, 1700, false, SkillshotType.SkillshotLine);
