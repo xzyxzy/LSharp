@@ -154,7 +154,7 @@ namespace VelkozTentacleHentais
             menu.AddSubMenu(new Menu("Farm", "Farm"));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseQFarm", "Use Q").SetValue(false));
             menu.SubMenu("Farm").AddItem(new MenuItem("UseWFarm", "Use W").SetValue(false));
-            menu.SubMenu("Farm").AddItem(new MenuItem("UseEFarm", "Use W").SetValue(false));
+            menu.SubMenu("Farm").AddItem(new MenuItem("UseEFarm", "Use E").SetValue(false));
 
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
