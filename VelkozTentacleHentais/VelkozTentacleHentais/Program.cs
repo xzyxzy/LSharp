@@ -315,16 +315,16 @@ namespace VelkozTentacleHentais
         {
             double dmg = 0;
 
-            float dist = (Player.Distance(target) - 500)/1000;
-            float div = 10 - dist;
+            float dist = (Player.Distance(target) - 700)/8000;
+            float div = 8 - dist;
 
-            if (Player.Distance(target) < 500)
-                div = 10;
+            if (Player.Distance(target) < 700)
+                div = 8;
 
             if (Player.Distance(target) < 1550)
                 if (R.IsReady())
                 {
-                    double ultDmg = Player.GetSpellDamage(target, SpellSlot.R)/10;
+                    double ultDmg = Player.GetSpellDamage(target, SpellSlot.R)/8;
 
                     dmg += ultDmg*div;
                 }
