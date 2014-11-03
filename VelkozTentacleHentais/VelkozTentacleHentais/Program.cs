@@ -184,6 +184,7 @@ namespace VelkozTentacleHentais
                 .AddItem(new MenuItem("ERange", "E range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
             menu.SubMenu("Drawings")
                 .AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
+            menu.SubMenu("Drawings").AddItem(new MenuItem("drawUlt", "Killable With ult").SetValue(true));
             menu.SubMenu("Drawings")
                 .AddItem(dmgAfterComboItem);
             menu.AddToMainMenu();
@@ -219,6 +220,20 @@ namespace VelkozTentacleHentais
                 damage += getUltDmg((Obj_AI_Hero) enemy);
 
             damage += getPassiveDmg();
+
+            if (menu.Item("drawUlt").GetValue<bool>())
+            {
+                if (R.IsReady() && getUltDmg((Obj_AI_Hero) enemy) > enemy.Health + 20)
+                {
+                    Vector2 wts = Drawing.WorldToScreen(enemy.Position);
+                    Drawing.DrawText(wts[0], wts[1], Color.White, "Killable with Ult");
+                }
+                else
+                {
+                    Vector2 wts = Drawing.WorldToScreen(enemy.Position);
+                    Drawing.DrawText(wts[0], wts[1], Color.Red, "No Ult Kill");
+                }
+            }
 
             return (float) damage;
         }
