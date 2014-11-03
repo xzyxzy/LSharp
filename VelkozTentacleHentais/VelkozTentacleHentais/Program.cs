@@ -56,12 +56,12 @@ namespace VelkozTentacleHentais
             if (Player.BaseSkinName != ChampionName) return;
 
             //intalize spell
-            Q = new Spell(SpellSlot.Q, 1150);
+            Q = new Spell(SpellSlot.Q, 1050);
             QSplit = new Spell(SpellSlot.Q, 900);
             QDummy = new Spell(SpellSlot.Q, (float) Math.Sqrt(Math.Pow(Q.Range, 2) + Math.Pow(QSplit.Range, 2)));
-            W = new Spell(SpellSlot.W, 1000);
+            W = new Spell(SpellSlot.W, 900);
             E = new Spell(SpellSlot.E, 850);
-            R = new Spell(SpellSlot.R, 1550);
+            R = new Spell(SpellSlot.R, 1500);
 
             Q.SetSkillshot(0.25f, 50f, 1300f, true, SkillshotType.SkillshotLine);
             QDummy.SetSkillshot(0.25f, 55f, float.MaxValue, false, SkillshotType.SkillshotLine);
@@ -280,7 +280,7 @@ namespace VelkozTentacleHentais
             if (useR && target != null && R.IsReady() && Player.Distance(target) < R.Range)
             {
                 if (getUltDmg(target) >= target.Health)
-                    R.Cast(target);
+                    R.Cast(target.ServerPosition);
             }
         }
 
@@ -480,14 +480,14 @@ namespace VelkozTentacleHentais
                 return;
 
             List<Obj_AI_Hero> nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>()
-                where Player.Distance(champ.ServerPosition) <= QDummy.Range && champ.IsEnemy
+                where Player.Distance(champ.ServerPosition) <= Q.Range && champ.IsEnemy
                 select champ).ToList();
             nearChamps.OrderBy(x => x.Health);
 
             foreach (Obj_AI_Hero target in nearChamps)
             {
                 //Q
-                if (Player.Distance(target.ServerPosition) <= QDummy.Range &&
+                if (Player.Distance(target.ServerPosition) <= Q.Range &&
                     (Player.GetSpellDamage(target, SpellSlot.Q)) > target.Health + 30)
                 {
                     if (Q.IsReady())
@@ -671,6 +671,26 @@ namespace VelkozTentacleHentais
 
         private static void Game_OnGameSendPacket(GamePacketEventArgs args)
         {
+            //Disable action on Ult
+            if (args.PacketData[0] == Packet.C2S.ChargedCast.Header)
+            {
+                var decodedPacket = Packet.C2S.ChargedCast.Decoded(args.PacketData);
+
+                if (decodedPacket.SourceNetworkId == Player.NetworkId)
+                {
+                    args.Process = !(menu.Item("ComboActive").GetValue<KeyBind>().Active && menu.Item("UseRCombo").GetValue<bool>() && menu.Item("smartKS").GetValue<bool>());
+                }
+            }
+
+            if (args.PacketData[0] == 0xFE)
+            {
+                var p = new GamePacket(args.PacketData);
+                if (p.ReadInteger(1) == ObjectManager.Player.NetworkId && p.Size() > 9)
+                {
+                    args.Process = false;
+                }
+            }
+
             if (args.PacketData[0] != Packet.C2S.SetTarget.Header)
             {
                 return;
