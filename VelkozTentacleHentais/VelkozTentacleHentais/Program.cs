@@ -318,7 +318,7 @@ namespace VelkozTentacleHentais
             float dist = (Player.Distance(target) - 700)/800;
             float div = 8 - dist;
 
-            Game.PrintChat("ult dmg" + div);
+            //Game.PrintChat("ult dmg" + div);
 
             if (Player.Distance(target) < 700)
                 div = 8;
