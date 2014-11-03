@@ -314,13 +314,13 @@ namespace VelkozTentacleHentais
         {
             double dmg = 0;
 
-            float dist = (Player.Distance(target) - 700)/800;
-            float div = 8 - dist;
+            float dist = (Player.ServerPosition.To2D().Distance(target.ServerPosition.To2D()) - 600)/100;
+            float div = 10 - dist;
 
             //Game.PrintChat("ult dmg" + div);
 
-            if (Player.Distance(target) < 700)
-                div = 8;
+            if (Player.Distance(target) < 600)
+                div = 10;
 
             if (Player.Distance(target) < 1550)
                 if (R.IsReady())
@@ -330,7 +330,7 @@ namespace VelkozTentacleHentais
                     dmg += ultDmg*div;
                 }
 
-            if(div > 2)
+            if(div > 3)
                 dmg += 25 + (10*Player.Level);
 
             
