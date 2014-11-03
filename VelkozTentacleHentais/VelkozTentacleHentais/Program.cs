@@ -422,7 +422,7 @@ namespace VelkozTentacleHentais
 
             var range = 1000f;
 
-            if(R.IsReady())
+            if(R.IsReady() || Player.IsChannelingImportantSpell())
                 range = R.Range;
             else if(Q.IsReady())
                 range = Q.Range;
