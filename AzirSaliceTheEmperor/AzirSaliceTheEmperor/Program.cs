@@ -61,7 +61,7 @@ namespace AzirSaliceTheEmperor
             Q.SetSkillshot(0.1f, 100, 1700, false, SkillshotType.SkillshotLine);
             QExtend.SetSkillshot(0.1f, 100, 1700, false, SkillshotType.SkillshotLine);
             E.SetSkillshot(0.25f, 100, 1200, false, SkillshotType.SkillshotLine);
-            R.SetSkillshot(0.75f, 700, float.MaxValue, false, SkillshotType.SkillshotLine);
+            R.SetSkillshot(0.5f, 700, 1400, false, SkillshotType.SkillshotLine);
 
             SpellList.Add(Q);
             SpellList.Add(W);
