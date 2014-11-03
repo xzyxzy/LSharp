@@ -288,7 +288,7 @@ namespace MalzaharSpaceAids
                     ObjectManager.Get<Obj_AI_Hero>()
                         .Where(
                             x =>
-                                Player.Distance(x) < 100 && x.IsValidTarget(1000) && !x.IsDead && x.IsEnemy &&
+                                Player.Distance(x) < 1000 && x.IsValidTarget(1000) && !x.IsDead && x.IsEnemy &&
                                 x.IsVisible))
             {
                 if (tsMode == 1)
