@@ -336,7 +336,7 @@ namespace VelkozTentacleHentais
 
             if (menu.Item("drawUlt").GetValue<bool>())
             {
-                if (R.IsReady() && getUltDmg(target) > target.Health + 20)
+                if (R.IsReady() && dmg > target.Health + 20)
                 {
                     Vector2 wts = Drawing.WorldToScreen(target.Position);
                     Drawing.DrawText(wts[0], wts[1], Color.White, "Killable with Ult");
