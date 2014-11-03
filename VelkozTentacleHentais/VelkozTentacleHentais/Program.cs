@@ -56,8 +56,8 @@ namespace VelkozTentacleHentais
             if (Player.BaseSkinName != ChampionName) return;
 
             //intalize spell
-            Q = new Spell(SpellSlot.Q, 1050);
-            QSplit = new Spell(SpellSlot.Q, 900);
+            Q = new Spell(SpellSlot.Q, 1000);
+            QSplit = new Spell(SpellSlot.Q, 850);
             QDummy = new Spell(SpellSlot.Q, (float) Math.Sqrt(Math.Pow(Q.Range, 2) + Math.Pow(QSplit.Range, 2)));
             W = new Spell(SpellSlot.W, 900);
             E = new Spell(SpellSlot.E, 850);
@@ -375,8 +375,11 @@ namespace VelkozTentacleHentais
                         if (Q.GetCollision(Player.ServerPosition.To2D(), new List<Vector2> {cp}).Count == 0 &&
                             QSplit.GetCollision(cp, new List<Vector2> {pred.CastPosition.To2D()}).Count == 0)
                         {
-                            Q.Cast(cp, packets());
-                            return;
+                            if (Player.Distance(cp) <= R.Range)
+                            {
+                                Q.Cast(cp, packets());
+                                return;
+                            }
                         }
                     }
                 }
