@@ -185,20 +185,24 @@ namespace BlitzcrankGrabDAT
             int tsMode = menu.Item("tsModes").GetValue<StringList>().SelectedIndex;
             var focusSelected = menu.Item("selected").GetValue<bool>();
 
+            var range = Q.Range;
+
+            Obj_AI_Hero getTar = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
+
             if (focusSelected && SelectedTarget != null)
             {
                 if (Player.Distance(SelectedTarget) < 1200 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
+                    SelectedTarget.IsValidTarget() &&
                     SelectedTarget.IsEnemy)
                 {
                     //Game.PrintChat("focusing selected target");
                     LXOrbwalker.ForcedTarget = SelectedTarget;
                     return SelectedTarget;
                 }
+
                 SelectedTarget = null;
+                return getTar;
             }
-
-
-            Obj_AI_Hero getTar = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
 
             if (tsMode == 0)
                 return getTar;
@@ -208,7 +212,7 @@ namespace BlitzcrankGrabDAT
                     ObjectManager.Get<Obj_AI_Hero>()
                         .Where(
                             x =>
-                                Player.Distance(x) < Q.Range && x.IsValidTarget(Q.Range) && !x.IsDead && x.IsEnemy &&
+                                Player.Distance(x) < range && x.IsValidTarget(range) && !x.IsDead && x.IsEnemy &&
                                 x.IsVisible))
             {
                 if (tsMode == 1)
@@ -232,14 +236,9 @@ namespace BlitzcrankGrabDAT
                 }
             }
 
-            if (getTar != null)
-            {
-                LXOrbwalker.ForcedTarget = getTar;
-                //Game.PrintChat("Focus Mode on: " + getTar.BaseSkinName);
-                return getTar;
-            }
 
-            return null;
+            LXOrbwalker.ForcedTarget = getTar;
+            return getTar;
         }
 
         private static void UseSpells(bool useQ, bool useW, bool useE, bool useR, string Source)

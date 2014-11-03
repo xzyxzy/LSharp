@@ -453,20 +453,24 @@ namespace YorickMILFDigger
             int tsMode = menu.Item("tsModes").GetValue<StringList>().SelectedIndex;
             var focusSelected = menu.Item("selected").GetValue<bool>();
 
+            var range = 700f;
+
+            Obj_AI_Hero getTar = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
+
             if (focusSelected && SelectedTarget != null)
             {
                 if (Player.Distance(SelectedTarget) < 1000 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
+                    SelectedTarget.IsValidTarget() &&
                     SelectedTarget.IsEnemy)
                 {
                     //Game.PrintChat("focusing selected target");
                     LXOrbwalker.ForcedTarget = SelectedTarget;
                     return SelectedTarget;
                 }
+
                 SelectedTarget = null;
+                return getTar;
             }
-
-
-            Obj_AI_Hero getTar = SimpleTs.GetTarget(600, SimpleTs.DamageType.Magical);
 
             if (tsMode == 0)
                 return getTar;
@@ -476,13 +480,13 @@ namespace YorickMILFDigger
                     ObjectManager.Get<Obj_AI_Hero>()
                         .Where(
                             x =>
-                                Player.Distance(x) < 600 && x.IsValidTarget(700) && !x.IsDead && x.IsEnemy &&
+                                Player.Distance(x) < range && x.IsValidTarget(range) && !x.IsDead && x.IsEnemy &&
                                 x.IsVisible))
             {
                 if (tsMode == 1)
                 {
-                    float tar1hp = target.Health/target.MaxHealth*100;
-                    float tar2hp = getTar.Health/getTar.MaxHealth*100;
+                    float tar1hp = target.Health / target.MaxHealth * 100;
+                    float tar2hp = getTar.Health / getTar.MaxHealth * 100;
                     if (tar1hp < tar2hp)
                         getTar = target;
                 }
@@ -500,14 +504,9 @@ namespace YorickMILFDigger
                 }
             }
 
-            if (getTar != null)
-            {
-                LXOrbwalker.ForcedTarget = getTar;
-                //Game.PrintChat("Focus Mode on: " + getTar.BaseSkinName);
-                return getTar;
-            }
 
-            return null;
+            LXOrbwalker.ForcedTarget = getTar;
+            return getTar;
         }
 
         public static void smartKS()

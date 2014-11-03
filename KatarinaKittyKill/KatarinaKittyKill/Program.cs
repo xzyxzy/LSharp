@@ -320,20 +320,24 @@ namespace KatarinaKittyKill
             int tsMode = menu.Item("tsModes").GetValue<StringList>().SelectedIndex;
             var focusSelected = menu.Item("selected").GetValue<bool>();
 
+            var range = E.Range;
+
+            Obj_AI_Hero getTar = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
+
             if (focusSelected && selectedTarget != null)
             {
                 if (Player.Distance(selectedTarget) < 1200 && !selectedTarget.IsDead && selectedTarget.IsVisible &&
+                    selectedTarget.IsValidTarget() &&
                     selectedTarget.IsEnemy)
                 {
                     //Game.PrintChat("focusing selected target");
                     LXOrbwalker.ForcedTarget = selectedTarget;
                     return selectedTarget;
                 }
+
                 selectedTarget = null;
+                return getTar;
             }
-
-
-            Obj_AI_Hero getTar = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
 
             if (tsMode == 0)
                 return getTar;
@@ -343,13 +347,13 @@ namespace KatarinaKittyKill
                     ObjectManager.Get<Obj_AI_Hero>()
                         .Where(
                             x =>
-                                Player.Distance(x) < E.Range && x.IsValidTarget(E.Range) && !x.IsDead && x.IsEnemy &&
+                                Player.Distance(x) < range && x.IsValidTarget(range) && !x.IsDead && x.IsEnemy &&
                                 x.IsVisible))
             {
                 if (tsMode == 1)
                 {
-                    float tar1hp = target.Health/target.MaxHealth*100;
-                    float tar2hp = getTar.Health/getTar.MaxHealth*100;
+                    float tar1hp = target.Health / target.MaxHealth * 100;
+                    float tar2hp = getTar.Health / getTar.MaxHealth * 100;
                     if (tar1hp < tar2hp)
                         getTar = target;
                 }
@@ -367,14 +371,9 @@ namespace KatarinaKittyKill
                 }
             }
 
-            if (getTar != null)
-            {
-                LXOrbwalker.ForcedTarget = getTar;
-                //Game.PrintChat("Focus Mode on: " + getTar.BaseSkinName);
-                return getTar;
-            }
 
-            return null;
+            LXOrbwalker.ForcedTarget = getTar;
+            return getTar;
         }
 
         public static void harass(bool useQ, bool useW, bool useE, bool useR)

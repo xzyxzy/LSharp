@@ -265,20 +265,24 @@ namespace MalzaharSpaceAids
             int tsMode = menu.Item("tsModes").GetValue<StringList>().SelectedIndex;
             var focusSelected = menu.Item("selected").GetValue<bool>();
 
+            var range = Q.Range;
+
+            Obj_AI_Hero getTar = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
+
             if (focusSelected && SelectedTarget != null)
             {
-                if (Player.Distance(SelectedTarget) < 1200 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
+                if (Player.Distance(SelectedTarget) < 1300 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
+                    SelectedTarget.IsValidTarget() &&
                     SelectedTarget.IsEnemy)
                 {
                     //Game.PrintChat("focusing selected target");
                     LXOrbwalker.ForcedTarget = SelectedTarget;
                     return SelectedTarget;
                 }
+
                 SelectedTarget = null;
+                return getTar;
             }
-
-
-            Obj_AI_Hero getTar = SimpleTs.GetTarget(1000, SimpleTs.DamageType.Magical);
 
             if (tsMode == 0)
                 return getTar;
@@ -288,7 +292,7 @@ namespace MalzaharSpaceAids
                     ObjectManager.Get<Obj_AI_Hero>()
                         .Where(
                             x =>
-                                Player.Distance(x) < 1000 && x.IsValidTarget(1000) && !x.IsDead && x.IsEnemy &&
+                                Player.Distance(x) < range && x.IsValidTarget(range) && !x.IsDead && x.IsEnemy &&
                                 x.IsVisible))
             {
                 if (tsMode == 1)
@@ -312,14 +316,9 @@ namespace MalzaharSpaceAids
                 }
             }
 
-            if (getTar != null)
-            {
-                LXOrbwalker.ForcedTarget = getTar;
-                //Game.PrintChat("Focus Mode on: " + getTar.BaseSkinName);
-                return getTar;
-            }
 
-            return null;
+            LXOrbwalker.ForcedTarget = getTar;
+            return getTar;
         }
 
         public static void smartKS()
