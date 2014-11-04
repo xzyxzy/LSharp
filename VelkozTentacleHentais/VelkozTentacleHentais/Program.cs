@@ -256,14 +256,12 @@ namespace VelkozTentacleHentais
                 W.GetPrediction(target).Hitchance >= HitChance.High)
             {
                 W.Cast(target);
-                return;
             }
 
             if (useE && target != null && E.IsReady() && Player.Distance(target) < E.Range &&
                 E.GetPrediction(target).Hitchance >= HitChance.High)
             {
                 E.Cast(target, packets());
-                return;
             }
 
             //Ignite
@@ -279,7 +277,6 @@ namespace VelkozTentacleHentais
             if (useQ && Q.IsReady() && target != null)
             {
                 castQ(target, qDummyTarget, Source);
-                return;
             }
 
             if (useR && target != null && R.IsReady() && Player.Distance(target) < R.Range)
@@ -364,23 +361,23 @@ namespace VelkozTentacleHentais
         {
             double dmg = 0;
 
-            float dist = (Player.ServerPosition.To2D().Distance(target.ServerPosition.To2D()) - 500) /100;
-            float div = 10 - dist;
+            float dist = (Player.ServerPosition.To2D().Distance(target.ServerPosition.To2D()) - 600) /100;
+            double div = Math.Ceiling(10 - dist);
 
             //Game.PrintChat("ult dmg" + target.BaseSkinName + " " + div);
 
-            if (Player.Distance(target) < 500)
+            if (Player.Distance(target) < 600)
                 div = 10;
 
             if (Player.Distance(target) < 1550)
                 if (R.IsReady())
                 {
-                    double ultDmg = Player.GetSpellDamage(target, SpellSlot.R)/8;
+                    double ultDmg = Player.GetSpellDamage(target, SpellSlot.R)/10;
 
                     dmg += ultDmg*div;
                 }
 
-            if(div > 3)
+            if(div > 6)
                 dmg += 25 + (10*Player.Level);
 
             if (menu.Item("drawUlt").GetValue<bool>())
