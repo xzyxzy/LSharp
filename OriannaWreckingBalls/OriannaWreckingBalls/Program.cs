@@ -274,7 +274,7 @@ namespace OriannaWreckingBalls
                 if (Player.Distance(SelectedTarget) < 1200 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
                     SelectedTarget.IsValidTarget())
                 {
-                    Game.PrintChat("focusing selected target " + SelectedTarget.Name);
+                    //Game.PrintChat("focusing selected target " + SelectedTarget.Name);
                     LXOrbwalker.ForcedTarget = SelectedTarget;
                     return SelectedTarget;
                 }
