@@ -284,7 +284,10 @@ namespace OriannaWreckingBalls
             }
 
             if (tsMode == 0)
+            {
+                Hud.SelectedUnit = getTar;
                 return getTar;
+            }
 
             foreach (
                 Obj_AI_Hero target in
