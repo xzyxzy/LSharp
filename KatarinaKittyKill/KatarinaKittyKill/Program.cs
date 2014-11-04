@@ -806,9 +806,8 @@ namespace KatarinaKittyKill
             {
                 foreach (Obj_AI_Base minion in allMinions)
                 {
-                    if (minion.IsValidTarget(W.Range) &&
-                        HealthPrediction.GetHealthPrediction(minion, (int) (Player.Distance(minion)*1000)) <
-                        Player.GetSpellDamage(minion, SpellSlot.W) - 80)
+                    if (minion.IsValidTarget(W.Range) && minion.Health <
+                        Player.GetSpellDamage(minion, SpellSlot.W) - 10)
                     {
                         if (Player.Distance(minion.ServerPosition) < W.Range)
                         {
