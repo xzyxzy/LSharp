@@ -164,7 +164,6 @@ namespace VelkozTentacleHentais
             menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use E for GapCloser").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("smartKS", "Use Smart KS System").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("printTar", "Print Selected Target").SetValue(true));
 
             //Damage after combo:
             MenuItem dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
@@ -277,7 +276,11 @@ namespace VelkozTentacleHentais
             if (useR && target != null && R.IsReady() && Player.Distance(target) < R.Range)
             {
                 if (getUltDmg(target) >= target.Health)
+                {
                     R.Cast(target.ServerPosition);
+                    return;
+                }
+
             }
 
             if (useQ && Q.IsReady() && target != null)
@@ -493,11 +496,12 @@ namespace VelkozTentacleHentais
 
             Obj_AI_Hero getTar = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
 
-            if (focusSelected && SelectedTarget != null)
+            SelectedTarget = (Obj_AI_Hero)Hud.SelectedUnit;
+
+            if (focusSelected && SelectedTarget != null && SelectedTarget.IsEnemy)
             {
                 if (Player.Distance(SelectedTarget) < 1500 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
-                    SelectedTarget.IsValidTarget() &&
-                    SelectedTarget.IsEnemy)
+                    SelectedTarget.IsValidTarget())
                 {
                     //Game.PrintChat("focusing selected target");
                     LXOrbwalker.ForcedTarget = SelectedTarget;
@@ -542,6 +546,7 @@ namespace VelkozTentacleHentais
 
            
             LXOrbwalker.ForcedTarget = getTar;
+            Hud.SelectedUnit = getTar;
             return getTar;
         }
 
@@ -751,29 +756,6 @@ namespace VelkozTentacleHentais
                 {
                     args.Process = !(menu.Item("ComboActive").GetValue<KeyBind>().Active && menu.Item("UseRCombo").GetValue<bool>() && menu.Item("smartKS").GetValue<bool>());
                 }
-            }
-
-            /*if (args.PacketData[0] == 0xFE)
-            {
-                var p = new GamePacket(args.PacketData);
-                if (p.ReadInteger(1) == ObjectManager.Player.NetworkId && p.Size() > 9)
-                {
-                    args.Process = false;
-                }
-            }*/
-
-            if (args.PacketData[0] != Packet.C2S.SetTarget.Header)
-            {
-                return;
-            }
-
-            Packet.C2S.SetTarget.Struct decoded = Packet.C2S.SetTarget.Decoded(args.PacketData);
-
-            if (decoded.NetworkId != 0 && decoded.Unit.IsValid && !decoded.Unit.IsMe)
-            {
-                SelectedTarget = (Obj_AI_Hero) decoded.Unit;
-                if (menu.Item("printTar").GetValue<bool>())
-                    Game.PrintChat("Selected Target: " + decoded.Unit.BaseSkinName);
             }
         }
 
