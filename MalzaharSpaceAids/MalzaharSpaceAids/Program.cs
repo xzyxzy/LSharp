@@ -134,7 +134,6 @@ namespace MalzaharSpaceAids
             menu.SubMenu("Misc").AddItem(new MenuItem("UseGap", "Use R for GapCloser").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("smartKS", "Use Smart KS System").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("printTar", "Print Selected Target").SetValue(true));
 
             //Damage after combo:
             MenuItem dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
@@ -166,7 +165,6 @@ namespace MalzaharSpaceAids
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             //Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
-            Game.OnGameSendPacket += Game_OnGameSendPacket;
             GameObject.OnCreate += OnCreate;
             //GameObject.OnDelete += OnDelete;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
@@ -269,11 +267,12 @@ namespace MalzaharSpaceAids
 
             Obj_AI_Hero getTar = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
 
-            if (focusSelected && SelectedTarget != null)
+            SelectedTarget = (Obj_AI_Hero)Hud.SelectedUnit;
+
+            if (focusSelected && SelectedTarget != null && SelectedTarget.IsEnemy)
             {
                 if (Player.Distance(SelectedTarget) < 1300 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
-                    SelectedTarget.IsValidTarget() &&
-                    SelectedTarget.IsEnemy)
+                    SelectedTarget.IsValidTarget())
                 {
                     //Game.PrintChat("focusing selected target");
                     LXOrbwalker.ForcedTarget = SelectedTarget;
@@ -285,7 +284,10 @@ namespace MalzaharSpaceAids
             }
 
             if (tsMode == 0)
+            {
+                Hud.SelectedUnit = getTar;
                 return getTar;
+            }
 
             foreach (
                 Obj_AI_Hero target in
@@ -316,7 +318,7 @@ namespace MalzaharSpaceAids
                 }
             }
 
-
+            Hud.SelectedUnit = getTar;
             LXOrbwalker.ForcedTarget = getTar;
             return getTar;
         }
@@ -558,22 +560,6 @@ namespace MalzaharSpaceAids
                 }
 
 
-            }
-        }
-        private static void Game_OnGameSendPacket(GamePacketEventArgs args)
-        {
-            if (args.PacketData[0] != Packet.C2S.SetTarget.Header)
-            {
-                return;
-            }
-
-            var decoded = Packet.C2S.SetTarget.Decoded(args.PacketData);
-
-            if (decoded.NetworkId != 0 && decoded.Unit.IsValid && !decoded.Unit.IsMe && decoded.Unit.IsEnemy)
-            {
-                SelectedTarget = (Obj_AI_Hero)decoded.Unit;
-                if (menu.Item("printTar").GetValue<bool>())
-                    Game.PrintChat("Selected Target: " + decoded.Unit.BaseSkinName);
             }
         }
     }

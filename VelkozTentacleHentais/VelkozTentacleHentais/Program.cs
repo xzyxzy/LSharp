@@ -513,8 +513,10 @@ namespace VelkozTentacleHentais
             }
 
             if (tsMode == 0)
+            {
+                Hud.SelectedUnit = getTar;
                 return getTar;
-
+            }
             foreach (
                 Obj_AI_Hero target in
                     ObjectManager.Get<Obj_AI_Hero>()

@@ -147,7 +147,6 @@ namespace ViktorTheMindBlower
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets to cast").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("printTar", "Print Selected Target").SetValue(true));
 
             //Damage after combo:
             var dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
@@ -182,7 +181,6 @@ namespace ViktorTheMindBlower
             GameObject.OnCreate += OnCreate;
             GameObject.OnDelete += OnDelete;
             LXOrbwalker.AfterAttack += AfterAttack;
-            Game.OnGameSendPacket += Game_OnGameSendPacket;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
@@ -228,11 +226,12 @@ namespace ViktorTheMindBlower
 
             Obj_AI_Hero getTar = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
 
-            if (focusSelected && SelectedTarget != null)
+            SelectedTarget = (Obj_AI_Hero)Hud.SelectedUnit;
+
+            if (focusSelected && SelectedTarget != null && SelectedTarget.IsEnemy)
             {
                 if (Player.Distance(SelectedTarget) < 1400 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
-                    SelectedTarget.IsValidTarget() &&
-                    SelectedTarget.IsEnemy)
+                    SelectedTarget.IsValidTarget())
                 {
                     //Game.PrintChat("focusing selected target");
                     LXOrbwalker.ForcedTarget = SelectedTarget;
@@ -244,7 +243,10 @@ namespace ViktorTheMindBlower
             }
 
             if (tsMode == 0)
+            {
+                Hud.SelectedUnit = getTar;
                 return getTar;
+            }
 
             foreach (
                 Obj_AI_Hero target in
@@ -275,7 +277,7 @@ namespace ViktorTheMindBlower
                 }
             }
 
-
+            Hud.SelectedUnit = getTar;
             LXOrbwalker.ForcedTarget = getTar;
             return getTar;
         }
@@ -728,23 +730,6 @@ namespace ViktorTheMindBlower
                     activeR = false;
                     rObj = null;
                 }
-            }
-        }
-
-        private static void Game_OnGameSendPacket(GamePacketEventArgs args)
-        {
-            if (args.PacketData[0] != Packet.C2S.SetTarget.Header)
-            {
-                return;
-            }
-
-            var decoded = Packet.C2S.SetTarget.Decoded(args.PacketData);
-
-            if (decoded.NetworkId != 0 && decoded.Unit.IsValid && !decoded.Unit.IsMe && decoded.Unit.IsEnemy)
-            {
-                SelectedTarget = (Obj_AI_Hero)decoded.Unit;
-                if (menu.Item("printTar").GetValue<bool>())
-                    Game.PrintChat("Selected Target: " + decoded.Unit.BaseSkinName);
             }
         }
 

@@ -159,7 +159,6 @@ namespace KatarinaKittyKill
             menu.SubMenu("Misc")
                 .AddItem(new MenuItem("igniteMode", "Mode").SetValue(new StringList(new[] {"Combo", "KS"}, 0)));
             menu.SubMenu("Misc").AddItem(new MenuItem("autoWz", "Auto W Enemy").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("printTar", "Print Selected Target").SetValue(true));
 
             //Damage after combo:
             MenuItem dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
@@ -189,7 +188,6 @@ namespace KatarinaKittyKill
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             GameObject.OnCreate += GameObject_OnCreate;
-            Game.OnGameSendPacket += Game_OnGameSendPacket;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
@@ -324,11 +322,13 @@ namespace KatarinaKittyKill
 
             Obj_AI_Hero getTar = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
 
-            if (focusSelected && selectedTarget != null)
+            selectedTarget = (Obj_AI_Hero)Hud.SelectedUnit;
+
+            if (focusSelected && selectedTarget != null && selectedTarget.IsEnemy)
             {
+
                 if (Player.Distance(selectedTarget) < 1200 && !selectedTarget.IsDead && selectedTarget.IsVisible &&
-                    selectedTarget.IsValidTarget() &&
-                    selectedTarget.IsEnemy)
+                    selectedTarget.IsValidTarget())
                 {
                     //Game.PrintChat("focusing selected target");
                     LXOrbwalker.ForcedTarget = selectedTarget;
@@ -340,7 +340,10 @@ namespace KatarinaKittyKill
             }
 
             if (tsMode == 0)
+            {
+                Hud.SelectedUnit = getTar;
                 return getTar;
+            }
 
             foreach (
                 Obj_AI_Hero target in
@@ -371,7 +374,7 @@ namespace KatarinaKittyKill
                 }
             }
 
-
+            Hud.SelectedUnit = getTar;
             LXOrbwalker.ForcedTarget = getTar;
             return getTar;
         }
@@ -929,21 +932,5 @@ namespace KatarinaKittyKill
             }
         }
 
-        private static void Game_OnGameSendPacket(GamePacketEventArgs args)
-        {
-            if (args.PacketData[0] != Packet.C2S.SetTarget.Header)
-            {
-                return;
-            }
-
-            Packet.C2S.SetTarget.Struct decoded = Packet.C2S.SetTarget.Decoded(args.PacketData);
-
-            if (decoded.NetworkId != 0 && decoded.Unit.IsValid && !decoded.Unit.IsMe && decoded.Unit.IsEnemy)
-            {
-                selectedTarget = (Obj_AI_Hero) decoded.Unit;
-                if (menu.Item("printTar").GetValue<bool>())
-                    Game.PrintChat("Selected Target: " + decoded.Unit.BaseSkinName);
-            }
-        }
     }
 }

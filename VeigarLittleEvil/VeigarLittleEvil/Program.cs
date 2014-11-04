@@ -149,7 +149,6 @@ namespace VeigarLittleEvil
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("overKill", "Over Kill Check").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("smartKS", "Use Smart KS System").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("printTar", "Print Selected Target").SetValue(true));
 
             menu.SubMenu("Misc").AddSubMenu(new Menu("Dont use R on", "DontUlt"));
 
@@ -196,7 +195,6 @@ namespace VeigarLittleEvil
             Drawing.OnDraw += Drawing_OnDraw;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
-            Game.OnGameSendPacket += Game_OnGameSendPacket;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
@@ -337,11 +335,12 @@ namespace VeigarLittleEvil
 
             Obj_AI_Hero getTar = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
 
-            if (focusSelected && SelectedTarget != null)
+            SelectedTarget = (Obj_AI_Hero)Hud.SelectedUnit;
+
+            if (focusSelected && SelectedTarget != null && SelectedTarget.IsEnemy)
             {
                 if (Player.Distance(SelectedTarget) < 1300 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
-                    SelectedTarget.IsValidTarget() &&
-                    SelectedTarget.IsEnemy)
+                    SelectedTarget.IsValidTarget())
                 {
                     //Game.PrintChat("focusing selected target");
                     LXOrbwalker.ForcedTarget = SelectedTarget;
@@ -353,7 +352,10 @@ namespace VeigarLittleEvil
             }
 
             if (tsMode == 0)
+            {
+                Hud.SelectedUnit = getTar;
                 return getTar;
+            }
 
             foreach (
                 Obj_AI_Hero target in
@@ -384,7 +386,7 @@ namespace VeigarLittleEvil
                 }
             }
 
-
+            Hud.SelectedUnit = getTar;
             LXOrbwalker.ForcedTarget = getTar;
             return getTar;
         }
@@ -654,24 +656,6 @@ namespace VeigarLittleEvil
             if (Player.Distance(unit) < E.Range && unit != null && E.IsReady())
             {
                 castE((Obj_AI_Hero) unit);
-            }
-        }
-
-        private static void Game_OnGameSendPacket(GamePacketEventArgs args)
-        {
-            //ty trees
-            if (args.PacketData[0] != Packet.C2S.SetTarget.Header)
-            {
-                return;
-            }
-
-            var decoded = Packet.C2S.SetTarget.Decoded(args.PacketData);
-
-            if (decoded.NetworkId != 0 && decoded.Unit.IsValid && !decoded.Unit.IsMe && decoded.Unit.IsEnemy)
-            {
-                SelectedTarget = (Obj_AI_Hero) decoded.Unit;
-                if (menu.Item("printTar").GetValue<bool>())
-                    Game.PrintChat("Selected Target: " + decoded.Unit.BaseSkinName);
             }
         }
     }
