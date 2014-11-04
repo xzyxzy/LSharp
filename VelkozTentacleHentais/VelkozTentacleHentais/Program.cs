@@ -274,15 +274,15 @@ namespace VelkozTentacleHentais
                 }
             }
 
-            if (useQ && Q.IsReady() && target != null)
-            {
-                castQ(target, qDummyTarget, Source);
-            }
-
             if (useR && target != null && R.IsReady() && Player.Distance(target) < R.Range)
             {
                 if (getUltDmg(target) >= target.Health)
                     R.Cast(target.ServerPosition);
+            }
+
+            if (useQ && Q.IsReady() && target != null)
+            {
+                castQ(target, qDummyTarget, Source);
             }
         }
 
