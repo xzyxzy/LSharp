@@ -151,7 +151,6 @@ namespace AhriTheGumiho
             menu.SubMenu("Misc").AddItem(new MenuItem("dfgCharm", "Require Charmed to DFG").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("EQ", "Use Q onTop of E").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("smartKS", "Smart KS").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("printTar", "Print Selected Target").SetValue(true));
 
             //Damage after combo:
             MenuItem dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
@@ -186,7 +185,6 @@ namespace AhriTheGumiho
             Drawing.OnDraw += Drawing_OnDraw;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
-            Game.OnGameSendPacket += Game_OnGameSendPacket;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
@@ -250,11 +248,12 @@ namespace AhriTheGumiho
 
             Obj_AI_Hero getTar = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
 
-            if (focusSelected && SelectedTarget != null)
+            SelectedTarget = (Obj_AI_Hero)Hud.SelectedUnit;
+
+            if (focusSelected && SelectedTarget != null && SelectedTarget.IsEnemy)
             {
                 if (Player.Distance(SelectedTarget) < 1300 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
-                    SelectedTarget.IsValidTarget() &&
-                    SelectedTarget.IsEnemy)
+                    SelectedTarget.IsValidTarget())
                 {
                     //Game.PrintChat("focusing selected target");
                     LXOrbwalker.ForcedTarget = SelectedTarget;
@@ -266,7 +265,10 @@ namespace AhriTheGumiho
             }
 
             if (tsMode == 0)
+            {
+                Hud.SelectedUnit = getTar;
                 return getTar;
+            }
 
             foreach (
                 Obj_AI_Hero target in
@@ -297,7 +299,7 @@ namespace AhriTheGumiho
                 }
             }
 
-
+            Hud.SelectedUnit = getTar;
             LXOrbwalker.ForcedTarget = getTar;
             return getTar;
         }
@@ -789,22 +791,5 @@ namespace AhriTheGumiho
             }
         }
 
-        private static void Game_OnGameSendPacket(GamePacketEventArgs args)
-        {
-            //ty trees
-            if (args.PacketData[0] != Packet.C2S.SetTarget.Header)
-            {
-                return;
-            }
-
-            var decoded = Packet.C2S.SetTarget.Decoded(args.PacketData);
-
-            if (decoded.NetworkId != 0 && decoded.Unit.IsValid && !decoded.Unit.IsMe && decoded.Unit.IsEnemy)
-            {
-                SelectedTarget = (Obj_AI_Hero)decoded.Unit;
-                if (menu.Item("printTar").GetValue<bool>())
-                    Game.PrintChat("Selected Target: " + decoded.Unit.BaseSkinName);
-            }
-        }
     }
 }
