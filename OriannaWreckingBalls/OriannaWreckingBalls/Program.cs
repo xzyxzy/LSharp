@@ -28,6 +28,7 @@ namespace OriannaWreckingBalls
         //ball manager
         public static bool IsBallMoving = false;
         public static Vector3 CurrentBallPosition;
+        public static Vector3 allyDraw;
         public static int ballStatus = 0;
 
         //Menu
@@ -101,6 +102,37 @@ namespace OriannaWreckingBalls
                 .AddItem(
                     new MenuItem("LaneClearActive", "Farm!").SetValue(
                         new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+            menu.SubMenu("Keys")
+                .AddItem(
+                    new MenuItem("escape", "RUN FOR YOUR LIFE!").SetValue(new KeyBind("Z".ToCharArray()[0],
+                        KeyBindType.Press)));
+            //Spell Menu
+            menu.AddSubMenu(new Menu("Spell", "Spell"));
+            //Q Menu
+            menu.SubMenu("Spell").AddSubMenu(new Menu("QSpell", "QSpell"));
+            menu.SubMenu("Spell").SubMenu("QSpell").AddItem(new MenuItem("qHit", "Q HitChance Combo").SetValue(new Slider(3, 1, 3)));
+            menu.SubMenu("Spell").SubMenu("QSpell").AddItem(new MenuItem("qHit2", "Q HitChance Harass").SetValue(new Slider(3, 1, 4)));
+            //W
+            menu.SubMenu("Spell").AddSubMenu(new Menu("WSpell", "WSpell"));
+            menu.SubMenu("Spell").SubMenu("WSpell").AddItem(new MenuItem("autoW", "Use W if hit").SetValue(new Slider(2, 1, 5)));
+            //E
+            menu.SubMenu("Spell").AddSubMenu(new Menu("ESpell", "ESpell"));
+            menu.SubMenu("Spell").SubMenu("ESpell").AddItem(new MenuItem("UseEDmg", "Use E to Dmg").SetValue(true));
+            menu.SubMenu("Spell").SubMenu("ESpell").AddSubMenu(new Menu("E Ally Inc Spell", "shield"));
+            menu.SubMenu("Spell").SubMenu("ESpell").SubMenu("shield").AddItem(new MenuItem("eAllyIfHP", "If HP < %").SetValue(new Slider(40, 0, 100)));
+
+            foreach (Obj_AI_Hero ally in ObjectManager.Get<Obj_AI_Hero>().Where(ally => ally.IsAlly))
+                menu.SubMenu("Spell").SubMenu("ESpell")
+                    .SubMenu("shield")
+                    .AddItem(new MenuItem("shield" + ally.BaseSkinName, ally.BaseSkinName).SetValue(false));
+            //R
+            menu.SubMenu("Spell").AddSubMenu(new Menu("RSpell", "RSpell"));
+            menu.SubMenu("Spell").SubMenu("RSpell").AddItem(new MenuItem("autoR", "Use R if hit").SetValue(new Slider(3, 1, 5)));
+            menu.SubMenu("Spell").SubMenu("RSpell").AddItem(new MenuItem("blockR", "Block R if no enemy").SetValue(true));
+            menu.SubMenu("Spell").SubMenu("RSpell").AddItem(new MenuItem("overK", "OverKill Check").SetValue(true));
+            menu.SubMenu("Spell").SubMenu("RSpell").AddItem(
+                    new MenuItem("killR", "R Multi Only Toggle").SetValue(new KeyBind("T".ToCharArray()[0],
+                        KeyBindType.Toggle)));
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
@@ -110,22 +142,15 @@ namespace OriannaWreckingBalls
                         new StringList(new[] {"Orbwalker/LessCast", "Low HP%", "NearMouse", "CurrentHP"}, 0)));
             menu.SubMenu("Combo").AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("qHit", "Q HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("UseEDmg", "Use E to Dmg").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("autoRCombo", "Use R if hit").SetValue(new Slider(3, 1, 5)));
-            menu.SubMenu("Combo")
-                .AddItem(
-                    new MenuItem("killR", "R Multi Only Toggle").SetValue(new KeyBind("T".ToCharArray()[0],
-                        KeyBindType.Toggle)));
+            menu.SubMenu("Combo").AddItem(new MenuItem("autoRCombo", "Use R if hit").SetValue(new Slider(2, 1, 5)));
             menu.SubMenu("Combo").AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
 
             //Harass menu:
             menu.AddSubMenu(new Menu("Harass", "Harass"));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Use Q").SetValue(true));
-            menu.SubMenu("Harass").AddItem(new MenuItem("qHit2", "Q HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Use W").SetValue(false));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
 
@@ -154,13 +179,7 @@ namespace OriannaWreckingBalls
             //Misc Menu:
             menu.AddSubMenu(new Menu("Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("UseInt", "Use R to Interrupt").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("autoW", "Use W if hit").SetValue(new Slider(2, 1, 5)));
-            menu.SubMenu("Misc").AddItem(new MenuItem("autoR", "Use R if hit").SetValue(new Slider(3, 1, 5)));
-            menu.SubMenu("Misc").AddItem(new MenuItem("autoE", "E If HP < %").SetValue(new Slider(40, 0, 100)));
-            menu.SubMenu("Misc").AddItem(new MenuItem("blockR", "Block R if no enemy").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("overK", "OverKill Check").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("packet", "Use Packets").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("printTar", "Print Selected Target").SetValue(true));
 
             menu.SubMenu("Misc").AddSubMenu(new Menu("Auto use R on", "intR"));
 
@@ -248,13 +267,14 @@ namespace OriannaWreckingBalls
 
             Obj_AI_Hero getTar = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
 
-            if (focusSelected && SelectedTarget != null)
+            SelectedTarget = (Obj_AI_Hero)Hud.SelectedUnit;
+
+            if (focusSelected && SelectedTarget != null && SelectedTarget.IsEnemy)
             {
                 if (Player.Distance(SelectedTarget) < 1200 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
-                    SelectedTarget.IsValidTarget() &&
-                    SelectedTarget.IsEnemy)
+                    SelectedTarget.IsValidTarget())
                 {
-                    //Game.PrintChat("focusing selected target");
+                    Game.PrintChat("focusing selected target " + SelectedTarget.Name);
                     LXOrbwalker.ForcedTarget = SelectedTarget;
                     return SelectedTarget;
                 }
@@ -297,6 +317,7 @@ namespace OriannaWreckingBalls
 
 
             LXOrbwalker.ForcedTarget = getTar;
+            Hud.SelectedUnit = getTar;
             return getTar;
         }
 
@@ -423,16 +444,6 @@ namespace OriannaWreckingBalls
         public static void castE(Obj_AI_Base target)
         {
             if (IsBallMoving) return;
-
-            //hp sheild
-            int hp = menu.Item("autoE").GetValue<Slider>().Value;
-            float hpPercent = Player.Health/Player.MaxHealth*100;
-
-            if (hpPercent <= hp && E.IsReady())
-            {
-                E.CastOnUnit(Player, packets());
-                return;
-            }
 
             Obj_AI_Hero etarget = Player;
 
@@ -853,7 +864,9 @@ namespace OriannaWreckingBalls
                 if ((spell.Slot == SpellSlot.R && menuItem.Active) || (spell.Slot == SpellSlot.W && menuItem.Active))
                 {
                     if(ballStatus == 0)
-                        Utility.DrawCircle(Player.ServerPosition, spell.Range, spell.IsReady() ? Color.Aqua : Color.Red);
+                        Utility.DrawCircle(Player.Position, spell.Range, spell.IsReady() ? Color.Aqua : Color.Red);
+                    else if(ballStatus == 2)
+                        Utility.DrawCircle(allyDraw, spell.Range, spell.IsReady() ? Color.Aqua : Color.Red);
                     else
                     Utility.DrawCircle(CurrentBallPosition, spell.Range, spell.IsReady() ? Color.Aqua : Color.Red);
                 }
@@ -891,6 +904,7 @@ namespace OriannaWreckingBalls
             {
                 ballStatus = 2;
                 CurrentBallPosition = ally.ServerPosition;
+                allyDraw = ally.Position;
                 IsBallMoving = false;
                 return;
             }
@@ -900,6 +914,33 @@ namespace OriannaWreckingBalls
 
         public static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
+            //Shield Ally
+            if (unit.IsEnemy && unit.Type == GameObjectType.obj_AI_Hero && E.IsReady())
+            {
+                foreach (
+                    Obj_AI_Hero ally in
+                        ObjectManager.Get<Obj_AI_Hero>()
+                            .Where(x => Player.Distance(x) < E.Range&& Player.Distance(unit) < 1500 && x.IsAlly && !x.IsDead).OrderBy(x => x.Distance(args.End)))
+                {
+                    if (menu.Item("shield" + ally.BaseSkinName) != null)
+                    {
+                        if (ally != null && menu.Item("shield" + ally.BaseSkinName).GetValue<bool>())
+                        {
+                            int hp = menu.Item("eAllyIfHP").GetValue<Slider>().Value;
+                            float hpPercent = ally.Health / ally.MaxHealth * 100;
+
+                            if (ally.Distance(args.End) < 500 && hpPercent <= hp)
+                            {
+                                //Game.PrintChat("shielding");
+                                E.CastOnUnit(ally, packets());
+                                IsBallMoving = true;
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+            
             //intiator
             if (unit.IsAlly)
             {
@@ -912,6 +953,7 @@ namespace OriannaWreckingBalls
                             if (E.IsReady() && Player.Distance(unit) < E.Range)
                             {
                                 E.CastOnUnit(unit, packets());
+                                IsBallMoving = true;
                                 return;
                             }
                         }
@@ -953,20 +995,6 @@ namespace OriannaWreckingBalls
 
         private static void Game_OnSendPacket(GamePacketEventArgs args)
         {
-            if (args.PacketData[0] != Packet.C2S.SetTarget.Header)
-            {
-                return;
-            }
-
-            Packet.C2S.SetTarget.Struct decoded = Packet.C2S.SetTarget.Decoded(args.PacketData);
-
-            if (decoded.NetworkId != 0 && decoded.Unit.IsValid && !decoded.Unit.IsMe && decoded.Unit.IsEnemy)
-            {
-                SelectedTarget = (Obj_AI_Hero) decoded.Unit;
-                if (menu.Item("printTar").GetValue<bool>())
-                    Game.PrintChat("Selected Target: " + decoded.Unit.BaseSkinName);
-            }
-
             if (args.PacketData[0] == Packet.C2S.Cast.Header)
             {
                 Packet.C2S.Cast.Struct decodedPacket = Packet.C2S.Cast.Decoded(args.PacketData);
@@ -981,6 +1009,14 @@ namespace OriannaWreckingBalls
             }
         }
 
+        public static void escape()
+        {
+            if (ballStatus == 0 && W.IsReady())
+                W.Cast();
+            else if(E.IsReady() && ballStatus != 0)
+                E.CastOnUnit(Player, packets());
+        }
+
         private static void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
@@ -990,7 +1026,11 @@ namespace OriannaWreckingBalls
 
             checkRMecGlobal();
 
-            if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
+            if (menu.Item("escape").GetValue<KeyBind>().Active)
+            {
+                escape();
+            }
+            else if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 checkRMec();
                 Combo();
