@@ -377,7 +377,7 @@ namespace VelkozTentacleHentais
                     dmg += ultDmg*div;
                 }
 
-            if(div > 6)
+            if(div >= 3)
                 dmg += 25 + (10*Player.Level);
 
             if (menu.Item("drawUlt").GetValue<bool>())
