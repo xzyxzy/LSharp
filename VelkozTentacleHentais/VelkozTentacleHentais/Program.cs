@@ -408,9 +408,13 @@ namespace VelkozTentacleHentais
             //cast Q with no collision
             if (Player.Distance(target) < 1050)
             {
-                if (collision == 0 && pred.Hitchance >= getHit(source))
+                if (collision == 0)
                 {
-                    Q.Cast(pred.CastPosition, packets());
+                    if (pred.Hitchance >= getHit(source))
+                    {
+                        Q.Cast(pred.CastPosition, packets());
+                    }
+
                     return;
                 }
             }
