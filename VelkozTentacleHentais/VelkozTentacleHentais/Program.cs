@@ -137,6 +137,7 @@ namespace VelkozTentacleHentais
                         new StringList(new[] {"Orbwalker/LessCast", "Low HP%", "NearMouse", "CurrentHP"}, 0)));
             menu.SubMenu("Combo").AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
+            menu.SubMenu("Combo").AddItem(new MenuItem("qHit", "Q HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
@@ -147,6 +148,7 @@ namespace VelkozTentacleHentais
             //Harass menu:
             menu.AddSubMenu(new Menu("Harass", "Harass"));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Use Q").SetValue(true));
+            menu.SubMenu("Harass").AddItem(new MenuItem("qHit2", "Q HitChance").SetValue(new Slider(3, 1, 4)));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Use W").SetValue(false));
             menu.SubMenu("Harass").AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
 
@@ -276,7 +278,7 @@ namespace VelkozTentacleHentais
 
             if (useQ && Q.IsReady() && target != null)
             {
-                castQ(target, qDummyTarget);
+                castQ(target, qDummyTarget, Source);
                 return;
             }
 
@@ -285,6 +287,53 @@ namespace VelkozTentacleHentais
                 if (getUltDmg(target) >= target.Health)
                     R.Cast(target.ServerPosition);
             }
+        }
+
+        public static HitChance getHit(string Source)
+        {
+            var hitC = HitChance.High;
+            var qHit = menu.Item("qHit").GetValue<Slider>().Value;
+            var harassQHit = menu.Item("qHit2").GetValue<Slider>().Value;
+
+            // HitChance.Low = 3, Medium , High .... etc..
+            if (Source == "Combo")
+            {
+                switch (qHit)
+                {
+                    case 1:
+                        hitC = HitChance.Low;
+                        break;
+                    case 2:
+                        hitC = HitChance.Medium;
+                        break;
+                    case 3:
+                        hitC = HitChance.High;
+                        break;
+                    case 4:
+                        hitC = HitChance.VeryHigh;
+                        break;
+                }
+            }
+            else if (Source == "Harass")
+            {
+                switch (harassQHit)
+                {
+                    case 1:
+                        hitC = HitChance.Low;
+                        break;
+                    case 2:
+                        hitC = HitChance.Medium;
+                        break;
+                    case 3:
+                        hitC = HitChance.High;
+                        break;
+                    case 4:
+                        hitC = HitChance.VeryHigh;
+                        break;
+                }
+            }
+
+            return hitC;
         }
 
         public static float getPassiveDmg()
@@ -351,7 +400,7 @@ namespace VelkozTentacleHentais
             return (float) dmg;
         }
 
-        public static void castQ(Obj_AI_Hero target, Obj_AI_Hero targetExtend)
+        public static void castQ(Obj_AI_Hero target, Obj_AI_Hero targetExtend,string source)
         {
             PredictionOutput pred = Q.GetPrediction(target);
             int collision = pred.CollisionObjects.Count;
@@ -359,7 +408,7 @@ namespace VelkozTentacleHentais
             //cast Q with no collision
             if (Player.Distance(target) < 1050)
             {
-                if (collision == 0 && pred.Hitchance >= HitChance.High)
+                if (collision == 0 && pred.Hitchance >= getHit(source))
                 {
                     Q.Cast(pred.CastPosition, packets());
                     return;
@@ -377,7 +426,7 @@ namespace VelkozTentacleHentais
                 QDummy.Delay = Q.Delay + Q.Range/Q.Speed*1000 + QSplit.Range/QSplit.Speed*1000;
                 pred = QDummy.GetPrediction(targetExtend);
 
-                if (pred.Hitchance >= HitChance.High)
+                if (pred.Hitchance >= getHit(source))
                 {
                     //math by esk0r <3
                     for (int i = -1; i < 1; i = i + 2)
@@ -513,7 +562,7 @@ namespace VelkozTentacleHentais
                 {
                     if (Q.IsReady())
                     {
-                        castQ(target, target);
+                        castQ(target, target, "Combo");
                         return;
                     }
                 }
