@@ -256,7 +256,6 @@ namespace VelkozTentacleHentais
                 W.GetPrediction(target).Hitchance >= HitChance.High)
             {
                 W.Cast(target);
-                return;
             }
 
             if (useE && target != null && E.IsReady() && Player.Distance(target) < E.Range &&
