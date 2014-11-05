@@ -499,7 +499,7 @@ namespace VelkozTentacleHentais
 
             SelectedTarget = (Obj_AI_Hero)Hud.SelectedUnit;
 
-            if (focusSelected && SelectedTarget != null && SelectedTarget.IsEnemy)
+            if (focusSelected && SelectedTarget != null && SelectedTarget.IsEnemy && SelectedTarget.Type == GameObjectType.obj_AI_Hero)
             {
                 if (Player.Distance(SelectedTarget) < 1500 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
                     SelectedTarget.IsValidTarget())

@@ -324,7 +324,7 @@ namespace KatarinaKittyKill
 
             selectedTarget = (Obj_AI_Hero)Hud.SelectedUnit;
 
-            if (focusSelected && selectedTarget != null && selectedTarget.IsEnemy)
+            if (focusSelected && selectedTarget != null && selectedTarget.IsEnemy && selectedTarget.Type == GameObjectType.obj_AI_Hero)
             {
 
                 if (Player.Distance(selectedTarget) < 900 && !selectedTarget.IsDead && selectedTarget.IsVisible &&
