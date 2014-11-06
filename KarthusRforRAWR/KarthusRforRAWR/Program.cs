@@ -571,12 +571,7 @@ namespace KarthusRForRAWR
             if (!menu.Item("smartKS").GetValue<bool>())
                 return;
 
-            List<Obj_AI_Hero> nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>()
-                                            where Player.Distance(champ.ServerPosition) <= Q.Range && champ.IsEnemy
-                                            select champ).ToList();
-            nearChamps.OrderBy(x => x.Health);
-
-            foreach (Obj_AI_Hero target in nearChamps)
+            foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < Q.Range && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
             {
                 //Q
                 if (Player.Distance(target.ServerPosition) <= Q.Range &&
