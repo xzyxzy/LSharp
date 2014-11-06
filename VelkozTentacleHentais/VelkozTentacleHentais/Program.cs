@@ -697,7 +697,7 @@ namespace VelkozTentacleHentais
 
             if (useW && W.IsReady() && allMinionsW.Count > 0)
             {
-                MinionManager.FarmLocation wPos = Q.GetLineFarmLocation(allMinionsW);
+                MinionManager.FarmLocation wPos = W.GetLineFarmLocation(allMinionsW);
 
                 if (wPos.MinionsHit > 2)
                     W.Cast(wPos.Position, packets());
