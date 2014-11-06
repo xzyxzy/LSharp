@@ -655,6 +655,7 @@ namespace KarthusRForRAWR
 
             autoQ();
 
+            checkEState();
 
             if (menu.Item("wTower").GetValue<bool>())
                 checkUnderTower();
@@ -690,8 +691,6 @@ namespace KarthusRForRAWR
                         W.Cast(target, packets());
                 }
             }
-
-            checkEState();
         }
 
         public static void lastHitQ()
