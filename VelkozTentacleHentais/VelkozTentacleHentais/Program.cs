@@ -64,8 +64,8 @@ namespace VelkozTentacleHentais
             R = new Spell(SpellSlot.R, 1500);
 
             Q.SetSkillshot(0.25f, 60f, 1300f, true, SkillshotType.SkillshotLine);
-            QDummy.SetSkillshot(0.25f, 55f, float.MaxValue, false, SkillshotType.SkillshotLine);
-            QSplit.SetSkillshot(0.25f, 55f, 2100, true, SkillshotType.SkillshotLine);
+            QDummy.SetSkillshot(0.25f, 65f, float.MaxValue, false, SkillshotType.SkillshotLine);
+            QSplit.SetSkillshot(0.25f, 65f, 2100, true, SkillshotType.SkillshotLine);
             W.SetSkillshot(0.25f, 85f, 1700f, false, SkillshotType.SkillshotLine);
             E.SetSkillshot(0.5f, 80f, 1500f, false, SkillshotType.SkillshotCircle);
             R.SetSkillshot(0.3f, 1f, float.MaxValue, false, SkillshotType.SkillshotLine);
@@ -462,7 +462,7 @@ namespace VelkozTentacleHentais
 
             Obj_AI_Hero target = getTarget();
 
-            QSplit.UpdateSourcePosition(qMissle.Position, qMissle.Position);
+            QSplit.From = qMissle.Position;
             PredictionOutput pred = QSplit.GetPrediction(target);
 
             Vector2 perpendicular = (qMissle.EndPosition - qMissle.StartPosition).To2D().Normalized().Perpendicular();
@@ -474,7 +474,7 @@ namespace VelkozTentacleHentais
             float d2 = pred.UnitPosition.To2D().Distance(qMissle.Position.To2D(), lineSegment2End, true);
 
             //cast split
-            if (pred.Hitchance >= HitChance.High && pred.CollisionObjects.Count == 0 && d1 < QSplit.Width ||
+            if (pred.CollisionObjects.Count == 0 && d1 < QSplit.Width ||
                 d2 < QSplit.Width)
             {
                 Q.Cast();
