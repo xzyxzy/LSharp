@@ -624,7 +624,7 @@ namespace KarthusRForRAWR
             //check if around minion
             if (menu.Item("LaneClearActive").GetValue<KeyBind>().Active)
             {
-                List<Obj_AI_Base> allMinionsE = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range,
+                var allMinionsE = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range,
                 MinionTypes.All, MinionTeam.NotAlly);
 
                 if (allMinionsE.Count > 0)
