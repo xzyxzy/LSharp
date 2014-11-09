@@ -749,7 +749,6 @@ namespace KatarinaKittyKill
 
             SpellDataInst sdi = GetItemSpell(slot);
 
-            //Game.PrintChat("item " + sdi.Name);
             if (sdi != default(SpellDataInst) && sdi.State == SpellState.Ready)
             {
                 return slot;
