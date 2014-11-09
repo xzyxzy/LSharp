@@ -739,7 +739,7 @@ namespace KatarinaKittyKill
 
         private static SpellDataInst GetItemSpell(InventorySlot invSlot)
         {
-            return ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => (int) spell.Slot == invSlot.Slot + 4);
+            return Player.Spellbook.Spells.FirstOrDefault(spell => (int) spell.Slot == invSlot.Slot);
         }
 
         private static InventorySlot FindBestWardItem()
@@ -749,6 +749,7 @@ namespace KatarinaKittyKill
 
             SpellDataInst sdi = GetItemSpell(slot);
 
+            //Game.PrintChat("item " + sdi.Name);
             if (sdi != default(SpellDataInst) && sdi.State == SpellState.Ready)
             {
                 return slot;
