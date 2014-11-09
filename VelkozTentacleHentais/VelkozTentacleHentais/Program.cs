@@ -407,7 +407,7 @@ namespace VelkozTentacleHentais
             int collision = pred.CollisionObjects.Count;
 
             //cast Q with no collision
-            if (Player.Distance(target) < 1050)
+            if (Player.Distance(target) < 1050 && Q.Instance.Name == "VelkozQ")
             {
                 if (collision == 0)
                 {
@@ -474,8 +474,8 @@ namespace VelkozTentacleHentais
             float d2 = pred.UnitPosition.To2D().Distance(qMissle.Position.To2D(), lineSegment2End, true);
 
             //cast split
-            if (pred.CollisionObjects.Count == 0 && d1 < QSplit.Width ||
-                d2 < QSplit.Width)
+            if (pred.CollisionObjects.Count == 0  && (d1 < QSplit.Width ||
+                d2 < QSplit.Width))
             {
                 Q.Cast();
                 qMissle = null;
