@@ -241,6 +241,7 @@ namespace KatarinaKittyKill
 
             int eDis = menu.Item("eDis").GetValue<Slider>().Value;
 
+            if(SimpleTs.GetSelectedTarget() != null)
             if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < E.Range)
                 Target = SimpleTs.GetSelectedTarget();
 
