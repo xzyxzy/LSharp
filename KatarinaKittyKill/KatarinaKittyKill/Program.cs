@@ -755,7 +755,7 @@ namespace KatarinaKittyKill
             {
                 return slot;
             }
-            return null;
+            return slot;
         }
 
         private static void GameObject_OnCreate(GameObject sender, EventArgs args)
