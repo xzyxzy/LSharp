@@ -233,12 +233,16 @@ namespace KatarinaKittyKill
 
         public static void combo(bool useQ, bool useW, bool useE, bool useR)
         {
-            Obj_AI_Hero Target = getTarget();
+            var focusSelected = menu.Item("selected").GetValue<bool>();
+            Obj_AI_Hero Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
 
             int mode = menu.Item("comboMode").GetValue<StringList>().SelectedIndex;
             int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
 
             int eDis = menu.Item("eDis").GetValue<Slider>().Value;
+
+            if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < E.Range)
+                Target = SimpleTs.GetSelectedTarget();
 
             if (!Target.HasBuffOfType(BuffType.Invulnerability) && Target.IsValidTarget(E.Range))
             {
