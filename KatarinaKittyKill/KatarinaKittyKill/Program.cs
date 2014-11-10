@@ -322,23 +322,25 @@ namespace KatarinaKittyKill
 
             Obj_AI_Hero getTar = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
 
-            selectedTarget = (Obj_AI_Hero)Hud.SelectedUnit;
-
-            if (focusSelected && selectedTarget != null && selectedTarget.IsEnemy && selectedTarget.Type == GameObjectType.obj_AI_Hero)
+            if (Hud.SelectedUnit.Type == GameObjectType.obj_AI_Hero)
             {
+                selectedTarget = (Obj_AI_Hero) Hud.SelectedUnit;
 
-                if (Player.Distance(selectedTarget) < 900 && !selectedTarget.IsDead && selectedTarget.IsVisible &&
-                    selectedTarget.IsValidTarget())
+                if (focusSelected && selectedTarget != null && selectedTarget.IsEnemy)
                 {
-                    //Game.PrintChat("focusing selected target");
-                    LXOrbwalker.ForcedTarget = selectedTarget;
-                    return selectedTarget;
+
+                    if (Player.Distance(selectedTarget) < 900 && !selectedTarget.IsDead && selectedTarget.IsVisible &&
+                        selectedTarget.IsValidTarget())
+                    {
+                        //Game.PrintChat("focusing selected target");
+                        LXOrbwalker.ForcedTarget = selectedTarget;
+                        return selectedTarget;
+                    }
+
+                    selectedTarget = null;
+                    return getTar;
                 }
-
-                selectedTarget = null;
-                return getTar;
             }
-
             if (tsMode == 0)
             {
                 Hud.SelectedUnit = getTar;
