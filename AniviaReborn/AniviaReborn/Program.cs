@@ -125,10 +125,6 @@ namespace AniviaReborn
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
-            menu.SubMenu("Combo")
-                .AddItem(
-                    new MenuItem("tsModes", "TS Modes").SetValue(
-                        new StringList(new[] {"Orbwalker/LessCast", "Low HP%", "NearMouse", "CurrentHP"}, 0)));
             menu.SubMenu("Combo").AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
@@ -232,7 +228,12 @@ namespace AniviaReborn
 
         private static void UseSpells(bool useQ, bool useW, bool useE, bool useR, string Source)
         {
-            Obj_AI_Hero target = getTarget();
+            var range = Q.IsReady() ? Q.Range : W.Range;
+            var focusSelected = menu.Item("selected").GetValue<bool>();
+            Obj_AI_Hero target = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
+            if (SimpleTs.GetSelectedTarget() != null)
+                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range)
+                    target = SimpleTs.GetSelectedTarget();
 
             int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
             float dmg = GetComboDamage(target);
@@ -285,71 +286,6 @@ namespace AniviaReborn
                 return true;
 
             return false;
-        }
-
-        public static Obj_AI_Hero getTarget()
-        {
-            int tsMode = menu.Item("tsModes").GetValue<StringList>().SelectedIndex;
-            var focusSelected = menu.Item("selected").GetValue<bool>();
-
-            var range = Q.Range;
-
-            Obj_AI_Hero getTar = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
-
-            SelectedTarget = (Obj_AI_Hero)Hud.SelectedUnit;
-
-            if (focusSelected && SelectedTarget != null && SelectedTarget.IsEnemy && SelectedTarget.Type == GameObjectType.obj_AI_Hero)
-            {
-                if (Player.Distance(SelectedTarget) < 1300 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
-                    SelectedTarget.IsValidTarget())
-                {
-                    //Game.PrintChat("focusing selected target");
-                    LXOrbwalker.ForcedTarget = SelectedTarget;
-                    return SelectedTarget;
-                }
-
-                SelectedTarget = null;
-                return getTar;
-            }
-
-            if (tsMode == 0)
-            {
-                Hud.SelectedUnit = getTar;
-                return getTar;
-            }
-
-            foreach (
-                Obj_AI_Hero target in
-                    ObjectManager.Get<Obj_AI_Hero>()
-                        .Where(
-                            x =>
-                                Player.Distance(x) < range && x.IsValidTarget(range) && !x.IsDead && x.IsEnemy &&
-                                x.IsVisible))
-            {
-                if (tsMode == 1)
-                {
-                    float tar1hp = target.Health / target.MaxHealth * 100;
-                    float tar2hp = getTar.Health / getTar.MaxHealth * 100;
-                    if (tar1hp < tar2hp)
-                        getTar = target;
-                }
-
-                if (tsMode == 2)
-                {
-                    if (target.Distance(Game.CursorPos) < getTar.Distance(Game.CursorPos))
-                        getTar = target;
-                }
-
-                if (tsMode == 3)
-                {
-                    if (target.Health < getTar.Health)
-                        getTar = target;
-                }
-            }
-
-            Hud.SelectedUnit = getTar;
-            LXOrbwalker.ForcedTarget = getTar;
-            return getTar;
         }
 
         public static void smartKS()
@@ -556,7 +492,12 @@ namespace AniviaReborn
 
         public static void snipe()
         {
-            Obj_AI_Hero qTarget = getTarget();
+            var range = Q.Range;
+            var focusSelected = menu.Item("selected").GetValue<bool>();
+            Obj_AI_Hero qTarget = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
+            if (SimpleTs.GetSelectedTarget() != null)
+                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range)
+                    qTarget = SimpleTs.GetSelectedTarget();
 
             Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
 
