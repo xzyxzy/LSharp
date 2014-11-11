@@ -18,6 +18,7 @@ namespace KarthusRForRAWR
         public static List<Spell> SpellList = new List<Spell>();
 
         public static Spell Q;
+        public static Spell Q2;
         public static int qWidth = 200;
         public static Spell W;
         public static Spell E;
@@ -57,11 +58,13 @@ namespace KarthusRForRAWR
 
             //intalize spell
             Q = new Spell(SpellSlot.Q, 875);
+            Q2 = new Spell(SpellSlot.Q, 875);
             W = new Spell(SpellSlot.W, 1000);
             E = new Spell(SpellSlot.E, 520);
             R = new Spell(SpellSlot.R, float.MaxValue);
 
-            Q.SetSkillshot(.6f, 200f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            Q.SetSkillshot(.7f, 50f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            Q2.SetSkillshot(.7f, 200f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             W.SetSkillshot(0.25f, 50f, 1600f, false, SkillshotType.SkillshotCircle);
             R.SetSkillshot(3f, float.MaxValue, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
@@ -134,10 +137,6 @@ namespace KarthusRForRAWR
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
-            menu.SubMenu("Combo")
-                .AddItem(
-                    new MenuItem("tsModes", "TS Modes").SetValue(
-                        new StringList(new[] { "Orbwalker/LessCast", "Low HP%", "NearMouse", "CurrentHP" }, 0)));
             menu.SubMenu("Combo").AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("qHit", "Q HitChance").SetValue(new Slider(3, 1, 4)));
@@ -260,7 +259,13 @@ namespace KarthusRForRAWR
 
         private static void UseSpells(bool useQ, bool useW, bool useE, bool useR, string Source)
         {
-            Obj_AI_Hero target = getTarget();
+            var range = W.IsReady() ? W.Range : Q.Range;
+            var focusSelected = menu.Item("selected").GetValue<bool>();
+            Obj_AI_Hero target = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
+            if (SimpleTs.GetSelectedTarget() != null)
+                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range)
+                    target = SimpleTs.GetSelectedTarget();
+
             bool hasmana = manaCheck();
             float dmg = GetComboDamage(target);
             int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
@@ -272,8 +277,6 @@ namespace KarthusRForRAWR
 
             if (target == null)
                 return;
-
-            Q.Width = 1;
 
             //W
             if (useW  && W.IsReady() && Player.Distance(target) <= W.Range && shouldW(target) &&
@@ -494,78 +497,6 @@ namespace KarthusRForRAWR
             }
         }
 
-        public static Obj_AI_Hero getTarget()
-        {
-            int tsMode = menu.Item("tsModes").GetValue<StringList>().SelectedIndex;
-            var focusSelected = menu.Item("selected").GetValue<bool>();
-
-            var range = W.Range;
-
-            if (!W.IsReady())
-                range = Q.Range;
-
-            Obj_AI_Hero getTar = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
-
-            SelectedTarget = (Obj_AI_Hero)Hud.SelectedUnit;
-
-            if (focusSelected && SelectedTarget != null && SelectedTarget.IsEnemy && SelectedTarget.Type == GameObjectType.obj_AI_Hero)
-            {
-                if (Player.Distance(SelectedTarget) < range && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
-                    SelectedTarget.IsValidTarget())
-                {
-                    //Game.PrintChat("focusing selected target");
-                    LXOrbwalker.ForcedTarget = SelectedTarget;
-                    return SelectedTarget;
-                }
-
-                SelectedTarget = null;
-                return getTar;
-            }
-
-            if (tsMode == 0)
-            {
-                Hud.SelectedUnit = getTar;
-                return getTar;
-            }
-            foreach (
-                Obj_AI_Hero target in
-                    ObjectManager.Get<Obj_AI_Hero>()
-                        .Where(
-                            x =>
-                                Player.Distance(x) < range && x.IsValidTarget(range) && !x.IsDead && x.IsEnemy &&
-                                x.IsVisible))
-            {
-                if (tsMode == 1)
-                {
-                    float tar1hp = target.Health / target.MaxHealth * 100;
-                    float tar2hp = getTar.Health / getTar.MaxHealth * 100;
-                    if (tar1hp < tar2hp)
-                        getTar = target;
-                }
-
-                if (tsMode == 2)
-                {
-                    if (target.Distance(Game.CursorPos) < getTar.Distance(Game.CursorPos))
-                        getTar = target;
-                }
-
-                if (tsMode == 3)
-                {
-                    if (target.Health < getTar.Health)
-                        getTar = target;
-                }
-            }
-
-            if (getTar != null)
-            {
-                LXOrbwalker.ForcedTarget = getTar;
-                Hud.SelectedUnit = getTar;
-                return getTar;
-            }
-
-            return null;
-        }
-
         public static void smartKS()
         {
             if (!menu.Item("smartKS").GetValue<bool>())
@@ -631,7 +562,7 @@ namespace KarthusRForRAWR
                     return;
             }
 
-            if (E.IsReady())
+            if (E.IsReady() && eSpell.ToggleState != 1)
                 E.Cast();
         }
 
@@ -707,18 +638,17 @@ namespace KarthusRForRAWR
                 {
                     var health = HealthPrediction.GetHealthPrediction(minion, 700);
 
-                    Q.Width = 200;
-                    var qPred = Q.GetCircularFarmLocation(allMinionsQ);
+                    var qPred = Q2.GetCircularFarmLocation(allMinionsQ);
 
                     if (qPred.MinionsHit == 1)
                     {
                         if (Player.GetSpellDamage(minion, SpellSlot.Q) - 15 > health)
-                            Q.Cast(minion,packets());
+                            Q2.Cast(minion,packets());
                     }
                     else
                     {
                         if (Player.GetSpellDamage(minion, SpellSlot.Q, 1) - 15 > health)
-                            Q.Cast(minion,packets());
+                            Q2.Cast(minion,packets());
                     }
                 }
             }
@@ -731,7 +661,7 @@ namespace KarthusRForRAWR
         private static void Farm()
         {
             List<Obj_AI_Base> allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition,
-                Q.Range + qWidth, MinionTypes.All, MinionTeam.NotAlly);
+                Q.Range, MinionTypes.All, MinionTeam.NotAlly);
             List<Obj_AI_Base> allMinionsE = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range,
                 MinionTypes.All, MinionTeam.NotAlly);
 
@@ -740,11 +670,10 @@ namespace KarthusRForRAWR
 
             if (useQ && Q.IsReady() && allMinionsQ.Count > 0)
             {
-                Q.Width = 200;
                 MinionManager.FarmLocation qPos = Q.GetCircularFarmLocation(allMinionsQ);
 
                 if (qPos.MinionsHit > 1)
-                    Q.Cast(qPos.Position, packets());
+                    Q2.Cast(qPos.Position, packets());
             }
 
             if (useE && allMinionsE.Count > 0 && E.IsReady() && eSpell.ToggleState == 1)
