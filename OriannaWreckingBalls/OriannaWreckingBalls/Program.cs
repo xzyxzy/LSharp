@@ -286,9 +286,10 @@ namespace OriannaWreckingBalls
         private static void UseSpells(bool useQ, bool useW, bool useE, bool useR, String source)
         {
             var focusSelected = menu.Item("selected").GetValue<bool>();
-            Obj_AI_Hero target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+            var range = E.IsReady() ? E.Range : Q.Range;
+            Obj_AI_Hero target = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
             if (SimpleTs.GetSelectedTarget() != null)
-                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < E.Range)
+                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range)
                     target = SimpleTs.GetSelectedTarget();
 
             if (useQ && Q.IsReady())
