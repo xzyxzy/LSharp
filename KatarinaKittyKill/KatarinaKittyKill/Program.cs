@@ -113,10 +113,6 @@ namespace KatarinaKittyKill
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));
-            menu.SubMenu("Combo")
-                .AddItem(
-                    new MenuItem("tsModes", "TS Modes").SetValue(
-                        new StringList(new[] {"Orbwalker/LessCast", "Low HP%", "NearMouse", "CurrentHP"}, 0)));
             menu.SubMenu("Combo").AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
@@ -316,74 +312,6 @@ namespace KatarinaKittyKill
                         R.Cast();
                 }
             }
-        }
-
-        public static Obj_AI_Hero getTarget()
-        {
-            int tsMode = menu.Item("tsModes").GetValue<StringList>().SelectedIndex;
-            var focusSelected = menu.Item("selected").GetValue<bool>();
-
-            var range = E.Range;
-
-            Obj_AI_Hero getTar = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
-
-            if (Hud.SelectedUnit.Type == GameObjectType.obj_AI_Hero)
-            {
-                selectedTarget = (Obj_AI_Hero) Hud.SelectedUnit;
-
-                if (focusSelected && selectedTarget != null && selectedTarget.IsEnemy)
-                {
-
-                    if (Player.Distance(selectedTarget) < 900 && !selectedTarget.IsDead && selectedTarget.IsVisible &&
-                        selectedTarget.IsValidTarget())
-                    {
-                        //Game.PrintChat("focusing selected target");
-                        LXOrbwalker.ForcedTarget = selectedTarget;
-                        return selectedTarget;
-                    }
-
-                    selectedTarget = null;
-                    return getTar;
-                }
-            }
-            if (tsMode == 0)
-            {
-                Hud.SelectedUnit = getTar;
-                return getTar;
-            }
-
-            foreach (
-                Obj_AI_Hero target in
-                    ObjectManager.Get<Obj_AI_Hero>()
-                        .Where(
-                            x =>
-                                Player.Distance(x) < range && x.IsValidTarget(range) && !x.IsDead && x.IsEnemy &&
-                                x.IsVisible))
-            {
-                if (tsMode == 1)
-                {
-                    float tar1hp = target.Health / target.MaxHealth * 100;
-                    float tar2hp = getTar.Health / getTar.MaxHealth * 100;
-                    if (tar1hp < tar2hp)
-                        getTar = target;
-                }
-
-                if (tsMode == 2)
-                {
-                    if (target.Distance(Game.CursorPos) < getTar.Distance(Game.CursorPos))
-                        getTar = target;
-                }
-
-                if (tsMode == 3)
-                {
-                    if (target.Health < getTar.Health)
-                        getTar = target;
-                }
-            }
-
-            Hud.SelectedUnit = getTar;
-            LXOrbwalker.ForcedTarget = getTar;
-            return getTar;
         }
 
         public static void harass(bool useQ, bool useW, bool useE, bool useR)
