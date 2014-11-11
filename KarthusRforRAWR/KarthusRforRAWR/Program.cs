@@ -64,7 +64,7 @@ namespace KarthusRForRAWR
             R = new Spell(SpellSlot.R, float.MaxValue);
 
             Q.SetSkillshot(.7f, 50f, float.MaxValue, false, SkillshotType.SkillshotCircle);
-            Q2.SetSkillshot(.7f, 200f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            Q2.SetSkillshot(.7f, 190f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             W.SetSkillshot(0.25f, 50f, 1600f, false, SkillshotType.SkillshotCircle);
             R.SetSkillshot(3f, float.MaxValue, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
