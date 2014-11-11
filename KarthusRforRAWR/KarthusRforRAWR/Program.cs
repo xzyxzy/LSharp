@@ -614,7 +614,10 @@ namespace KarthusRForRAWR
 
             if (menu.Item("wTar").GetValue<KeyBind>().Active)
             {
-                var target = (Obj_AI_Hero)Hud.SelectedUnit;
+                Obj_AI_Hero target = null;
+
+                if(SimpleTs.GetSelectedTarget() != null)
+                    target = SimpleTs.GetSelectedTarget();
 
                 if (target != null && target.IsEnemy && target.Type == GameObjectType.obj_AI_Hero)
                 {
