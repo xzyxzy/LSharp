@@ -377,7 +377,7 @@ namespace Syndra
             //DFG (and ult if ready)
             if (rTarget != null && useR && getUltDmg(rTarget) > rTarget.Health && DFG.IsReady())
             {
-                DFG.Cast(rTarget);
+                Items.UseItem(DFG.Id, rTarget);
                 if (R.IsReady())
                 {
                     R.Cast(rTarget);

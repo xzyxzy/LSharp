@@ -247,7 +247,7 @@ namespace KatarinaKittyKill
                 {
                     if (Target != null && DFG.IsReady() && E.IsReady() && menu.Item("dfg").GetValue<bool>())
                     {
-                        DFG.Cast(Target);
+                        Items.UseItem(DFG.Id, Target);
                     }
 
                     if (useQ && Q.IsReady() && Player.Distance(Target) <= Q.Range && Target != null)
@@ -270,7 +270,7 @@ namespace KatarinaKittyKill
                 {
                     if (Target != null && DFG.IsReady() && E.IsReady() && menu.Item("dfg").GetValue<bool>())
                     {
-                        DFG.Cast(Target);
+                        Items.UseItem(DFG.Id, Target);
                     }
 
                     if (useE && Target != null && E.IsReady() && Player.Distance(Target) < E.Range &&
@@ -473,7 +473,7 @@ namespace KatarinaKittyKill
                     if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health + 20 &&
                         Player.Distance(target.ServerPosition) <= 750)
                     {
-                        DFG.Cast(target);
+                        Items.UseItem(DFG.Id, target);
                         //Game.PrintChat("ks 1");
                         return;
                     }
@@ -485,7 +485,7 @@ namespace KatarinaKittyKill
                     {
                         if (DFG.IsReady() && Q.IsReady())
                         {
-                            DFG.Cast(target);
+                            Items.UseItem(DFG.Id, target);
                             cancelUlt(target);
                             Q.Cast(target, packets());
                             //Game.PrintChat("ks 2");
@@ -500,7 +500,7 @@ namespace KatarinaKittyKill
                     {
                         if (DFG.IsReady() && E.IsReady())
                         {
-                            DFG.Cast(target);
+                            Items.UseItem(DFG.Id, target);
                             cancelUlt(target);
                             E.Cast(target, packets());
                             //Game.PrintChat("ks 3");
@@ -667,27 +667,15 @@ namespace KatarinaKittyKill
             InventorySlot invSlot = FindBestWardItem();
             if (invSlot == null) return;
 
-            invSlot.UseItem(wardPosition);
+            Items.UseItem((int)invSlot.Id, wardPosition);
             lastWardPos = wardPosition;
             lastPlaced = Environment.TickCount;
-        }
-
-        private static SpellDataInst GetItemSpell(InventorySlot invSlot)
-        {
-            return Player.Spellbook.Spells.FirstOrDefault(spell => (int) spell.Slot == invSlot.Slot);
         }
 
         private static InventorySlot FindBestWardItem()
         {
             InventorySlot slot = Items.GetWardSlot();
             if (slot == default(InventorySlot)) return null;
-
-            SpellDataInst sdi = GetItemSpell(slot);
-
-            if (sdi != default(SpellDataInst) && sdi.State == SpellState.Ready)
-            {
-                return slot;
-            }
             return slot;
         }
 

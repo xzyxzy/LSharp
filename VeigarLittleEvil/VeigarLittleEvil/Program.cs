@@ -297,7 +297,7 @@ namespace VeigarLittleEvil
             {
                 if ((menu.Item("DontDFG" + target.BaseSkinName) != null &&
                      menu.Item("DontDFG" + target.BaseSkinName).GetValue<bool>() == false))
-                    Dfg.Cast(target);
+                    Items.UseItem(Dfg.Id, target);
             }
 
             //Ignite
@@ -370,7 +370,7 @@ namespace VeigarLittleEvil
                         {
                             if (rTarget(target))
                             {
-                                Dfg.Cast(target);
+                                Items.UseItem(Dfg.Id, target);
                                 Q.CastOnUnit(target, Packets());
                                 R.CastOnUnit(target, Packets());
                                 return;
@@ -383,7 +383,7 @@ namespace VeigarLittleEvil
                             Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
                             (Player.GetSpellDamage(target, SpellSlot.Q)*1.2) > target.Health + 30)
                         {
-                            Dfg.Cast(target);
+                            Items.UseItem(Dfg.Id, target);
                             Q.CastOnUnit(target, Packets());
                             return;
                         }
@@ -396,7 +396,7 @@ namespace VeigarLittleEvil
                         {
                             if (rTarget(target))
                             {
-                                Dfg.Cast(target);
+                                Items.UseItem(Dfg.Id, target);
                                 R.CastOnUnit(target, Packets());
                                 return;
                             }
@@ -406,7 +406,7 @@ namespace VeigarLittleEvil
                         if (Dfg.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health + 30 &&
                             Player.Distance(target.ServerPosition) <= 750)
                         {
-                            Dfg.Cast(target);
+                            Items.UseItem(Dfg.Id, target);
                             return;
                         }
 
@@ -470,7 +470,7 @@ namespace VeigarLittleEvil
                 Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
                 (Player.GetSpellDamage(target, SpellSlot.R) * 1.2) > target.Health + 50)
             {
-                Dfg.Cast(target);
+                Items.UseItem(Dfg.Id, target);
                 R.CastOnUnit(target, Packets());
                 return;
             }

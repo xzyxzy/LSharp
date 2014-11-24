@@ -296,7 +296,7 @@ namespace AhriTheGumiho
                 (eTarget.HasBuffOfType(BuffType.Charm) || !menu.Item("dfgCharm").GetValue<bool>()))
             {
                 //Game.PrintChat("TRying!!!");
-                DFG.Cast(eTarget);
+                Items.UseItem(DFG.Id, eTarget);
             }
 
             //E
@@ -525,7 +525,7 @@ namespace AhriTheGumiho
                     if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health &&
                         Player.Distance(target.ServerPosition) <= 750)
                     {
-                        DFG.Cast(target);
+                        Items.UseItem(DFG.Id, target);
                         return;
                     }
 
@@ -534,7 +534,7 @@ namespace AhriTheGumiho
                          (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1))*
                          1.2) > target.Health)
                     {
-                        DFG.Cast(target);
+                        Items.UseItem(DFG.Id, target);
                         Q.Cast(target, packets());
                         return;
                     }
@@ -543,7 +543,7 @@ namespace AhriTheGumiho
                         (Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
                          Player.GetSpellDamage(target, SpellSlot.W)*1.2) > target.Health)
                     {
-                        DFG.Cast(target);
+                        Items.UseItem(DFG.Id, target);
                         W.Cast();
                         return;
                     }

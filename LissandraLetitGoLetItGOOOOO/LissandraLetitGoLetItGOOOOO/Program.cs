@@ -283,7 +283,7 @@ namespace LissandraLetitGoLetItGOOOOO
             {
                 if (target != null && DFG.IsReady() && menu.Item("dfg").GetValue<bool>())
                 {
-                    DFG.Cast(target);
+                    Items.UseItem(DFG.Id, target);
                 }
 
                 R.Cast(target, packets());
@@ -294,7 +294,7 @@ namespace LissandraLetitGoLetItGOOOOO
             {
                 if (target != null && DFG.IsReady() && menu.Item("dfg").GetValue<bool>())
                 {
-                    DFG.Cast(target);
+                    Items.UseItem(DFG.Id, target);
                 }
 
                 R.Cast(target, packets());
@@ -344,7 +344,7 @@ namespace LissandraLetitGoLetItGOOOOO
                 //dfg
                 if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health + 20 && Player.Distance(target.ServerPosition) <= 750)
                 {
-                    DFG.Cast(target);
+                    Items.UseItem(DFG.Id, target);
                     return;
                 }
 
