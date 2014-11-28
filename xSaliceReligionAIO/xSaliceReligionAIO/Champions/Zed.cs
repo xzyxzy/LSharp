@@ -26,7 +26,7 @@ namespace xSaliceReligionAIO.Champions
             E = new Spell(SpellSlot.E, 270f);
             R = new Spell(SpellSlot.R, 650f);
 
-            Q.SetSkillshot(.1f, 60f, 2500f, false, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(.25f, 60f, 1700f, false, SkillshotType.SkillshotLine);
             W.SetSkillshot(.25f, 270f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0f, 270f, float.MaxValue, false, SkillshotType.SkillshotCircle);
         }
@@ -539,14 +539,9 @@ namespace xSaliceReligionAIO.Champions
             }
             else if(qTarget != null)
             {
-                var pred = Q.GetPrediction(qTarget, true);
-
-                if (pred.Hitchance >= HitChance.Medium)
-                {
-                    xSLxOrbwalker.SetMovement(false);
-                    Q.Cast(qTarget, packets());
-                    Q.LastCastAttemptT = Environment.TickCount + 300;
-                }
+                xSLxOrbwalker.SetMovement(false);
+                Q.Cast(qTarget, packets());
+                Q.LastCastAttemptT = Environment.TickCount + 300;
             }
         }
 
@@ -670,38 +665,36 @@ namespace xSaliceReligionAIO.Champions
                     {
                         var pred = GetP2(vec, Q, target, true);
 
-                        if (((pred.Hitchance >= HitChance.Medium || Q.GetPrediction(target).Hitchance >= HitChance.Medium) || (predE.Hitchance >= HitChance.Medium)))
+                        if (useQ && useE)
                         {
-                            if (useQ && useE)
+                            if ((menu.Item("W_Require_QE").GetValue<bool>() && source == "Harass") || source == "Coax")
                             {
-                                if ((menu.Item("W_Require_QE").GetValue<bool>() && source == "Harass") || source == "Coax")
-                                {
-                                    if (vec.Distance(target.ServerPosition) < E.Range)
-                                    {
-                                        W.Cast(vec);
-                                        W.LastCastAttemptT = Environment.TickCount + 500;
-                                    }
-                                }
-                                else
+                                if (vec.Distance(target.ServerPosition) < E.Range)
                                 {
                                     W.Cast(vec);
                                     W.LastCastAttemptT = Environment.TickCount + 500;
                                 }
                             }
-                            else if (useE && vec.Distance(target.ServerPosition) < E.Range + target.BoundingRadius)
+                            else
                             {
                                 W.Cast(vec);
                                 W.LastCastAttemptT = Environment.TickCount + 500;
                             }
-                            else if (useQ)
-                            {
-                                W.Cast(vec);
-                                W.LastCastAttemptT = Environment.TickCount + 500;
-                            }
-
-                            _predWq = useQ ? pred.UnitPosition : Vector3.Zero;
-                            _willEHit = useE && vec.Distance(target.ServerPosition) < E.Range;
                         }
+                        else if (useE && vec.Distance(target.ServerPosition) < E.Range + target.BoundingRadius)
+                        {
+                            W.Cast(vec);
+                            W.LastCastAttemptT = Environment.TickCount + 500;
+                        }
+                        else if (useQ)
+                        {
+                            W.Cast(vec);
+                            W.LastCastAttemptT = Environment.TickCount + 500;
+                        }
+
+                        _predWq = useQ ? pred.UnitPosition : Vector3.Zero;
+                        _willEHit = useE && vec.Distance(target.ServerPosition) < E.Range;
+                        
                     }
                 }
             }
