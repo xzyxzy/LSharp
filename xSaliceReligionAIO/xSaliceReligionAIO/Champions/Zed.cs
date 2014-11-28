@@ -75,6 +75,7 @@ namespace xSaliceReligionAIO.Champions
                 combo.AddItem(new MenuItem("Combo_mode", "Combo Mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax" })));
                 combo.AddItem(new MenuItem("Combo_Switch", "Switch mode Key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
                 combo.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
+                combo.AddItem(new MenuItem("Prioritize Q", "Prioritize Q over W->Q").SetValue(false));
                 combo.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
                 combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
@@ -205,6 +206,9 @@ namespace xSaliceReligionAIO.Champions
                     var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
                     if (qTarget != null)
                     {
+                        if (GetMarked() != null)
+                            qTarget = GetMarked();
+
                         if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>())
                             Use_Ignite(qTarget);
 
@@ -218,21 +222,31 @@ namespace xSaliceReligionAIO.Champions
                         }
                     }
 
-                    if (useW)
-                        Cast_W("Combo", useQ, useE);
-
-                    if (useW && Environment.TickCount - W.LastCastAttemptT > Game.Ping)
+                    if (menu.Item("Prioritize_Q").GetValue<bool>())
                     {
                         if (useQ)
+                            Cast_Q();
+                        
+                        if (useW)
+                            Cast_W("Combo", false, useE);
+                    }
+                    else
+                    {
+                        if (useW)
+                            Cast_W("Combo", useQ, useE);
+
+                        if (useW && Environment.TickCount - W.LastCastAttemptT > Game.Ping)
+                        {
+                            if (useQ)
+                            {
+                                Cast_Q();
+                            }
+                        }
+                        else if (useQ)
                         {
                             Cast_Q();
                         }
                     }
-                    else if (useQ)
-                    {
-                        Cast_Q();
-                    }
-
                     if (useE)
                         Cast_E();
 
@@ -464,19 +478,19 @@ namespace xSaliceReligionAIO.Champions
                 {
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(target, packets());
-                    Q.LastCastAttemptT = Environment.TickCount + 500;
+                    Q.LastCastAttemptT = Environment.TickCount + 300;
                 }
                 if (predW.Hitchance >= HitChance.High)
                 {
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(predW.CastPosition, packets());
-                    Q.LastCastAttemptT = Environment.TickCount + 500;
+                    Q.LastCastAttemptT = Environment.TickCount + 300;
                 }
                 if (predR.Hitchance >= HitChance.High)
                 {
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(predR.CastPosition, packets());
-                    Q.LastCastAttemptT = Environment.TickCount + 500;
+                    Q.LastCastAttemptT = Environment.TickCount + 300;
                 }
             }
             else if (WShadow != null)
@@ -488,14 +502,14 @@ namespace xSaliceReligionAIO.Champions
                 {
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(predW.CastPosition, packets());
-                    Q.LastCastAttemptT = Environment.TickCount + 500;
+                    Q.LastCastAttemptT = Environment.TickCount + 300;
                 }
 
                 if (pred.Hitchance >= HitChance.High)
                 {
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(target, packets());
-                    Q.LastCastAttemptT = Environment.TickCount + 500;
+                    Q.LastCastAttemptT = Environment.TickCount + 300;
                 }
             }
             else if (RShadow != null)
@@ -507,13 +521,13 @@ namespace xSaliceReligionAIO.Champions
                 {
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(target, packets());
-                    Q.LastCastAttemptT = Environment.TickCount + 500;
+                    Q.LastCastAttemptT = Environment.TickCount + 300;
                 }
                 if (predR.Hitchance >= HitChance.High)
                 {
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(predR.CastPosition, packets());
-                    Q.LastCastAttemptT = Environment.TickCount + 500;
+                    Q.LastCastAttemptT = Environment.TickCount + 300;
                 }
             }
             else
@@ -524,7 +538,7 @@ namespace xSaliceReligionAIO.Champions
                 {
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(target, packets());
-                    Q.LastCastAttemptT = Environment.TickCount + 500;
+                    Q.LastCastAttemptT = Environment.TickCount + 300;
                 }
             }
         }
@@ -830,7 +844,7 @@ namespace xSaliceReligionAIO.Champions
                     {
                         xSLxOrbwalker.SetMovement(false);
                         Q.Cast(_predWq, packets());
-                        Q.LastCastAttemptT = Environment.TickCount + 500;
+                        Q.LastCastAttemptT = Environment.TickCount + 300;
                         _predWq = Vector3.Zero;
                     }
 
