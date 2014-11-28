@@ -26,7 +26,7 @@ namespace xSaliceReligionAIO.Champions
             E = new Spell(SpellSlot.E, 270f);
             R = new Spell(SpellSlot.R, 650f);
 
-            Q.SetSkillshot(250f, 50f, 1700f, false, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(.1f, 60f, 2500f, false, SkillshotType.SkillshotLine);
             W.SetSkillshot(.25f, 270f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0f, 270f, float.MaxValue, false, SkillshotType.SkillshotCircle);
         }
@@ -531,6 +531,7 @@ namespace xSaliceReligionAIO.Champions
                 }
                 if (predR.Hitchance >= HitChance.Medium)
                 {
+                    Q.UpdateSourcePosition();
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(predR.CastPosition, packets());
                     Q.LastCastAttemptT = Environment.TickCount + 300;
