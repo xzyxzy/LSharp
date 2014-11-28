@@ -458,7 +458,7 @@ namespace xSaliceReligionAIO.Champions
         private void Cast_Q(Obj_AI_Hero forceTarget = null)
         {
             var target = SimpleTs.GetTarget(Q.Range + W.Range, SimpleTs.DamageType.Physical);
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+            var qTarget = SimpleTs.GetTarget(Q.Range - 50, SimpleTs.DamageType.Physical);
 
             if (GetMarked() != null)
             {
