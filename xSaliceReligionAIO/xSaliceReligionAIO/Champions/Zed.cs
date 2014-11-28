@@ -634,27 +634,22 @@ namespace xSaliceReligionAIO.Champions
 
                     if ((!useQ || Q.IsReady()) && (!useE || E.IsReady()))
                     {
-                        if ((pred.Hitchance >= HitChance.Medium && Q.GetPrediction(target).Hitchance >= HitChance.Medium))
-                        {
-                            if (IsWall(pred.UnitPosition.To2D()))
-                                return;
+                        if (IsWall(pred.UnitPosition.To2D()))
+                            return;
 
-                            W.Cast(pred.UnitPosition);
-                            W.LastCastAttemptT = Environment.TickCount + 500;
+                        W.Cast(pred.UnitPosition);
+                        W.LastCastAttemptT = Environment.TickCount + 500;
 
-                            _predWq = useQ ? pred.CastPosition : Vector3.Zero;
+                        _predWq = useQ ? pred.CastPosition : Vector3.Zero;
 
-                            if (useE && pred.UnitPosition.Distance(target.ServerPosition) < E.Range + target.BoundingRadius)
-                                _willEHit = true;
-                            else
-                                _willEHit = false;
-
-                        }
+                        if (useE && pred.UnitPosition.Distance(target.ServerPosition) < E.Range + target.BoundingRadius)
+                            _willEHit = true;
+                        else
+                            _willEHit = false;
                     }
                 }
                 else
                 {
-                    
                     var predE = Prediction.GetPrediction(target, .25f);
                     var vec = Player.ServerPosition + Vector3.Normalize(predE.CastPosition - Player.ServerPosition) * W.Range;
 
