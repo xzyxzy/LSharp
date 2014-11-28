@@ -458,12 +458,18 @@ namespace xSaliceReligionAIO.Champions
         private void Cast_Q(Obj_AI_Hero forceTarget = null)
         {
             var target = SimpleTs.GetTarget(Q.Range + W.Range, SimpleTs.DamageType.Physical);
+            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
 
             if (GetMarked() != null)
+            {
                 target = GetMarked();
-
+                qTarget = GetMarked();
+            }
             if (forceTarget != null)
+            {
                 target = forceTarget;
+                qTarget = forceTarget;
+            }
 
             if (target == null || !Q.IsReady())
                 return;
@@ -530,14 +536,14 @@ namespace xSaliceReligionAIO.Champions
                     Q.LastCastAttemptT = Environment.TickCount + 300;
                 }
             }
-            else
+            else if(qTarget != null)
             {
-                var pred = Q.GetPrediction(target, true);
+                var pred = Q.GetPrediction(qTarget, true);
 
                 if (pred.Hitchance >= HitChance.High)
                 {
                     xSLxOrbwalker.SetMovement(false);
-                    Q.Cast(target, packets());
+                    Q.Cast(qTarget, packets());
                     Q.LastCastAttemptT = Environment.TickCount + 300;
                 }
             }
@@ -546,13 +552,18 @@ namespace xSaliceReligionAIO.Champions
         private void Cast_E(Obj_AI_Hero forceTarget = null)
         {
             var target = SimpleTs.GetTarget(E.Range + W.Range, SimpleTs.DamageType.Physical);
+            var eTarget = SimpleTs.GetTarget(E.Range + W.Range, SimpleTs.DamageType.Physical);
 
             if (GetMarked() != null)
+            {
                 target = GetMarked();
-
+                eTarget = GetMarked();
+            }
             if (forceTarget != null)
+            {
                 target = forceTarget;
-
+                eTarget = forceTarget;
+            }
             if (target == null || !E.IsReady())
                 return;
 
@@ -594,9 +605,9 @@ namespace xSaliceReligionAIO.Champions
                 if (predR.Hitchance >= HitChance.High && RShadow.Distance(target) < E.Range)
                     E.Cast(packets());
             }
-            else
+            else if (eTarget != null)
             {
-                if (E.GetPrediction(target).Hitchance >= HitChance.High && Player.Distance(target) < E.Range)
+                if (E.GetPrediction(eTarget).Hitchance >= HitChance.High && Player.Distance(eTarget) < E.Range)
                     E.Cast(packets());
             }
         }
