@@ -480,19 +480,19 @@ namespace xSaliceReligionAIO.Champions
                 var predR = GetP2(RShadow.ServerPosition, Q, target, true);
                 var pred = Q.GetPrediction(target, true);
 
-                if (pred.Hitchance >= HitChance.High)
+                if (pred.Hitchance >= HitChance.Medium)
                 {
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(target, packets());
                     Q.LastCastAttemptT = Environment.TickCount + 300;
                 }
-                if (predW.Hitchance >= HitChance.High)
+                if (predW.Hitchance >= HitChance.Medium)
                 {
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(predW.CastPosition, packets());
                     Q.LastCastAttemptT = Environment.TickCount + 300;
                 }
-                if (predR.Hitchance >= HitChance.High)
+                if (predR.Hitchance >= HitChance.Medium)
                 {
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(predR.CastPosition, packets());
@@ -504,14 +504,14 @@ namespace xSaliceReligionAIO.Champions
                 var predW = GetP2(WShadow.ServerPosition, Q, target, true);
                 var pred = Q.GetPrediction(target, true);
 
-                if (predW.Hitchance >= HitChance.High)
+                if (predW.Hitchance >= HitChance.Medium)
                 {
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(predW.CastPosition, packets());
                     Q.LastCastAttemptT = Environment.TickCount + 300;
                 }
 
-                if (pred.Hitchance >= HitChance.High)
+                if (pred.Hitchance >= HitChance.Medium)
                 {
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(target, packets());
@@ -523,13 +523,13 @@ namespace xSaliceReligionAIO.Champions
                 var predR = GetP2(RShadow.ServerPosition, Q, target, true);
                 var pred = Q.GetPrediction(target, true);
 
-                if (pred.Hitchance >= HitChance.High)
+                if (pred.Hitchance >= HitChance.Medium)
                 {
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(target, packets());
                     Q.LastCastAttemptT = Environment.TickCount + 300;
                 }
-                if (predR.Hitchance >= HitChance.High)
+                if (predR.Hitchance >= HitChance.Medium)
                 {
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(predR.CastPosition, packets());
@@ -540,7 +540,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 var pred = Q.GetPrediction(qTarget, true);
 
-                if (pred.Hitchance >= HitChance.High)
+                if (pred.Hitchance >= HitChance.Medium)
                 {
                     xSLxOrbwalker.SetMovement(false);
                     Q.Cast(qTarget, packets());
