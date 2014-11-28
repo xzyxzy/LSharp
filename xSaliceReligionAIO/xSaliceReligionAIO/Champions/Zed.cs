@@ -652,24 +652,24 @@ namespace xSaliceReligionAIO.Champions
                                 {
                                     if (vec.Distance(target.ServerPosition) < E.Range)
                                     {
-                                        W.Cast(vec, true);
+                                        W.Cast(vec);
                                         W.LastCastAttemptT = Environment.TickCount + 500;
                                     }
                                 }
                                 else
                                 {
-                                    W.Cast(vec, true);
+                                    W.Cast(vec);
                                     W.LastCastAttemptT = Environment.TickCount + 500;
                                 }
                             }
                             else if (useE && vec.Distance(target.ServerPosition) < E.Range + target.BoundingRadius)
                             {
-                                W.Cast(vec, true);
+                                W.Cast(vec);
                                 W.LastCastAttemptT = Environment.TickCount + 500;
                             }
                             else if (useQ)
                             {
-                                W.Cast(vec, true);
+                                W.Cast(vec);
                                 W.LastCastAttemptT = Environment.TickCount + 500;
                             }
 
