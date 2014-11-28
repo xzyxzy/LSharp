@@ -474,7 +474,7 @@ namespace xSaliceReligionAIO.Champions
             if (target == null || !Q.IsReady())
                 return;
 
-            if (WShadow != null && RShadow != null)
+            if (WShadow != null && RShadow != null && _currentRShadow != Vector3.Zero && _currentWShadow != Vector3.Zero)
             {
                 var predW = GetP2(WShadow.ServerPosition, Q, target, true);
                 var predR = GetP2(RShadow.ServerPosition, Q, target, true);
@@ -499,7 +499,7 @@ namespace xSaliceReligionAIO.Champions
                     Q.LastCastAttemptT = Environment.TickCount + 300;
                 }
             }
-            else if (WShadow != null)
+            else if (WShadow != null &&  _currentWShadow != Vector3.Zero)
             {
                 var predW = GetP2(WShadow.ServerPosition, Q, target, true);
                 var pred = Q.GetPrediction(target, true);
@@ -518,7 +518,7 @@ namespace xSaliceReligionAIO.Champions
                     Q.LastCastAttemptT = Environment.TickCount + 300;
                 }
             }
-            else if (RShadow != null)
+            else if (RShadow != null && _currentRShadow != Vector3.Zero)
             {
                 var predR = GetP2(RShadow.ServerPosition, Q, target, true);
                 var pred = Q.GetPrediction(target, true);
