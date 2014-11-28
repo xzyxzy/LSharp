@@ -567,7 +567,7 @@ namespace xSaliceReligionAIO.Champions
             if (target == null || !E.IsReady())
                 return;
 
-            if (WShadow != null && RShadow != null)
+            if (WShadow != null && RShadow != null && _currentRShadow != Vector3.Zero && _currentWShadow != Vector3.Zero)
             {
                 var predW = GetPCircle(WShadow.ServerPosition, E, target, true);
                 var predR = GetPCircle(RShadow.ServerPosition, E, target, true);
@@ -582,7 +582,7 @@ namespace xSaliceReligionAIO.Champions
                 if (predR.Hitchance >= HitChance.High && RShadow.Distance(target) < E.Range)
                     E.Cast(packets());
             }
-            else if (WShadow != null)
+            else if (WShadow != null && _currentWShadow != Vector3.Zero)
             {
                 var predW = GetPCircle(WShadow.ServerPosition, E, target, true);
                 var pred = E.GetPrediction(target, true);
@@ -594,7 +594,7 @@ namespace xSaliceReligionAIO.Champions
                     E.Cast(packets());
 
             }
-            else if (RShadow != null)
+            else if (RShadow != null && _currentRShadow != Vector3.Zero)
             {
                 var predR = GetPCircle(RShadow.ServerPosition, E, target, true);
                 var pred = E.GetPrediction(target, true);
