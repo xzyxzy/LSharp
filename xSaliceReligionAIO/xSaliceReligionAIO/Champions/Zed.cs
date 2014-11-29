@@ -53,7 +53,7 @@ namespace xSaliceReligionAIO.Champions
                 {
                     wMenu.AddItem(new MenuItem("W_Require_QE_Combo", "Require both Q/E to hit on W Harass")).SetValue(true);
                     wMenu.AddItem(new MenuItem("W_Require_QE", "Require both Q/E to hit on W Harass")).SetValue(true);
-                    wMenu.AddItem(new MenuItem("W_Follow_Combo", "Follow W in Combo")).SetValue(false);
+                    wMenu.AddItem(new MenuItem("W_Follow_Combo", "Follow W in Line Combo")).SetValue(false);
                     wMenu.AddItem(new MenuItem("useW_Health", "Use W swap if health below").SetValue(new Slider(25)));
                     spellMenu.AddSubMenu(wMenu);
                 }
