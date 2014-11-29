@@ -195,6 +195,10 @@ namespace xSaliceReligionAIO.Champions
                 return;
 
             var useIgnite = menu.Item("Ignite").GetValue<bool>();
+            var qTarget = SimpleTs.GetTarget(650, SimpleTs.DamageType.Magical);
+            float dmg = 0;
+            if (qTarget != null)
+                dmg += GetComboDamage(qTarget);
 
             if (useR)
                 Cast_R();
@@ -205,10 +209,9 @@ namespace xSaliceReligionAIO.Champions
             if(useW)
                 Cast_W(true);
 
-            var qTarget = SimpleTs.GetTarget(650, SimpleTs.DamageType.Magical);
             if (qTarget != null)
             {
-                if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && useIgnite)
+                if (dmg >= qTarget.Health + 25 && Ignite_Ready() && useIgnite)
                     Use_Ignite(qTarget);
             }
 
