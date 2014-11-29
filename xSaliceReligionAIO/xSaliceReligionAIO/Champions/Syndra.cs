@@ -241,22 +241,6 @@ namespace xSaliceReligionAIO.Champions
                 CastBasicFarm(E);
         }
 
-        private void CastQeMouse()
-        {
-            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(_qe.Range)))
-                if (Game.CursorPos.Distance(enemy.ServerPosition) < 300)
-                    Cast_QE(false, enemy);
-        }
-
-        private void QImmobile()
-        {
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            if (!menu.Item("Q_Auto_Immobile").GetValue<bool>() || qTarget == null)
-                return;
-            if (Q.GetPrediction(qTarget).Hitchance == HitChance.Immobile)
-                Q.Cast(qTarget);
-        }
-
         private void SmartKs()
         {
             if (!menu.Item("smartKS").GetValue<bool>())
@@ -280,85 +264,6 @@ namespace xSaliceReligionAIO.Champions
                     Cast_QE(false, target);
                 }
             }
-        }
-
-        public override void Game_OnGameUpdate(EventArgs args)
-        {
-
-            if (menu.Item("Misc_QE_Mouse").GetValue<KeyBind>().Active)
-            {
-                CastQeMouse();
-            }
-
-            SmartKs();
-
-            if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
-            {
-                Combo();
-            }
-            else
-            {
-                if (menu.Item("LaneClearActive").GetValue<KeyBind>().Active)
-                    Farm();
-
-                if (menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
-                    Harass();
-
-                if (menu.Item("HarassActive").GetValue<KeyBind>().Active)
-                    Harass();
-            }
-
-            QImmobile();
-        }
-
-        public override void Drawing_OnDraw(EventArgs args)
-        {
-            if (menu.Item("Draw_Disabled").GetValue<bool>())
-                return;
-
-            xSLxOrbwalker.EnableDrawing();
-            if (menu.Item("Draw_Q").GetValue<bool>())
-                if (Q.Level > 0)
-                    Utility.DrawCircle(Player.Position, Q.Range, Q.IsReady() ? Color.Green : Color.Red);
-            if (menu.Item("Draw_QE").GetValue<bool>())
-                if (Q.Level > 0 && E.Level > 0)
-                    Utility.DrawCircle(Player.Position, _qe.Range, Q.IsReady() && E.IsReady() ? Color.Green : Color.Red);
-            if (menu.Item("Draw_W").GetValue<bool>())
-                if (W.Level > 0)
-                    Utility.DrawCircle(Player.Position, W.Range, W.IsReady() ? Color.Green : Color.Red);
-
-            if (menu.Item("Draw_E").GetValue<bool>())
-                if (E.Level > 0)
-                    Utility.DrawCircle(Player.Position, E.Range, E.IsReady() ? Color.Green : Color.Red);
-
-            if (menu.Item("Draw_R").GetValue<bool>())
-                if (R.Level > 0)
-                    Utility.DrawCircle(Player.Position, R.Range, R.IsReady() ? Color.Green : Color.Red);
-
-            if (menu.Item("Draw_R_Killable").GetValue<bool>() && R.IsReady())
-            {
-                foreach (
-                    var wts in
-                        from unit in
-                            ObjectManager.Get<Obj_AI_Hero>()
-                                .Where(x => x.IsValidTarget(2000) && !x.IsDead && x.IsEnemy)
-                                .OrderBy(x => x.Health)
-                        let health = unit.Health + unit.HPRegenRate + 10
-                        where Get_Ult_Dmg(unit) > health
-                        select Drawing.WorldToScreen(unit.Position))
-                {
-                    Drawing.DrawText(wts[0] - 20, wts[1], Color.White, "KILL!!!");
-                }
-            }
-
-            var qeTarget = SimpleTs.GetTarget(_qe.Range, SimpleTs.DamageType.Magical);
-            if (qeTarget == null)
-                return;
-
-            var qePred = _qe.GetPrediction(qeTarget);
-            var predVec = Player.ServerPosition + Vector3.Normalize(qePred.UnitPosition - Player.ServerPosition) * (E.Range - 100);
-
-            Utility.DrawCircle(predVec, 50, qePred.Hitchance >= HitChance.High ? Color.Green : Color.Red);
         }
 
         private void Cast_Q()
@@ -515,6 +420,93 @@ namespace xSaliceReligionAIO.Champions
 
             Q.Cast(predVec, packets());
             _qe.LastCastAttemptT = Environment.TickCount;
+        }
+
+        private void CastQeMouse()
+        {
+            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(_qe.Range)))
+                if (Game.CursorPos.Distance(enemy.ServerPosition) < 300)
+                    Cast_QE(false, enemy);
+        }
+
+        private void QImmobile()
+        {
+            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+            if (!menu.Item("Q_Auto_Immobile").GetValue<bool>() || qTarget == null)
+                return;
+            if (Q.GetPrediction(qTarget).Hitchance == HitChance.Immobile)
+                Q.Cast(qTarget);
+        }
+
+        public override void Game_OnGameUpdate(EventArgs args)
+        {
+
+            if (menu.Item("Misc_QE_Mouse").GetValue<KeyBind>().Active)
+            {
+                CastQeMouse();
+            }
+
+            SmartKs();
+
+            if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
+            {
+                Combo();
+            }
+            else
+            {
+                if (menu.Item("LaneClearActive").GetValue<KeyBind>().Active)
+                    Farm();
+
+                if (menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
+                    Harass();
+
+                if (menu.Item("HarassActive").GetValue<KeyBind>().Active)
+                    Harass();
+            }
+
+            QImmobile();
+        }
+
+        public override void Drawing_OnDraw(EventArgs args)
+        {
+            if (menu.Item("Draw_Disabled").GetValue<bool>())
+                return;
+
+            xSLxOrbwalker.EnableDrawing();
+            if (menu.Item("Draw_Q").GetValue<bool>())
+                if (Q.Level > 0)
+                    Utility.DrawCircle(Player.Position, Q.Range, Q.IsReady() ? Color.Green : Color.Red);
+            if (menu.Item("Draw_QE").GetValue<bool>())
+                if (Q.Level > 0 && E.Level > 0)
+                    Utility.DrawCircle(Player.Position, _qe.Range, Q.IsReady() && E.IsReady() ? Color.Green : Color.Red);
+            if (menu.Item("Draw_W").GetValue<bool>())
+                if (W.Level > 0)
+                    Utility.DrawCircle(Player.Position, W.Range, W.IsReady() ? Color.Green : Color.Red);
+
+            if (menu.Item("Draw_E").GetValue<bool>())
+                if (E.Level > 0)
+                    Utility.DrawCircle(Player.Position, E.Range, E.IsReady() ? Color.Green : Color.Red);
+
+            if (menu.Item("Draw_R").GetValue<bool>())
+                if (R.Level > 0)
+                    Utility.DrawCircle(Player.Position, R.Range, R.IsReady() ? Color.Green : Color.Red);
+
+            if (menu.Item("Draw_R_Killable").GetValue<bool>() && R.IsReady())
+            {
+                foreach (
+                    var wts in
+                        from unit in
+                            ObjectManager.Get<Obj_AI_Hero>()
+                                .Where(x => x.IsValidTarget(2000) && !x.IsDead && x.IsEnemy)
+                                .OrderBy(x => x.Health)
+                        let health = unit.Health + unit.HPRegenRate + 10
+                        where Get_Ult_Dmg(unit) > health
+                        select Drawing.WorldToScreen(unit.Position))
+                {
+                    Drawing.DrawText(wts[0] - 20, wts[1], Color.White, "KILL!!!");
+                }
+            }
+
         }
 
         private int getOrbCount()
