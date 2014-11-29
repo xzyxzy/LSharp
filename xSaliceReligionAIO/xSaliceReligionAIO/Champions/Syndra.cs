@@ -307,7 +307,7 @@ namespace xSaliceReligionAIO.Champions
                     }
                 }
 
-                if (wToggleState != 1 && W.IsReady() && W.GetPrediction(wTarget).Hitchance >= HitChance.High)
+                if (wToggleState != 1 && W.IsReady() && W.GetPrediction(wTarget).Hitchance >= HitChance.Low)
                 {
                     W.Cast(wTarget);
                 }
