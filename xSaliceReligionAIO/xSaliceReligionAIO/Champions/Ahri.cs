@@ -38,8 +38,8 @@ namespace xSaliceReligionAIO.Champions
             E = new Spell(SpellSlot.E, 875);
             R = new Spell(SpellSlot.R, 850);
 
-            Q.SetSkillshot(0.5f, 100, 1100, false, SkillshotType.SkillshotLine);
-            E.SetSkillshot(0.5f, 60, 1200, true, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0.25f, 100, 1600, false, SkillshotType.SkillshotLine);
+            E.SetSkillshot(0.25f, 60, 1200, true, SkillshotType.SkillshotLine);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -106,6 +106,7 @@ namespace xSaliceReligionAIO.Champions
                 misc.AddItem(new MenuItem("dfgCharm", "Require Charmed to DFG").SetValue(true));
                 misc.AddItem(new MenuItem("EQ", "Use Q onTop of E").SetValue(true));
                 misc.AddItem(new MenuItem("smartKS", "Smart KS").SetValue(true));
+                misc.AddItem(new MenuItem("Prediction_Check_Off", "Use Prediciton Mode 2").SetValue(false));
                 //add to menu
                 menu.AddSubMenu(misc);
             }
@@ -213,7 +214,8 @@ namespace xSaliceReligionAIO.Champions
 
             var hitC = GetHitchance(source);
             var dmg = GetComboDamage(eTarget);
-
+            var predOff = menu.Item("Prediction_Check_Off").GetValue<bool>();
+                
             //DFG
             if (eTarget != null && dmg > eTarget.Health - 300 && DFG.IsReady() && source == "Combo" && Player.Distance(eTarget) <= 750 &&
                 (eTarget.HasBuffOfType(BuffType.Charm) || !menu.Item("dfgCharm").GetValue<bool>()))
@@ -222,15 +224,17 @@ namespace xSaliceReligionAIO.Champions
             }
 
             //E
-            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range &&
-                E.GetPrediction(eTarget).Hitchance >= hitC)
+            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range)
             {
-                E.Cast(eTarget, packets());
-                if (menu.Item("EQ").GetValue<bool>() && Q.IsReady())
+                if (E.GetPrediction(eTarget).Hitchance >= hitC || predOff)
                 {
-                    Q.Cast(eTarget, packets());
+                    E.Cast(eTarget, packets());
+                    if (menu.Item("EQ").GetValue<bool>() && Q.IsReady())
+                    {
+                        Q.Cast(eTarget, packets());
+                    }
+                    return;
                 }
-                return;
             }
 
             //Ignite
@@ -248,12 +252,13 @@ namespace xSaliceReligionAIO.Champions
             {
                 W.Cast();
             }
+
             if (source == "Harass" && menu.Item("longQ").GetValue<bool>())
             {
                 if (useQ && Q.IsReady() && Player.Distance(eTarget) <= Q.Range && eTarget != null &&
                     ShouldQ(eTarget, source) && Player.Distance(eTarget) > 600)
                 {
-                    if (Q.GetPrediction(eTarget).Hitchance >= hitC)
+                    if (Q.GetPrediction(eTarget).Hitchance >= hitC || predOff)
                     {
                         Q.Cast(eTarget, packets(), true);
                         return;
@@ -263,7 +268,7 @@ namespace xSaliceReligionAIO.Champions
             else if (useQ && Q.IsReady() && Player.Distance(eTarget) <= Q.Range && eTarget != null &&
                      ShouldQ(eTarget, source))
             {
-                if (Q.GetPrediction(eTarget).Hitchance >= hitC)
+                if (Q.GetPrediction(eTarget).Hitchance >= hitC || predOff)
                 {
                     Q.Cast(eTarget, packets(), true);
                     return;
@@ -493,7 +498,7 @@ namespace xSaliceReligionAIO.Champions
                     //Game.PrintChat("added delay: " + addedDelay);
 
                     PredictionOutput pred = GetP(Game.CursorPos, E, target, addedDelay, false);
-                    if (pred.Hitchance >= HitChance.High && R.IsReady())
+                    if (pred.Hitchance >= HitChance.Medium && R.IsReady())
                     {
                         //Game.PrintChat("R-E Mode Intiate!");
                         R.Cast(Game.CursorPos, packets());
@@ -608,7 +613,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (Player.Distance(unit) < E.Range && unit != null)
             {
-                if (E.GetPrediction(unit).Hitchance >= HitChance.High && E.IsReady())
+                if (E.GetPrediction(unit).Hitchance >= HitChance.Medium && E.IsReady())
                     E.Cast(unit, packets());
             }
         }
