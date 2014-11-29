@@ -403,7 +403,7 @@ namespace xSaliceReligionAIO.Champions
             if (menu.Item("rCancel").GetValue<bool>() && countEnemiesNearPosition(Player.ServerPosition, 570) > 1)
                 return;
 
-            foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < 1375 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
+            foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(1375) && x.IsEnemy && !x.IsDead).OrderByDescending(GetComboDamage))
             {
 
                 if (target != null && !target.HasBuffOfType(BuffType.Invulnerability) &&
@@ -566,8 +566,8 @@ namespace xSaliceReligionAIO.Champions
         {
             if (Player.IsChannelingImportantSpell())
             {
-                xSLxOrbwalker.Orbwalk(target.ServerPosition, null);
-                //Player.IssueOrder(GameObjectOrder.MoveTo, target.ServerPosition);
+                //xSLxOrbwalker.Orbwalk(target.ServerPosition, null);
+                Player.IssueOrder(GameObjectOrder.MoveTo, target.ServerPosition);
             }
         }
 
@@ -583,9 +583,9 @@ namespace xSaliceReligionAIO.Champions
                 {
                     var objAiHero = nearChamps.FirstOrDefault();
                     if (objAiHero != null)
-                        xSLxOrbwalker.Orbwalk(nearChamps.FirstOrDefault().ServerPosition, null);
+                        Player.IssueOrder(GameObjectOrder.MoveTo, objAiHero);
+                        //xSLxOrbwalker.Orbwalk(nearChamps.FirstOrDefault().ServerPosition, null);
                 }
-                //LXOrbwalker.Orbwalk(nearChamps.FirstOrDefault().ServerPosition, null);
             }
         }
 

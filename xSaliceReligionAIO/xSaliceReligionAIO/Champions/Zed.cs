@@ -72,6 +72,7 @@ namespace xSaliceReligionAIO.Champions
 
             var combo = new Menu("Combo", "Combo");
             {
+                combo.AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
                 combo.AddItem(new MenuItem("Combo_mode", "Combo Mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax" })));
                 combo.AddItem(new MenuItem("Combo_Switch", "Switch mode Key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
                 combo.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
@@ -227,21 +228,14 @@ namespace xSaliceReligionAIO.Champions
                             Cast_Q();
                         
                         if (useW)
-                            Cast_W("Combo", useQ, useE);
+                            Cast_W("Combo", false, useE);
                     }
                     else
                     {
                         if (useW)
                             Cast_W("Combo", useQ, useE);
 
-                        if (useW && Environment.TickCount - W.LastCastAttemptT > Game.Ping)
-                        {
-                            if (useQ)
-                            {
-                                Cast_Q();
-                            }
-                        }
-                        else if (useQ)
+                         if (useQ)
                         {
                             Cast_Q();
                         }
@@ -283,6 +277,10 @@ namespace xSaliceReligionAIO.Champions
             if (target == null)
                 return;
 
+            float range = W.Range + Q.Range;
+            if (GetTargetFocus(range) != null)
+                target = GetTargetFocus(range);
+
             if (GetMarked() != null)
                 target = GetMarked();
 
@@ -323,6 +321,10 @@ namespace xSaliceReligionAIO.Champions
             var target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
             if (target == null)
                 return;
+
+            float range = R.Range;
+            if (GetTargetFocus(range) != null)
+                target = GetTargetFocus(range);
 
             if (GetMarked() != null)
                 target = GetMarked();
@@ -460,6 +462,10 @@ namespace xSaliceReligionAIO.Champions
             var target = SimpleTs.GetTarget(Q.Range + W.Range, SimpleTs.DamageType.Physical);
             var qTarget = SimpleTs.GetTarget(Q.Range - 50, SimpleTs.DamageType.Physical);
 
+            float range = W.Range + Q.Range;
+            if (GetTargetFocus(range) != null)
+                target = GetTargetFocus(range);
+
             if (GetMarked() != null)
             {
                 target = GetMarked();
@@ -542,6 +548,10 @@ namespace xSaliceReligionAIO.Champions
             var target = SimpleTs.GetTarget(E.Range + W.Range, SimpleTs.DamageType.Physical);
             var eTarget = SimpleTs.GetTarget(E.Range + W.Range, SimpleTs.DamageType.Physical);
 
+            float range = E.Range + W.Range;
+            if (GetTargetFocus(range) != null)
+                target = GetTargetFocus(range);
+
             if (GetMarked() != null)
             {
                 target = GetMarked();
@@ -606,6 +616,10 @@ namespace xSaliceReligionAIO.Champions
         private void Cast_W(string source, bool useQ, bool useE)
         {
             var target = SimpleTs.GetTarget(Q.Range + W.Range - 100, SimpleTs.DamageType.Physical);
+
+            float range = Q.Range + W.Range - 100;
+            if (GetTargetFocus(range) != null)
+                target = GetTargetFocus(range);
 
             if (target == null)
                 return;

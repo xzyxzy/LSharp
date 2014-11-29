@@ -68,6 +68,7 @@ namespace xSaliceReligionAIO.Champions
 
             var combo = new Menu("Combo", "Combo");
             {
+                combo.AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
                 combo.AddItem(new MenuItem("Combo_mode", "Combo Mode").SetValue(new StringList(new[] { "Normal", "Q-R-AA-Q-E", "Q-Q-R-E-AA" })));
                 combo.AddItem(new MenuItem("Combo_Switch", "Switch mode Key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
                 combo.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
@@ -262,6 +263,12 @@ namespace xSaliceReligionAIO.Champions
             if (combo)
             {
                 var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+
+                //focus target
+                float range = Q.Range;
+                if (GetTargetFocus(range) != null)
+                    target = GetTargetFocus(range);
+
                 if (!target.IsValidTarget(Q.Range))
                     return;
 
@@ -322,6 +329,11 @@ namespace xSaliceReligionAIO.Champions
             if (combo)
             {
                 var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+
+                float range = E.Range;
+                if (GetTargetFocus(range) != null)
+                    target = GetTargetFocus(range);
+
                 if (target == null || !target.IsValidTarget(E.Range))
                     return;
 
@@ -388,6 +400,11 @@ namespace xSaliceReligionAIO.Champions
         private void Cast_R(int mode)
         {
             var target = SimpleTs.GetTarget(R.Range + Player.BoundingRadius, SimpleTs.DamageType.Magical);
+
+            float range = R.Range + Player.BoundingRadius;
+            if (GetTargetFocus(range) != null)
+                target = GetTargetFocus(range);
+
             if (target == null)
                 return;
 

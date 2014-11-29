@@ -86,7 +86,7 @@ namespace xSaliceReligionAIO
             menu.AddSubMenu(targetSelectorMenu);
 
             //Orbwalker submenu
-            orbwalkerMenu.AddItem(new MenuItem("Orbwalker_Mode", "Change Orbwalker").SetValue(true));
+            orbwalkerMenu.AddItem(new MenuItem("Orbwalker_Mode", "Change Orbwalker").SetValue(false));
             menu.AddSubMenu(orbwalkerMenu);
             chooseOrbwalker(menu.Item("Orbwalker_Mode").GetValue<bool>());
 
@@ -358,7 +358,7 @@ namespace xSaliceReligionAIO
             var focusSelected = menu.Item("selected").GetValue<bool>();
 
             if (SimpleTs.GetSelectedTarget() != null)
-                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range && SimpleTs.GetSelectedTarget().Type == GameObjectType.obj_AI_Hero)
+                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range + 100 && SimpleTs.GetSelectedTarget().Type == GameObjectType.obj_AI_Hero)
                 {
                     //Game.PrintChat("Focusing: " + SimpleTs.GetSelectedTarget().Name);
                     return SimpleTs.GetSelectedTarget();
