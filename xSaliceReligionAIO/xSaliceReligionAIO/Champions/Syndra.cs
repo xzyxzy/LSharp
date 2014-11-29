@@ -416,7 +416,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (!Q.IsReady() || !E.IsReady())
                 return;
-            if (qePred.Hitchance >= HitChance.Medium || !usePred)
+            if (qePred.Hitchance >= HitChance.High || !usePred)
             {
                 Q.Cast(predVec, packets());
                 _qe.LastCastAttemptT = Environment.TickCount;
