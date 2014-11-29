@@ -45,6 +45,7 @@ namespace xSaliceReligionAIO.Champions
                 key.AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Toggle)));
                 key.AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
                 key.AddItem(new MenuItem("Misc_QE_Mouse", "QE to mouse").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+                key.AddItem(new MenuItem("qAA", "Auto Q AAing target").SetValue(new KeyBind("I".ToCharArray()[0], KeyBindType.Toggle)));
                 //add to menu
                 menu.AddSubMenu(key);
             }
@@ -452,6 +453,11 @@ namespace xSaliceReligionAIO.Champions
         public override void Game_OnGameUpdate(EventArgs args)
         {
 
+            if(R.IsReady())
+                R.Range = R.Level == 3 ? 750f : 675f;
+            if(E.IsReady())
+                E.Width = E.Level == 5 ? 45f : (float)(45 * 0.5);
+
             if (menu.Item("Misc_QE_Mouse").GetValue<KeyBind>().Active)
             {
                 CastQeMouse();
@@ -588,6 +594,29 @@ namespace xSaliceReligionAIO.Champions
 
             if (menu.Item("QE_Interrupt").GetValue<bool>() && unit.IsValidTarget(_qe.Range))
                 Cast_QE(false, unit);
+        }
+
+        public override void Game_OnGameProcessPacket(GamePacketEventArgs args)
+        {
+            GamePacket g = new GamePacket(args.PacketData);
+            if (g.Header != 0xFE)
+                return;
+
+            if (menu.Item("qAA").GetValue<KeyBind>().Active)
+            {
+                if (Packet.MultiPacket.OnAttack.Decoded(args.PacketData).Type == Packet.AttackTypePacket.TargetedAA)
+                {
+                    g.Position = 1;
+                    var k = ObjectManager.GetUnitByNetworkId<Obj_AI_Base>(g.ReadInteger());
+                    if (k is Obj_AI_Hero && k.IsEnemy)
+                    {
+                        if (Vector3.Distance(k.Position, Player.Position) <= Q.Range)
+                        {
+                            Q.Cast(k.Position, packets());
+                        }
+                    }
+                }
+            }
         }
     }
 }

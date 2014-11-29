@@ -20,6 +20,7 @@ namespace xSaliceReligionAIO
             GameObject.OnCreate += GameObject_OnCreate;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             Game.OnGameSendPacket += Game_OnSendPacket;
+            Game.OnGameProcessPacket += Game_OnGameProcessPacket;
             GameObject.OnDelete += GameObject_OnDelete;
         }
 
@@ -491,6 +492,11 @@ namespace xSaliceReligionAIO
         }
 
         public virtual void Game_OnSendPacket(GamePacketEventArgs args)
+        {
+            //for champ use
+        }
+
+        public virtual void Game_OnGameProcessPacket(GamePacketEventArgs args)
         {
             //for champ use
         }
