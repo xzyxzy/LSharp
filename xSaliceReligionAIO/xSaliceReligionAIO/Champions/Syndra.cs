@@ -168,7 +168,7 @@ namespace xSaliceReligionAIO.Champions
         {
             var damage = 0d;
 
-            if (Items.CanUseItem(DFG.Id))
+            if (Items.CanUseItem(DFG.Id) && menu.Item("DFG").GetValue<bool>())
                 damage += Player.GetItemDamage(enemy, Damage.DamageItems.Dfg) / 1.2;
 
             if (R.IsReady())
@@ -382,7 +382,7 @@ namespace xSaliceReligionAIO.Champions
                 }
                 if (Get_Ult_Dmg(rTarget) > rTarget.Health + 20 && rTarget.Distance(Player) < R.Range)
                 {
-                    if (Items.CanUseItem(DFG.Id))
+                    if (Items.CanUseItem(DFG.Id) && menu.Item("DFG").GetValue<bool>())
                         Use_DFG(rTarget);
 
                     R.CastOnUnit(rTarget, packets());
@@ -390,7 +390,7 @@ namespace xSaliceReligionAIO.Champions
             }
             else if (Get_Ult_Dmg(rTarget) > rTarget.Health - 20 && rTarget.Distance(Player) < R.Range)
             {
-                if (Items.CanUseItem(DFG.Id))
+                if (Items.CanUseItem(DFG.Id) && menu.Item("DFG").GetValue<bool>())
                     Use_DFG(rTarget);
 
                 R.CastOnUnit(rTarget, packets());
