@@ -299,7 +299,7 @@ namespace xSaliceReligionAIO.Champions
 
                 if (Player.Distance(wTarget) < E.Range)
                 {
-                    if (wToggleState != 1 && W.IsReady() && W.GetPrediction(wTarget).Hitchance >= HitChance.High &&
+                    if (wToggleState != 1 && W.IsReady() && W.GetPrediction(wTarget).Hitchance >= HitChance.Low &&
                         Environment.TickCount - W.LastCastAttemptT > -500 + Game.Ping)
                     {
                         W.Cast(wTarget);
