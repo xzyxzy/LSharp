@@ -240,7 +240,7 @@ namespace xSaliceReligionAIO.Champions
                             if (useW)
                                 Cast_W("Combo", useQ, useE);
                         }
-                        if (useQ)
+                        if (useQ && (!W.IsReady() || wSpell.ToggleState == 2))
                         {
                             Cast_Q();
                         }
