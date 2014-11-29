@@ -414,7 +414,7 @@ namespace xSaliceReligionAIO.Champions
                     target.IsValidTarget(1375))
                 {
                     var delay = menu.Item("E_Delay_Slider").GetValue<Slider>().Value;
-                    bool shouldE = menu.Item("KS_With_E").GetValue<KeyBind>().Active && Environment.TickCount - E.LastCastAttemptT > 0;
+                    bool shouldE = !menu.Item("KS_With_E").GetValue<KeyBind>().Active && Environment.TickCount - E.LastCastAttemptT > 0;
                     //QEW
                     if (Player.Distance(target.ServerPosition) <= E.Range && shouldE &&
                         (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.Q) +
