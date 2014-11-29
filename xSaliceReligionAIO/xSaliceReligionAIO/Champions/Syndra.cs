@@ -376,7 +376,7 @@ namespace xSaliceReligionAIO.Champions
                 return;
             if (menu.Item("R_Overkill_Check").GetValue<bool>())
             {
-                if (Player.GetSpellDamage(rTarget, SpellSlot.Q) > rTarget.Health)
+                if (Player.GetSpellDamage(rTarget, SpellSlot.Q)/2 > rTarget.Health)
                 {
                     return;
                 }
