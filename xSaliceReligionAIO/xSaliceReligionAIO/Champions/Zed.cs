@@ -347,7 +347,7 @@ namespace xSaliceReligionAIO.Champions
                     {
                         var dist = menu.Item("R_Place_line").GetValue<Slider>().Value;
                         var behindVector = Player.ServerPosition - Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * dist;
-                        Game.PrintChat("dist: " + dist);
+                        //Game.PrintChat("dist: " + dist);
 
                         if ((useE && pred.Hitchance >= HitChance.Medium) ||
                             Q.GetPrediction(target).Hitchance >= HitChance.Medium)
@@ -392,10 +392,20 @@ namespace xSaliceReligionAIO.Champions
             if (HasEnergy(Q.IsReady() && useQ, W.IsReady() && useW, E.IsReady() && useE))
             {
                 if (useW)
+                {
                     Cast_W("Harass", useQ, useE);
 
-                if(useQ)
-                    Cast_Q();
+                    if (useQ && (!W.IsReady() || wSpell.ToggleState == 2))
+                    {
+                        //Game.PrintChat("RAWR");
+                        Cast_Q();
+                    }
+                }
+                else
+                {
+                    if(useQ)
+                        Cast_Q();
+                }
 
                 if (useE)
                     Cast_E();
