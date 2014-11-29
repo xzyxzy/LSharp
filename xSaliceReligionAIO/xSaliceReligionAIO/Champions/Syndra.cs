@@ -207,21 +207,21 @@ namespace xSaliceReligionAIO.Champions
             if(useQ)
                 Cast_Q();
 
-            if(useW)
-                Cast_W(true);
-
             if (qTarget != null)
             {
                 if (dmg >= qTarget.Health + 25 && Ignite_Ready() && useIgnite)
                     Use_Ignite(qTarget);
             }
 
-            if(useE)
+            if (useE)
                 Cast_E();
 
-            if(useQe)
+            if (useQe)
                 Cast_QE();
 
+            if (useW)
+                Cast_W(true);
+            
         }
 
         private void Farm()
