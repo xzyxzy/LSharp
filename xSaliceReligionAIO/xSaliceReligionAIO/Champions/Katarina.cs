@@ -88,6 +88,7 @@ namespace xSaliceReligionAIO.Champions
                 killSteal.AddItem(new MenuItem("wardKs", "Use Jump KS").SetValue(true));
                 killSteal.AddItem(new MenuItem("rKS", "Use R for KS").SetValue(true));
                 killSteal.AddItem(new MenuItem("rCancel", "NO R Cancel for KS").SetValue(false));
+                killSteal.AddItem(new MenuItem("KS_With_E", "Don't KS with E Toggle!").SetValue(new KeyBind("H".ToCharArray()[0], KeyBindType.Toggle)));
                 //add to menu
                 menu.AddSubMenu(killSteal);
             }
@@ -119,6 +120,7 @@ namespace xSaliceReligionAIO.Champions
                 drawing.AddItem(new MenuItem("WRange", "W range").SetValue(new Circle(true, Color.FromArgb(100, 255, 0, 255))));
                 drawing.AddItem(new MenuItem("ERange", "E range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
                 drawing.AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
+                drawing.AddItem(new MenuItem("Draw_Mode", "Draw E Mode").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
                 drawing.AddItem(dmgAfterComboItem);
                 //add to menu
                 menu.AddSubMenu(drawing);
@@ -406,12 +408,15 @@ namespace xSaliceReligionAIO.Champions
             foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(1375) && x.IsEnemy && !x.IsDead).OrderByDescending(GetComboDamage))
             {
 
+               
+
                 if (target != null && !target.HasBuffOfType(BuffType.Invulnerability) &&
                     target.IsValidTarget(1375))
                 {
                     var delay = menu.Item("E_Delay_Slider").GetValue<Slider>().Value;
+                    bool shouldE = menu.Item("KS_With_E").GetValue<KeyBind>().Active && Environment.TickCount - E.LastCastAttemptT > 0;
                     //QEW
-                    if (Player.Distance(target.ServerPosition) <= E.Range && Environment.TickCount - E.LastCastAttemptT > 0 &&
+                    if (Player.Distance(target.ServerPosition) <= E.Range && shouldE &&
                         (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.Q) +
                          Player.GetSpellDamage(target, SpellSlot.W)) > target.Health + 20)
                     {
@@ -428,7 +433,7 @@ namespace xSaliceReligionAIO.Champions
                     }
 
                     //E + W
-                    if (Player.Distance(target.ServerPosition) <= E.Range && Environment.TickCount - E.LastCastAttemptT > 0 &&
+                    if (Player.Distance(target.ServerPosition) <= E.Range && shouldE &&
                         (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.W)) >
                         target.Health + 20)
                     {
@@ -445,7 +450,7 @@ namespace xSaliceReligionAIO.Champions
                     }
 
                     //E + Q
-                    if (Player.Distance(target.ServerPosition) <= E.Range && Environment.TickCount - E.LastCastAttemptT > 0 &&
+                    if (Player.Distance(target.ServerPosition) <= E.Range && shouldE &&
                         (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.Q)) >
                         target.Health + 20)
                     {
@@ -482,7 +487,7 @@ namespace xSaliceReligionAIO.Champions
                     }
 
                     //E
-                    if (Player.Distance(target.ServerPosition) <= E.Range && Environment.TickCount - E.LastCastAttemptT > 0 &&
+                    if (Player.Distance(target.ServerPosition) <= E.Range && shouldE &&
                         (Player.GetSpellDamage(target, SpellSlot.E)) > target.Health + 20)
                     {
                         if (E.IsReady())
@@ -777,6 +782,16 @@ namespace xSaliceReligionAIO.Champions
                 var menuItem = menu.Item(spell.Slot + "Range").GetValue<Circle>();
                 if (menuItem.Active)
                     Utility.DrawCircle(Player.Position, spell.Range, (spell.IsReady()) ? Color.Cyan : Color.DarkRed);
+            }
+
+            if (menu.Item("Draw_Mode").GetValue<Circle>().Active)
+            {
+                var wts = Drawing.WorldToScreen(Player.Position);
+
+                if (menu.Item("KS_With_E").GetValue<KeyBind>().Active)
+                    Drawing.DrawText(wts[0], wts[1], Color.White, "Ks E Active");
+                else
+                    Drawing.DrawText(wts[0], wts[1], Color.White, "Ks E Off");
             }
         }
 
