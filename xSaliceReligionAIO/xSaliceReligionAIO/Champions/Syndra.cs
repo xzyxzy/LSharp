@@ -365,13 +365,12 @@ namespace xSaliceReligionAIO.Champions
                 var startPos = orb.ServerPosition;
                 var endPos = Player.ServerPosition + (startPos - Player.ServerPosition) * _qe.Range;
 
-
                 _qe.Delay = E.Delay + Player.Distance(orb)/E.Speed;
                 _qe.From = orb.ServerPosition;
 
                 var targetPos = _qe.GetPrediction(target);
 
-                var projection = targetPos.UnitPosition.To2D().ProjectOn(startPos.To2D(), endPos.To2D());
+                var projection = startPos.To2D().ProjectOn(targetPos.UnitPosition.To2D(), endPos.To2D());
 
                 if (!projection.IsOnSegment || !E.IsReady() || targetPos.Hitchance < HitChance.Medium || 
                     !(projection.LinePoint.Distance(targetPos.UnitPosition.To2D()) < _qe.Width + target.BoundingRadius))
