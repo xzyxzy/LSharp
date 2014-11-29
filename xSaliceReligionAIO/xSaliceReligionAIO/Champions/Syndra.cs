@@ -269,7 +269,7 @@ namespace xSaliceReligionAIO.Champions
             if (qTarget == null)
                 return;
             Q.UpdateSourcePosition();
-            if (Q.IsReady() && Q.GetPrediction(qTarget).Hitchance >= HitChance.Low)
+            if (Q.IsReady())
                 Q.Cast(qTarget, packets());
         }
 
@@ -299,15 +299,14 @@ namespace xSaliceReligionAIO.Champions
 
                 if (Player.Distance(wTarget) < E.Range)
                 {
-                    if (wToggleState != 1 && W.IsReady() && W.GetPrediction(wTarget).Hitchance >= HitChance.Low &&
-                        Environment.TickCount - W.LastCastAttemptT > -500 + Game.Ping)
+                    if (wToggleState != 1 && W.IsReady() && Environment.TickCount - W.LastCastAttemptT > -500 + Game.Ping)
                     {
                         W.Cast(wTarget);
                         return;
                     }
                 }
 
-                if (wToggleState != 1 && W.IsReady() && W.GetPrediction(wTarget).Hitchance >= HitChance.Low)
+                if (wToggleState != 1 && W.IsReady())
                 {
                     W.Cast(wTarget);
                 }
@@ -412,7 +411,7 @@ namespace xSaliceReligionAIO.Champions
             var qePred = _qe.GetPrediction(qeTarget);
             var predVec = Player.ServerPosition + Vector3.Normalize(qePred.UnitPosition - Player.ServerPosition) * (E.Range - 100);
 
-            if ((qePred.Hitchance < HitChance.Medium || usePred) || !Q.IsReady() || !E.IsReady())
+            if (!Q.IsReady() || !E.IsReady())
                 return;
 
             Q.Cast(predVec, packets());
