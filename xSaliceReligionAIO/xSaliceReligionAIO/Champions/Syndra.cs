@@ -285,31 +285,38 @@ namespace xSaliceReligionAIO.Champions
 
                 if (wTarget == null)
                     return;
-                if (wToggleState == 1 && Environment.TickCount - W.LastCastAttemptT > Game.Ping && W.IsReady() &&
-                    grabbableObj != null)
+
+                if (grabbableObj != null && wToggleState == 1)
                 {
-                    if (grabbableObj.Distance(Player) < W.Range)
+                    if (Environment.TickCount - W.LastCastAttemptT > Game.Ping && W.IsReady())
                     {
-                        W.Cast(grabbableObj.ServerPosition);
-                        W.LastCastAttemptT = Environment.TickCount + 500;
-                        return;
+                        if (grabbableObj.Distance(Player) < W.Range)
+                        {
+                            W.Cast(grabbableObj.ServerPosition);
+                            W.LastCastAttemptT = Environment.TickCount + 500;
+                            return;
+                        }
                     }
                 }
 
-                W.UpdateSourcePosition(Get_Current_Orb().ServerPosition, Get_Current_Orb().ServerPosition);
-
-                if (Player.Distance(wTarget) < E.Range)
+                if (wToggleState != 1 && Get_Current_Orb() != null)
                 {
-                    if (wToggleState != 1 && W.IsReady() && Environment.TickCount - W.LastCastAttemptT > -500 + Game.Ping)
+                    W.UpdateSourcePosition(Get_Current_Orb().ServerPosition, Get_Current_Orb().ServerPosition);
+
+                    if (Player.Distance(wTarget) < E.Range)
+                    {
+                        if (wToggleState != 1 && W.IsReady() &&
+                            Environment.TickCount - W.LastCastAttemptT > -500 + Game.Ping)
+                        {
+                            W.Cast(wTarget);
+                            return;
+                        }
+                    }
+
+                    if (W.IsReady())
                     {
                         W.Cast(wTarget);
-                        return;
                     }
-                }
-
-                if (wToggleState != 1 && W.IsReady())
-                {
-                    W.Cast(wTarget);
                 }
             }
             else
