@@ -21,18 +21,18 @@ namespace xSaliceReligionAIO.Champions
         private void SetSpells()
         {
             Q = new Spell(SpellSlot.Q, 800);
-            Q.SetSkillshot(500f, 130f, 2200f, false, SkillshotType.SkillshotCircle);
+            Q.SetSkillshot(.25f, 130f, 2200f, false, SkillshotType.SkillshotCircle);
 
             W = new Spell(SpellSlot.W, 950);
-            W.SetSkillshot(250f, 140f, 1600f, false, SkillshotType.SkillshotCircle);
+            W.SetSkillshot(.25f, 140f, 1600f, false, SkillshotType.SkillshotCircle);
 
             E = new Spell(SpellSlot.E, 700);
-            E.SetSkillshot(250f, (float)(45 * 0.5), 2500f, false, SkillshotType.SkillshotCircle);
+            E.SetSkillshot(.25f, (float)(45 * 0.5), 2500f, false, SkillshotType.SkillshotCircle);
 
             R = new Spell(SpellSlot.R, 750);
 
             _qe = new Spell(SpellSlot.Q, 1250);
-            _qe.SetSkillshot(900f, 60f, 2000f, false, SkillshotType.SkillshotLine);
+            _qe.SetSkillshot(.900f, 60f, 2000f, false, SkillshotType.SkillshotLine);
 
         }
 
@@ -419,7 +419,7 @@ namespace xSaliceReligionAIO.Champions
             if (qeTarget == null)
                 return;
 
-            _qe.Delay = Q.Delay + Player.Distance(qeTarget)/E.Speed;
+            _qe.Delay = Q.Delay + .25f + Player.Distance(qeTarget)/E.Speed;
 
             var qePred = _qe.GetPrediction(qeTarget);
             var predVec = Player.ServerPosition + Vector3.Normalize(qePred.UnitPosition - Player.ServerPosition) * (E.Range - 100);
