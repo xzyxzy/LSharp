@@ -226,16 +226,21 @@ namespace xSaliceReligionAIO.Champions
                     {
                         if (useQ)
                             Cast_Q();
-                        
-                        if (useW)
-                            Cast_W("Combo", false, useE);
+
+                        if (HasEnergy(false, W.IsReady() && useW, E.IsReady() && useE))
+                        {
+                            if (useW)
+                                Cast_W("Combo", false, useE);
+                        }
                     }
                     else
                     {
-                        if (useW)
-                            Cast_W("Combo", useQ, useE);
-
-                         if (useQ)
+                        if (HasEnergy(Q.IsReady() && useQ, W.IsReady() && useW, E.IsReady() && useE))
+                        {
+                            if (useW)
+                                Cast_W("Combo", useQ, useE);
+                        }
+                        if (useQ)
                         {
                             Cast_Q();
                         }
