@@ -23,7 +23,7 @@ namespace xSaliceReligionAIO.Champions
             Q = new Spell(SpellSlot.Q, 800);
             Q.SetSkillshot(600f, 130f, 2000f, false, SkillshotType.SkillshotCircle);
 
-            W = new Spell(SpellSlot.W, 925);
+            W = new Spell(SpellSlot.W, 1000);
             W.SetSkillshot(0, 140f, 2000f, false, SkillshotType.SkillshotCircle);
 
             E = new Spell(SpellSlot.E, 700);
