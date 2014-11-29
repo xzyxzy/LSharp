@@ -93,7 +93,7 @@ namespace xSaliceReligionAIO.Champions
             var harass = new Menu("Harass", "Harass");
             {
                 harass.AddItem(new MenuItem("UseQHarass", "Use Q").SetValue(true));
-                harass.AddItem(new MenuItem("UseQEHarass", "Use W").SetValue(true));
+                harass.AddItem(new MenuItem("UseQEHarass", "Use QE").SetValue(true));
                 harass.AddItem(new MenuItem("UseWHarass", "Use W").SetValue(true));
                 harass.AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
                 AddManaManagertoMenu(harass, "Harass", 30);
