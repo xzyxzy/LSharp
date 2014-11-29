@@ -196,6 +196,9 @@ namespace xSaliceReligionAIO.Champions
 
             var useIgnite = menu.Item("Ignite").GetValue<bool>();
 
+            if (useR)
+                Cast_R();
+
             if(useQ)
                 Cast_Q();
 
@@ -215,8 +218,6 @@ namespace xSaliceReligionAIO.Champions
             if(useQe)
                 Cast_QE();
 
-            if(useR)
-                Cast_R();
         }
 
         private void Farm()
