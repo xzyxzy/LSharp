@@ -23,11 +23,11 @@ namespace xSaliceReligionAIO.Champions
             Q = new Spell(SpellSlot.Q, 800);
             Q.SetSkillshot(600f, 130f, 2000f, false, SkillshotType.SkillshotCircle);
 
-            W = new Spell(SpellSlot.W, 1500);
+            W = new Spell(SpellSlot.W, 925);
             W.SetSkillshot(250f, 140f, 1600f, false, SkillshotType.SkillshotCircle);
 
             E = new Spell(SpellSlot.E, 700);
-            E.SetSkillshot(300f, (float)(45 * 0.5), 2500f, false, SkillshotType.SkillshotCircle);
+            E.SetSkillshot(250f, (float)(45 * 0.5), 2500f, false, SkillshotType.SkillshotCircle);
 
             R = new Spell(SpellSlot.R, 750);
 
@@ -344,19 +344,28 @@ namespace xSaliceReligionAIO.Champions
                 return;
             var target = SimpleTs.GetTarget(_qe.Range + 100, SimpleTs.DamageType.Magical);
 
+            if (target == null)
+                return;
+
             foreach (var orb in getOrb().Where(x => Player.Distance(x) < E.Range))
             {
+
                 var startPos = orb.ServerPosition;
                 var endPos = Player.ServerPosition + (startPos - Player.ServerPosition) * _qe.Range;
 
                 E.UpdateSourcePosition();
+
+                _qe.Delay = E.Delay + Player.Distance(orb)/E.Speed;
+                _qe.From = orb.ServerPosition;
+
                 var targetPos = _qe.GetPrediction(target);
 
                 var projection = targetPos.UnitPosition.To2D().ProjectOn(startPos.To2D(), endPos.To2D());
 
-                if (!projection.IsOnSegment || !E.IsReady() ||
+                if (!projection.IsOnSegment || !E.IsReady() || targetPos.Hitchance < HitChance.Medium || 
                     !(projection.LinePoint.Distance(targetPos.UnitPosition.To2D()) < _qe.Width + target.BoundingRadius))
                     return;
+
                 E.Cast(orb.ServerPosition, packets());
                 W.LastCastAttemptT = Environment.TickCount + 500;
                 return;
@@ -408,14 +417,18 @@ namespace xSaliceReligionAIO.Champions
 
             _qe.UpdateSourcePosition();
 
+            _qe.Delay = Q.Delay + Player.Distance(qeTarget)/E.Speed;
+
             var qePred = _qe.GetPrediction(qeTarget);
             var predVec = Player.ServerPosition + Vector3.Normalize(qePred.UnitPosition - Player.ServerPosition) * (E.Range - 100);
 
             if (!Q.IsReady() || !E.IsReady())
                 return;
-
-            Q.Cast(predVec, packets());
-            _qe.LastCastAttemptT = Environment.TickCount;
+            if (qePred.Hitchance >= HitChance.Medium || !usePred)
+            {
+                Q.Cast(predVec, packets());
+                _qe.LastCastAttemptT = Environment.TickCount;
+            }
         }
 
         private void CastQeMouse()
