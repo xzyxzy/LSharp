@@ -38,111 +38,108 @@ namespace xSaliceReligionAIO.Champions
 
         private void LoadMenu()
         {
-            var champMenu = new Menu("Syndra Plugin", "Syndra");
+            var key = new Menu("Key", "Key");
             {
-                var key = new Menu("Key", "Key");
+                key.AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
+                key.AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
+                key.AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Toggle)));
+                key.AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+                key.AddItem(new MenuItem("Misc_QE_Mouse", "QE to mouse").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+                //add to menu
+                menu.AddSubMenu(key);
+            }
+
+            var spellMenu = new Menu("SpellMenu", "SpellMenu");
+            {
+                var qMenu = new Menu("QMenu", "QMenu");
                 {
-                    key.AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
-                    key.AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
-                    key.AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Toggle)));
-                    key.AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
-                    key.AddItem(new MenuItem("Misc_QE_Mouse", "QE to mouse").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
-                    //add to menu
-                    menu.AddSubMenu(key);
+                    qMenu.AddItem(new MenuItem("Q_Auto_Immobile", "Auto Q on Immobile").SetValue(true));
+                    spellMenu.AddSubMenu(qMenu);
                 }
 
-                var spellMenu = new Menu("SpellMenu", "SpellMenu");
+                var wMenu = new Menu("WMenu", "WMenu");
                 {
-                    var qMenu = new Menu("QMenu", "QMenu");
+                    wMenu.AddItem(new MenuItem("W_Only_Orb", "Only Pick Up Orb").SetValue(false));
+                    spellMenu.AddSubMenu(wMenu);
+                }
+                var rMenu = new Menu("RMenu", "RMenu");
+                {
+                    rMenu.AddItem(new MenuItem("R_Overkill_Check", "Overkill Check").SetValue(true));
+
+                    rMenu.AddSubMenu(new Menu("Don't use R on", "Dont_R"));
+                    foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != Player.Team)
+                    )
+                        rMenu.SubMenu("Dont_R")
+                            .AddItem(new MenuItem("Dont_R" + enemy.BaseSkinName, enemy.BaseSkinName).SetValue(false));
+
+                    spellMenu.AddSubMenu(rMenu);
+                }
+
+                menu.AddSubMenu(spellMenu);
+            }
+
+            var combo = new Menu("Combo", "Combo");
+            {
+                combo.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
+                combo.AddItem(new MenuItem("UseQECombo", "Use QE").SetValue(true));
+                combo.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
+                combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
+                combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
+                combo.AddItem(new MenuItem("Ignite", "Use Ignite").SetValue(true));
+                combo.AddItem(new MenuItem("DFG", "DFG").SetValue(true));
+                menu.AddSubMenu(combo);
+            }
+
+            var harass = new Menu("Harass", "Harass");
+            {
+                harass.AddItem(new MenuItem("UseQHarass", "Use Q").SetValue(true));
+                harass.AddItem(new MenuItem("UseQEHarass", "Use W").SetValue(true));
+                harass.AddItem(new MenuItem("UseWHarass", "Use W").SetValue(true));
+                harass.AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
+                AddManaManagertoMenu(harass, "Harass", 30);
+                //add to menu
+                menu.AddSubMenu(harass);
+            }
+
+            var farm = new Menu("LaneClear", "LaneClear");
+            {
+                farm.AddItem(new MenuItem("UseQFarm", "Use Q").SetValue(true));
+                farm.AddItem(new MenuItem("UseWFarm", "Use W").SetValue(true));
+                farm.AddItem(new MenuItem("UseEFarm", "Use E").SetValue(true));
+                AddManaManagertoMenu(farm, "LaneClear", 30);
+                //add to menu
+                menu.AddSubMenu(farm);
+            }
+
+            var miscMenu = new Menu("Misc", "Misc");
+            {
+                miscMenu.AddItem(new MenuItem("QE_Interrupt", "Use QE to Interrupt").SetValue(true));
+                miscMenu.AddItem(new MenuItem("E_Gap_Closer", "Use E On Gap Closer").SetValue(true));
+                miscMenu.AddItem(new MenuItem("smartKS", "Use Smart KS System").SetValue(true));
+                menu.AddSubMenu(miscMenu);
+            }
+
+            var drawMenu = new Menu("Drawing", "Drawing");
+            {
+                drawMenu.AddItem(new MenuItem("Draw_Disabled", "Disable All").SetValue(false));
+                drawMenu.AddItem(new MenuItem("Draw_Q", "Draw Q").SetValue(true));
+                drawMenu.AddItem(new MenuItem("Draw_QE", "Draw QE").SetValue(true));
+                drawMenu.AddItem(new MenuItem("Draw_W", "Draw W").SetValue(true));
+                drawMenu.AddItem(new MenuItem("Draw_E", "Draw E").SetValue(true));
+                drawMenu.AddItem(new MenuItem("Draw_R", "Draw R").SetValue(true));
+                drawMenu.AddItem(new MenuItem("Draw_R_Killable", "Draw R Mark on Killable").SetValue(true));
+
+                MenuItem drawComboDamageMenu = new MenuItem("Draw_ComboDamage", "Draw Combo Damage").SetValue(true);
+                drawMenu.AddItem(drawComboDamageMenu);
+                Utility.HpBarDamageIndicator.DamageToUnit = GetComboDamage;
+                Utility.HpBarDamageIndicator.Enabled = drawComboDamageMenu.GetValue<bool>();
+                drawComboDamageMenu.ValueChanged +=
+                    delegate(object sender, OnValueChangeEventArgs eventArgs)
                     {
-                        qMenu.AddItem(new MenuItem("Q_Auto_Immobile", "Auto Q on Immobile").SetValue(true));
-                        spellMenu.AddSubMenu(qMenu);
-                    }
+                        Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
+                    };
 
-                    var wMenu = new Menu("WMenu", "WMenu");
-                    {
-                        wMenu.AddItem(new MenuItem("W_Only_Orb", "Only Pick Up Orb").SetValue(false));
-                        spellMenu.AddSubMenu(wMenu);
-                    }
-                    var rMenu = new Menu("RMenu", "RMenu");
-                    {
-                        rMenu.AddItem(new MenuItem("R_Overkill_Check", "Overkill Check").SetValue(true));
-
-                        rMenu.AddSubMenu(new Menu("Don't use R on", "Dont_R"));
-                        foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != Player.Team)
-                        )
-                            rMenu.SubMenu("Dont_R")
-                                .AddItem(new MenuItem("Dont_R" + enemy.BaseSkinName, enemy.BaseSkinName).SetValue(false));
-
-                        spellMenu.AddSubMenu(rMenu);
-                    }
-
-                    menu.AddSubMenu(spellMenu);
-                }
-
-                var combo = new Menu("Combo", "Combo");
-                {
-                    combo.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
-                    combo.AddItem(new MenuItem("UseQECombo", "Use QE").SetValue(true));
-                    combo.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
-                    combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
-                    combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
-                    combo.AddItem(new MenuItem("Ignite", "Use Ignite").SetValue(true));
-                    combo.AddItem(new MenuItem("DFG", "DFG").SetValue(true));
-                    menu.AddSubMenu(combo);
-                }
-
-                var harass = new Menu("Harass", "Harass");
-                {
-                    harass.AddItem(new MenuItem("UseQHarass", "Use Q").SetValue(true));
-                    harass.AddItem(new MenuItem("UseQEHarass", "Use W").SetValue(true));
-                    harass.AddItem(new MenuItem("UseWHarass", "Use W").SetValue(true));
-                    harass.AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
-                    AddManaManagertoMenu(harass, "Harass", 30);
-                    //add to menu
-                    menu.AddSubMenu(harass);
-                }
-
-                var farm = new Menu("LaneClear", "LaneClear");
-                {
-                    farm.AddItem(new MenuItem("UseQFarm", "Use Q").SetValue(true));
-                    farm.AddItem(new MenuItem("UseWFarm", "Use W").SetValue(true));
-                    farm.AddItem(new MenuItem("UseEFarm", "Use E").SetValue(true));
-                    AddManaManagertoMenu(farm, "LaneClear", 30);
-                    //add to menu
-                    menu.AddSubMenu(farm);
-                }
-
-                var miscMenu = new Menu("Misc", "Misc");
-                {
-                    miscMenu.AddItem(new MenuItem("QE_Interrupt", "Use QE to Interrupt").SetValue(true));
-                    miscMenu.AddItem(new MenuItem("E_Gap_Closer", "Use E On Gap Closer").SetValue(true));
-                    miscMenu.AddItem(new MenuItem("smartKS", "Use Smart KS System").SetValue(true));
-                    menu.AddSubMenu(miscMenu);
-                }
-
-                var drawMenu = new Menu("Drawing", "Drawing");
-                {
-                    drawMenu.AddItem(new MenuItem("Draw_Disabled", "Disable All").SetValue(false));
-                    drawMenu.AddItem(new MenuItem("Draw_Q", "Draw Q").SetValue(true));
-                    drawMenu.AddItem(new MenuItem("Draw_QE", "Draw QE").SetValue(true));
-                    drawMenu.AddItem(new MenuItem("Draw_W", "Draw W").SetValue(true));
-                    drawMenu.AddItem(new MenuItem("Draw_E", "Draw E").SetValue(true));
-                    drawMenu.AddItem(new MenuItem("Draw_R", "Draw R").SetValue(true));
-                    drawMenu.AddItem(new MenuItem("Draw_R_Killable", "Draw R Mark on Killable").SetValue(true));
-
-                    MenuItem drawComboDamageMenu = new MenuItem("Draw_ComboDamage", "Draw Combo Damage").SetValue(true);
-                    drawMenu.AddItem(drawComboDamageMenu);
-                    Utility.HpBarDamageIndicator.DamageToUnit = GetComboDamage;
-                    Utility.HpBarDamageIndicator.Enabled = drawComboDamageMenu.GetValue<bool>();
-                    drawComboDamageMenu.ValueChanged +=
-                        delegate(object sender, OnValueChangeEventArgs eventArgs)
-                        {
-                            Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
-                        };
-
-                    menu.AddSubMenu(drawMenu);
-                }
+                menu.AddSubMenu(drawMenu);
             }
         }
 
