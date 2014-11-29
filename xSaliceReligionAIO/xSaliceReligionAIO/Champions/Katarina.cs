@@ -407,9 +407,6 @@ namespace xSaliceReligionAIO.Champions
 
             foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(1375) && x.IsEnemy && !x.IsDead).OrderByDescending(GetComboDamage))
             {
-
-               
-
                 if (target != null && !target.HasBuffOfType(BuffType.Invulnerability) &&
                     target.IsValidTarget(1375))
                 {
@@ -417,7 +414,7 @@ namespace xSaliceReligionAIO.Champions
                     bool shouldE = !menu.Item("KS_With_E").GetValue<KeyBind>().Active && Environment.TickCount - E.LastCastAttemptT > 0;
                     //QEW
                     if (Player.Distance(target.ServerPosition) <= E.Range && shouldE &&
-                        (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.Q) +
+                        (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1) + 
                          Player.GetSpellDamage(target, SpellSlot.W)) > target.Health + 20)
                     {
                         if (E.IsReady() && Q.IsReady() && W.IsReady())
