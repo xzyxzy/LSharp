@@ -99,6 +99,12 @@ namespace xSaliceReligionAIO.Champions
                 misc.AddItem(new MenuItem("igniteMode", "Mode").SetValue(new StringList(new[] {"Combo", "KS"})));
                 misc.AddItem(new MenuItem("autoWz", "Auto W Enemy").SetValue(true));
                 misc.AddItem(new MenuItem("E_Delay_Slider", "Delay Between E(ms)").SetValue(new Slider(0, 0, 1000)));
+
+                misc.AddSubMenu(new Menu("Don't use DFG on", "Dont_DFG"));
+                foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != Player.Team))
+                    misc.SubMenu("Dont_DFG")
+                        .AddItem(new MenuItem("Dont_DFG" + enemy.BaseSkinName, enemy.BaseSkinName).SetValue(false));
+
                 //add to menu
                 menu.AddSubMenu(misc);
             }
@@ -130,8 +136,11 @@ namespace xSaliceReligionAIO.Champions
             double damage = 0d;
 
             if (DFG.IsReady())
-                damage += Player.GetItemDamage(enemy, Damage.DamageItems.Dfg) / 1.2;
-
+            {
+                if (menu.Item("Dont_R" + enemy.BaseSkinName) == null)
+                    if (menu.Item("Dont_R" + enemy.BaseSkinName).GetValue<bool>())
+                        damage += Player.GetItemDamage(enemy, Damage.DamageItems.Dfg)/1.2;
+            }
             if (Q.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.Q) + Player.GetSpellDamage(enemy, SpellSlot.Q, 1);
 
@@ -184,7 +193,9 @@ namespace xSaliceReligionAIO.Champions
                 {
                     if (DFG != null && (DFG.IsReady() && E.IsReady() && menu.Item("dfg").GetValue<bool>()))
                     {
-                        Items.UseItem(DFG.Id, target);
+                        if (menu.Item("Dont_R" + target.BaseSkinName) == null)
+                            if (menu.Item("Dont_R" + target.BaseSkinName).GetValue<bool>())
+                                Items.UseItem(DFG.Id, target);
                     }
 
                     if (useQ && Q.IsReady() && Player.Distance(target) <= Q.Range)
@@ -209,7 +220,9 @@ namespace xSaliceReligionAIO.Champions
                 {
                     if (DFG.IsReady() && E.IsReady() && menu.Item("dfg").GetValue<bool>())
                     {
-                        Items.UseItem(DFG.Id, target);
+                        if (menu.Item("Dont_R" + target.BaseSkinName) == null)
+                            if (menu.Item("Dont_R" + target.BaseSkinName).GetValue<bool>())
+                                 Items.UseItem(DFG.Id, target);
                     }
 
                     if (useE && E.IsReady() && Player.Distance(target) < E.Range && Environment.TickCount - E.LastCastAttemptT > 0 &&
@@ -512,7 +525,9 @@ namespace xSaliceReligionAIO.Champions
                     if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health + 20 &&
                         Player.Distance(target.ServerPosition) <= 750)
                     {
-                        Items.UseItem(DFG.Id, target);
+                        if (menu.Item("Dont_R" + target.BaseSkinName) == null)
+                            if (menu.Item("Dont_R" + target.BaseSkinName).GetValue<bool>())
+                                Items.UseItem(DFG.Id, target);
                         //Game.PrintChat("ks 1");
                         return;
                     }
@@ -522,13 +537,19 @@ namespace xSaliceReligionAIO.Champions
                         (Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
                          (Player.GetSpellDamage(target, SpellSlot.Q)) * 1.2) > target.Health + 20)
                     {
-                        if (DFG.IsReady() && Q.IsReady())
+                        if (menu.Item("Dont_R" + target.BaseSkinName) == null)
                         {
-                            Items.UseItem(DFG.Id, target);
-                            CancelUlt(target);
-                            Q.Cast(target, packets());
-                            //Game.PrintChat("ks 2");
-                            return;
+                            if (menu.Item("Dont_R" + target.BaseSkinName).GetValue<bool>())
+                            {
+                                if (DFG.IsReady() && Q.IsReady())
+                                {
+                                    Items.UseItem(DFG.Id, target);
+                                    CancelUlt(target);
+                                    Q.Cast(target, packets());
+                                    //Game.PrintChat("ks 2");
+                                    return;
+                                }
+                            }
                         }
                     }
 
@@ -537,14 +558,20 @@ namespace xSaliceReligionAIO.Champions
                         (Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
                          (Player.GetSpellDamage(target, SpellSlot.E)) * 1.2) > target.Health + 20)
                     {
-                        if (DFG.IsReady() && E.IsReady())
+                        if (menu.Item("Dont_R" + target.BaseSkinName) == null)
                         {
-                            Items.UseItem(DFG.Id, target);
-                            CancelUlt(target);
-                            E.Cast(target, packets());
-                            E.LastCastAttemptT = Environment.TickCount + delay;
-                            //Game.PrintChat("ks 3");
-                            return;
+                            if (menu.Item("Dont_R" + target.BaseSkinName).GetValue<bool>())
+                            {
+                                if (DFG.IsReady() && E.IsReady())
+                                {
+                                    Items.UseItem(DFG.Id, target);
+                                    CancelUlt(target);
+                                    E.Cast(target, packets());
+                                    E.LastCastAttemptT = Environment.TickCount + delay;
+                                    //Game.PrintChat("ks 3");
+                                    return;
+                                }
+                            }
                         }
                     }
 
