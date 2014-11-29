@@ -394,7 +394,7 @@ namespace xSaliceReligionAIO.Champions
                 if (Items.CanUseItem(DFG.Id) && menu.Item("DFG").GetValue<bool>())
                     Use_DFG(rTarget);
 
-                R.CastOnUnit(rTarget, packets());
+                R.CastOnUnit(rTarget);
             }
         }
 
