@@ -268,7 +268,7 @@ namespace xSaliceReligionAIO.Champions
             var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
             if (qTarget == null)
                 return;
-            Q.UpdateSourcePosition();
+
             if (Q.IsReady())
                 Q.Cast(qTarget, packets());
         }
@@ -353,7 +353,6 @@ namespace xSaliceReligionAIO.Champions
                 var startPos = orb.ServerPosition;
                 var endPos = Player.ServerPosition + (startPos - Player.ServerPosition) * _qe.Range;
 
-                E.UpdateSourcePosition();
 
                 _qe.Delay = E.Delay + Player.Distance(orb)/E.Speed;
                 _qe.From = orb.ServerPosition;
@@ -384,19 +383,13 @@ namespace xSaliceReligionAIO.Champions
                 return;
             if (menu.Item("R_Overkill_Check").GetValue<bool>())
             {
-                if (Player.GetSpellDamage(rTarget, SpellSlot.Q)/2 > rTarget.Health)
+                if (Player.GetSpellDamage(rTarget, SpellSlot.Q) - 25 > rTarget.Health && Q.IsReady())
                 {
                     return;
                 }
-                if (Get_Ult_Dmg(rTarget) > rTarget.Health + 20 && rTarget.Distance(Player) < R.Range)
-                {
-                    if (Items.CanUseItem(DFG.Id) && menu.Item("DFG").GetValue<bool>())
-                        Use_DFG(rTarget);
-
-                    R.CastOnUnit(rTarget, packets());
-                }
             }
-            else if (Get_Ult_Dmg(rTarget) > rTarget.Health - 20 && rTarget.Distance(Player) < R.Range)
+
+            if (Get_Ult_Dmg(rTarget) > rTarget.Health - 20 && rTarget.Distance(Player) < R.Range)
             {
                 if (Items.CanUseItem(DFG.Id) && menu.Item("DFG").GetValue<bool>())
                     Use_DFG(rTarget);
@@ -414,8 +407,6 @@ namespace xSaliceReligionAIO.Champions
 
             if (qeTarget == null)
                 return;
-
-            _qe.UpdateSourcePosition();
 
             _qe.Delay = Q.Delay + Player.Distance(qeTarget)/E.Speed;
 
