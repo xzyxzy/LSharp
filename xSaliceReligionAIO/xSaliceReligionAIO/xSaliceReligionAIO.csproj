@@ -61,6 +61,7 @@
     <Compile Include="Champions\Irelia.cs" />
     <Compile Include="Champions\Katarina.cs" />
     <Compile Include="Champions\Orianna.cs" />
+    <Compile Include="Champions\Syndra.cs" />
     <Compile Include="Champions\Teemo.cs" />
     <Compile Include="Champions\Zed.cs" />
     <Compile Include="Initiator.cs" />

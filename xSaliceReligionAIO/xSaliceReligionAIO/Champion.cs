@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
+using Microsoft.Win32.SafeHandles;
 using SharpDX;
 
 namespace xSaliceReligionAIO
@@ -351,6 +352,35 @@ namespace xSaliceReligionAIO
 
             if (spell.GetPrediction(target).Hitchance >= hitChance)
                 spell.Cast(target, packets());
+        }
+
+        public void CastBasicFarm(Spell spell)
+        {
+            if(!spell.IsReady())
+				return;
+            var minion = MinionManager.GetMinions(Player.ServerPosition, spell.Range, MinionTypes.All, MinionTeam.NotAlly);
+
+            if (minion.Count == 0)
+                return;
+
+            if (spell.Type == SkillshotType.SkillshotCircle)
+            {
+                var predPosition = spell.GetCircularFarmLocation(minion);
+
+                spell.UpdateSourcePosition();
+
+                if (predPosition.MinionsHit >= 2)
+                    spell.Cast(predPosition.Position, packets());
+            }
+            else if (spell.Type == SkillshotType.SkillshotLine)
+            {
+                var predPosition = spell.GetLineFarmLocation(minion);
+
+                spell.UpdateSourcePosition();
+
+                if(predPosition.MinionsHit >= 2)
+                    spell.Cast(predPosition.Position, packets());
+            }
         }
 
         public Obj_AI_Hero GetTargetFocus(float range)
