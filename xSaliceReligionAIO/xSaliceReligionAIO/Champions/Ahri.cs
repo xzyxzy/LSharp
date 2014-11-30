@@ -30,7 +30,7 @@ namespace xSaliceReligionAIO.Champions
             
         }
 
-        public void SetUpSpells()
+        private void SetUpSpells()
         {
             //intalize spell
             Q = new Spell(SpellSlot.Q, 900);
@@ -48,7 +48,7 @@ namespace xSaliceReligionAIO.Champions
         }
 
         //Load Menu
-        public void LoadMenu()
+        private void LoadMenu()
         {
             //key
             var key = new Menu("Key", "Key");{
@@ -219,8 +219,7 @@ namespace xSaliceReligionAIO.Champions
 
             Obj_AI_Hero rETarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
 
-            int igniteMode;
-            igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
+            int igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
 
             var hitC = GetHitchance(source);
             var dmg = GetComboDamage(eTarget);
@@ -305,7 +304,8 @@ namespace xSaliceReligionAIO.Champions
                 }
             }
         }
-        public void CheckKs()
+
+        private void CheckKs()
         {
             foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < 1300 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
             {
@@ -390,7 +390,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public bool ShouldQ(Obj_AI_Hero target, string source)
+        private bool ShouldQ(Obj_AI_Hero target, string source)
         {
             if (source == "Combo")
             {
@@ -426,7 +426,8 @@ namespace xSaliceReligionAIO.Champions
 
             return false;
         }
-        public bool ShouldW(Obj_AI_Hero target, string source)
+
+        private bool ShouldW(Obj_AI_Hero target, string source)
         {
             if (source == "Combo")
             {
@@ -460,7 +461,7 @@ namespace xSaliceReligionAIO.Champions
             return false;
         }
 
-        public bool ShouldR(Obj_AI_Hero target)
+        private bool ShouldR(Obj_AI_Hero target)
         {
             if (!manaCheck())
                 return false;
@@ -493,7 +494,7 @@ namespace xSaliceReligionAIO.Champions
             return false;
         }
 
-        public bool CheckReq(Obj_AI_Hero target)
+        private bool CheckReq(Obj_AI_Hero target)
         {
             if (Player.Distance(Game.CursorPos) < 75)
                 return false;
@@ -520,12 +521,13 @@ namespace xSaliceReligionAIO.Champions
 
             return false;
         }
-        public bool IsRActive()
+
+        private bool IsRActive()
         {
             return Player.HasBuff("AhriTumble", true);
         }
 
-        public int RCount()
+        private int RCount()
         {
             var buff = Player.Buffs.FirstOrDefault(x => x.Name == "AhriTumble");
             if (buff != null)
@@ -602,10 +604,8 @@ namespace xSaliceReligionAIO.Champions
             {
                 var wts = Drawing.WorldToScreen(Player.Position);
 
-                if(menu.Item("charmCombo").GetValue<KeyBind>().Active)
-                    Drawing.DrawText(wts[0], wts[1], Color.White, "Require E: On");
-                else
-                    Drawing.DrawText(wts[0], wts[1], Color.White, "Require E: Off");
+                Drawing.DrawText(wts[0], wts[1], Color.White,
+                    menu.Item("charmCombo").GetValue<KeyBind>().Active ? "Require E: On" : "Require E: Off");
             }
         }
 

@@ -16,7 +16,7 @@ namespace xSaliceReligionAIO.Champions
             LoadMenu();
         }
 
-        public void SetUpSpells()
+        private void SetUpSpells()
         {
             //intalize spell
             Q = new Spell(SpellSlot.Q, 675);
@@ -32,7 +32,7 @@ namespace xSaliceReligionAIO.Champions
             SpellList.Add(R);
         }
 
-        public void LoadMenu()
+        private void LoadMenu()
         {
             var key = new Menu("Key", "Key");{
                 key.AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
@@ -330,7 +330,7 @@ namespace xSaliceReligionAIO.Champions
                 {
                     if (minion.IsValidTarget(Q.Range) &&
                         HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) <
-                        Player.GetSpellDamage(minion, SpellSlot.Q) - 20)
+                        Player.GetSpellDamage(minion, SpellSlot.Q) - 35)
                     {
                         Q.CastOnUnit(minion, packets());
                         return;
@@ -340,17 +340,10 @@ namespace xSaliceReligionAIO.Champions
 
             if (W.IsReady() && useW)
             {
-                foreach (Obj_AI_Base minion in allMinions)
+                if (allMinions.Where(minion => minion.IsValidTarget(W.Range) && minion.Health <
+                                               Player.GetSpellDamage(minion, SpellSlot.W) - 35).Any(minion => Player.Distance(minion.ServerPosition) < W.Range))
                 {
-                    if (minion.IsValidTarget(W.Range) && minion.Health <
-                        Player.GetSpellDamage(minion, SpellSlot.W) - 10)
-                    {
-                        if (Player.Distance(minion.ServerPosition) < W.Range)
-                        {
-                            W.Cast();
-                            return;
-                        }
-                    }
+                    W.Cast();
                 }
             }
         }
@@ -408,7 +401,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public void SmartKs()
+        private void SmartKs()
         {
             if (!menu.Item("smartKS").GetValue<bool>())
                 return;
@@ -575,7 +568,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public void CancelUlt(Obj_AI_Hero target)
+        private void CancelUlt(Obj_AI_Hero target)
         {
             if (Player.IsChannelingImportantSpell())
             {
@@ -584,7 +577,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public void ShouldCancel()
+        private void ShouldCancel()
         {
             if (countEnemiesNearPosition(Player.ServerPosition, 600) < 1)
             {
@@ -602,7 +595,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public void AutoW()
+        private void AutoW()
         {
             foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>())
             {
@@ -618,12 +611,7 @@ namespace xSaliceReligionAIO.Champions
         //wardjump
         //-------------------------------------------------
 
-        public void WardWalk(Vector3 pos)
-        {
-            Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
-        }
-
-        public void JumpKs(Obj_AI_Hero target)
+        private void JumpKs(Obj_AI_Hero target)
         {
             foreach (Obj_AI_Minion ward in ObjectManager.Get<Obj_AI_Minion>().Where(ward =>
                 E.IsReady() && Q.IsReady() && ward.Name.ToLower().Contains("ward") &&
@@ -677,7 +665,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public void WardJump()
+        private void WardJump()
         {
             //wardWalk(Game.CursorPos);
 
@@ -796,10 +784,8 @@ namespace xSaliceReligionAIO.Champions
             {
                 var wts = Drawing.WorldToScreen(Player.Position);
 
-                if (menu.Item("KS_With_E").GetValue<KeyBind>().Active)
-                    Drawing.DrawText(wts[0], wts[1], Color.White, "Ks E Active");
-                else
-                    Drawing.DrawText(wts[0], wts[1], Color.White, "Ks E Off");
+                Drawing.DrawText(wts[0], wts[1], Color.White,
+                    menu.Item("KS_With_E").GetValue<KeyBind>().Active ? "Ks E Active" : "Ks E Off");
             }
         }
 
