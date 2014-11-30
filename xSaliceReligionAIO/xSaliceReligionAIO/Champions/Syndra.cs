@@ -430,10 +430,10 @@ namespace xSaliceReligionAIO.Champions
             if (qeTarget == null)
                 return;
 
-            _qe.Delay = Player.Distance(qeTarget)/E.Speed + Game.Ping/1000;
+            _qe.Delay = Player.Distance(qeTarget)/E.Speed + Game.Ping/2000;
             
             var qePred = _qe.GetPrediction(qeTarget);
-            var predVec = Player.ServerPosition + Vector3.Normalize(qePred.UnitPosition - Player.ServerPosition) * (E.Range - 350);
+            var predVec = Player.ServerPosition + Vector3.Normalize(qePred.UnitPosition - Player.ServerPosition) * (E.Range - 300);
 
             if (!Q.IsReady() || !E.IsReady())
                 return;
