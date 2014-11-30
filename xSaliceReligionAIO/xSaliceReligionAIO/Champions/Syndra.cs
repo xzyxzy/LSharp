@@ -59,7 +59,7 @@ namespace xSaliceReligionAIO.Champions
                 }
                 var qeMenu = new Menu("QEMenu", "QEMenu");
                 {
-                    qeMenu.AddItem(new MenuItem("QE_Delays", "QE Delay Precision Adjustment (ms)").SetValue(new Slider(0, -500, 1000)));
+                    qeMenu.AddItem(new MenuItem("QE_Delays", "QE Delay Precision Adjustment (ms)").SetValue(new Slider(725, 0, 1000)));
                     spellMenu.AddSubMenu(qeMenu);
                 }
 
@@ -435,7 +435,7 @@ namespace xSaliceReligionAIO.Champions
             if (qeTarget == null)
                 return;
 
-            var delay = (Player.Distance(qeTarget) / E.Speed) / 3 + menu.Item("QE_Delays").GetValue<Slider>().Value / 1000;
+            var delay = menu.Item("QE_Delays").GetValue<Slider>().Value / 1001;
             if (delay < 0)
                 delay = 0;
             _qe.Delay = delay; 
@@ -534,7 +534,7 @@ namespace xSaliceReligionAIO.Champions
                 if (qeTarget == null)
                     return;
 
-                var delay = (Player.Distance(qeTarget) / E.Speed) / 3 + menu.Item("QE_Delays").GetValue<Slider>().Value / 1000;
+                var delay = menu.Item("QE_Delays").GetValue<Slider>().Value / 1001;
                 if (delay < 0)
                     delay = 0;
                 _qe.Delay = delay; 

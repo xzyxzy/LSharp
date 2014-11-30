@@ -41,6 +41,7 @@ namespace xSaliceReligionAIO
         public List<Spell> SpellList = new List<Spell>();
 
         public Spell Q;
+        public Spell QExtend;
         public Spell W;
         public Spell E;
         public Spell R;
