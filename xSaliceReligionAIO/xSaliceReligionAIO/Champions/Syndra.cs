@@ -440,7 +440,7 @@ namespace xSaliceReligionAIO.Champions
             if (qePred.Hitchance >= HitChance.Medium || !usePred)
             {
                 Q.Cast(predVec, packets());
-                W.LastCastAttemptT = Environment.TickCount + 200;
+                W.LastCastAttemptT = Environment.TickCount + 300;
                 _qe.LastCastAttemptT = Environment.TickCount;
             }
         }
