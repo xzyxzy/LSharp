@@ -59,7 +59,7 @@ namespace xSaliceReligionAIO.Champions
                 }
                 var qeMenu = new Menu("QEMenu", "QEMenu");
                 {
-                    qeMenu.AddItem(new MenuItem("QE_Delays", "QE Delay Precision Adjustment(ms)").SetValue(new Slider(500, 0, 1000)));
+                    qeMenu.AddItem(new MenuItem("QE_Delays", "QE Delay Precision Adjustment(ms)").SetValue(new Slider(910, 0, 1000)));
                     spellMenu.AddSubMenu(qeMenu);
                 }
 
