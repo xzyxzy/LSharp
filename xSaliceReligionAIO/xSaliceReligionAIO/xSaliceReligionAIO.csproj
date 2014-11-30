@@ -57,6 +57,7 @@
     <Compile Include="Champion.cs" />
     <Compile Include="Champions\Ahri.cs" />
     <Compile Include="Champions\Akali.cs" />
+    <Compile Include="DamageIndicator.cs" />
     <Compile Include="Champions\Ezreal.cs" />
     <Compile Include="Champions\Irelia.cs" />
     <Compile Include="Champions\Katarina.cs" />
