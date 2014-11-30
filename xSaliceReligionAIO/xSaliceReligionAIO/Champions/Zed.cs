@@ -231,7 +231,7 @@ namespace xSaliceReligionAIO.Champions
             int mode = menu.Item("Combo_mode").GetValue<StringList>().SelectedIndex;
             var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
             var target = SimpleTs.GetTarget(Q.Range + W.Range, SimpleTs.DamageType.Physical);
-
+            
             switch (mode)
             {
                 case 0:
@@ -305,11 +305,13 @@ namespace xSaliceReligionAIO.Champions
                 case 3:
                     if (qTarget != null)
                     {
+                        var dmg = GetComboDamage(qTarget);
+
                         float range = Q.Range;
                         if (GetTargetFocus(range) != null)
                             qTarget = GetTargetFocus(range);
 
-                        if (GetComboDamage(qTarget) > qTarget.Health + 50 && qTarget.IsValidTarget(R.Range) && HasEnergy(true, true, false))
+                        if (dmg > qTarget.Health + 50 && qTarget.IsValidTarget(R.Range) && HasEnergy(true, true, false))
                             R.CastOnUnit(qTarget, packets());
 
                         if (GetMarked() != null)
@@ -340,11 +342,13 @@ namespace xSaliceReligionAIO.Champions
                 case 4:
                     if (qTarget != null)
                     {
+                        var dmg2 = GetComboDamage(qTarget);
+
                         float range = Q.Range;
                         if (GetTargetFocus(range) != null)
                             qTarget = GetTargetFocus(range);
 
-                        if (GetComboDamage(qTarget) > qTarget.Health + 50 && qTarget.IsValidTarget(R.Range) && HasEnergy(true, true, false))
+                        if (dmg2 > qTarget.Health + 50 && qTarget.IsValidTarget(R.Range) && HasEnergy(true, true, false))
                             R.CastOnUnit(qTarget, packets());
 
                         if (GetMarked() != null)
