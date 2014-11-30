@@ -73,7 +73,7 @@ namespace xSaliceReligionAIO.Champions
             var combo = new Menu("Combo", "Combo");
             {
                 combo.AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
-                combo.AddItem(new MenuItem("Combo_mode", "Combo Mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax" })));
+                combo.AddItem(new MenuItem("Combo_mode", "Combo Mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax", "Ult no W" })));
                 combo.AddItem(new MenuItem("Combo_Switch", "Switch mode Key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
                 combo.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
                 combo.AddItem(new MenuItem("Prioritize_Q", "Prioritize Q over W->Q").SetValue(true));
@@ -155,20 +155,38 @@ namespace xSaliceReligionAIO.Champions
             if (E.IsReady())
                 comboDamage += Player.GetSpellDamage(target, SpellSlot.E);
 
-            if (R.IsReady())
-                comboDamage += Player.GetSpellDamage(target, SpellSlot.R);
-
             if (Items.CanUseItem(Bilge.Id))
                 comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Bilgewater);
 
             if (Items.CanUseItem(Botrk.Id))
                 comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Botrk);
 
-            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
-                comboDamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
-
             if ((target.Health / target.MaxHealth * 100) <= 50)
                 comboDamage += CalcPassive(target);
+
+            if (HasBuff(target, "zedulttargetmark"))
+            {
+                if (R.Level == 1)
+                    comboDamage += comboDamage * 1.2;
+                else if(R.Level == 2)
+                    comboDamage += comboDamage * 1.35;
+                else if(R.Level == 3)
+                    comboDamage += comboDamage * 1.5;
+            }
+            if (R.IsReady())
+            {
+                comboDamage += Player.GetSpellDamage(target, SpellSlot.R);
+
+                if (R.Level == 1)
+                    comboDamage += comboDamage * 1.2;
+                else if (R.Level == 2)
+                    comboDamage += comboDamage * 1.35;
+                else if (R.Level == 3)
+                    comboDamage += comboDamage * 1.5;
+            }
+
+            if (Ignite_Ready())
+                comboDamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
 
             return (float)(comboDamage + Player.GetAutoAttackDamage(target) * 3);
         }
@@ -211,11 +229,12 @@ namespace xSaliceReligionAIO.Champions
         private void Combo(bool useQ, bool useW, bool useE, bool useR)
         {
             int mode = menu.Item("Combo_mode").GetValue<StringList>().SelectedIndex;
+            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+            var target = SimpleTs.GetTarget(Q.Range + W.Range, SimpleTs.DamageType.Physical);
 
             switch (mode)
             {
                 case 0:
-                    var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
                     if (qTarget != null)
                     {
                         if (GetMarked() != null)
@@ -264,7 +283,6 @@ namespace xSaliceReligionAIO.Champions
                     if (WShadow == null)
                         return;
 
-                    var target = SimpleTs.GetTarget(Q.Range + W.Range, SimpleTs.DamageType.Physical);
                     if(target == null)
                         return;
 
@@ -272,15 +290,115 @@ namespace xSaliceReligionAIO.Champions
                         W.Cast(packets());
 
                     break;
+                //line
                 case 1:
                     if(useR)
                         LineCombo(useQ, useE);
                     else
-                        menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax" }));
+                        menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax", "Ham" }));
                 break;
+                //Coax
                 case 2:
                     CoaxCombo(useQ, useE);
                 break;
+                //ham
+                case 3:
+                    if (qTarget != null)
+                    {
+                        float range = Q.Range;
+                        if (GetTargetFocus(range) != null)
+                            qTarget = GetTargetFocus(range);
+
+                        if (GetComboDamage(qTarget) > qTarget.Health + 50 && qTarget.IsValidTarget(R.Range) && HasEnergy(true, true, false))
+                            R.CastOnUnit(qTarget, packets());
+
+                        if (GetMarked() != null)
+                            qTarget = GetMarked();
+
+                        if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>())
+                            Use_Ignite(qTarget);
+
+                        if (menu.Item("Botrk").GetValue<bool>())
+                        {
+                            if (HasBuff(qTarget, "zedulttargetmark"))
+                                Use_Bilge(qTarget);
+
+                            if (HasBuff(qTarget, "zedulttargetmark"))
+                                Use_Botrk(qTarget);
+                        }
+                    }
+
+                    if (useQ)
+                    {
+                        Cast_Q();
+                    }
+                    
+                    if (useE)
+                        Cast_E();
+                    break;
+                //Normal /w Ult
+                case 4:
+                    if (qTarget != null)
+                    {
+                        float range = Q.Range;
+                        if (GetTargetFocus(range) != null)
+                            qTarget = GetTargetFocus(range);
+
+                        if (GetComboDamage(qTarget) > qTarget.Health + 50 && qTarget.IsValidTarget(R.Range) && HasEnergy(true, true, false))
+                            R.CastOnUnit(qTarget, packets());
+
+                        if (GetMarked() != null)
+                            qTarget = GetMarked();
+
+                        if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>())
+                            Use_Ignite(qTarget);
+
+                        if (menu.Item("Botrk").GetValue<bool>())
+                        {
+                            if (HasBuff(qTarget, "zedulttargetmark")) 
+                                Use_Bilge(qTarget);
+
+                            if (HasBuff(qTarget, "zedulttargetmark"))
+                                Use_Botrk(qTarget);
+                        }
+                    }
+
+                    if (menu.Item("Prioritize_Q").GetValue<bool>())
+                    {
+                        if (useQ)
+                            Cast_Q();
+
+                        if (HasEnergy(false, W.IsReady() && useW, E.IsReady() && useE))
+                        {
+                            if (useW)
+                                Cast_W("Combo", false, useE);
+                        }
+                    }
+                    else
+                    {
+                        if (HasEnergy(Q.IsReady() && useQ, W.IsReady() && useW, E.IsReady() && useE))
+                        {
+                            if (useW)
+                                Cast_W("Combo", useQ, useE);
+                        }
+                        if (useQ)
+                        {
+                            Cast_Q();
+                        }
+                    }
+
+                    if (useE)
+                        Cast_E();
+
+                    if (WShadow == null)
+                        return;
+
+                    if(target == null)
+                        return;
+
+                    if (menu.Item("W_Follow_Combo").GetValue<bool>() && wSpell.ToggleState == 2 && Player.Distance(target) > WShadow.Distance(target) && HasBuff(target, "zedulttargetmark"))
+                        W.Cast(packets());
+                    break;
 
             }
         }
@@ -328,7 +446,7 @@ namespace xSaliceReligionAIO.Champions
                 {
                     W.Cast(packets());
                     Utility.DelayAction.Add(50, () => R.Cast(target, packets()));
-                    Utility.DelayAction.Add(300, () => menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax" })));
+                    Utility.DelayAction.Add(300, () => menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax", "Ham" })));
                 }
             }
         }
@@ -376,7 +494,7 @@ namespace xSaliceReligionAIO.Champions
 
                             _willEHit = useE;
 
-                            Utility.DelayAction.Add(400, () => menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax" })));
+                            Utility.DelayAction.Add(400, () => menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax", "Ham" })));
                         }
                     }
                 }
@@ -507,64 +625,22 @@ namespace xSaliceReligionAIO.Champions
             if (target == null || !Q.IsReady())
                 return;
 
-            if (WShadow != null && RShadow != null && _currentRShadow != Vector3.Zero && _currentWShadow != Vector3.Zero)
+            if (WShadow != null &&  _currentWShadow != Vector3.Zero)
             {
-                var predW = GetP2(WShadow.ServerPosition, Q, target, true);
-                var predR = GetP2(RShadow.ServerPosition, Q, target, true);
-                var pred = Q.GetPrediction(target, true);
-
-                if (pred.Hitchance >= HitChance.Medium)
-                {
-                    Q.Cast(target, packets());
-                    Q.LastCastAttemptT = Environment.TickCount + 300;
-                }
-                if (predW.Hitchance >= HitChance.Medium)
-                {
-                    Q.Cast(predW.CastPosition, packets());
-                    Q.LastCastAttemptT = Environment.TickCount + 300;
-                }
-                if (predR.Hitchance >= HitChance.Medium)
-                {
-                    Q.Cast(predR.CastPosition, packets());
-                    Q.LastCastAttemptT = Environment.TickCount + 300;
-                }
+                Q.UpdateSourcePosition(WShadow.ServerPosition, WShadow.ServerPosition);
+                Q.Cast(qTarget, packets());
+                return;
             }
-            else if (WShadow != null &&  _currentWShadow != Vector3.Zero)
+            if (RShadow != null && _currentRShadow != Vector3.Zero)
             {
-                var predW = GetP2(WShadow.ServerPosition, Q, target, true);
-                var pred = Q.GetPrediction(target, true);
-
-                if (predW.Hitchance >= HitChance.Medium)
-                {
-                    Q.Cast(predW.CastPosition, packets());
-                    Q.LastCastAttemptT = Environment.TickCount + 300;
-                }
-
-                if (pred.Hitchance >= HitChance.Medium)
-                {
-                    Q.Cast(target, packets());
-                    Q.LastCastAttemptT = Environment.TickCount + 300;
-                }
+                Q.UpdateSourcePosition(RShadow.ServerPosition, RShadow.ServerPosition);
+                Q.Cast(qTarget, packets());
+                return;
             }
-            else if (RShadow != null && _currentRShadow != Vector3.Zero)
-            {
-                var predR = GetP2(RShadow.ServerPosition, Q, target, true);
-                var pred = Q.GetPrediction(target, true);
 
-                if (pred.Hitchance >= HitChance.Medium)
-                {
-                    Q.Cast(target, packets());
-                    Q.LastCastAttemptT = Environment.TickCount + 300;
-                }
-                if (predR.Hitchance >= HitChance.Medium)
-                {
-                    Q.Cast(predR.CastPosition, packets());
-                    Q.LastCastAttemptT = Environment.TickCount + 300;
-                }
-            }
-            else if(qTarget != null)
+            if(qTarget != null)
             {
-                Q.UpdateSourcePosition();
+                Q.UpdateSourcePosition(Player.ServerPosition, Player.ServerPosition);
                 Q.Cast(qTarget, packets());
                 Q.LastCastAttemptT = Environment.TickCount + 300;
             }
@@ -732,6 +808,7 @@ namespace xSaliceReligionAIO.Champions
         {
             List<Obj_AI_Base> allMinionsQ = MinionManager.GetMinions(Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly);
 
+            Q.UpdateSourcePosition(Player.ServerPosition, Player.ServerPosition);
             if(allMinionsQ.Count > 0)
                 if (Player.GetSpellDamage(allMinionsQ[0], SpellSlot.Q)*.6 > allMinionsQ[0].Health + 30)
                     Q.Cast(allMinionsQ[0]);
@@ -747,6 +824,7 @@ namespace xSaliceReligionAIO.Champions
              
             if (useQ && Q.IsReady())
             {
+                Q.UpdateSourcePosition(Player.ServerPosition, Player.ServerPosition);
                 var pred = Q.GetLineFarmLocation(allMinionsQ);
 
                 if (pred.MinionsHit > 2)
@@ -788,14 +866,14 @@ namespace xSaliceReligionAIO.Champions
 
             if (menu.Item("Switch_1").GetValue<KeyBind>().Active && lasttime > Game.Ping)
             {
-                menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax" }, 1));
+                menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax", "Ham" }, 1));
                 _lasttick = Environment.TickCount + 300;
                 return;
             }
 
             if (menu.Item("Switch_2").GetValue<KeyBind>().Active && lasttime > Game.Ping)
             {
-                menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax" }, 2));
+                menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax", "Ham" }, 2));
                 _lasttick = Environment.TickCount + 300;
                 return;
             }
@@ -804,17 +882,22 @@ namespace xSaliceReligionAIO.Champions
             {
                 if (mode == 0)
                 {
-                    menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax" }, 1));
+                    menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax", "Ham" }, 1));
                     _lasttick = Environment.TickCount + 300;
                 }
                 else if (mode == 1)
                 {
-                    menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax" }, 2));
+                    menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax", "Ham" }, 2));
+                    _lasttick = Environment.TickCount + 300;
+                }
+                else if (mode == 2)
+                {
+                    menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax", "Ham" }, 3));
                     _lasttick = Environment.TickCount + 300;
                 }
                 else
                 {
-                    menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax" }));
+                    menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Line Combo", "Coax", "Ham" }));
                     _lasttick = Environment.TickCount + 300;
                 }
             }
@@ -1010,6 +1093,8 @@ namespace xSaliceReligionAIO.Champions
                     Drawing.DrawText(wts[0] - 20, wts[1], Color.White, "Line Combo");
                 else if (mode == 2)
                     Drawing.DrawText(wts[0] - 20, wts[1], Color.White, "Coax");
+                else if (mode == 3)
+                    Drawing.DrawText(wts[0] - 20, wts[1], Color.White, "Ult no W");
             }
         }
     }
