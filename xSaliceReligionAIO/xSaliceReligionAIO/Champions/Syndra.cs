@@ -323,6 +323,17 @@ namespace xSaliceReligionAIO.Champions
                 {
                     //W.UpdateSourcePosition(Get_Current_Orb().ServerPosition, Get_Current_Orb().ServerPosition);
                     W.From = Get_Current_Orb().ServerPosition;
+
+                    if (Player.Distance(wTarget) < E.Range - 100)
+                    {
+                        if (wToggleState != 1 && W.IsReady() &&
+                            Environment.TickCount - W.LastCastAttemptT > -300 + Game.Ping)
+                        {
+                            W.Cast(wTarget);
+                            return;
+                        }
+                    }
+
                     if (W.IsReady())
                     {
                         W.Cast(wTarget);
