@@ -220,6 +220,9 @@ namespace xSaliceReligionAIO.Champions
             if (useR)
                 Cast_R();
 
+            if (useQe)
+                Cast_QE();
+
             if(useQ)
                 Cast_Q();
 
@@ -231,9 +234,6 @@ namespace xSaliceReligionAIO.Champions
 
             if (useE)
                 Cast_E();
-
-            if (useQe)
-                Cast_QE();
 
             if (useW)
                 Cast_W(true);
