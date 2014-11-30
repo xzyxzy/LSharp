@@ -527,8 +527,8 @@ namespace xSaliceReligionAIO.Champions
                     return;
 
                 var qePred = _qe.GetPrediction(qeTarget);
-                var predVec = Player.ServerPosition +
-                              Vector3.Normalize(qePred.UnitPosition - Player.ServerPosition)*(E.Range - 100);
+                var predVec = Player.Position +
+                              Vector3.Normalize(qePred.UnitPosition - Player.Position)*(E.Range - 100);
 
                 if (!Q.IsReady() || !E.IsReady())
                     return;
