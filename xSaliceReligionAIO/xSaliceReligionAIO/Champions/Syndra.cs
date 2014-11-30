@@ -537,7 +537,7 @@ namespace xSaliceReligionAIO.Champions
                     Vector2 wtsPlayer = Drawing.WorldToScreen(Player.Position);
                     Vector2 wtsPred = Drawing.WorldToScreen(qePred.UnitPosition);
                     Utility.DrawCircle(qePred.UnitPosition, Q.Width/2, Color.Aquamarine);
-                    Utility.DrawCircle(predVec, Q.Width, Color.Green);
+                    Utility.DrawCircle(predVec, Q.Width, Color.SpringGreen);
                     Drawing.DrawLine(wtsPlayer, wtsPred, 1, Color.LawnGreen);
                 }
             }
