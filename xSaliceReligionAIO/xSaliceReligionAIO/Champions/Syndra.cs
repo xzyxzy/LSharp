@@ -436,7 +436,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (!Q.IsReady() || !E.IsReady())
                 return;
-            if (qePred.Hitchance >= HitChance.High || !usePred)
+            if (qePred.Hitchance >= HitChance.Medium || !usePred)
             {
                 Q.Cast(predVec, packets());
                 W.LastCastAttemptT = Environment.TickCount + 200;
@@ -518,14 +518,29 @@ namespace xSaliceReligionAIO.Champions
                 if (R.Level > 0)
                     Utility.DrawCircle(Player.Position, R.Range, R.IsReady() ? Color.Green : Color.Red);
 
+            //draw EQ
+            var qeTarget = SimpleTs.GetTarget(_qe.Range, SimpleTs.DamageType.Magical);
+            if (qeTarget == null)
+                return;
+
+            var qePred = _qe.GetPrediction(qeTarget);
+            var predVec = Player.ServerPosition + Vector3.Normalize(qePred.UnitPosition - Player.ServerPosition) * (E.Range - 100);
+
+            if (!Q.IsReady() || !E.IsReady())
+                return;
+            if (qePred.Hitchance >= HitChance.Medium)
+            {
+                Vector2 wtsPlayer = Drawing.WorldToScreen(Player.Position);
+                Vector2 wtsPred = Drawing.WorldToScreen(qePred.UnitPosition);
+                Utility.DrawCircle(qePred.UnitPosition, Q.Width / 2, Color.Aquamarine);
+                Utility.DrawCircle(predVec, Q.Width, Color.Green);
+                Drawing.DrawLine(wtsPlayer, wtsPred, 1, Color.LawnGreen);
+            }
+            //end draw EQ
+
             if (menu.Item("Draw_R_Killable").GetValue<bool>() && R.IsReady())
             {
-                foreach (
-                    var wts in
-                        from unit in
-                            ObjectManager.Get<Obj_AI_Hero>()
-                                .Where(x => x.IsValidTarget(2000) && !x.IsDead && x.IsEnemy)
-                                .OrderBy(x => x.Health)
+                foreach (var wts in from unit in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(2000) && !x.IsDead && x.IsEnemy).OrderByDescending(GetComboDamage)
                         let health = unit.Health + unit.HPRegenRate + 10
                         where Get_Ult_Dmg(unit) > health
                         select Drawing.WorldToScreen(unit.Position))
@@ -533,7 +548,6 @@ namespace xSaliceReligionAIO.Champions
                     Drawing.DrawText(wts[0] - 20, wts[1], Color.White, "KILL!!!");
                 }
             }
-
         }
 
         private int getOrbCount()
