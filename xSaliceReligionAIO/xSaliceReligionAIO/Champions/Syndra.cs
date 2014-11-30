@@ -435,7 +435,7 @@ namespace xSaliceReligionAIO.Champions
             if (qeTarget == null)
                 return;
 
-            var delay = (Player.Distance(qeTarget) / E.Speed) / 3 + Game.Ping / 1000 + menu.Item("QE_Delays").GetValue<Slider>().Value / 1000;
+            var delay = (Player.Distance(qeTarget) / E.Speed) / 3 + menu.Item("QE_Delays").GetValue<Slider>().Value / 1000;
             if (delay < 0)
                 delay = 0;
             _qe.Delay = delay; 
@@ -534,7 +534,7 @@ namespace xSaliceReligionAIO.Champions
                 if (qeTarget == null)
                     return;
 
-                var delay = (Player.Distance(qeTarget) / E.Speed) / 3 + Game.Ping / 1000 + menu.Item("QE_Delays").GetValue<Slider>().Value / 1000;
+                var delay = (Player.Distance(qeTarget) / E.Speed) / 3 + menu.Item("QE_Delays").GetValue<Slider>().Value / 1000;
                 if (delay < 0)
                     delay = 0;
                 _qe.Delay = delay; 
