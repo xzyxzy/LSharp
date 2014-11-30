@@ -347,7 +347,7 @@ namespace xSaliceReligionAIO.Champions
                     return;
                 }
 
-                W.UpdateSourcePosition(Get_Current_Orb().ServerPosition, Get_Current_Orb().ServerPosition);
+               // W.UpdateSourcePosition(Get_Current_Orb().ServerPosition, Get_Current_Orb().ServerPosition);
 
                 var farmLocation = W.GetCircularFarmLocation(allMinionsW);
 
