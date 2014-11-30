@@ -322,7 +322,7 @@ namespace xSaliceReligionAIO.Champions
                 if (wToggleState != 1 && Get_Current_Orb() != null)
                 {
                     //W.UpdateSourcePosition(Get_Current_Orb().ServerPosition, Get_Current_Orb().ServerPosition);
-
+                    W.From = Get_Current_Orb().ServerPosition;
                     if (W.IsReady())
                     {
                         W.Cast(wTarget);
@@ -348,7 +348,7 @@ namespace xSaliceReligionAIO.Champions
                 }
 
                // W.UpdateSourcePosition(Get_Current_Orb().ServerPosition, Get_Current_Orb().ServerPosition);
-
+                W.From = Get_Current_Orb().ServerPosition;
                 var farmLocation = W.GetCircularFarmLocation(allMinionsW);
 
                 if (farmLocation.MinionsHit >= 1)
