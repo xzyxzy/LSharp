@@ -361,11 +361,11 @@ namespace xSaliceReligionAIO.Champions
             if (getOrbCount() <= 0)
                 return;
             var target = SimpleTs.GetTarget(_qe.Range + 100, SimpleTs.DamageType.Magical);
-
+            var grabbedorb = Get_Current_Orb();
             if (target == null)
                 return;
 
-            foreach (var orb in getOrb().Where(x => Player.Distance(x) < E.Range))
+            foreach (var orb in getOrb().Where(x => Player.Distance(x) < E.Range && x != grabbedorb))
             {
 
                 var startPos = orb.ServerPosition;
