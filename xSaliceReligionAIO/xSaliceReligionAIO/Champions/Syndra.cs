@@ -57,6 +57,11 @@ namespace xSaliceReligionAIO.Champions
                     qMenu.AddItem(new MenuItem("Q_Auto_Immobile", "Auto Q on Immobile").SetValue(true));
                     spellMenu.AddSubMenu(qMenu);
                 }
+                var qeMenu = new Menu("QEMenu", "QEMenu");
+                {
+                    qeMenu.AddItem(new MenuItem("QE_Delay", "QE Delay Precision Adjustment(ms)").SetValue(new Slider(0, 0, 1000)));
+                    spellMenu.AddSubMenu(qeMenu);
+                }
 
                 var wMenu = new Menu("WMenu", "WMenu");
                 {
@@ -430,7 +435,7 @@ namespace xSaliceReligionAIO.Champions
             if (qeTarget == null)
                 return;
 
-            _qe.Delay = (Player.Distance(qeTarget)/E.Speed)/2 + Game.Ping/1000;
+            _qe.Delay = (Player.Distance(qeTarget) / E.Speed) / 3 + Game.Ping / 1000 + menu.Item("QE_Delay").GetValue<Slider>().Value/1000; 
             
             var qePred = _qe.GetPrediction(qeTarget);
             var predVec = Player.ServerPosition + Vector3.Normalize(qePred.UnitPosition - Player.ServerPosition) * (E.Range - 300);
@@ -526,7 +531,7 @@ namespace xSaliceReligionAIO.Champions
                 if (qeTarget == null)
                     return;
 
-                _qe.Delay = (Player.Distance(qeTarget) / E.Speed) / 2 + Game.Ping / 1000;
+                _qe.Delay = (Player.Distance(qeTarget) / E.Speed) / 3 + Game.Ping / 1000 + menu.Item("QE_Delay").GetValue<Slider>().Value / 1000; 
                 var qePred = _qe.GetPrediction(qeTarget);
                 var predVec = Player.Position +
                               Vector3.Normalize(qePred.UnitPosition - Player.Position)*(E.Range - 200);
