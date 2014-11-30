@@ -433,7 +433,7 @@ namespace xSaliceReligionAIO.Champions
             _qe.Delay = Player.Distance(qeTarget)/E.Speed;
             
             var qePred = _qe.GetPrediction(qeTarget);
-            var predVec = Player.ServerPosition + Vector3.Normalize(qePred.UnitPosition - Player.ServerPosition) * (E.Range - 100);
+            var predVec = Player.ServerPosition + Vector3.Normalize(qePred.UnitPosition - Player.ServerPosition) * (E.Range - 200);
 
             if (!Q.IsReady() || !E.IsReady())
                 return;
