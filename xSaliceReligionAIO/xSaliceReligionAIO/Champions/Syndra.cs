@@ -321,7 +321,7 @@ namespace xSaliceReligionAIO.Champions
 
                 if (wToggleState != 1 && Get_Current_Orb() != null)
                 {
-                    W.UpdateSourcePosition(Get_Current_Orb().ServerPosition, Get_Current_Orb().ServerPosition);
+                    //W.UpdateSourcePosition(Get_Current_Orb().ServerPosition, Get_Current_Orb().ServerPosition);
 
                     if (W.IsReady())
                     {
