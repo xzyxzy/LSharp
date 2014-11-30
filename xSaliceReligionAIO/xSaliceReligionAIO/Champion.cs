@@ -47,6 +47,7 @@ namespace xSaliceReligionAIO
         public Spell R;
         public Spell _r2;
         public SpellDataInst qSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q);
+        public SpellDataInst eSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E);
         public SpellDataInst wSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W);
         public SpellDataInst rSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R);
 
@@ -114,6 +115,13 @@ namespace xSaliceReligionAIO
 
         public void chooseOrbwalker(bool mode)
         {
+            if (Player.ChampionName == "Azir")
+            {
+                xSLxOrbwalker.AddToMenu(orbwalkerMenu);
+                Game.PrintChat("xSLx Orbwalker Loaded");
+                return;
+            }
+
             if (mode)
             {
                 Orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
@@ -198,9 +206,9 @@ namespace xSaliceReligionAIO
         public bool IsPassWall(Vector3 start, Vector3 end)
         {
             double count = Vector3.Distance(start, end);
-            for (uint i = 0; i <= count; i += 10)
+            for (uint i = 0; i <= count; i += 25)
             {
-                Vector2 pos = V2E(start, end, i);
+                Vector2 pos = end.To2D().Extend(Player.ServerPosition.To2D(), -i);
                 if (IsWall(pos))
                     return true;
             }
