@@ -425,9 +425,7 @@ namespace xSaliceReligionAIO.Champions
             if (qeTarget == null)
                 return;
 
-            var delay = menu.Item("QE_Delays").GetValue<Slider>().Value / 1001;
-            if (delay < 0)
-                delay = 0;
+            var delay = menu.Item("QE_Delays").GetValue<Slider>().Value;
 
             _qe.Delay = delay;
             _qe.From = Player.ServerPosition.To2D().Extend(qeTarget.ServerPosition.To2D(), E.Range).To3D();
@@ -526,9 +524,10 @@ namespace xSaliceReligionAIO.Champions
                 if (qeTarget == null)
                     return;
 
-                var delay = menu.Item("QE_Delays").GetValue<Slider>().Value / 1001;
-                if (delay < 0)
-                    delay = 0;
+                var delay = menu.Item("QE_Delays").GetValue<Slider>().Value;
+
+                Game.PrintChat("de " + delay);
+
                 _qe.Delay = delay;
                 _qe.From = Player.ServerPosition.To2D().Extend(qeTarget.ServerPosition.To2D(), E.Range).To3D();
 
