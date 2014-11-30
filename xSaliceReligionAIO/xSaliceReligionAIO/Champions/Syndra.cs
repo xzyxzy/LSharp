@@ -438,10 +438,12 @@ namespace xSaliceReligionAIO.Champions
             var delay = menu.Item("QE_Delays").GetValue<Slider>().Value / 1001;
             if (delay < 0)
                 delay = 0;
-            _qe.Delay = delay; 
-            
+
+            _qe.Delay = delay;
+            _qe.From = Player.ServerPosition.To2D().Extend(qeTarget.ServerPosition.To2D(), E.Range).To3D();
+
             var qePred = _qe.GetPrediction(qeTarget);
-            var predVec = Player.ServerPosition + Vector3.Normalize(qePred.UnitPosition - Player.ServerPosition) * (E.Range - 300);
+            var predVec = Player.ServerPosition.To2D().Extend(qePred.CastPosition.To2D(), E.Range);
 
             if (!Q.IsReady() || !E.IsReady())
                 return;
@@ -537,11 +539,11 @@ namespace xSaliceReligionAIO.Champions
                 var delay = menu.Item("QE_Delays").GetValue<Slider>().Value / 1001;
                 if (delay < 0)
                     delay = 0;
-                _qe.Delay = delay; 
- 
+                _qe.Delay = delay;
+                _qe.From = Player.ServerPosition.To2D().Extend(qeTarget.ServerPosition.To2D(), E.Range).To3D();
+
                 var qePred = _qe.GetPrediction(qeTarget);
-                var predVec = Player.Position +
-                              Vector3.Normalize(qePred.UnitPosition - Player.Position)*(E.Range - 200);
+                var predVec = Player.ServerPosition.To2D().Extend(qePred.CastPosition.To2D(), E.Range); 
 
                 if (!Q.IsReady() || !E.IsReady())
                     return;
@@ -550,7 +552,7 @@ namespace xSaliceReligionAIO.Champions
                     Vector2 wtsPlayer = Drawing.WorldToScreen(Player.Position);
                     Vector2 wtsPred = Drawing.WorldToScreen(qePred.UnitPosition);
                     Utility.DrawCircle(qePred.UnitPosition, Q.Width/2, Color.Aquamarine);
-                    Utility.DrawCircle(predVec, Q.Width/2, Color.SpringGreen);
+                    Utility.DrawCircle(predVec.To3D(), Q.Width/2, Color.SpringGreen);
                     Drawing.DrawLine(wtsPlayer, wtsPred, 1, Color.LawnGreen);
                 }
             }
