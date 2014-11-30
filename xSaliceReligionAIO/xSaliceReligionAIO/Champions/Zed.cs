@@ -147,13 +147,13 @@ namespace xSaliceReligionAIO.Champions
             double comboDamage = 0;
 
             if (Q.IsReady())
-                comboDamage += Player.GetSpellDamage(target, SpellSlot.Q);
+                comboDamage += Player.GetSpellDamage(target, SpellSlot.Q) * 2;
 
             if (W.IsReady())
                 comboDamage += Player.GetSpellDamage(target, SpellSlot.W);
 
             if (E.IsReady())
-                comboDamage += Player.GetSpellDamage(target, SpellSlot.E);
+                comboDamage += Player.GetSpellDamage(target, SpellSlot.E) * 2;
 
             if (Items.CanUseItem(Bilge.Id))
                 comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Bilgewater);
@@ -188,7 +188,7 @@ namespace xSaliceReligionAIO.Champions
             if (Ignite_Ready())
                 comboDamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
 
-            return (float)(comboDamage + Player.GetAutoAttackDamage(target) * 3);
+            return (float)(comboDamage + Player.GetAutoAttackDamage(target) * 4);
         }
 
         private double CalcPassive(Obj_AI_Base target)
