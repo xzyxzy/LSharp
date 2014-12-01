@@ -69,7 +69,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 farm.AddItem(new MenuItem("UseQFarm", "Use Q").SetValue(true));
                 farm.AddItem(new MenuItem("UseEFarm", "Use E").SetValue(false));
-                farm.AddItem(new MenuItem("UseEFarm", "Use R").SetValue(true));
+                farm.AddItem(new MenuItem("UseRFarm", "Use R").SetValue(true));
                 farm.AddItem(new MenuItem("LaneClearR_Limit", "Save R Stack").SetValue(new Slider(5, 0, 7)));
                 AddManaManagertoMenu(farm, "LaneClear", 50);
                 menu.AddSubMenu(farm);
