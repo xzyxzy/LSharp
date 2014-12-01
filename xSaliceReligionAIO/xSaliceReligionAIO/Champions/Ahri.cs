@@ -72,7 +72,7 @@ namespace xSaliceReligionAIO.Champions
                 combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
                 combo.AddItem(new MenuItem("rSpeed", "Use All R fast Duel").SetValue(true));
                 combo.AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
-                combo.AddItem(new MenuItem("igniteMode", "Mode").SetValue(new StringList(new[] { "Combo", "KS" })));
+                combo.AddItem(new MenuItem("igniteMode", "Ignite Mode").SetValue(new StringList(new[] { "Combo", "KS" })));
                 //add to menu
                 menu.AddSubMenu(combo);
             }
@@ -307,7 +307,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void CheckKs()
         {
-            foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < 1300 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
+            foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.IsValidTarget(1300) && x.IsEnemy && !x.IsDead).OrderByDescending(GetComboDamage))
             {
                 if (target != null)
                 {

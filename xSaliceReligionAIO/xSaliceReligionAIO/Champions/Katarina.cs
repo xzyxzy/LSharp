@@ -97,7 +97,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 misc.AddItem(new MenuItem("dfg", "Use DFG").SetValue(true));
                 misc.AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
-                misc.AddItem(new MenuItem("igniteMode", "Mode").SetValue(new StringList(new[] {"Combo", "KS"})));
+                misc.AddItem(new MenuItem("igniteMode", "Ignite Mode").SetValue(new StringList(new[] {"Combo", "KS"})));
                 misc.AddItem(new MenuItem("autoWz", "Auto W Enemy").SetValue(true));
                 misc.AddItem(new MenuItem("E_Delay_Slider", "Delay Between E(ms)").SetValue(new Slider(0, 0, 1000)));
                 //add to menu
