@@ -154,7 +154,7 @@ namespace xSaliceReligionAIO.Champions
             int igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
             Obj_AI_Hero target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
             
-            var range = R.Range;
+            var range = Q.Range;
             if (GetTargetFocus(range) != null)
                 target = GetTargetFocus(range);
 
