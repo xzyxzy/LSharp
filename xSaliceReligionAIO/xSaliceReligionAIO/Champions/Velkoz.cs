@@ -37,7 +37,7 @@ namespace xSaliceReligionAIO.Champions
 
             Q.SetSkillshot(0.25f, 60f, 1300f, true, SkillshotType.SkillshotLine);
             _qDummy.SetSkillshot(0.25f, 65f, float.MaxValue, false, SkillshotType.SkillshotLine);
-            _qSplit.SetSkillshot(0.25f, 65f, 2100, true, SkillshotType.SkillshotLine);
+            _qSplit.SetSkillshot(0.25f, 55f, 2100, true, SkillshotType.SkillshotLine);
             W.SetSkillshot(0.25f, 10f, 1700f, false, SkillshotType.SkillshotLine);
             E.SetSkillshot(0.5f, 80f, 1500f, false, SkillshotType.SkillshotCircle);
             R.SetSkillshot(0.3f, 1f, float.MaxValue, false, SkillshotType.SkillshotLine);
@@ -431,8 +431,7 @@ namespace xSaliceReligionAIO.Champions
             float d2 = pred.UnitPosition.To2D().Distance(_qMissle.Position.To2D(), lineSegment2End, true);
 
             //cast split
-            if (pred.CollisionObjects.Count == 0 && (d1 < _qSplit.Width ||
-                d2 < _qSplit.Width))
+            if (pred.CollisionObjects.Count == 0 && (d1 < _qSplit.Width || d2 < _qSplit.Width))
             {
                 Q.Cast();
                 _qMissle = null;
