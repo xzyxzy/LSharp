@@ -28,10 +28,10 @@ namespace xSaliceReligionAIO.Champions
             E.SetSkillshot(0.25f, 80f, 1600f, false, SkillshotType.SkillshotCircle);
 
             R = new Spell(SpellSlot.R, 3000);
-            R.SetSkillshot(1f, 160f, 2000f, false, SkillshotType.SkillshotLine);
+            R.SetSkillshot(0.99f, 160f, 2000f, false, SkillshotType.SkillshotLine);
 
             _r2 = new Spell(SpellSlot.R, 3000);
-            _r2.SetSkillshot(1f, 160f, 2000f, true, SkillshotType.SkillshotLine);
+            _r2.SetSkillshot(0.99f, 160f, 2000f, true, SkillshotType.SkillshotLine);
         }
 
         private void LoadMenu()

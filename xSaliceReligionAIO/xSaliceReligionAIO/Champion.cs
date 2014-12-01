@@ -22,6 +22,12 @@ namespace xSaliceReligionAIO
             Game.OnGameSendPacket += Game_OnSendPacket;
             Game.OnGameProcessPacket += Game_OnGameProcessPacket;
             GameObject.OnDelete += GameObject_OnDelete;
+
+            if (menu.Item("Orbwalker_Mode").GetValue<bool>())
+                Orbwalking.AfterAttack += AfterAttack;
+            else
+                xSLxOrbwalker.AfterAttack += AfterAttack;
+            
         }
 
         public Champion(bool load)
@@ -506,6 +512,11 @@ namespace xSaliceReligionAIO
         }
 
         public virtual void Game_OnGameProcessPacket(GamePacketEventArgs args)
+        {
+            //for champ use
+        }
+
+        public virtual void AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
         {
             //for champ use
         }
