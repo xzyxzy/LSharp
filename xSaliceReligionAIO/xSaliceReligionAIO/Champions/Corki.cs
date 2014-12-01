@@ -48,6 +48,7 @@ namespace xSaliceReligionAIO.Champions
                 combo.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
                 combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
+                combo.AddItem(new MenuItem("Always_Use", "Spell after AA in AA range").SetValue(true));
                 combo.AddItem(new MenuItem("qHit", "Q/R HitChance").SetValue(new Slider(3, 1, 3)));
                 combo.AddItem(new MenuItem("ComboR_Limit", "Save R Stack").SetValue(new Slider(0, 0, 7)));
                 menu.AddSubMenu(combo);
@@ -141,7 +142,7 @@ namespace xSaliceReligionAIO.Champions
                 return;
 
             var target = SimpleTs.GetTarget(550, SimpleTs.DamageType.Magical);
-            if (target != null && source == "Combo")
+            if ((target != null && source == "Combo") || !menu.Item("Always_Use").GetValue<bool>())
                 return;
 
             if(useR && R.IsReady())
