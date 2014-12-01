@@ -589,7 +589,8 @@ namespace xSaliceReligionAIO.Champions
 
                 if (decodedPacket.SourceNetworkId == Player.NetworkId)
                 {
-                    args.Process = !(menu.Item("ComboActive").GetValue<KeyBind>().Active && menu.Item("UseRCombo").GetValue<bool>() && menu.Item("smartKS").GetValue<bool>());
+                    args.Process = !(menu.Item("ComboActive").GetValue<KeyBind>().Active && menu.Item("UseRCombo").GetValue<bool>() && menu.Item("smartKS").GetValue<bool>()
+                        && menu.Item("HarassActive").GetValue<KeyBind>().Active && menu.Item("HarassActiveT").GetValue<KeyBind>().Active);
                 }
             }
         }
