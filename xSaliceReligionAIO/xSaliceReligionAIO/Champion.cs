@@ -214,7 +214,7 @@ namespace xSaliceReligionAIO
             double count = Vector3.Distance(start, end);
             for (uint i = 0; i <= count; i += 25)
             {
-                Vector2 pos = end.To2D().Extend(Player.ServerPosition.To2D(), -i);
+                Vector2 pos = start.To2D().Extend(Player.ServerPosition.To2D(), -i);
                 if (IsWall(pos))
                     return true;
             }
@@ -243,6 +243,10 @@ namespace xSaliceReligionAIO
                 return true;
 
             return false;
+        }
+        public bool IsRecalling()
+        {
+            return Player.HasBuff("recall", true);
         }
 
         public PredictionOutput GetP(Vector3 pos, Spell spell, Obj_AI_Base target, float delay, bool aoe)

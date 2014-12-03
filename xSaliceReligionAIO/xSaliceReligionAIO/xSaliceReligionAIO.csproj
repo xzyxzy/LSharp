@@ -59,6 +59,7 @@
     <Compile Include="Champions\Akali.cs" />
     <Compile Include="Champions\Azir.cs" />
     <Compile Include="Champions\Corki.cs" />
+    <Compile Include="Champions\Rumble.cs" />
     <Compile Include="Champions\Velkoz.cs" />
     <Compile Include="Champions\Vladimir.cs" />
     <Compile Include="DamageIndicator.cs" />

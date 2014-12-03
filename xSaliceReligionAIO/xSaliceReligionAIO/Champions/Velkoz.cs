@@ -57,6 +57,7 @@ namespace xSaliceReligionAIO.Champions
                 key.AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
                 key.AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Toggle)));
                 key.AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+                key.AddItem(new MenuItem("R_Mouse", "R To Mouse").SetValue(new KeyBind("R".ToCharArray()[0], KeyBindType.Press)));
                 //add to menu
                 menu.AddSubMenu(key);
             }
@@ -549,6 +550,9 @@ namespace xSaliceReligionAIO.Champions
                 if (menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
                     Harass();
             }
+
+            if (menu.Item("R_Mouse").GetValue<KeyBind>().Active)
+                R.Cast(Game.CursorPos);
         }
 
         public override void Drawing_OnDraw(EventArgs args)

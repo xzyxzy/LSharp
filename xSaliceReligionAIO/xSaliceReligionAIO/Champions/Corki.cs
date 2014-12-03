@@ -142,7 +142,7 @@ namespace xSaliceReligionAIO.Champions
                 return;
 
             var target = SimpleTs.GetTarget(550, SimpleTs.DamageType.Magical);
-            if ((target != null && source == "Combo") || !menu.Item("Always_Use").GetValue<bool>())
+            if ((target != null && source == "Combo") && menu.Item("Always_Use").GetValue<bool>())
                 return;
 
             if(useR && R.IsReady())
@@ -150,7 +150,7 @@ namespace xSaliceReligionAIO.Champions
             if(useQ && Q.IsReady())
                 CastBasicSkillShot(Q, Q.Range, SimpleTs.DamageType.Magical, GetHitchance(source));
             if(useE && E.IsReady())
-                CastBasicSkillShot(E, E.Range, SimpleTs.DamageType.Physical, HitChance.Medium);
+                CastBasicSkillShot(E, E.Range, SimpleTs.DamageType.Physical, HitChance.Low);
         }
 
         public override void AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)

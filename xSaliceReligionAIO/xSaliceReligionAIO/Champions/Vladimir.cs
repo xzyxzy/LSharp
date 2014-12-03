@@ -249,7 +249,7 @@ namespace xSaliceReligionAIO.Champions
                     Harass();
             }
 
-            if (menu.Item("StackE").GetValue<KeyBind>().Active)
+            if (menu.Item("StackE").GetValue<KeyBind>().Active && !IsRecalling())
             {
                 if (E.IsReady() && Environment.TickCount - E.LastCastAttemptT >= 9900)
                     E.Cast(packets());
