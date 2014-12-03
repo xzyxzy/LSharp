@@ -338,7 +338,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_Q_Last_Hit()
         {
-            var allMinionQ = MinionManager.GetMinions(Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly);
+            var allMinionQ = MinionManager.GetMinions(Player.ServerPosition, Q.Range + Player.BoundingRadius, MinionTypes.All, MinionTeam.NotAlly);
 
             if (allMinionQ.Count > 0 && Q.IsReady())
             {
