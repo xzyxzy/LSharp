@@ -349,7 +349,7 @@ namespace xSaliceReligionAIO.Champions
         private void CastMecR(bool forceUlt)
         {
             //check if only one target
-            if (countEnemiesNearPosition(Player.ServerPosition, R.Range) < 2 && forceUlt)
+            if (countEnemiesNearPosition(Player.ServerPosition, R.Range + 800) < 2 && forceUlt)
             {
                 CastSingleR();
                 return;
@@ -515,7 +515,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (menu.Item("Draw_R_Pred").GetValue<bool>() && R.IsReady())
             {
-                if (countEnemiesNearPosition(Player.ServerPosition, R.Range) < 2)
+                if (countEnemiesNearPosition(Player.ServerPosition, R.Range + 800) < 2)
                 {
                     var target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
 
