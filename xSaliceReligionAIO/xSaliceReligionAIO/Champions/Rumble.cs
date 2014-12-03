@@ -85,7 +85,7 @@ namespace xSaliceReligionAIO.Champions
                 combo.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
                 combo.AddItem(new MenuItem("qHit", "E HitChance").SetValue(new Slider(3, 1, 3)));
-                combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(false));
+                combo.AddItem(new MenuItem("UseRCombos", "Use R").SetValue(false));
                 combo.AddItem(new MenuItem("Ignite", "Use Ignite").SetValue(true));
                 //add to menu
                 menu.AddSubMenu(combo);
@@ -173,7 +173,7 @@ namespace xSaliceReligionAIO.Champions
         private void Combo()
         {
             UseSpells(menu.Item("UseQCombo").GetValue<bool>(), menu.Item("UseWCombo").GetValue<bool>(),
-                menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>(), "Combo");
+                menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombos").GetValue<bool>(), "Combo");
         }
 
         private void Harass()
