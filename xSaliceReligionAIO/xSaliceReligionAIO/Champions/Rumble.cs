@@ -71,7 +71,7 @@ namespace xSaliceReligionAIO.Champions
 
                 var rMenu = new Menu("RMenu", "RMenu");
                 {
-                    rMenu.AddItem(new MenuItem("R_If_Enemy_Count", "Auto R If >= Enemy, 6 = Off").SetValue(new Slider(3, 1, 6)));
+                    rMenu.AddItem(new MenuItem("R_If_Enemy_Count", "Auto R If >= Enemy, 6 = Off").SetValue(new Slider(4, 1, 6)));
                     rMenu.AddItem(new MenuItem("R_If_Enemy_Count_Combo", "R if >= In Combo, 6 = off").SetValue(new Slider(3, 1, 6)));
                     spellMenu.AddSubMenu(rMenu);
                 }
@@ -81,7 +81,6 @@ namespace xSaliceReligionAIO.Champions
 
             var combo = new Menu("Combo", "Combo");
             {
-                combo.AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
                 combo.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
                 combo.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
