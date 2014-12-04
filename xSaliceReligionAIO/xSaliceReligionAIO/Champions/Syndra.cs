@@ -32,7 +32,7 @@ namespace xSaliceReligionAIO.Champions
             R = new Spell(SpellSlot.R, 750);
 
             _qe = new Spell(SpellSlot.Q, 1250);
-            _qe.SetSkillshot(.900f, 60f, 2000f, false, SkillshotType.SkillshotLine);
+            _qe.SetSkillshot(.900f, 115f, 2100f, false, SkillshotType.SkillshotLine);
 
         }
 
@@ -56,11 +56,6 @@ namespace xSaliceReligionAIO.Champions
                 {
                     qMenu.AddItem(new MenuItem("Q_Auto_Immobile", "Auto Q on Immobile").SetValue(true));
                     spellMenu.AddSubMenu(qMenu);
-                }
-                var qeMenu = new Menu("QEMenu", "QEMenu");
-                {
-                    qeMenu.AddItem(new MenuItem("QE_Delays", "QE Delay Precision Adjustment(ms)").SetValue(new Slider(910, 0, 1000)));
-                    spellMenu.AddSubMenu(qeMenu);
                 }
 
                 var wMenu = new Menu("WMenu", "WMenu");
@@ -220,11 +215,14 @@ namespace xSaliceReligionAIO.Champions
             if (useR)
                 Cast_R();
 
-            if (useQe)
-                Cast_QE();
-
             if(useQ)
                 Cast_Q();
+
+            if (useE)
+                Cast_E();
+
+            if (useW)
+                Cast_W(true);
 
             if (qTarget != null)
             {
@@ -232,11 +230,9 @@ namespace xSaliceReligionAIO.Champions
                     Use_Ignite(qTarget);
             }
 
-            if (useE)
-                Cast_E();
+            if (useQe)
+                Cast_QE();
 
-            if (useW)
-                Cast_W(true);
             
         }
 
@@ -358,7 +354,6 @@ namespace xSaliceReligionAIO.Champions
                     return;
                 }
 
-               // W.UpdateSourcePosition(Get_Current_Orb().ServerPosition, Get_Current_Orb().ServerPosition);
                 W.From = Get_Current_Orb().ServerPosition;
                 var farmLocation = W.GetCircularFarmLocation(allMinionsW);
 
@@ -371,29 +366,28 @@ namespace xSaliceReligionAIO.Champions
         {
             if (getOrbCount() <= 0)
                 return;
+
             var target = SimpleTs.GetTarget(_qe.Range + 100, SimpleTs.DamageType.Magical);
-            var grabbedorb = Get_Current_Orb();
-            if (target == null)
+            if (target == null || Environment.TickCount - W.LastCastAttemptT < Game.Ping)
                 return;
 
-            foreach (var orb in getOrb().Where(x => Player.Distance(x) < E.Range && x != grabbedorb))
+            foreach (var orb in getOrb().Where(x => Player.Distance(x) < E.Range && x != null))
             {
+                double rangeLeft = 100 + (-0.6 * Player.Distance(orb.ServerPosition) + 950);
+                var startPos = orb.ServerPosition - Vector3.Normalize(orb.ServerPosition - Player.ServerPosition) * 100;
+                var endPos = startPos + Vector3.Normalize(startPos - Player.ServerPosition) * (float)rangeLeft;
 
-                var startPos = orb.ServerPosition;
-                var endPos = Player.ServerPosition + (startPos - Player.ServerPosition) * _qe.Range;
-
-                _qe.Delay = E.Delay + Player.Distance(orb)/E.Speed;
-                _qe.From = orb.ServerPosition;
+                _qe.Delay = E.Delay + Player.Distance(orb) / E.Speed + target.Distance(orb) / _qe.Speed;
+                _qe.From = startPos;
 
                 var targetPos = _qe.GetPrediction(target);
 
-                var projection = startPos.To2D().ProjectOn(targetPos.UnitPosition.To2D(), endPos.To2D());
+                var projection = targetPos.UnitPosition.To2D().ProjectOn(startPos.To2D(), endPos.To2D());
 
-                if (!projection.IsOnSegment || !E.IsReady() || targetPos.Hitchance < HitChance.Medium || 
-                    !(projection.LinePoint.Distance(targetPos.UnitPosition.To2D()) < _qe.Width + target.BoundingRadius))
+                if (!projection.IsOnSegment || targetPos.Hitchance < HitChance.Medium || !(projection.LinePoint.Distance(targetPos.UnitPosition.To2D()) < _qe.Width + target.BoundingRadius))
                     return;
 
-                E.Cast(orb.ServerPosition, packets());
+                E.Cast(startPos, packets());
                 W.LastCastAttemptT = Environment.TickCount + 500;
                 return;
             }
@@ -429,27 +423,26 @@ namespace xSaliceReligionAIO.Champions
         private void Cast_QE(bool usePred = true , Obj_AI_Base target = null)
         {
             var qeTarget = SimpleTs.GetTarget(_qe.Range, SimpleTs.DamageType.Magical);
-
-            if (target != null)
-                qeTarget = (Obj_AI_Hero)target;
-
             if (qeTarget == null)
                 return;
 
-            int value = menu.Item("QE_Delays").GetValue<Slider>().Value;
-            float delay = value * .001f;
+            var from = Prediction.GetPrediction(qeTarget, Q.Delay + E.Delay).UnitPosition;
+            var startPos = Player.ServerPosition + Vector3.Normalize(from - Player.ServerPosition) * (E.Range - 100);
+            double rangeLeft = 100 + (-0.6 * Player.Distance(startPos) + 950);
+            var endPos = startPos + Vector3.Normalize(startPos - Player.ServerPosition) * (float)rangeLeft;
 
-            _qe.Delay = delay;
-            _qe.From = Player.ServerPosition.To2D().Extend(qeTarget.ServerPosition.To2D(), E.Range).To3D();
+            _qe.From = startPos;
+            _qe.Delay = Q.Delay + E.Delay + Player.Distance(from) / E.Speed;
 
             var qePred = _qe.GetPrediction(qeTarget);
-            var predVec = Player.ServerPosition.To2D().Extend(qePred.CastPosition.To2D(), E.Range);
+            var projection = qePred.UnitPosition.To2D().ProjectOn(startPos.To2D(), endPos.To2D());
 
-            if (!Q.IsReady() || !E.IsReady())
+            if (!Q.IsReady() || !E.IsReady() || !projection.IsOnSegment || !(projection.LinePoint.Distance(qePred.UnitPosition.To2D()) < _qe.Width + qeTarget.BoundingRadius))
                 return;
+
             if (qePred.Hitchance >= HitChance.Medium || !usePred)
             {
-                Q.Cast(predVec, packets());
+                Q.Cast(startPos, packets());
                 W.LastCastAttemptT = Environment.TickCount + 500;
                 _qe.LastCastAttemptT = Environment.TickCount;
             }
@@ -536,29 +529,60 @@ namespace xSaliceReligionAIO.Champions
                 if (qeTarget == null)
                     return;
 
-                int value = menu.Item("QE_Delays").GetValue<Slider>().Value;
-                float delay = value * .001f;
+                var from = Prediction.GetPrediction(qeTarget, Q.Delay + E.Delay).UnitPosition;
+                var startPos = Player.ServerPosition + Vector3.Normalize(from - Player.ServerPosition) * (E.Range - 100);
+                double rangeLeft = 100 + (-0.6 * Player.Distance(startPos) + 950);
+                var endPos = startPos + Vector3.Normalize(startPos - Player.ServerPosition) * (float)rangeLeft;
 
-                //Game.PrintChat("de " + delay);
-
-                _qe.Delay = delay;
-                _qe.From = Player.ServerPosition.To2D().Extend(qeTarget.ServerPosition.To2D(), E.Range).To3D();
+                _qe.From = startPos;
+                _qe.Delay = Q.Delay + E.Delay + Player.Distance(from) / E.Speed;
 
                 var qePred = _qe.GetPrediction(qeTarget);
-                var predVec = Player.ServerPosition.To2D().Extend(qePred.CastPosition.To2D(), E.Range); 
+                var projection = qePred.UnitPosition.To2D().ProjectOn(startPos.To2D(), endPos.To2D());
 
-                if (!Q.IsReady() || !E.IsReady())
+                if (!Q.IsReady() || !E.IsReady() || !projection.IsOnSegment || !(projection.LinePoint.Distance(qePred.UnitPosition.To2D()) < _qe.Width + qeTarget.BoundingRadius))
                     return;
+
                 if (qePred.Hitchance >= HitChance.Medium)
                 {
                     Vector2 wtsPlayer = Drawing.WorldToScreen(Player.Position);
-                    Vector2 wtsPred = Drawing.WorldToScreen(qePred.UnitPosition);
-                    Utility.DrawCircle(qePred.UnitPosition, Q.Width/2, Color.Aquamarine);
-                    Utility.DrawCircle(predVec.To3D(), Q.Width/2, Color.SpringGreen);
+                    Vector2 wtsPred = Drawing.WorldToScreen(endPos);
+                    Utility.DrawCircle(startPos, Q.Width/2, Color.Aquamarine);
+                    Utility.DrawCircle(endPos, Q.Width/2, Color.SpringGreen);
                     Drawing.DrawLine(wtsPlayer, wtsPred, 1, Color.LawnGreen);
                 }
+
             }
-            //end draw EQ
+            //end draw EQ--------------------------
+            /*
+            if (getOrbCount() <= 0)
+                return;
+            var target = SimpleTs.GetTarget(_qe.Range + 100, SimpleTs.DamageType.Magical);
+            if (target == null)
+                return;
+
+            foreach (var orb in getOrb().Where(x => Player.Distance(x) < E.Range && x != null))
+            {
+                double rangeLeft = 100 + (-0.6 * Player.Distance(orb.ServerPosition) + 950);
+                var startPos = orb.ServerPosition - Vector3.Normalize(orb.ServerPosition - Player.ServerPosition) * 100;
+                var endPos = startPos + Vector3.Normalize(startPos - Player.ServerPosition) * (float)rangeLeft;
+
+                _qe.Delay = E.Delay + Player.Distance(orb)/E.Speed + target.Distance(orb)/_qe.Speed;
+                _qe.From = startPos;
+
+                var targetPos = _qe.GetPrediction(target);
+
+                var projection = targetPos.UnitPosition.To2D().ProjectOn(startPos.To2D(), endPos.To2D());
+
+                if (!projection.IsOnSegment || targetPos.Hitchance < HitChance.Medium || !(projection.LinePoint.Distance(targetPos.UnitPosition.To2D()) < _qe.Width + target.BoundingRadius))
+                    return;
+               
+                Vector2 wtsPlayer = Drawing.WorldToScreen(Player.Position);
+                Vector2 wtsPred = Drawing.WorldToScreen(endPos);
+                Utility.DrawCircle(startPos, Q.Width / 2, Color.Aquamarine);
+                Utility.DrawCircle(endPos, Q.Width / 2, Color.SpringGreen);
+                Drawing.DrawLine(wtsPlayer, wtsPred, 1, Color.LawnGreen);
+            }*/
 
             if (menu.Item("Draw_R_Killable").GetValue<bool>() && R.IsReady())
             {
