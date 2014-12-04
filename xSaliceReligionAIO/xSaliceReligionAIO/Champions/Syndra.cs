@@ -423,7 +423,7 @@ namespace xSaliceReligionAIO.Champions
         private void Cast_QE(bool usePred = true , Obj_AI_Base target = null)
         {
             var qeTarget = SimpleTs.GetTarget(_qe.Range, SimpleTs.DamageType.Magical);
-            if (qeTarget == null)
+            if (qeTarget == null || !Q.IsReady() || !E.IsReady())
                 return;
 
             var from = Prediction.GetPrediction(qeTarget, Q.Delay + E.Delay).UnitPosition;
@@ -437,7 +437,7 @@ namespace xSaliceReligionAIO.Champions
             var qePred = _qe.GetPrediction(qeTarget);
             var projection = qePred.UnitPosition.To2D().ProjectOn(startPos.To2D(), endPos.To2D());
 
-            if (!Q.IsReady() || !E.IsReady() || !projection.IsOnSegment || !(projection.LinePoint.Distance(qePred.UnitPosition.To2D()) < _qe.Width + qeTarget.BoundingRadius))
+            if (!projection.IsOnSegment || !(projection.LinePoint.Distance(qePred.UnitPosition.To2D()) < _qe.Width + qeTarget.BoundingRadius))
                 return;
 
             if (qePred.Hitchance >= HitChance.Medium || !usePred)
@@ -526,7 +526,7 @@ namespace xSaliceReligionAIO.Champions
             if (menu.Item("Draw_QE_Line").GetValue<bool>())
             {
                 var qeTarget = SimpleTs.GetTarget(_qe.Range, SimpleTs.DamageType.Magical);
-                if (qeTarget == null)
+                if (qeTarget == null || !Q.IsReady() || !E.IsReady())
                     return;
 
                 var from = Prediction.GetPrediction(qeTarget, Q.Delay + E.Delay).UnitPosition;
@@ -540,7 +540,7 @@ namespace xSaliceReligionAIO.Champions
                 var qePred = _qe.GetPrediction(qeTarget);
                 var projection = qePred.UnitPosition.To2D().ProjectOn(startPos.To2D(), endPos.To2D());
 
-                if (!Q.IsReady() || !E.IsReady() || !projection.IsOnSegment || !(projection.LinePoint.Distance(qePred.UnitPosition.To2D()) < _qe.Width + qeTarget.BoundingRadius))
+                if (!projection.IsOnSegment || !(projection.LinePoint.Distance(qePred.UnitPosition.To2D()) < _qe.Width + qeTarget.BoundingRadius))
                     return;
 
                 if (qePred.Hitchance >= HitChance.Medium)
