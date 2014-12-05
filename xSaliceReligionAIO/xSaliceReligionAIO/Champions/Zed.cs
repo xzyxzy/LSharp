@@ -665,7 +665,6 @@ namespace xSaliceReligionAIO.Champions
         private void Cast_E(Obj_AI_Hero forceTarget = null)
         {
             var target = SimpleTs.GetTarget(E.Range + W.Range, SimpleTs.DamageType.Physical);
-            var eTarget = SimpleTs.GetTarget(E.Range + W.Range, SimpleTs.DamageType.Physical);
 
             float range = E.Range + W.Range;
             if (GetTargetFocus(range) != null)
@@ -674,12 +673,10 @@ namespace xSaliceReligionAIO.Champions
             if (GetMarked() != null)
             {
                 target = GetMarked();
-                eTarget = GetMarked();
             }
             if (forceTarget != null)
             {
                 target = forceTarget;
-                eTarget = forceTarget;
             }
             if (target == null || !E.IsReady())
                 return;
@@ -687,22 +684,19 @@ namespace xSaliceReligionAIO.Champions
             if (WShadow != null && _currentWShadow != Vector3.Zero)
             {
                 E.UpdateSourcePosition(WShadow.ServerPosition, WShadow.ServerPosition);
-                E.Cast(eTarget, packets());
+                E.Cast(target, packets());
                 return;
             }
             if (RShadow != null && _currentRShadow != Vector3.Zero)
             {
                 E.UpdateSourcePosition(RShadow.ServerPosition, RShadow.ServerPosition);
-                E.Cast(eTarget, packets());
+                E.Cast(target, packets());
                 return;
             }
 
-            if (eTarget != null)
-            {
-                E.UpdateSourcePosition(Player.ServerPosition, Player.ServerPosition);
-                E.Cast(eTarget, packets());
-                E.LastCastAttemptT = Environment.TickCount + 300;
-            }
+            E.UpdateSourcePosition(Player.ServerPosition, Player.ServerPosition);
+            E.Cast(target, packets());
+            E.LastCastAttemptT = Environment.TickCount + 300;
         }
 
         private Vector3 _predWq;
