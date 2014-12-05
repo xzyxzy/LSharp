@@ -731,23 +731,25 @@ namespace xSaliceReligionAIO.Champions
             {
                 if (Player.Distance(target) < W.Range + target.BoundingRadius)
                 {
-                    var pred = Prediction.GetPrediction(target, .1f);
-
-                    if ((!useQ || Q.IsReady()) && (!useE || E.IsReady()) && Player.Distance(pred.CastPosition) < W.Range)
+                    if ((!useQ || Q.IsReady()) && (!useE || E.IsReady()) && Player.Distance(target.Position) < W.Range)
                     {
-                        if (IsPassWall(Player.ServerPosition, pred.CastPosition))
+                        if (IsPassWall(Player.ServerPosition, target.Position))
                             return;
 
-                        W.Cast(pred.CastPosition);
+                        W.Cast(target.Position);
                         W.LastCastAttemptT = Environment.TickCount + 500;
 
-                        Q.UpdateSourcePosition(Player.ServerPosition, Player.ServerPosition);
-                        _predWq = useQ ? Q.GetPrediction(target).UnitPosition : Vector3.Zero;
+                        if (useQ)
+                            Utility.DelayAction.Add(50, () => Q.Cast(target.Position));
+                        if (useE)
+                            Utility.DelayAction.Add(60, () => E.Cast(packets()));
+                        //Q.UpdateSourcePosition(Player.ServerPosition, Player.ServerPosition);
+                        //_predWq = useQ ? Q.GetPrediction(target).UnitPosition : Vector3.Zero;
 
-                        if (useE && pred.UnitPosition.Distance(target.ServerPosition) < E.Range + target.BoundingRadius)
-                            _willEHit = true;
-                        else
-                            _willEHit = false;
+                        //if (useE && pred.UnitPosition.Distance(target.ServerPosition) < E.Range + target.BoundingRadius)
+                            //_willEHit = true;
+                        //else
+                           // _willEHit = false;
                     }
                 }
                 else
@@ -787,8 +789,8 @@ namespace xSaliceReligionAIO.Champions
                             W.LastCastAttemptT = Environment.TickCount + 500;
                         }
 
-                        Q.UpdateSourcePosition(vec, vec);
-                        _predWq = useQ ? Q.GetPrediction(target).UnitPosition : Vector3.Zero;
+                        if (useQ)
+                            Utility.DelayAction.Add(50, () => Q.Cast(target.Position));
                         _willEHit = useE && vec.Distance(target.ServerPosition) < E.Range;
                         
                     }
