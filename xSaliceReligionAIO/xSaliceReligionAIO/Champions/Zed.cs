@@ -731,7 +731,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 if (Player.Distance(target) < W.Range + target.BoundingRadius)
                 {
-                    var pred = Prediction.GetPrediction(target, 10f);
+                    var pred = Prediction.GetPrediction(target, .1f);
 
                     if ((!useQ || Q.IsReady()) && (!useE || E.IsReady()) && Player.Distance(pred.CastPosition) < W.Range)
                     {
