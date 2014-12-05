@@ -742,7 +742,7 @@ namespace xSaliceReligionAIO.Champions
                         W.LastCastAttemptT = Environment.TickCount + 500;
 
                         Q.UpdateSourcePosition(Player.ServerPosition, Player.ServerPosition);
-                        _predWq = useQ ? Q.GetPrediction(target).CastPosition : Vector3.Zero;
+                        _predWq = useQ ? Q.GetPrediction(target).UnitPosition : Vector3.Zero;
 
                         if (useE && pred.UnitPosition.Distance(target.ServerPosition) < E.Range + target.BoundingRadius)
                             _willEHit = true;
