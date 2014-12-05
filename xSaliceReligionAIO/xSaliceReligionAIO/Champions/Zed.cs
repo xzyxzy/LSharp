@@ -252,7 +252,7 @@ namespace xSaliceReligionAIO.Champions
                         if (GetMarked() != null)
                             qTarget = GetMarked();
 
-                        if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>())
+                        if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>() && Player.Distance(qTarget) < 300)
                             Use_Ignite(qTarget);
 
                         if (menu.Item("Botrk").GetValue<bool>())
@@ -329,7 +329,7 @@ namespace xSaliceReligionAIO.Champions
                         if (GetMarked() != null)
                             qTarget = GetMarked();
 
-                        if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>())
+                        if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>() && Player.Distance(qTarget) < 300)
                             Use_Ignite(qTarget);
 
                         if (menu.Item("Botrk").GetValue<bool>())
@@ -366,7 +366,7 @@ namespace xSaliceReligionAIO.Champions
                         if (GetMarked() != null)
                             qTarget = GetMarked();
 
-                        if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>())
+                        if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>() && Player.Distance(qTarget) < 300)
                             Use_Ignite(qTarget);
 
                         if (menu.Item("Botrk").GetValue<bool>())
@@ -741,7 +741,7 @@ namespace xSaliceReligionAIO.Champions
                         W.Cast(pred.CastPosition);
                         W.LastCastAttemptT = Environment.TickCount + 500;
 
-                        Q.UpdateSourcePosition(pred.CastPosition, pred.CastPosition);
+                        Q.UpdateSourcePosition(Player.ServerPosition, Player.ServerPosition);
                         _predWq = useQ ? Q.GetPrediction(target).CastPosition : Vector3.Zero;
 
                         if (useE && pred.UnitPosition.Distance(target.ServerPosition) < E.Range + target.BoundingRadius)
