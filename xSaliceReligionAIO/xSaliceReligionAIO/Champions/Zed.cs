@@ -23,12 +23,12 @@ namespace xSaliceReligionAIO.Champions
         {
             Q = new Spell(SpellSlot.Q, 900f);
             W = new Spell(SpellSlot.W, 550f);
-            E = new Spell(SpellSlot.E, 240f);
+            E = new Spell(SpellSlot.E, 220f);
             R = new Spell(SpellSlot.R, 650f);
 
             Q.SetSkillshot(.25f, 60f, 1700f, false, SkillshotType.SkillshotLine);
             W.SetSkillshot(.25f, 270f, float.MaxValue, false, SkillshotType.SkillshotCircle);
-            E.SetSkillshot(0f, 240f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            E.SetSkillshot(0f, 220f, float.MaxValue, false, SkillshotType.SkillshotCircle);
         }
 
         private void LoadMenu()
@@ -62,7 +62,20 @@ namespace xSaliceReligionAIO.Champions
                     rMenu.AddItem(new MenuItem("R_Place_line", "R Range behind target in Line").SetValue(new Slider(400, 250, 550)));
                     rMenu.AddItem(new MenuItem("R_Back", "R Swap if Enemy Is dead").SetValue(true));
                     rMenu.AddItem(new MenuItem("useR_Health", "Use R swap if health below").SetValue(new Slider(10)));
-                    //rMenu.AddItem(new MenuItem("Dont_R_If", "Do not R if > enemy")).SetValue(new Slider(3, 1, 5));
+
+                    //evading spells
+                    var dangerous = new Menu("Dodge Dangerous", "Dodge Dangerous");
+                    {
+                        foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsEnemy))
+                        {
+                            dangerous.AddSubMenu(new Menu(hero.ChampionName, hero.ChampionName));
+                            dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.Q).Name + "R_Dodge", hero.Spellbook.GetSpell(SpellSlot.Q).Name).SetValue(false));
+                            dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.W).Name + "R_Dodge", hero.Spellbook.GetSpell(SpellSlot.W).Name).SetValue(false));
+                            dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.E).Name + "R_Dodge", hero.Spellbook.GetSpell(SpellSlot.E).Name).SetValue(false));
+                            dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.R).Name + "R_Dodge", hero.Spellbook.GetSpell(SpellSlot.R).Name).SetValue(false));
+                        }
+                        rMenu.AddSubMenu(dangerous);
+                    }
                     spellMenu.AddSubMenu(rMenu);
                 }
                 //add to menu
@@ -628,6 +641,14 @@ namespace xSaliceReligionAIO.Champions
             if (target == null || !Q.IsReady())
                 return;
 
+            if (qTarget != null)
+            {
+                Q.UpdateSourcePosition(Player.ServerPosition, Player.ServerPosition);
+                Q.Cast(qTarget, packets());
+                Q.LastCastAttemptT = Environment.TickCount + 300;
+                return;
+            }
+
             if (WShadow != null &&  _currentWShadow != Vector3.Zero)
             {
                 Q.UpdateSourcePosition(WShadow.ServerPosition, WShadow.ServerPosition);
@@ -638,14 +659,6 @@ namespace xSaliceReligionAIO.Champions
             {
                 Q.UpdateSourcePosition(RShadow.ServerPosition, RShadow.ServerPosition);
                 Q.Cast(qTarget, packets());
-                return;
-            }
-
-            if(qTarget != null)
-            {
-                Q.UpdateSourcePosition(Player.ServerPosition, Player.ServerPosition);
-                Q.Cast(qTarget, packets());
-                Q.LastCastAttemptT = Environment.TickCount + 300;
             }
         }
 
@@ -718,9 +731,9 @@ namespace xSaliceReligionAIO.Champions
             {
                 if (Player.Distance(target) < W.Range + target.BoundingRadius)
                 {
-                    var pred = Prediction.GetPrediction(target, 250f);
+                    var pred = Prediction.GetPrediction(target, 10f);
 
-                    if ((!useQ || Q.IsReady()) && (!useE || E.IsReady()))
+                    if ((!useQ || Q.IsReady()) && (!useE || E.IsReady()) && Player.Distance(pred.CastPosition) < W.Range)
                     {
                         if (IsPassWall(Player.ServerPosition, pred.CastPosition))
                             return;
@@ -739,16 +752,14 @@ namespace xSaliceReligionAIO.Champions
                 }
                 else
                 {
-                    var predE = Prediction.GetPrediction(target, .25f);
+                    var predE = Prediction.GetPrediction(target, .1f);
                     var vec = Player.ServerPosition + Vector3.Normalize(predE.CastPosition - Player.ServerPosition) * W.Range;
 
                     if (IsPassWall(Player.ServerPosition, vec))
                         return;
 
-                    if ((!useQ || Q.IsReady()) && (!useE || E.IsReady()))
+                    if ((!useQ || Q.IsReady()) && (!useE || E.IsReady()) && Player.Distance(vec) < W.Range)
                     {
-                        var pred = GetP2(vec, Q, target, true);
-
                         if (useQ && useE)
                         {
                             if ((menu.Item("W_Require_QE").GetValue<bool>() && source == "Harass") || source == "Coax")
@@ -930,6 +941,21 @@ namespace xSaliceReligionAIO.Champions
         private float _qCooldown;
         public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
+            if (unit.IsEnemy && (unit is Obj_AI_Hero))
+            {
+                if (Player.Distance(unit) > R.Range || !R.IsReady() || rSpell.ToggleState == 2)
+                    return;
+
+                if (menu.Item(args.SData.Name + "R_Dodge").GetValue<bool>() && args.SData.Name == "SyndraR")
+                {
+                    Utility.DelayAction.Add(150, () => R.CastOnUnit(unit, packets()));
+                    return;
+                }
+
+                if (menu.Item(args.SData.Name + "R_Dodge").GetValue<bool>())
+                    R.CastOnUnit(unit, packets());
+            }
+
             if (!unit.IsMe)
                 return;
 
@@ -1012,7 +1038,7 @@ namespace xSaliceReligionAIO.Champions
             if (sender.Name == "Zed_Base_R_buf_tell.troy")
             {
                 if (rSpell.ToggleState == 2 && RShadow != null && menu.Item("R_Back").GetValue<bool>())
-                    R.Cast(packets());
+                    Utility.DelayAction.Add(1000, () => R.Cast(packets()));
             }
 
         }
