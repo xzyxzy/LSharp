@@ -782,9 +782,8 @@ namespace xSaliceReligionAIO.Champions
                             W.LastCastAttemptT = Environment.TickCount + 500;
                         }
 
-                        Q.UpdateSourcePosition(vec, vec);
                         if (useQ)
-                            Utility.DelayAction.Add(50, () => Q.Cast(target));
+                            Utility.DelayAction.Add(50, () => Q.Cast(target.Position));
                         _willEHit = useE && vec.Distance(target.ServerPosition) < E.Range;
                         
                     }
