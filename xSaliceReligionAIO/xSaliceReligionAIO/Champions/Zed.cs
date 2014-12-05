@@ -1030,7 +1030,7 @@ namespace xSaliceReligionAIO.Champions
             if (sender.Name == "Zed_Base_R_buf_tell.troy")
             {
                 if (rSpell.ToggleState == 2 && RShadow != null && menu.Item("R_Back").GetValue<bool>())
-                    Utility.DelayAction.Add(1000, () => R.Cast(packets()));
+                    Utility.DelayAction.Add(500, () => R.Cast(packets()));
             }
 
         }
