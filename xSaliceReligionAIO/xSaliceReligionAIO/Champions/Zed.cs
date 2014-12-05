@@ -23,12 +23,12 @@ namespace xSaliceReligionAIO.Champions
         {
             Q = new Spell(SpellSlot.Q, 900f);
             W = new Spell(SpellSlot.W, 550f);
-            E = new Spell(SpellSlot.E, 270f);
+            E = new Spell(SpellSlot.E, 240f);
             R = new Spell(SpellSlot.R, 650f);
 
             Q.SetSkillshot(.25f, 60f, 1700f, false, SkillshotType.SkillshotLine);
             W.SetSkillshot(.25f, 270f, float.MaxValue, false, SkillshotType.SkillshotCircle);
-            E.SetSkillshot(0f, 270f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            E.SetSkillshot(0f, 240f, float.MaxValue, false, SkillshotType.SkillshotCircle);
         }
 
         private void LoadMenu()
@@ -671,48 +671,24 @@ namespace xSaliceReligionAIO.Champions
             if (target == null || !E.IsReady())
                 return;
 
-            if (WShadow != null && RShadow != null && _currentRShadow != Vector3.Zero && _currentWShadow != Vector3.Zero)
+            if (WShadow != null && _currentWShadow != Vector3.Zero)
             {
-                var predW = GetPCircle(WShadow.ServerPosition, E, target, true);
-                var predR = GetPCircle(RShadow.ServerPosition, E, target, true);
-                var pred = E.GetPrediction(target, true);
-
-                if (pred.Hitchance >= HitChance.High && Player.Distance(target) < E.Range)
-                    E.Cast(packets());
-
-                if (predW.Hitchance >= HitChance.High && WShadow.Distance(target) < E.Range)
-                    E.Cast(packets());
-
-                if (predR.Hitchance >= HitChance.High && RShadow.Distance(target) < E.Range)
-                    E.Cast(packets());
+                E.UpdateSourcePosition(WShadow.ServerPosition, WShadow.ServerPosition);
+                E.Cast(eTarget, packets());
+                return;
             }
-            else if (WShadow != null && _currentWShadow != Vector3.Zero)
+            if (RShadow != null && _currentRShadow != Vector3.Zero)
             {
-                var predW = GetPCircle(WShadow.ServerPosition, E, target, true);
-                var pred = E.GetPrediction(target, true);
-
-                if (predW.Hitchance >= HitChance.High && WShadow.Distance(target) < E.Range)
-                    E.Cast(packets());
-
-                if (pred.Hitchance >= HitChance.High && Player.Distance(target) < E.Range)
-                    E.Cast(packets());
-
+                E.UpdateSourcePosition(RShadow.ServerPosition, RShadow.ServerPosition);
+                E.Cast(eTarget, packets());
+                return;
             }
-            else if (RShadow != null && _currentRShadow != Vector3.Zero)
-            {
-                var predR = GetPCircle(RShadow.ServerPosition, E, target, true);
-                var pred = E.GetPrediction(target, true);
 
-                if (pred.Hitchance >= HitChance.High && Player.Distance(target ) < E.Range)
-                    E.Cast(packets());
-
-                if (predR.Hitchance >= HitChance.High && RShadow.Distance(target) < E.Range)
-                    E.Cast(packets());
-            }
-            else if (eTarget != null)
+            if (eTarget != null)
             {
-                if (E.GetPrediction(eTarget).Hitchance >= HitChance.High && Player.Distance(eTarget) < E.Range)
-                    E.Cast(packets());
+                E.UpdateSourcePosition(Player.ServerPosition, Player.ServerPosition);
+                E.Cast(eTarget, packets());
+                E.LastCastAttemptT = Environment.TickCount + 300;
             }
         }
 
@@ -746,13 +722,14 @@ namespace xSaliceReligionAIO.Champions
 
                     if ((!useQ || Q.IsReady()) && (!useE || E.IsReady()))
                     {
-                        if (IsWall(pred.UnitPosition.To2D()))
+                        if (IsPassWall(Player.ServerPosition, pred.CastPosition))
                             return;
 
-                        W.Cast(pred.UnitPosition);
+                        W.Cast(pred.CastPosition);
                         W.LastCastAttemptT = Environment.TickCount + 500;
 
-                        _predWq = useQ ? pred.CastPosition : Vector3.Zero;
+                        Q.UpdateSourcePosition(pred.CastPosition, pred.CastPosition);
+                        _predWq = useQ ? Q.GetPrediction(target).CastPosition : Vector3.Zero;
 
                         if (useE && pred.UnitPosition.Distance(target.ServerPosition) < E.Range + target.BoundingRadius)
                             _willEHit = true;
@@ -765,7 +742,7 @@ namespace xSaliceReligionAIO.Champions
                     var predE = Prediction.GetPrediction(target, .25f);
                     var vec = Player.ServerPosition + Vector3.Normalize(predE.CastPosition - Player.ServerPosition) * W.Range;
 
-                    if (IsWall(vec.To2D()))
+                    if (IsPassWall(Player.ServerPosition, vec))
                         return;
 
                     if ((!useQ || Q.IsReady()) && (!useE || E.IsReady()))
@@ -799,7 +776,8 @@ namespace xSaliceReligionAIO.Champions
                             W.LastCastAttemptT = Environment.TickCount + 500;
                         }
 
-                        _predWq = useQ ? pred.UnitPosition : Vector3.Zero;
+                        Q.UpdateSourcePosition(vec, vec);
+                        _predWq = useQ ? Q.GetPrediction(target).CastPosition : Vector3.Zero;
                         _willEHit = useE && vec.Distance(target.ServerPosition) < E.Range;
                         
                     }
@@ -836,6 +814,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (useE && E.IsReady())
             {
+                E.UpdateSourcePosition(Player.ServerPosition, Player.ServerPosition);
                 var pred = E.GetCircularFarmLocation(allMinionsE);
 
                 if (pred.MinionsHit > menu.Item("LaneClear_useE_minHit").GetValue<Slider>().Value)
