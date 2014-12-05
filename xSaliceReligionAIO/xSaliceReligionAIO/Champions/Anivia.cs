@@ -430,11 +430,11 @@ namespace xSaliceReligionAIO.Champions
         {
             if (menu.Item("detonateQ2").GetValue<bool>())
             {
-                if (target.Distance(_qMissle.Position) < 110 || checkChilled(target))
+                if (target.Distance(_qMissle.Position) < Q.Width && checkChilled(target))
                     return true;
             }
 
-            if (target.Distance(_qMissle.Position) < 110)
+            if (target.Distance(_qMissle.Position) < Q.Width)
                 return true;
 
             return false;
