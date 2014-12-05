@@ -763,12 +763,16 @@ namespace xSaliceReligionAIO.Champions
                                 {
                                     W.Cast(vec);
                                     W.LastCastAttemptT = Environment.TickCount + 500;
+                                    if (useQ)
+                                        Utility.DelayAction.Add(50, () => Q.Cast(target.Position));
                                 }
                             }
                             else
                             {
                                 W.Cast(vec);
                                 W.LastCastAttemptT = Environment.TickCount + 500;
+                                if (useQ)
+                                    Utility.DelayAction.Add(50, () => Q.Cast(target.Position));
                             }
                         }
                         else if (useE && vec.Distance(target.ServerPosition) < E.Range + target.BoundingRadius)
@@ -780,10 +784,11 @@ namespace xSaliceReligionAIO.Champions
                         {
                             W.Cast(vec);
                             W.LastCastAttemptT = Environment.TickCount + 500;
+
+                            if (useQ)
+                                Utility.DelayAction.Add(50, () => Q.Cast(target.Position));
                         }
 
-                        if (useQ)
-                            Utility.DelayAction.Add(50, () => Q.Cast(target.Position));
                         _willEHit = useE && vec.Distance(target.ServerPosition) < E.Range;
                         
                     }
