@@ -739,10 +739,8 @@ namespace xSaliceReligionAIO.Champions
                         W.Cast(target);
                         W.LastCastAttemptT = Environment.TickCount + 500;
 
-                        if (useQ)
-                            Utility.DelayAction.Add(50, () => Cast_Q(target));
-                        if (useE)
-                            Utility.DelayAction.Add(60, () => E.Cast(packets()));
+                        _predWq = useQ ? target.Position : Vector3.Zero;
+                        _willEHit = useE;
                     }
                 }
                 else
@@ -763,16 +761,12 @@ namespace xSaliceReligionAIO.Champions
                                 {
                                     W.Cast(vec);
                                     W.LastCastAttemptT = Environment.TickCount + 500;
-                                    if (useQ)
-                                        Utility.DelayAction.Add(50, () => Q.Cast(target.Position));
                                 }
                             }
                             else
                             {
                                 W.Cast(vec);
                                 W.LastCastAttemptT = Environment.TickCount + 500;
-                                if (useQ)
-                                    Utility.DelayAction.Add(50, () => Q.Cast(target.Position));
                             }
                         }
                         else if (useE && vec.Distance(target.ServerPosition) < E.Range + target.BoundingRadius)
@@ -784,11 +778,9 @@ namespace xSaliceReligionAIO.Champions
                         {
                             W.Cast(vec);
                             W.LastCastAttemptT = Environment.TickCount + 500;
-
-                            if (useQ)
-                                Utility.DelayAction.Add(50, () => Q.Cast(target.Position));
                         }
 
+                        _predWq = useQ ? target.Position : Vector3.Zero;
                         _willEHit = useE && vec.Distance(target.ServerPosition) < E.Range;
                         
                     }
