@@ -788,7 +788,7 @@ namespace xSaliceReligionAIO.Champions
                         }
 
                         Q.UpdateSourcePosition(vec, vec);
-                        _predWq = useQ ? Q.GetPrediction(target).CastPosition : Vector3.Zero;
+                        _predWq = useQ ? Q.GetPrediction(target).UnitPosition : Vector3.Zero;
                         _willEHit = useE && vec.Distance(target.ServerPosition) < E.Range;
                         
                     }
