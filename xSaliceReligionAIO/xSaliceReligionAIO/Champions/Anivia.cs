@@ -226,7 +226,7 @@ namespace xSaliceReligionAIO.Champions
             if (useQ && Q.IsReady() && Player.Distance(target) <= Q.Range &&
                 Q.GetPrediction(target).Hitchance >= GetHitchance(source) && ShouldQ())
             {
-                Q.Cast(target);
+                Q.Cast(Q.GetPrediction(target).CastPosition);
             }
 
             //Ignite
