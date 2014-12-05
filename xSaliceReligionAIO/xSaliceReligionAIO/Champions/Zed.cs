@@ -652,13 +652,13 @@ namespace xSaliceReligionAIO.Champions
             if (WShadow != null &&  _currentWShadow != Vector3.Zero)
             {
                 Q.UpdateSourcePosition(WShadow.ServerPosition, WShadow.ServerPosition);
-                Q.Cast(qTarget, packets());
+                Q.Cast(target, packets());
                 return;
             }
             if (RShadow != null && _currentRShadow != Vector3.Zero)
             {
                 Q.UpdateSourcePosition(RShadow.ServerPosition, RShadow.ServerPosition);
-                Q.Cast(qTarget, packets());
+                Q.Cast(target, packets());
             }
         }
 
