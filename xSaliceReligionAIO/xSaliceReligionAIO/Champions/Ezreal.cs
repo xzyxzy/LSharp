@@ -287,13 +287,12 @@ namespace xSaliceReligionAIO.Champions
                             return;
                         }
 
-                        foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(R.Range) && x.IsVisible).OrderBy(x => x.Health))
+                        foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(R.Range)).OrderByDescending(GetComboDamage))
                         {
                             var pred = R.GetPrediction(unit, true);
                             if (Player.Distance(unit) > minRange && pred.AoeTargetsHitCount >= minHit)
                             {
                                 R.Cast(unit, packets());
-                                //Game.PrintChat("casting");
                                 return;
                             }
                         }
