@@ -785,11 +785,15 @@ namespace xSaliceReligionAIO.Champions
         private void LastHitQ()
         {
             List<Obj_AI_Base> allMinionsQ = MinionManager.GetMinions(Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly);
-
+            
             Q.UpdateSourcePosition(Player.ServerPosition, Player.ServerPosition);
-            if(allMinionsQ.Count > 0)
-                if (Player.GetSpellDamage(allMinionsQ[0], SpellSlot.Q)*.6 > allMinionsQ[0].Health + 30)
-                    Q.Cast(allMinionsQ[0]);
+
+            foreach(var minion in allMinionsQ){
+                var predHealth = HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / Q.Speed));
+
+                if (Player.GetSpellDamage(allMinionsQ[0], SpellSlot.Q) * .6 > predHealth + 5)
+                    Q.Cast(minion);
+            }
         }
 
         private void Farm()

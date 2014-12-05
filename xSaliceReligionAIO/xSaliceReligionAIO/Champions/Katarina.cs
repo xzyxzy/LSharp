@@ -340,8 +340,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (W.IsReady() && useW)
             {
-                if (allMinions.Where(minion => minion.IsValidTarget(W.Range) && minion.Health <
-                                               Player.GetSpellDamage(minion, SpellSlot.W) - 35).Any(minion => Player.Distance(minion.ServerPosition) < W.Range))
+                if (allMinions.Where(minion => minion.IsValidTarget(W.Range) && minion.Health < Player.GetSpellDamage(minion, SpellSlot.W) - 35).Any(minion => Player.Distance(minion.ServerPosition) < W.Range))
                 {
                     W.Cast();
                 }
