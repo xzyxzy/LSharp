@@ -740,7 +740,7 @@ namespace xSaliceReligionAIO.Champions
                         W.LastCastAttemptT = Environment.TickCount + 500;
 
                         if (useQ)
-                            Utility.DelayAction.Add(50, () => Q.Cast(target));
+                            Utility.DelayAction.Add(50, () => Cast_Q(target));
                         if (useE)
                             Utility.DelayAction.Add(60, () => E.Cast(packets()));
                     }
