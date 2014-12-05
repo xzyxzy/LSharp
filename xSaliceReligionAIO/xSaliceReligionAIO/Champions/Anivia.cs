@@ -417,7 +417,7 @@ namespace xSaliceReligionAIO.Champions
             if (_qMissle == null || !Q.IsReady())
                 return;
 
-            foreach (Obj_AI_Hero enemy in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(1200)))
+            foreach (Obj_AI_Hero enemy in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(1200) && x.Distance(_qMissle.Position) < 200).OrderByDescending(GetComboDamage))
             {
                 if (ShouldDetonate(enemy) && Environment.TickCount - Q.LastCastAttemptT > Game.Ping)
                 {
@@ -430,11 +430,11 @@ namespace xSaliceReligionAIO.Champions
         {
             if (menu.Item("detonateQ2").GetValue<bool>())
             {
-                if (target.Distance(_qMissle.Position) < Q.Width && checkChilled(target))
+                if (target.Distance(_qMissle.Position) < Q.Width + target.BoundingRadius && checkChilled(target))
                     return true;
             }
 
-            if (target.Distance(_qMissle.Position) < Q.Width)
+            if (target.Distance(_qMissle.Position) < Q.Width + target.BoundingRadius)
                 return true;
 
             return false;
