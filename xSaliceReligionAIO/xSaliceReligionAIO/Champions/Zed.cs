@@ -736,20 +736,13 @@ namespace xSaliceReligionAIO.Champions
                         if (IsPassWall(Player.ServerPosition, target.Position))
                             return;
 
-                        W.Cast(target.Position);
+                        W.Cast(target);
                         W.LastCastAttemptT = Environment.TickCount + 500;
 
                         if (useQ)
-                            Utility.DelayAction.Add(50, () => Q.Cast(target.Position));
+                            Utility.DelayAction.Add(50, () => Q.Cast(target));
                         if (useE)
                             Utility.DelayAction.Add(60, () => E.Cast(packets()));
-                        //Q.UpdateSourcePosition(Player.ServerPosition, Player.ServerPosition);
-                        //_predWq = useQ ? Q.GetPrediction(target).UnitPosition : Vector3.Zero;
-
-                        //if (useE && pred.UnitPosition.Distance(target.ServerPosition) < E.Range + target.BoundingRadius)
-                            //_willEHit = true;
-                        //else
-                           // _willEHit = false;
                     }
                 }
                 else
