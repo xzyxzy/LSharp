@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
-using SharpDX;
 using Color = System.Drawing.Color;
 
 namespace xSaliceReligionAIO.Champions
@@ -75,6 +71,8 @@ namespace xSaliceReligionAIO.Champions
             {
                 miscMenu.AddItem(new MenuItem("W_Gap_Closer", "Use W On Gap Closer").SetValue(true));
                 miscMenu.AddItem(new MenuItem("useR_Hit", "Use R if hit").SetValue(new Slider(3, 5, 0)));
+                miscMenu.AddItem(new MenuItem("smartKS", "Smart KS").SetValue(true));
+                miscMenu.AddItem(new MenuItem("R_KS", "Use R to KS").SetValue(true));
                 //add to menu
                 menu.AddSubMenu(miscMenu);
             }
@@ -139,17 +137,17 @@ namespace xSaliceReligionAIO.Champions
 
         private void Combo()
         {
-            UseSpells(menu.Item("UseQCombo").GetValue<bool>(), menu.Item("UseWCombo").GetValue<bool>(),
-                menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>(), "Combo");
+            UseSpells(menu.Item("UseQCombo").GetValue<bool>(),
+                menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>());
         }
 
         private void Harass()
         {
-            UseSpells(menu.Item("UseQHarass").GetValue<bool>(), menu.Item("UseWHarass").GetValue<bool>(),
-                menu.Item("UseEHarass").GetValue<bool>(), false, "Harass");
+            UseSpells(menu.Item("UseQHarass").GetValue<bool>(),
+                menu.Item("UseEHarass").GetValue<bool>(), false);
         }
 
-        private void UseSpells(bool useQ, bool useW, bool useE, bool useR, string source)
+        private void UseSpells(bool useQ, bool useE, bool useR)
         {
             int igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
             Obj_AI_Hero target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
@@ -200,7 +198,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 foreach (var minion in allMinions)
                 {
-                    if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < Damage.GetSpellDamage(Player, minion, SpellSlot.Q) - 10)
+                    if (minion.IsValidTarget() && HealthPrediction.GetHealthPrediction(minion, (int)(Player.Distance(minion) * 1000 / 1400)) < Player.GetSpellDamage(minion, SpellSlot.Q) - 10)
                     {
                         Q.CastOnUnit(minion, packets());
                         return;
@@ -230,8 +228,43 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
+        private void CheckKs()
+        {
+            foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.IsValidTarget(1300)).OrderByDescending(GetComboDamage))
+            {
+                if (Player.Distance(target.ServerPosition) <= E.Range && Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.E)  > target.Health && Q.IsReady() && E.IsReady())
+                {
+                    E.Cast(packets());
+                    Q.Cast(target, packets());
+                    return;
+                }
+
+                if (Player.Distance(target.ServerPosition) <= Q.Range && Player.GetSpellDamage(target, SpellSlot.Q) > target.Health && Q.IsReady())
+                {
+                    Q.Cast(target, packets());
+                    return;
+                }
+
+                if (Player.Distance(target.ServerPosition) <= E.Range && Player.GetSpellDamage(target, SpellSlot.E) > target.Health && E.IsReady())
+                {
+                    E.Cast(packets());
+                    return;
+                }
+
+                if (Player.Distance(target.ServerPosition) <= R.Range && Player.GetSpellDamage(target, SpellSlot.R) > target.Health && R.IsReady() && menu.Item("R_KS").GetValue<bool>())
+                {
+                    E.Cast(packets());
+                    return;
+                }
+            }
+        }
+
         public override void Game_OnGameUpdate(EventArgs args)
         {
+
+            if (menu.Item("smartKS").GetValue<bool>())
+                CheckKs();
+
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 RMec();
@@ -245,7 +278,10 @@ namespace xSaliceReligionAIO.Champions
                 if (menu.Item("LaneClearActive").GetValue<KeyBind>().Active)
                     Farm();
 
-                if (menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
+                if (menu.Item("HarassActive").GetValue<KeyBind>().Active)
+                    Harass();
+
+                if (menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
                     Harass();
             }
 
