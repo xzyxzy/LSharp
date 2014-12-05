@@ -25,7 +25,6 @@ namespace xSaliceReligionAIO.Champions
         //Spell Obj
         //Q
         private GameObject _qMissle;
-        private Vector3 _qPos;
 
         //E
         private bool _eCasted;
@@ -73,6 +72,8 @@ namespace xSaliceReligionAIO.Champions
             {
                 var qMenu = new Menu("QMenu", "QMenu");
                 {
+                    qMenu.AddItem(new MenuItem("qHit", "Combo HitChance").SetValue(new Slider(3, 1, 3)));
+                    qMenu.AddItem(new MenuItem("qHit2", "Harass HitChance").SetValue(new Slider(3, 1, 4)));
                     qMenu.AddItem(new MenuItem("detonateQ", "Auto Detonate Q").SetValue(true));
                     qMenu.AddItem(new MenuItem("detonateQ2", "Pop Q Behind Enemy").SetValue(true));
                     spellMenu.AddSubMenu(qMenu);
@@ -223,13 +224,8 @@ namespace xSaliceReligionAIO.Champions
 
             //Q
             if (useQ && Q.IsReady() && Player.Distance(target) <= Q.Range &&
-                Q.GetPrediction(target).Hitchance >= HitChance.High && ShouldQ())
+                Q.GetPrediction(target).Hitchance >= GetHitchance(source) && ShouldQ())
             {
-                Vector3 qPos2 = Q.GetPrediction(target).CastPosition;
-                var vec = new Vector3(qPos2.X - Player.ServerPosition.X, 0, qPos2.Z - Player.ServerPosition.Z);
-                Vector3 castBehind = qPos2 + Vector3.Normalize(vec) * 100;
-
-                _qPos = castBehind;
                 Q.Cast(target);
             }
 
@@ -432,12 +428,13 @@ namespace xSaliceReligionAIO.Champions
 
         private bool ShouldDetonate(Obj_AI_Hero target)
         {
-            var q2 = menu.Item("detonateQ2").GetValue<bool>();
-            if (q2)
-                if (target.ServerPosition.To2D().Distance(_qPos.To2D()) < 50 || checkChilled(target))
+            if (menu.Item("detonateQ2").GetValue<bool>())
+            {
+                if (target.Distance(_qMissle.Position) < 110 || checkChilled(target))
                     return true;
+            }
 
-            if (target.ServerPosition.To2D().Distance(_qMissle.Position.To2D()) < 110)
+            if (target.Distance(_qMissle.Position) < 110)
                 return true;
 
             return false;
@@ -644,13 +641,12 @@ namespace xSaliceReligionAIO.Champions
         {
             if (!menu.Item("UseInt").GetValue<bool>()) return;
 
-            if (Player.Distance(unit) < Q.Range && unit != null)
+            if (unit.IsValidTarget(Q.Range) && Q.IsReady())
             {
-                if (Q.GetPrediction(unit).Hitchance >= HitChance.High && Q.IsReady())
-                    Q.Cast(unit);
+                Q.Cast(unit);
             }
 
-            if (Player.Distance(unit) < W.Range && unit != null && W.IsReady())
+            if (unit.IsValidTarget(W.Range) && W.IsReady())
             {
                 W.Cast(unit, packets());
             }
