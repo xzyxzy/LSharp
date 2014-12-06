@@ -60,6 +60,7 @@
     <Compile Include="Champions\Anivia.cs" />
     <Compile Include="Champions\Azir.cs" />
     <Compile Include="Champions\Corki.cs" />
+    <Compile Include="Champions\Fiora.cs" />
     <Compile Include="Champions\Rumble.cs" />
     <Compile Include="Champions\Velkoz.cs" />
     <Compile Include="Champions\Vladimir.cs" />
