@@ -472,7 +472,7 @@ namespace xSaliceReligionAIO.Champions
                 if (R.Level > 0)
                     Utility.DrawCircle(Player.Position, R.Range, R.IsReady() ? Color.Green : Color.Red);
 
-            if (menu.Item("Draw_R_Killable").GetValue<bool>())
+            if (menu.Item("Draw_R_Killable").GetValue<bool>() && R.IsReady())
             {
                 foreach (var target in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(5000) && !x.IsDead && x.IsEnemy).OrderBy(x => x.Health))
                 {
