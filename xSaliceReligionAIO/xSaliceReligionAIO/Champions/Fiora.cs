@@ -210,6 +210,9 @@ namespace xSaliceReligionAIO.Champions
             if (source == "Harass" && !HasMana("Harass"))
                 return;
 
+            if (useR)
+                Cast_R();
+
             if (useQ)
                 Cast_Q();
 
@@ -234,9 +237,6 @@ namespace xSaliceReligionAIO.Champions
 
             if (useE && !menu.Item("E_Reset").GetValue<bool>())
                 E.Cast(packets());
-
-            if (useR)
-                Cast_R();
         }
 
         public void Lasthit()
@@ -364,7 +364,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (target != null && R.IsReady())
             {
-                if(Player.GetSpellDamage(target, SpellSlot.R)/countEnemiesNearPosition(target.ServerPosition, R.Range) > target.Health)
+                if (Player.GetSpellDamage(target, SpellSlot.R) / countEnemiesNearPosition(target.ServerPosition, R.Range) > target.Health - Player.GetAutoAttackDamage(target)*2)
                     R.CastOnUnit(target, packets());
 
                 var rHpValue = menu.Item("R_If_HP").GetValue<Slider>().Value;

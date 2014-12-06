@@ -70,7 +70,7 @@ namespace xSaliceReligionAIO.Champions
             var miscMenu = new Menu("Misc", "Misc");
             {
                 miscMenu.AddItem(new MenuItem("W_Gap_Closer", "Use W On Gap Closer").SetValue(true));
-                miscMenu.AddItem(new MenuItem("useR_Hit", "Use R if hit").SetValue(new Slider(3, 5, 0)));
+                miscMenu.AddItem(new MenuItem("useR_Hit", "Use R if hit, 0 = off").SetValue(new Slider(3, 0, 5)));
                 miscMenu.AddItem(new MenuItem("smartKS", "Smart KS").SetValue(true));
                 miscMenu.AddItem(new MenuItem("R_KS", "Use R to KS").SetValue(true));
                 //add to menu
@@ -209,16 +209,13 @@ namespace xSaliceReligionAIO.Champions
 
         private void Farm()
         {
-            var allMinionsQ = MinionManager.GetMinions(Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly);
             var rangedMinionsE = MinionManager.GetMinions(Player.ServerPosition, E.Range + E.Width, MinionTypes.All, MinionTeam.NotAlly);
 
             var useQ = menu.Item("UseQFarm").GetValue<bool>();
             var useE = menu.Item("UseEFarm").GetValue<bool>();
 
-            if (useQ && allMinionsQ.Count > 0 && Q.IsReady())
-            {
-                Q.Cast(allMinionsQ[0], packets());
-            }
+            if (useQ)
+                LastHit();
 
             if (useE && E.IsReady())
             {
@@ -253,7 +250,7 @@ namespace xSaliceReligionAIO.Champions
 
                 if (Player.Distance(target.ServerPosition) <= R.Range && Player.GetSpellDamage(target, SpellSlot.R) > target.Health && R.IsReady() && menu.Item("R_KS").GetValue<bool>())
                 {
-                    E.Cast(packets());
+                    R.Cast(target);
                     return;
                 }
             }
@@ -285,7 +282,10 @@ namespace xSaliceReligionAIO.Champions
                     Harass();
             }
 
-            if (menu.Item("StackE").GetValue<KeyBind>().Active && !IsRecalling())
+            if (IsRecalling())
+                return;
+
+            if (menu.Item("StackE").GetValue<KeyBind>().Active)
             {
                 if (E.IsReady() && Environment.TickCount - E.LastCastAttemptT >= 9900)
                     E.Cast(packets());

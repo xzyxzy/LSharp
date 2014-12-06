@@ -290,7 +290,7 @@ namespace xSaliceReligionAIO.Champions
                         foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(R.Range)).OrderByDescending(GetComboDamage))
                         {
                             var pred = R.GetPrediction(unit, true);
-                            if (Player.Distance(unit) > minRange && pred.AoeTargetsHitCount >= minHit)
+                            if (Player.Distance(unit) > minRange && pred.AoeTargetsHitCount >= minHit && pred.Hitchance >= HitChance.Medium)
                             {
                                 R.Cast(unit, packets());
                                 return;
