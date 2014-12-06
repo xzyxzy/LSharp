@@ -167,11 +167,12 @@ namespace xSaliceReligionAIO.Champions
             if (igniteMode == 0 && Ignite_Ready() && dmg > target.Health + 50)
                 Use_Ignite(target);
 
+            if (useE && E.IsReady() && target.IsValidTarget(E.Range))
+                E.Cast(packets());
+
             if(useQ && Q.IsReady() && target.IsValidTarget(Q.Range))
                 Q.CastOnUnit(target, packets());
 
-            if (useE && E.IsReady() && target.IsValidTarget(E.Range))
-                E.Cast(packets());
         }
 
         private void RMec()

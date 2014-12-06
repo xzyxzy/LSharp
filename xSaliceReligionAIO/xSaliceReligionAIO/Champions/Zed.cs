@@ -933,17 +933,17 @@ namespace xSaliceReligionAIO.Champions
         {
             if (unit.IsEnemy && (unit is Obj_AI_Hero))
             {
-                if (Player.Distance(unit) > R.Range || !R.IsReady() || rSpell.ToggleState == 2)
+                if (Player.Distance(args.End) > R.Range || !R.IsReady() || rSpell.ToggleState == 2)
                     return;
 
                 if (menu.Item(args.SData.Name + "R_Dodge").GetValue<bool>() && args.SData.Name == "SyndraR")
                 {
-                    Utility.DelayAction.Add(150, () => R.CastOnUnit(unit, packets()));
+                    Utility.DelayAction.Add(150, () => R.Cast(unit, packets()));
                     return;
                 }
 
                 if (menu.Item(args.SData.Name + "R_Dodge").GetValue<bool>())
-                    R.CastOnUnit(unit, packets());
+                    R.Cast(unit, packets());
             }
 
             if (!unit.IsMe)

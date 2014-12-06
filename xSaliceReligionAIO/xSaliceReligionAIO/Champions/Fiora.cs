@@ -212,9 +212,6 @@ namespace xSaliceReligionAIO.Champions
             if (source == "Harass" && !HasMana("Harass"))
                 return;
 
-            if (useR)
-                Cast_R();
-
             if (useQ)
                 Cast_Q();
 
@@ -239,6 +236,10 @@ namespace xSaliceReligionAIO.Champions
 
             if (useE && !menu.Item("E_Reset").GetValue<bool>())
                 E.Cast(packets());
+
+            if (useR)
+                Cast_R();
+
         }
 
         private void Lasthit()
@@ -414,6 +415,8 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
+        private Obj_AI_Base dodgeHero;
+
         public override void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
@@ -422,6 +425,9 @@ namespace xSaliceReligionAIO.Champions
             SmartKs();
 
             ModeSwitch();
+
+            if(Environment.TickCount - R.LastCastAttemptT < 750)
+                R.Cast(dodgeHero, packets());
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
@@ -479,6 +485,26 @@ namespace xSaliceReligionAIO.Champions
             if (unit.IsMe)
                 return;
 
+            if (unit.IsEnemy && (unit is Obj_AI_Hero))
+            {
+                if (Player.Distance(args.End) > R.Range || !R.IsReady())
+                    return;
+
+                if (menu.Item(args.SData.Name + "R_Dodge").GetValue<bool>() && args.SData.Name == "SyndraR")
+                {
+                    Utility.DelayAction.Add(150, () => R.CastOnUnit(unit, packets()));
+                    return;
+                }
+
+                if (menu.Item(args.SData.Name + "R_Dodge").GetValue<bool>())
+                {
+                    //Game.PrintChat("RAWR");
+                    R.Cast(unit, packets());
+                    dodgeHero = unit;
+                    R.LastCastAttemptT = Environment.TickCount;
+                }
+            }
+
             if (xSLxOrbwalker.IsAutoAttack(args.SData.Name) && args.Target.IsMe && Player.Distance(args.End) < 450)
             {
                 if (menu.Item("W_Incoming").GetValue<bool>() ||
@@ -491,21 +517,6 @@ namespace xSaliceReligionAIO.Champions
 
                         W.Cast(packets());
                 }
-            }
-
-            if (unit.IsEnemy && (unit is Obj_AI_Hero))
-            {
-                if (Player.Distance(unit) > R.Range || !R.IsReady())
-                    return;
-
-                if (menu.Item(args.SData.Name + "R_Dodge").GetValue<bool>() && args.SData.Name == "SyndraR")
-                {
-                    Utility.DelayAction.Add(150, () => R.CastOnUnit(unit, packets()));
-                    return;
-                }
-
-                if (menu.Item(args.SData.Name + "R_Dodge").GetValue<bool>())
-                    R.CastOnUnit(unit, packets());
             }
         }
 
