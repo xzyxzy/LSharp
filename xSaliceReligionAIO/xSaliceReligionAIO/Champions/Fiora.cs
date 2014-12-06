@@ -223,7 +223,7 @@ namespace xSaliceReligionAIO.Champions
                 var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
                 if (qTarget != null)
                 {
-                    if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>())
+                    if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>() && Player.Distance(qTarget) < 300)
                         Use_Ignite(qTarget);
 
                     if (menu.Item("Botrk").GetValue<bool>())
