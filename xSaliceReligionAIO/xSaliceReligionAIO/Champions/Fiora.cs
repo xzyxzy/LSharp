@@ -379,27 +379,18 @@ namespace xSaliceReligionAIO.Champions
             if (GetTargetFocus(range) != null)
                 target = GetTargetFocus(range);
 
-
-            int mode = menu.Item("Combo_mode").GetValue<StringList>().SelectedIndex;
-            if (mode == 0)
+            if (target != null && R.IsReady())
             {
-                if (target != null && R.IsReady())
-                {
-                    if (Player.GetSpellDamage(target, SpellSlot.R)/
-                        countEnemiesNearPosition(target.ServerPosition, R.Range) >
-                        target.Health - Player.GetAutoAttackDamage(target)*2)
-                        R.CastOnUnit(target, packets());
+                if (Player.GetSpellDamage(target, SpellSlot.R)/
+                    countEnemiesNearPosition(target.ServerPosition, R.Range) >
+                    target.Health - Player.GetAutoAttackDamage(target)*2)
+                    R.CastOnUnit(target, packets());
 
-                    var rHpValue = menu.Item("R_If_HP").GetValue<Slider>().Value;
-                    if (GetHealthPercent() <= rHpValue)
-                        R.CastOnUnit(target, packets());
-                }
-            }
-            else if(mode == 1)
-            {
-                if(!Q.IsReady() && Player.Distance(target) < R.Range)
+                var rHpValue = menu.Item("R_If_HP").GetValue<Slider>().Value;
+                if (GetHealthPercent() <= rHpValue)
                     R.CastOnUnit(target, packets());
             }
+            
         }
 
         private int _lasttick;
@@ -465,8 +456,13 @@ namespace xSaliceReligionAIO.Champions
                         Items.UseItem(3074);
 
                     int mode = menu.Item("Combo_mode").GetValue<StringList>().SelectedIndex;
-                    if (mode == 1 && Q.IsReady())
+                    if (mode == 1)
+                    {
                         Q.CastOnUnit(target, packets());
+
+                        if(!Q.IsReady() && R.IsReady())
+                            R.CastOnUnit(target, packets());
+                    }
                 }
             }
         }
