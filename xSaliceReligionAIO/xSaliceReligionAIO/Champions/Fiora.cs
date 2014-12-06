@@ -51,6 +51,7 @@ namespace xSaliceReligionAIO.Champions
                 var wMenu = new Menu("WMenu", "WMenu");
                 {
                     wMenu.AddItem(new MenuItem("W_Incoming", "W Block incoming Atk Always").SetValue(true));
+                    wMenu.AddItem(new MenuItem("W_minion", "W Block Minion").SetValue(false));
                     spellMenu.AddSubMenu(wMenu);
                 }
                 var eMenu = new Menu("EMenu", "EMenu");
@@ -426,10 +427,16 @@ namespace xSaliceReligionAIO.Champions
 
             if (xSLxOrbwalker.IsAutoAttack(args.SData.Name) && args.Target.IsMe && Player.Distance(args.End) < 350)
             {
-                if (menu.Item("W_Incoming").GetValue<bool>() || 
-                        (menu.Item("ComboActive").GetValue<KeyBind>().Active && E.IsReady() && menu.Item("UseWCombo").GetValue<bool>()) ||
-                        (menu.Item("HarassActive").GetValue<KeyBind>().Active && menu.Item("UseWHarass").GetValue<bool>()))
-                    W.Cast(packets());
+                if (menu.Item("W_Incoming").GetValue<bool>() ||
+                    (menu.Item("ComboActive").GetValue<KeyBind>().Active && E.IsReady() &&
+                     menu.Item("UseWCombo").GetValue<bool>()) ||
+                    (menu.Item("HarassActive").GetValue<KeyBind>().Active && menu.Item("UseWHarass").GetValue<bool>()))
+                {
+                    if (!menu.Item("W_minion").GetValue<bool>() && !(unit is Obj_AI_Hero))
+                        return;
+
+                        W.Cast(packets());
+                }
             }
 
             if (unit.IsEnemy && (unit is Obj_AI_Hero))
