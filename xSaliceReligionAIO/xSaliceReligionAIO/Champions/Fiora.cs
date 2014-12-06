@@ -36,6 +36,7 @@ namespace xSaliceReligionAIO.Champions
                 key.AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
                 key.AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
                 key.AddItem(new MenuItem("LastHitKey", "Last Hit!").SetValue(new KeyBind("A".ToCharArray()[0], KeyBindType.Press)));
+                key.AddItem(new MenuItem("Combo_Switch", "Switch mode Key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
                 //add to menu
                 menu.AddSubMenu(key);
             }
@@ -87,6 +88,7 @@ namespace xSaliceReligionAIO.Champions
             var combo = new Menu("Combo", "Combo");
             {
                 combo.AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
+                combo.AddItem(new MenuItem("Combo_mode", "Combo Mode").SetValue(new StringList(new[] { "Normal", "Q-AA-Q-AA-Ult" })));
                 combo.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
                 combo.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
@@ -239,7 +241,7 @@ namespace xSaliceReligionAIO.Champions
                 E.Cast(packets());
         }
 
-        public void Lasthit()
+        private void Lasthit()
         {
             if (menu.Item("UseQLastHit").GetValue<bool>() && HasMana("Lasthit"))
                 Cast_Q_Last_Hit();
@@ -292,37 +294,52 @@ namespace xSaliceReligionAIO.Champions
             if (GetTargetFocus(Q.Range) != null)
                 target = GetTargetFocus(Q.Range);
 
-            if (Q.IsReady() && target != null)
+            int mode = menu.Item("Combo_mode").GetValue<StringList>().SelectedIndex;
+            if (mode == 0)
             {
-                if (Q.IsKillable(target))
-                    Q.CastOnUnit(target, packets());
-
-                if (Player.GetSpellDamage(target, SpellSlot.Q)*2 > target.Health)
-                    Q.CastOnUnit(target, packets());
-
-                if(Environment.TickCount - Q.LastCastAttemptT > 3800)
-                    Q.CastOnUnit(target, packets());
-
-                var minDistance = menu.Item("Q_Min_Distance").GetValue<Slider>().Value;
-
-                if (Player.Distance(target) > Q.Range && menu.Item("Q_Gap_Close").GetValue<bool>())
+                if (Q.IsReady() && target != null)
                 {
-                    var allMinionQ = MinionManager.GetMinions(Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly);
+                    if (Q.IsKillable(target))
+                        Q.CastOnUnit(target, packets());
 
-                    Obj_AI_Base bestMinion = allMinionQ[0];
+                    if (Player.GetSpellDamage(target, SpellSlot.Q)*2 > target.Health)
+                        Q.CastOnUnit(target, packets());
 
-                    foreach (var minion in allMinionQ)
+                    if (Environment.TickCount - Q.LastCastAttemptT > 3800)
+                        Q.CastOnUnit(target, packets());
+
+                    var minDistance = menu.Item("Q_Min_Distance").GetValue<Slider>().Value;
+
+                    if (Player.Distance(target) > Q.Range && menu.Item("Q_Gap_Close").GetValue<bool>())
                     {
-                        if (target.Distance(minion) < Q.Range && Player.Distance(minion) < Q.Range && target.Distance(minion) < target.Distance(Player))
-                            if (target.Distance(minion) < target.Distance(bestMinion))
-                                bestMinion = minion;
+                        var allMinionQ = MinionManager.GetMinions(Player.ServerPosition, Q.Range, MinionTypes.All,
+                            MinionTeam.NotAlly);
+
+                        Obj_AI_Base bestMinion = allMinionQ[0];
+
+                        foreach (var minion in allMinionQ)
+                        {
+                            if (target.Distance(minion) < Q.Range && Player.Distance(minion) < Q.Range &&
+                                target.Distance(minion) < target.Distance(Player))
+                                if (target.Distance(minion) < target.Distance(bestMinion))
+                                    bestMinion = minion;
+                        }
+                    }
+
+                    if (Player.Distance(target) > minDistance &&
+                        Player.Distance(target) < Q.Range + target.BoundingRadius)
+                    {
+                        Q.CastOnUnit(target, packets());
                     }
                 }
+            }
+            else if (mode == 1)//Ham mode
+            {
+                if (target == null)
+                    return;
 
-                if (Player.Distance(target) > minDistance && Player.Distance(target) < Q.Range + target.BoundingRadius)
-                {
+                if (Q.IsReady() && Environment.TickCount - Q.LastCastAttemptT > 4000 && Player.Distance(target) < Q.Range && Player.Distance(target) > Player.AttackRange)
                     Q.CastOnUnit(target, packets());
-                }
             }
         }
 
@@ -362,14 +379,47 @@ namespace xSaliceReligionAIO.Champions
             if (GetTargetFocus(range) != null)
                 target = GetTargetFocus(range);
 
-            if (target != null && R.IsReady())
-            {
-                if (Player.GetSpellDamage(target, SpellSlot.R) / countEnemiesNearPosition(target.ServerPosition, R.Range) > target.Health - Player.GetAutoAttackDamage(target)*2)
-                    R.CastOnUnit(target, packets());
 
-                var rHpValue = menu.Item("R_If_HP").GetValue<Slider>().Value;
-                if (GetHealthPercent() <= rHpValue)
+            int mode = menu.Item("Combo_mode").GetValue<StringList>().SelectedIndex;
+            if (mode == 0)
+            {
+                if (target != null && R.IsReady())
+                {
+                    if (Player.GetSpellDamage(target, SpellSlot.R)/
+                        countEnemiesNearPosition(target.ServerPosition, R.Range) >
+                        target.Health - Player.GetAutoAttackDamage(target)*2)
+                        R.CastOnUnit(target, packets());
+
+                    var rHpValue = menu.Item("R_If_HP").GetValue<Slider>().Value;
+                    if (GetHealthPercent() <= rHpValue)
+                        R.CastOnUnit(target, packets());
+                }
+            }
+            else if(mode == 1)
+            {
+                if(!Q.IsReady() && Player.Distance(target) < R.Range)
                     R.CastOnUnit(target, packets());
+            }
+        }
+
+        private int _lasttick;
+        private void ModeSwitch()
+        {
+            int mode = menu.Item("Combo_mode").GetValue<StringList>().SelectedIndex;
+            int lasttime = Environment.TickCount - _lasttick;
+
+            if (menu.Item("Combo_Switch").GetValue<KeyBind>().Active && lasttime > Game.Ping)
+            {
+                if (mode == 0)
+                {
+                    menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Q-AA-Q-AA-Ult" }, 1));
+                    _lasttick = Environment.TickCount + 300;
+                }
+                else if (mode == 1)
+                {
+                    menu.Item("Combo_mode").SetValue(new StringList(new[] { "Normal", "Q-AA-Q-AA-Ult" }));
+                    _lasttick = Environment.TickCount + 300;
+                }
             }
         }
 
@@ -379,6 +429,8 @@ namespace xSaliceReligionAIO.Champions
             if (Player.IsDead) return;
 
             SmartKs();
+
+            ModeSwitch();
 
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
@@ -411,6 +463,10 @@ namespace xSaliceReligionAIO.Champions
                     if (Items.CanUseItem(3074))
                         Items.UseItem(3074);
                 }
+
+                int mode = menu.Item("Combo_mode").GetValue<StringList>().SelectedIndex;
+                if (mode == 1 && Q.IsReady())
+                    Q.CastOnUnit(target, packets());
             }
         }
 
@@ -485,6 +541,13 @@ namespace xSaliceReligionAIO.Champions
                     }
                 }
             }
+
+            Vector2 wts2 = Drawing.WorldToScreen(Player.Position);
+            int mode = menu.Item("Combo_mode").GetValue<StringList>().SelectedIndex;
+            if (mode == 0)
+                Drawing.DrawText(wts2[0] - 20, wts2[1], Color.White, "Normal");
+            else if (mode == 1)
+                Drawing.DrawText(wts2[0] - 20, wts2[1], Color.White, "Q-AA-Q-AA-Ult");
         }
     }
 }
