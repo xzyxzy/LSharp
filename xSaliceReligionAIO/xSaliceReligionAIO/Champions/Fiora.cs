@@ -180,6 +180,12 @@ namespace xSaliceReligionAIO.Champions
             if (Items.CanUseItem(Botrk.Id))
                 comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Botrk);
 
+            if (Items.CanUseItem(3077))
+                comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Tiamat);
+
+            if (Items.CanUseItem(3074))
+                comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Hydra);
+
             if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 comboDamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
 
