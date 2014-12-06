@@ -457,12 +457,12 @@ namespace xSaliceReligionAIO.Champions
                     && (target is Obj_AI_Hero))
                 {
                     E.Cast();
-
-                    if(Items.CanUseItem(3077))
-                        Items.UseItem(3077);
-                    if (Items.CanUseItem(3074))
-                        Items.UseItem(3074);
                 }
+
+                if (Items.CanUseItem(3077))
+                    Items.UseItem(3077);
+                if (Items.CanUseItem(3074))
+                    Items.UseItem(3074);
 
                 int mode = menu.Item("Combo_mode").GetValue<StringList>().SelectedIndex;
                 if (mode == 1 && Q.IsReady())
