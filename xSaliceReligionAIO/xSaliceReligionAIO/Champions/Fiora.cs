@@ -425,7 +425,7 @@ namespace xSaliceReligionAIO.Champions
             if (unit.IsMe)
                 return;
 
-            if (xSLxOrbwalker.IsAutoAttack(args.SData.Name) && args.Target.IsMe && Player.Distance(args.End) < 350)
+            if (xSLxOrbwalker.IsAutoAttack(args.SData.Name) && args.Target.IsMe && Player.Distance(args.End) < 450)
             {
                 if (menu.Item("W_Incoming").GetValue<bool>() ||
                     (menu.Item("ComboActive").GetValue<KeyBind>().Active && E.IsReady() &&
