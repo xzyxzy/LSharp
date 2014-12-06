@@ -401,7 +401,8 @@ namespace xSaliceReligionAIO.Champions
         {
             if (unit.IsMe)
             {
-                if ((menu.Item("ComboActive").GetValue<KeyBind>().Active || menu.Item("HarassActive").GetValue<KeyBind>().Active ) && E.IsReady() && menu.Item("E_Reset").GetValue<bool>())
+                if ((menu.Item("ComboActive").GetValue<KeyBind>().Active || menu.Item("HarassActive").GetValue<KeyBind>().Active ) && E.IsReady() && menu.Item("E_Reset").GetValue<bool>()
+                    && (target is Obj_AI_Hero))
                 {
                     E.Cast();
 
