@@ -460,7 +460,7 @@ namespace xSaliceReligionAIO.Champions
                     {
                         Q.CastOnUnit(target, packets());
 
-                        if(!Q.IsReady() && R.IsReady())
+                        if(qSpell.State == SpellState.Cooldown && R.IsReady())
                             R.CastOnUnit(target, packets());
                     }
                 }
