@@ -485,6 +485,19 @@ namespace xSaliceReligionAIO.Champions
             if (unit.IsMe)
                 return;
 
+            if (xSLxOrbwalker.IsAutoAttack(args.SData.Name) && args.Target.IsMe && Player.Distance(args.End) < 450)
+            {
+                if (menu.Item("W_Incoming").GetValue<bool>() ||
+                    (menu.Item("ComboActive").GetValue<KeyBind>().Active && E.IsReady() && menu.Item("UseWCombo").GetValue<bool>()) ||
+                    (menu.Item("HarassActive").GetValue<KeyBind>().Active && menu.Item("UseWHarass").GetValue<bool>()))
+                {
+                    if (!menu.Item("W_minion").GetValue<bool>() && !(unit is Obj_AI_Hero))
+                        return;
+
+                        W.Cast(packets());
+                }
+            }
+
             if (unit.IsEnemy && (unit is Obj_AI_Hero))
             {
                 if (Player.Distance(args.End) > R.Range || !R.IsReady())
@@ -502,19 +515,6 @@ namespace xSaliceReligionAIO.Champions
                     R.Cast(unit, packets());
                     dodgeHero = unit;
                     R.LastCastAttemptT = Environment.TickCount;
-                }
-            }
-
-            if (xSLxOrbwalker.IsAutoAttack(args.SData.Name) && args.Target.IsMe && Player.Distance(args.End) < 450)
-            {
-                if (menu.Item("W_Incoming").GetValue<bool>() ||
-                    (menu.Item("ComboActive").GetValue<KeyBind>().Active && E.IsReady() && menu.Item("UseWCombo").GetValue<bool>()) ||
-                    (menu.Item("HarassActive").GetValue<KeyBind>().Active && menu.Item("UseWHarass").GetValue<bool>()))
-                {
-                    if (!menu.Item("W_minion").GetValue<bool>() && !(unit is Obj_AI_Hero))
-                        return;
-
-                        W.Cast(packets());
                 }
             }
         }
