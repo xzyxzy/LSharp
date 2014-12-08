@@ -267,7 +267,7 @@ namespace xSaliceReligionAIO.Champions
 
                     if (menu.Item("Prioritize_Q").GetValue<bool>())
                     {
-                        if (useQ)
+                        if (useQ && W.LastCastAttemptT - Environment.TickCount > Game.Ping)
                             Cast_Q();
 
                         if (HasEnergy(false, W.IsReady() && useW, E.IsReady() && useE))
@@ -283,7 +283,7 @@ namespace xSaliceReligionAIO.Champions
                             if (useW)
                                 Cast_W("Combo", useQ, useE);
                         }
-                        if (useQ)
+                        if (useQ && (!W.IsReady() || wSpell.ToggleState == 2))
                         {
                             Cast_Q();
                         }
@@ -381,7 +381,7 @@ namespace xSaliceReligionAIO.Champions
 
                     if (menu.Item("Prioritize_Q").GetValue<bool>())
                     {
-                        if (useQ)
+                        if (useQ && W.LastCastAttemptT - Environment.TickCount > Game.Ping)
                             Cast_Q();
 
                         if (HasEnergy(false, W.IsReady() && useW, E.IsReady() && useE))
@@ -397,7 +397,7 @@ namespace xSaliceReligionAIO.Champions
                             if (useW)
                                 Cast_W("Combo", useQ, useE);
                         }
-                        if (useQ)
+                        if (useQ && (!W.IsReady() || wSpell.ToggleState == 2))
                         {
                             Cast_Q();
                         }
