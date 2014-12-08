@@ -505,7 +505,7 @@ namespace xSaliceReligionAIO.Champions
                 }
             }
 
-            if (xSLxOrbwalker.IsAutoAttack(args.SData.Name) && args.Target.IsMe && Player.Distance(args.End) < 450)
+            if (xSLxOrbwalker.IsAutoAttack(args.SData.Name) && args.Target.IsMe)
             {
                 if (menu.Item("W_Incoming").GetValue<bool>() ||
                     (menu.Item("ComboActive").GetValue<KeyBind>().Active && E.IsReady() &&menu.Item("UseWCombo").GetValue<bool>()) ||
