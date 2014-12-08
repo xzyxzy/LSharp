@@ -514,7 +514,7 @@ namespace xSaliceReligionAIO.Champions
                 {
                     if (!menu.Item("W_minion").GetValue<bool>())
                         if(unit.Type == GameObjectType.obj_AI_Minion)
-                        return;
+                            return;
 
                         W.Cast(packets());
                 }
