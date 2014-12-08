@@ -512,7 +512,8 @@ namespace xSaliceReligionAIO.Champions
                      menu.Item("UseWCombo").GetValue<bool>()) ||
                     (menu.Item("HarassActive").GetValue<KeyBind>().Active && menu.Item("UseWHarass").GetValue<bool>()))
                 {
-                    if (!menu.Item("W_minion").GetValue<bool>() && !(unit is Obj_AI_Hero))
+                    if (!menu.Item("W_minion").GetValue<bool>())
+                        if(unit.Type == GameObjectType.obj_AI_Minion)
                         return;
 
                         W.Cast(packets());
