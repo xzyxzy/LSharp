@@ -513,7 +513,8 @@ namespace xSaliceReligionAIO.Champions
                 {
                     if (!menu.Item("W_minion").GetValue<bool>() && unit.Type == GameObjectType.obj_AI_Minion)
                         return;
-                    Game.PrintChat("RAWR");
+
+                    Game.PrintChat("RAWR " + args.SData.Name);
                     W.Cast(packets());
                 }
             }
