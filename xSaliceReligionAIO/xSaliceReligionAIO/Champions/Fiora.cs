@@ -505,17 +505,16 @@ namespace xSaliceReligionAIO.Champions
                 }
             }
 
-            if (Player.Distance(args.End) < 450)
+            if (xSLxOrbwalker.IsAutoAttack(args.SData.Name) && args.Target.IsMe && Player.Distance(args.End) < 450)
             {
                 if (menu.Item("W_Incoming").GetValue<bool>() ||
-                    (menu.Item("ComboActive").GetValue<KeyBind>().Active && E.IsReady() &&menu.Item("UseWCombo").GetValue<bool>()) ||
+                    (menu.Item("ComboActive").GetValue<KeyBind>().Active && E.IsReady() && menu.Item("UseWCombo").GetValue<bool>()) ||
                     (menu.Item("HarassActive").GetValue<KeyBind>().Active && menu.Item("UseWHarass").GetValue<bool>()))
                 {
-                    if (!menu.Item("W_minion").GetValue<bool>() && unit.Type == GameObjectType.obj_AI_Minion)
+                    if (!menu.Item("W_minion").GetValue<bool>() && !(unit is Obj_AI_Hero))
                         return;
 
-                    Game.PrintChat("RAWR " + args.SData.Name);
-                    W.Cast(packets());
+                        W.Cast(packets());
                 }
             }
         }
