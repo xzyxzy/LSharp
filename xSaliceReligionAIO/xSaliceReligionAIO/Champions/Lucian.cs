@@ -250,10 +250,10 @@ namespace xSaliceReligionAIO.Champions
             if (Player.Distance(Game.CursorPos) < E.Range & Player.Distance(Game.CursorPos) > 150)
                 vec = Game.CursorPos;
 
-            if (countEnemiesNearPosition(vec, 500) > 3 && countAlliesNearPosition(vec, 400) < 3)
+            if (countEnemiesNearPosition(vec, 500) >= 3 && countAlliesNearPosition(vec, 400) < 3)
                 return;
 
-            if (GetHealthPercent(Player) < 10)
+            if (GetHealthPercent(Player) < 20)
                 return;
 
             if (vec.Distance(target.ServerPosition) < Player.AttackRange)
