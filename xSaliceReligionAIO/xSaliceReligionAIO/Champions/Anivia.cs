@@ -421,7 +421,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 if (ShouldDetonate(enemy) && Environment.TickCount - Q.LastCastAttemptT > Game.Ping)
                 {
-                    Q.Cast();
+                    Q.Cast(_qMissle.Position);
                 }
             }
         }
