@@ -685,13 +685,11 @@ namespace xSaliceReligionAIO.Champions
             {
                 E.UpdateSourcePosition(WShadow.ServerPosition, WShadow.ServerPosition);
                 E.Cast(target, packets());
-                return;
             }
             if (RShadow != null && _currentRShadow != Vector3.Zero)
             {
                 E.UpdateSourcePosition(RShadow.ServerPosition, RShadow.ServerPosition);
                 E.Cast(target, packets());
-                return;
             }
 
             E.UpdateSourcePosition(Player.ServerPosition, Player.ServerPosition);
