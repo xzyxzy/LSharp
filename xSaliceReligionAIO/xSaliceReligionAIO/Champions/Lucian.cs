@@ -254,7 +254,7 @@ namespace xSaliceReligionAIO.Champions
             if (countEnemiesNearPosition(vec, 500) >= 3 && countAlliesNearPosition(vec, 400) < 3)
                 return;
 
-            if (GetHealthPercent(Player) < menu.Item("E_If_HP").GetValue<Slider>().Value)
+            if (GetHealthPercent(Player) <= menu.Item("E_If_HP").GetValue<Slider>().Value)
                 return;
 
             if (vec.Distance(target.ServerPosition) < Player.AttackRange)
