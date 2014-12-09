@@ -200,7 +200,7 @@ namespace xSaliceReligionAIO.Champions
             if (Ignite_Ready())
                 comboDamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
 
-            return (float)(comboDamage + Player.GetAutoAttackDamage(target) * 4);
+            return (float)(comboDamage + Player.GetAutoAttackDamage(target) * 2);
         }
 
         private double CalcPassive(Obj_AI_Base target)

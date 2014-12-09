@@ -24,10 +24,16 @@ namespace xSaliceReligionAIO
             GameObject.OnDelete += GameObject_OnDelete;
 
             if (menu.Item("Orbwalker_Mode").GetValue<bool>())
+            {
                 Orbwalking.AfterAttack += AfterAttack;
+                Orbwalking.BeforeAttack += BeforeAttack;
+            }
             else
+            {
                 xSLxOrbwalker.AfterAttack += AfterAttack;
-            
+                xSLxOrbwalker.BeforeAttack += BeforeAttack;
+            }
+
         }
 
         public Champion(bool load)
@@ -246,7 +252,7 @@ namespace xSaliceReligionAIO
         }
         public bool IsRecalling()
         {
-            return Player.HasBuff("recall", true);
+            return Player.HasBuff("Recall");
         }
 
         public PredictionOutput GetP(Vector3 pos, Spell spell, Obj_AI_Base target, float delay, bool aoe)
@@ -521,6 +527,16 @@ namespace xSaliceReligionAIO
         }
 
         public virtual void AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        {
+            //for champ use
+        }
+
+        public virtual void BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
+        {
+            //for champ use
+        }
+
+        public virtual void BeforeAttack(xSLxOrbwalker.BeforeAttackEventArgs args)
         {
             //for champ use
         }
