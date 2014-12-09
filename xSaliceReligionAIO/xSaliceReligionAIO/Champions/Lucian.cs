@@ -249,7 +249,7 @@ namespace xSaliceReligionAIO.Champions
 
             Vector3 vec = Player.ServerPosition + Vector3.Normalize(Game.CursorPos - Player.ServerPosition) * E.Range;
 
-            if (Player.Distance(Game.CursorPos) < E.Range)
+            if (Player.Distance(Game.CursorPos) < E.Range & Player.Distance(Game.CursorPos) > 150)
                 vec = Game.CursorPos;
 
             if (countEnemiesNearPosition(vec, 500) > 3 && countAlliesNearPosition(vec, 400) < 3)
