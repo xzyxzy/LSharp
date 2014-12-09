@@ -79,6 +79,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 misc.AddItem(new MenuItem("CheckPassive", "Smart Passive").SetValue(true));
                 misc.AddItem(new MenuItem("smartKS", "Use Smart KS System").SetValue(true));
+                misc.AddItem(new MenuItem("E_If_HP", "Do not E If HP <=").SetValue(new Slider(20)));
                 //add to menu
                 menu.AddSubMenu(misc);
             }
@@ -253,7 +254,7 @@ namespace xSaliceReligionAIO.Champions
             if (countEnemiesNearPosition(vec, 500) >= 3 && countAlliesNearPosition(vec, 400) < 3)
                 return;
 
-            if (GetHealthPercent(Player) < 20)
+            if (GetHealthPercent(Player) < menu.Item("E_If_HP").GetValue<Slider>().Value)
                 return;
 
             if (vec.Distance(target.ServerPosition) < Player.AttackRange)
