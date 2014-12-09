@@ -208,8 +208,8 @@ namespace xSaliceReligionAIO.Champions
             if (target != null && target.IsValidTarget(Q.Range))
             {
                 Q.CastOnUnit(target, packets());
-                Orbwalking.ResetAutoAttackTimer();
-                xSLxOrbwalker.ResetAutoAttackTimer();
+                Utility.DelayAction.Add(25, Orbwalking.ResetAutoAttackTimer);
+                Utility.DelayAction.Add(25, xSLxOrbwalker.ResetAutoAttackTimer);
                 Utility.DelayAction.Add(50, () => Player.IssueOrder(GameObjectOrder.AttackTo, target.ServerPosition));
                 return;
             }
