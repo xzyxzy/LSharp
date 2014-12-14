@@ -353,7 +353,7 @@ namespace xSaliceReligionAIO
         public static double GetAzirAASandwarriorDamage(Obj_AI_Base unit)
         {
             var damagelist = new List<int> { 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 160, 170 };
-            var dmg = damagelist[MyHero.Level - 1] + (MyHero.BaseAbilityDamage * 0.7);
+            var dmg = damagelist[MyHero.Level - 1] + (MyHero.BaseAbilityDamage * 0.6);
             if (
                 ObjectManager.Get<Obj_AI_Minion>()
                     .Count(
