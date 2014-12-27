@@ -19,15 +19,15 @@ namespace xSaliceReligionAIO
 
         public static Menu Menu;
         public static Obj_AI_Hero MyHero = ObjectManager.Player;
-        public static Obj_AI_Base ForcedTarget = null;
+        public static AttackableUnit ForcedTarget = null;
         public static IEnumerable<Obj_AI_Hero> AllEnemys = ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy);
         public static IEnumerable<Obj_AI_Hero> AllAllys = ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly);
         public static bool CustomOrbwalkMode;
 
         public delegate void BeforeAttackEvenH(BeforeAttackEventArgs args);
-        public delegate void OnTargetChangeH(Obj_AI_Base oldTarget, Obj_AI_Base newTarget);
-        public delegate void AfterAttackEvenH(Obj_AI_Base unit, Obj_AI_Base target);
-        public delegate void OnAttackEvenH(Obj_AI_Base unit, Obj_AI_Base target);
+        public delegate void OnTargetChangeH(AttackableUnit oldTarget, AttackableUnit newTarget);
+        public delegate void AfterAttackEvenH(AttackableUnit unit, AttackableUnit target);
+        public delegate void OnAttackEvenH(AttackableUnit unit, AttackableUnit target);
 
         public static event BeforeAttackEvenH BeforeAttack;
         public static event OnTargetChangeH OnTargetChange;
@@ -51,7 +51,7 @@ namespace xSaliceReligionAIO
         private static bool _disableNextAttack;
         private const float LaneClearWaitTimeMod = 2f;
         private static int _lastAATick;
-        private static Obj_AI_Base _lastTarget;
+        private static AttackableUnit _lastTarget;
         private static Spell _movementPrediction;
         private static int _lastMovement;
         private static int _windup;
@@ -237,8 +237,10 @@ namespace xSaliceReligionAIO
             }
         }
 
-        public static void Orbwalk(Vector3 goalPosition, Obj_AI_Base target)
+        public static void Orbwalk(Vector3 goalPosition, AttackableUnit mytarget)
         {
+            var target = (Obj_AI_Base) mytarget;
+
             if (target != null && (CanAttack() || HaveCancled()) && IsAllowedToAttack())
             {
                 _disableNextAttack = false;
@@ -324,6 +326,7 @@ namespace xSaliceReligionAIO
 
         private static void OnProcessSpell(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs spell)
         {
+
             if (IsAutoAttackReset(spell.SData.Name) && unit.IsMe)
                 Utility.DelayAction.Add(100, ResetAutoAttackTimer);
 
@@ -333,10 +336,10 @@ namespace xSaliceReligionAIO
             {
                 _lastAATick = Environment.TickCount - Game.Ping / 2; // need test todo
                 // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
-                if (spell.Target is Obj_AI_Base)
+                if (spell.Target is AttackableUnit)
                 {
-                    FireOnTargetSwitch((Obj_AI_Base)spell.Target);
-                    _lastTarget = (Obj_AI_Base)spell.Target;
+                    FireOnTargetSwitch((AttackableUnit)spell.Target);
+                    _lastTarget = (AttackableUnit)spell.Target;
                 }
                 if (unit.IsMelee())
                     Utility.DelayAction.Add(
@@ -346,12 +349,13 @@ namespace xSaliceReligionAIO
             }
             else
             {
-                FireOnAttack(unit, (Obj_AI_Base)spell.Target);
+                FireOnAttack(unit, (AttackableUnit)spell.Target);
             }
         }
 
-        public static double GetAzirAASandwarriorDamage(Obj_AI_Base unit)
+        public static double GetAzirAASandwarriorDamage(AttackableUnit target)
         {
+            var unit = (Obj_AI_Base)target;
             var damagelist = new List<int> { 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 160, 170 };
             var dmg = damagelist[MyHero.Level - 1] + (MyHero.BaseAbilityDamage * 0.6);
             if (
@@ -365,12 +369,12 @@ namespace xSaliceReligionAIO
             return MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg);
         }
 
-        public static bool InSoldierAttackRange(Obj_AI_Base target)
+        public static bool InSoldierAttackRange(AttackableUnit target)
         {
             return target != null && ObjectManager.Get<Obj_AI_Minion>().Any(obj => obj.Name == "AzirSoldier" && obj.IsAlly && obj.BoundingRadius < 66 && obj.AttackSpeedMod > 1 && obj.Distance(target) < 380);
         }
 
-        public static Obj_AI_Base GetPossibleTarget()
+        public static AttackableUnit GetPossibleTarget()
         {
             if (ForcedTarget != null)
             {
@@ -380,7 +384,7 @@ namespace xSaliceReligionAIO
             }
 
 
-            Obj_AI_Base tempTarget = null;
+            AttackableUnit tempTarget = null;
 
             if (Menu.Item("orb_Misc_Priority_Unit").GetValue<StringList>().SelectedIndex == 1 &&
                 (CurrentMode == Mode.Harass || CurrentMode == Mode.LaneClear))
@@ -575,7 +579,7 @@ namespace xSaliceReligionAIO
             return Menu.Item("orb_Misc_Farmdelay").GetValue<Slider>().Value + ret;
         }
 
-        private static Obj_AI_Base GetBestHeroTarget()
+        private static AttackableUnit GetBestHeroTarget()
         {
             Obj_AI_Hero killableEnemy = null;
             var hitsToKill = double.MaxValue;
@@ -607,7 +611,7 @@ namespace xSaliceReligionAIO
                 hitsToKill = killHits;
                 killableEnemy = enemy;
             }
-            return hitsToKill <= 3 ? killableEnemy : SimpleTs.GetTarget(GetAutoAttackRange(), SimpleTs.DamageType.Physical);
+            return hitsToKill <= 3 ? killableEnemy : TargetSelector.GetTarget(GetAutoAttackRange(), TargetSelector.DamageType.Physical);
         }
 
         public static double CountKillhits(Obj_AI_Base enemy)
@@ -615,7 +619,7 @@ namespace xSaliceReligionAIO
             return enemy.Health / MyHero.GetAutoAttackDamage(enemy);
         }
 
-        public static double CountKillhitsAzirSoldier(Obj_AI_Base enemy)
+        public static double CountKillhitsAzirSoldier(AttackableUnit enemy)
         {
             return enemy.Health / GetAzirAASandwarriorDamage(enemy);
         }
@@ -656,7 +660,7 @@ namespace xSaliceReligionAIO
             _drawing = false;
         }
 
-        public static float GetAutoAttackRange(Obj_AI_Base source = null, Obj_AI_Base target = null)
+        public static float GetAutoAttackRange(Obj_AI_Base source = null, AttackableUnit target = null)
         {
             if (source == null)
                 source = MyHero;
@@ -666,7 +670,7 @@ namespace xSaliceReligionAIO
             return ret;
         }
 
-        public static bool InAutoAttackRange(Obj_AI_Base target)
+        public static bool InAutoAttackRange(AttackableUnit target)
         {
             if (target == null)
                 return false;
@@ -714,8 +718,8 @@ namespace xSaliceReligionAIO
 
         public class BeforeAttackEventArgs
         {
-            public Obj_AI_Base Target;
-            public Obj_AI_Base Unit = ObjectManager.Player;
+            public AttackableUnit Target;
+            public AttackableUnit Unit = ObjectManager.Player;
             private bool _process = true;
             public bool Process
             {
@@ -730,7 +734,7 @@ namespace xSaliceReligionAIO
                 }
             }
         }
-        private static void FireBeforeAttack(Obj_AI_Base target)
+        private static void FireBeforeAttack(AttackableUnit target)
         {
             if (BeforeAttack != null)
             {
@@ -745,7 +749,7 @@ namespace xSaliceReligionAIO
             }
         }
 
-        private static void FireOnTargetSwitch(Obj_AI_Base newTarget)
+        private static void FireOnTargetSwitch(AttackableUnit newTarget)
         {
             if (OnTargetChange != null && (_lastTarget == null || _lastTarget.NetworkId != newTarget.NetworkId))
             {
@@ -753,7 +757,7 @@ namespace xSaliceReligionAIO
             }
         }
 
-        private static void FireAfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        private static void FireAfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             if (AfterAttack != null)
             {
@@ -761,7 +765,7 @@ namespace xSaliceReligionAIO
             }
         }
 
-        private static void FireOnAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        private static void FireOnAttack(AttackableUnit unit, AttackableUnit target)
         {
             if (OnAttack != null)
             {

@@ -241,8 +241,8 @@ namespace xSaliceReligionAIO.Champions
         private void Combo(bool useQ, bool useW, bool useE, bool useR)
         {
             int mode = menu.Item("Combo_mode").GetValue<StringList>().SelectedIndex;
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
-            var target = SimpleTs.GetTarget(Q.Range + W.Range, SimpleTs.DamageType.Physical);
+            var qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
+            var target = TargetSelector.GetTarget(Q.Range + W.Range, TargetSelector.DamageType.Physical);
             
             switch (mode)
             {
@@ -423,7 +423,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void CoaxCombo(bool useQ, bool useE)
         {
-            var target = SimpleTs.GetTarget(W.Range + Q.Range, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(W.Range + Q.Range, TargetSelector.DamageType.Physical);
 
             if (target == null)
                 return;
@@ -469,7 +469,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void LineCombo(bool useQ, bool useE)
         {
-            var target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
             if (target == null)
                 return;
 
@@ -620,8 +620,8 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_Q(Obj_AI_Hero forceTarget = null)
         {
-            var target = SimpleTs.GetTarget(Q.Range + W.Range, SimpleTs.DamageType.Physical);
-            var qTarget = SimpleTs.GetTarget(Q.Range - 50, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(Q.Range + W.Range, TargetSelector.DamageType.Physical);
+            var qTarget = TargetSelector.GetTarget(Q.Range - 50, TargetSelector.DamageType.Physical);
 
             float range = W.Range + Q.Range;
             if (GetTargetFocus(range) != null)
@@ -664,7 +664,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_E(Obj_AI_Hero forceTarget = null)
         {
-            var target = SimpleTs.GetTarget(E.Range + W.Range, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(E.Range + W.Range, TargetSelector.DamageType.Physical);
 
             float range = E.Range + W.Range;
             if (GetTargetFocus(range) != null)
@@ -702,7 +702,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_W(string source, bool useQ, bool useE)
         {
-            var target = SimpleTs.GetTarget(Q.Range + W.Range - 100, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(Q.Range + W.Range - 100, TargetSelector.DamageType.Physical);
 
             float range = Q.Range + W.Range - 100;
             if (GetTargetFocus(range) != null)
@@ -1009,7 +1009,7 @@ namespace xSaliceReligionAIO.Champions
 
         public override void GameObject_OnCreate(GameObject sender, EventArgs args)
         {
-            if (!(sender is Obj_GeneralParticleEmmiter))
+            if (!(sender is Obj_GeneralParticleEmitter))
                 return;
 
             if (sender.Name == "Zed_Base_W_cloneswap_buf.troy")
@@ -1033,7 +1033,7 @@ namespace xSaliceReligionAIO.Champions
 
         public override void GameObject_OnDelete(GameObject sender, EventArgs args)
         {
-            if (!(sender is Obj_GeneralParticleEmmiter))
+            if (!(sender is Obj_GeneralParticleEmitter))
                 return;
             
             if (sender.Name == "Zed_Clone_idle.troy" && _currentWShadow != Vector3.Zero && WShadow.Distance(sender.Position) < 100)

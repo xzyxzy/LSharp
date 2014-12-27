@@ -211,13 +211,13 @@ namespace xSaliceReligionAIO.Champions
         private void UseSpells(bool useQ, bool useW, bool useE, bool useR, string source)
         {
             var range = Q.Range;
-            Obj_AI_Hero eTarget = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero eTarget = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
 
 
             if (GetTargetFocus(range) != null)
                 eTarget = GetTargetFocus(range);
 
-            Obj_AI_Hero rETarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero rETarget = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
 
             int igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
 
@@ -378,7 +378,7 @@ namespace xSaliceReligionAIO.Champions
 
                     //ignite
                     if (menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                        Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
+                        Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
                         Player.Distance(target.ServerPosition) <= 600)
                     {
                         if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)

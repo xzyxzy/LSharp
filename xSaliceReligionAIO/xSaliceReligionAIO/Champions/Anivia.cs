@@ -179,7 +179,7 @@ namespace xSaliceReligionAIO.Champions
             else if (E.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
-            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
 
             if (R.IsReady())
@@ -204,10 +204,10 @@ namespace xSaliceReligionAIO.Champions
         {
             var range = Q.IsReady() ? Q.Range : W.Range;
             var focusSelected = menu.Item("selected").GetValue<bool>();
-            Obj_AI_Hero target = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
-            if (SimpleTs.GetSelectedTarget() != null)
-                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range)
-                    target = SimpleTs.GetSelectedTarget();
+            Obj_AI_Hero target = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
+            if (TargetSelector.GetSelectedTarget() != null)
+                if (focusSelected && TargetSelector.GetSelectedTarget().Distance(Player.ServerPosition) < range)
+                    target = TargetSelector.GetSelectedTarget();
 
             int igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
 
@@ -234,7 +234,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 if (igniteMode == 0 && dmg > target.Health)
                 {
-                    Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                    Player.Spellbook.CastSpell(IgniteSlot, target);
                 }
             }
 
@@ -311,7 +311,7 @@ namespace xSaliceReligionAIO.Champions
                     int igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
                     if (igniteMode == 1 && Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)
                     {
-                        Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                        Player.Spellbook.CastSpell(IgniteSlot, target);
                     }
                 }
             }
@@ -445,11 +445,11 @@ namespace xSaliceReligionAIO.Champions
             var range = Q.Range;
             var focusSelected = menu.Item("selected").GetValue<bool>();
 
-            Obj_AI_Hero qTarget = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero qTarget = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
 
-            if (SimpleTs.GetSelectedTarget() != null)
-                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range)
-                    qTarget = SimpleTs.GetSelectedTarget();
+            if (TargetSelector.GetSelectedTarget() != null)
+                if (focusSelected && TargetSelector.GetSelectedTarget().Distance(Player.ServerPosition) < range)
+                    qTarget = TargetSelector.GetSelectedTarget();
 
             Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
 

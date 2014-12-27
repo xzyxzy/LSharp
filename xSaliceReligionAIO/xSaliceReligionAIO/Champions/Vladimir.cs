@@ -150,7 +150,7 @@ namespace xSaliceReligionAIO.Champions
         private void UseSpells(bool useQ, bool useE, bool useR)
         {
             int igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
-            Obj_AI_Hero target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
             
             var range = Q.Range;
             if (GetTargetFocus(range) != null)

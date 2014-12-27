@@ -141,20 +141,22 @@ namespace xSaliceReligionAIO.Champions
             if (source == "Harass" && !HasMana("Harass"))
                 return;
 
-            var target = SimpleTs.GetTarget(550, SimpleTs.DamageType.Magical);
+            var target = TargetSelector.GetTarget(550, TargetSelector.DamageType.Magical);
             if ((target != null && source == "Combo") && menu.Item("Always_Use").GetValue<bool>())
                 return;
 
             if(useR && R.IsReady())
                 Cast_R(source);
             if(useQ && Q.IsReady())
-                CastBasicSkillShot(Q, Q.Range, SimpleTs.DamageType.Magical, GetHitchance(source));
+                CastBasicSkillShot(Q, Q.Range, TargetSelector.DamageType.Magical, GetHitchance(source));
             if(useE && E.IsReady())
-                CastBasicSkillShot(E, E.Range, SimpleTs.DamageType.Physical, HitChance.Low);
+                CastBasicSkillShot(E, E.Range, TargetSelector.DamageType.Physical, HitChance.Low);
         }
 
-        public override void AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        public override void AfterAttack(AttackableUnit unit, AttackableUnit mytarget)
         {
+            var target = (Obj_AI_Base)mytarget;
+
             if (!menu.Item("ComboActive").GetValue<KeyBind>().Active || !unit.IsMe || !(target is Obj_AI_Hero))
                 return;
 
@@ -193,9 +195,9 @@ namespace xSaliceReligionAIO.Champions
             var range = Player.HasBuff("CorkiMissileBarrageCounterBig") ? 1500 : 1300;
 
             if (mode == "Combo" && menu.Item("ComboR_Limit").GetValue<Slider>().Value < Player.Spellbook.GetSpell(SpellSlot.R).Ammo)
-                CastBasicSkillShot(R, range, SimpleTs.DamageType.Magical, GetHitchance(mode));
+                CastBasicSkillShot(R, range, TargetSelector.DamageType.Magical, GetHitchance(mode));
             else if (mode == "Harass" && menu.Item("HarassR_Limit").GetValue<Slider>().Value < Player.Spellbook.GetSpell(SpellSlot.R).Ammo)
-                CastBasicSkillShot(R, range, SimpleTs.DamageType.Magical, GetHitchance(mode));
+                CastBasicSkillShot(R, range, TargetSelector.DamageType.Magical, GetHitchance(mode));
             else if (mode == "Farm" && menu.Item("LaneClearR_Limit").GetValue<Slider>().Value < Player.Spellbook.GetSpell(SpellSlot.R).Ammo)
                 CastBasicFarm(R);
         }

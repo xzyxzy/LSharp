@@ -52,11 +52,16 @@ namespace xSaliceReligionAIO
         //Spells
         public List<Spell> SpellList = new List<Spell>();
 
+        public Spell P;
         public Spell Q;
+        public Spell Q2;
         public Spell QExtend;
         public Spell W;
+        public Spell W2;
         public Spell E;
+        public Spell E2;
         public Spell R;
+        public Spell R2;
         public Spell _r2;
         public SpellDataInst qSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q);
         public SpellDataInst eSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E);
@@ -98,7 +103,7 @@ namespace xSaliceReligionAIO
 
             //Target selector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
-            SimpleTs.AddToMenu(targetSelectorMenu);
+            TargetSelector.AddToMenu(targetSelectorMenu);
             menu.AddSubMenu(targetSelectorMenu);
 
             //Orbwalker submenu
@@ -175,13 +180,13 @@ namespace xSaliceReligionAIO
         public void Use_Ignite(Obj_AI_Hero target)
         {
             if (target != null && IgniteSlot != SpellSlot.Unknown &&
-                    Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Player.Distance(target) < 650)
-                Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                    Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Player.Distance(target) < 650)
+                Player.Spellbook.CastSpell(IgniteSlot, target);
         }
 
         public bool Ignite_Ready()
         {
-            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 return true;
             return false;
         }
@@ -368,9 +373,9 @@ namespace xSaliceReligionAIO
             return new object[3] { pointSegment, pointLine, isOnSegment };
         }
 
-        public void CastBasicSkillShot(Spell spell, float range, SimpleTs.DamageType type, HitChance hitChance)
+        public void CastBasicSkillShot(Spell spell, float range, TargetSelector.DamageType type, HitChance hitChance)
         {
-            var target = SimpleTs.GetTarget(range, type);
+            var target = TargetSelector.GetTarget(range, type);
 
             if (target == null || !spell.IsReady())
                 return;
@@ -413,11 +418,11 @@ namespace xSaliceReligionAIO
         {
             var focusSelected = menu.Item("selected").GetValue<bool>();
 
-            if (SimpleTs.GetSelectedTarget() != null)
-                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range + 100 && SimpleTs.GetSelectedTarget().Type == GameObjectType.obj_AI_Hero)
+            if (TargetSelector.GetSelectedTarget() != null)
+                if (focusSelected && TargetSelector.GetSelectedTarget().Distance(Player.ServerPosition) < range + 100 && TargetSelector.GetSelectedTarget().Type == GameObjectType.obj_AI_Hero)
                 {
-                    //Game.PrintChat("Focusing: " + SimpleTs.GetSelectedTarget().Name);
-                    return SimpleTs.GetSelectedTarget();
+                    //Game.PrintChat("Focusing: " + TargetSelector.GetSelectedTarget().Name);
+                    return TargetSelector.GetSelectedTarget();
                 }
             return null;
         }
@@ -526,7 +531,7 @@ namespace xSaliceReligionAIO
             //for champ use
         }
 
-        public virtual void AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        public virtual void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             //for champ use
         }

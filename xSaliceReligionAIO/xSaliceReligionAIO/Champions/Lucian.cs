@@ -167,7 +167,7 @@ namespace xSaliceReligionAIO.Champions
             if (source == "Harass" && !HasMana("Harass"))
                 return;
 
-            var target = SimpleTs.GetTarget(450, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(450, TargetSelector.DamageType.Physical);
 
             if (target != null)
             {
@@ -197,7 +197,7 @@ namespace xSaliceReligionAIO.Champions
             if (!Q.IsReady() || !PassiveCheck())
                 return;
 
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
 
             if (forceTarget != null)
                 target = forceTarget;
@@ -211,7 +211,7 @@ namespace xSaliceReligionAIO.Champions
                 return;
             }
 
-            target = SimpleTs.GetTarget(QExtend.Range, SimpleTs.DamageType.Physical);
+            target = TargetSelector.GetTarget(QExtend.Range, TargetSelector.DamageType.Physical);
 
             if (forceTarget != null)
                 target = forceTarget;
@@ -233,7 +233,7 @@ namespace xSaliceReligionAIO.Champions
             if (!W.IsReady() || !PassiveCheck())
                 return;
 
-            CastBasicSkillShot(W, W.Range, SimpleTs.DamageType.Magical, HitChance.Medium);
+            CastBasicSkillShot(W, W.Range, TargetSelector.DamageType.Magical, HitChance.Medium);
         }
 
         private void Cast_E()
@@ -241,7 +241,7 @@ namespace xSaliceReligionAIO.Champions
             if (!E.IsReady() || !PassiveCheck())
                 return;
 
-            var target = SimpleTs.GetTarget(E.Range + Player.AttackRange, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(E.Range + Player.AttackRange, TargetSelector.DamageType.Physical);
 
             if (target == null)
                 return;
@@ -269,7 +269,7 @@ namespace xSaliceReligionAIO.Champions
             if (!R.IsReady())
                 return;
 
-            var target = SimpleTs.GetTarget(E.Range + Player.AttackRange, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(E.Range + Player.AttackRange, TargetSelector.DamageType.Physical);
 
             if (target == null)
                 return;

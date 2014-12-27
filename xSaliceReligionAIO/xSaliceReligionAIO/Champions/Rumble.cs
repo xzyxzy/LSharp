@@ -184,7 +184,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void UseSpells(bool useQ, bool useW, bool useE, bool useR, string source)
         {
-            var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+            var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
 
             if (target == null)
                 return;
@@ -317,7 +317,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void CastSingleR()
         {
-            var target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
+            var target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
 
             if (target == null)
                 return;
@@ -517,7 +517,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 if (countEnemiesNearPosition(Player.ServerPosition, R.Range + 500) < 2)
                 {
-                    var target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
+                    var target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
 
                     if (target == null)
                         return;

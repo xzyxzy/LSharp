@@ -160,7 +160,7 @@ namespace xSaliceReligionAIO.Champions
             if (DFG.IsReady())
                 damage = damage * 1.2;
 
-            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 damage += Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
 
             return (float)damage;
@@ -180,7 +180,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Combo(bool useQ, bool useW, bool useE, bool useR)
         {
-            Obj_AI_Hero target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
 
             int mode = menu.Item("comboMode").GetValue<StringList>().SelectedIndex;
             int igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
@@ -246,11 +246,11 @@ namespace xSaliceReligionAIO.Champions
 
                 //Ignite
                 if (menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                    Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+                    Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 {
                     if (igniteMode == 0 && GetComboDamage(target) > target.Health)
                     {
-                        Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                        Player.Spellbook.CastSpell(IgniteSlot, target);
                     }
                 }
 
@@ -270,10 +270,10 @@ namespace xSaliceReligionAIO.Champions
 
         private void Harass(bool useQ, bool useW, bool useE)
         {
-            Obj_AI_Hero qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            Obj_AI_Hero wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
-            Obj_AI_Hero eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
-            SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
+            Obj_AI_Hero wTarget = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Magical);
+            Obj_AI_Hero eTarget = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
+            TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
 
             int mode = menu.Item("harassMode").GetValue<StringList>().SelectedIndex;
 
@@ -555,12 +555,12 @@ namespace xSaliceReligionAIO.Champions
 
                     //ignite
                     if (menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                        Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
+                        Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
                         Player.Distance(target.ServerPosition) <= 600)
                     {
                         if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health)
                         {
-                            Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                            Player.Spellbook.CastSpell(IgniteSlot, target);
                         }
                     }
                 }
@@ -652,7 +652,7 @@ namespace xSaliceReligionAIO.Champions
                     InventorySlot invSlot = FindBestWardItem();
                     if (invSlot == null) return;
 
-                    invSlot.UseItem(position);
+                    Player.Spellbook.CastSpell(invSlot.SpellSlot, position);
                     lastWardPos = position;
                     lastPlaced = Environment.TickCount;
                 }

@@ -171,7 +171,7 @@ namespace xSaliceReligionAIO.Champions
             if (E.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
-            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
 
             if (R.IsReady())
@@ -264,12 +264,12 @@ namespace xSaliceReligionAIO.Champions
             var range = R.IsReady() ? R.Range : Q.Range;
             var focusSelected = menu.Item("selected").GetValue<bool>();
 
-            Obj_AI_Hero target = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
-            if (SimpleTs.GetSelectedTarget() != null)
-                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range)
-                    target = SimpleTs.GetSelectedTarget();
+            Obj_AI_Hero target = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
+            if (TargetSelector.GetSelectedTarget() != null)
+                if (focusSelected && TargetSelector.GetSelectedTarget().Distance(Player.ServerPosition) < range)
+                    target = TargetSelector.GetSelectedTarget();
 
-            Obj_AI_Hero qDummyTarget = SimpleTs.GetTarget(_qDummy.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero qDummyTarget = TargetSelector.GetTarget(_qDummy.Range, TargetSelector.DamageType.Magical);
 
             if (target == null)
                 return;
@@ -299,7 +299,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 if (igniteMode == 0 && dmg > target.Health)
                 {
-                    Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                    Player.Spellbook.CastSpell(IgniteSlot, target);
                 }
             }
 
@@ -415,10 +415,10 @@ namespace xSaliceReligionAIO.Champions
             var range = R.IsReady() ? R.Range : Q.Range;
             var focusSelected = menu.Item("selected").GetValue<bool>();
 
-            Obj_AI_Hero target = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
-            if (SimpleTs.GetSelectedTarget() != null)
-                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range)
-                    target = SimpleTs.GetSelectedTarget();
+            Obj_AI_Hero target = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
+            if (TargetSelector.GetSelectedTarget() != null)
+                if (focusSelected && TargetSelector.GetSelectedTarget().Distance(Player.ServerPosition) < range)
+                    target = TargetSelector.GetSelectedTarget();
 
             _qSplit.From = _qMissle.Position;
             PredictionOutput pred = _qSplit.GetPrediction(target);
@@ -497,7 +497,7 @@ namespace xSaliceReligionAIO.Champions
                     int igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
                     if (igniteMode == 1 && Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)
                     {
-                        Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                        Player.Spellbook.CastSpell(IgniteSlot, target);
                     }
                 }
             }
@@ -513,10 +513,10 @@ namespace xSaliceReligionAIO.Champions
                 var range = R.IsReady() ? R.Range : Q.Range;
                 var focusSelected = menu.Item("selected").GetValue<bool>();
 
-                Obj_AI_Hero target = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
-                if (SimpleTs.GetSelectedTarget() != null)
-                    if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range)
-                        target = SimpleTs.GetSelectedTarget();
+                Obj_AI_Hero target = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
+                if (TargetSelector.GetSelectedTarget() != null)
+                    if (focusSelected && TargetSelector.GetSelectedTarget().Distance(Player.ServerPosition) < range)
+                        target = TargetSelector.GetSelectedTarget();
 
                 int aimMode = menu.Item("rAimer").GetValue<StringList>().SelectedIndex;
 

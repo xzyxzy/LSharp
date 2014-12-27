@@ -173,7 +173,7 @@ namespace xSaliceReligionAIO.Champions
             if (Items.CanUseItem(Botrk.Id))
                 comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Botrk);
 
-            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 comboDamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
 
             return (float)(comboDamage + Player.GetAutoAttackDamage(target) * 4);
@@ -212,7 +212,7 @@ namespace xSaliceReligionAIO.Champions
                 Cast_W();
             if (source == "Combo")
             {
-                var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+                var qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
                 if (qTarget != null)
                 {
                     if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>())
@@ -265,7 +265,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_Q()
         {
-            var target = SimpleTs.GetTarget(Q.Range * 2, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(Q.Range * 2, TargetSelector.DamageType.Physical);
 
             if (GetTargetFocus(Q.Range) != null)
                 target = GetTargetFocus(Q.Range);
@@ -370,7 +370,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_W()
         {
-            var target = SimpleTs.GetTarget(200, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(200, TargetSelector.DamageType.Physical);
 
             if (GetTargetFocus(200) != null)
                 target = GetTargetFocus(200);
@@ -383,7 +383,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_E()
         {
-            var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+            var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
 
             if (GetTargetFocus(E.Range) != null)
                 target = GetTargetFocus(E.Range);
@@ -416,8 +416,8 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_R()
         {
-            var target = SimpleTs.GetTarget(Player.Spellbook.GetSpell(SpellSlot.R).ToggleState == 1 ? Q.Range : R.Range,
-                SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(Player.Spellbook.GetSpell(SpellSlot.R).ToggleState == 1 ? Q.Range : R.Range,
+                TargetSelector.DamageType.Physical);
 
             var range = R.Range;
             if (GetTargetFocus(range) != null)

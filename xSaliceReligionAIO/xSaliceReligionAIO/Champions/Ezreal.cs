@@ -183,7 +183,7 @@ namespace xSaliceReligionAIO.Champions
             if (Items.CanUseItem(Botrk.Id))
                 comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Botrk);
 
-            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 comboDamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
 
             return (float)(comboDamage + Player.GetAutoAttackDamage(target) * 1);
@@ -207,12 +207,12 @@ namespace xSaliceReligionAIO.Champions
                 return;
 
             if (useQ)
-                CastBasicSkillShot(Q, Q.Range, SimpleTs.DamageType.Physical, HitChance.High);
+                CastBasicSkillShot(Q, Q.Range, TargetSelector.DamageType.Physical, HitChance.High);
             if (useW)
-                CastBasicSkillShot(W, W.Range, SimpleTs.DamageType.Magical, HitChance.High);
+                CastBasicSkillShot(W, W.Range, TargetSelector.DamageType.Magical, HitChance.High);
             if (source == "Combo")
             {
-                var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+                var qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
                 if (qTarget != null)
                 {
                     if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>())
@@ -248,7 +248,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_E()
         {
-            var target = SimpleTs.GetTarget(E.Range + 500, SimpleTs.DamageType.Magical);
+            var target = TargetSelector.GetTarget(E.Range + 500, TargetSelector.DamageType.Magical);
 
             if (E.IsReady() && target != null && menu.Item("E_On_Killable").GetValue<bool>())
             {
@@ -270,7 +270,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_R()
         {
-            var target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
+            var target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
 
             if (R.IsReady() && target != null)
             {
@@ -351,7 +351,7 @@ namespace xSaliceReligionAIO.Champions
 
         public void AutoQ()
         {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
 
             if (target != null)
             {
@@ -364,7 +364,7 @@ namespace xSaliceReligionAIO.Champions
 
         public void ForceR()
         {
-            var target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Magical);
+            var target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
             if (target != null && R.GetPrediction(target).Hitchance >= HitChance.High)
                 R.Cast(target, packets());
         }

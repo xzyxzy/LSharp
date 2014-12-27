@@ -229,7 +229,7 @@ namespace xSaliceReligionAIO.Champions
                     break;
             }
 
-            var qTarget = SimpleTs.GetTarget(650, SimpleTs.DamageType.Physical);
+            var qTarget = TargetSelector.GetTarget(650, TargetSelector.DamageType.Physical);
             if (qTarget != null)
             {
                 if (GetComboDamage(qTarget) >= qTarget.Health && menu.Item("Ignite").GetValue<bool>() && Ignite_Ready() && Player.Distance(qTarget) < 300)
@@ -274,7 +274,7 @@ namespace xSaliceReligionAIO.Champions
                 return;
             if (combo)
             {
-                var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+                var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
 
                 //focus target
                 float range = Q.Range;
@@ -340,7 +340,7 @@ namespace xSaliceReligionAIO.Champions
                 return;
             if (combo)
             {
-                var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+                var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
 
                 float range = E.Range;
                 if (GetTargetFocus(range) != null)
@@ -411,7 +411,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_R(int mode)
         {
-            var target = SimpleTs.GetTarget(R.Range + Player.BoundingRadius, SimpleTs.DamageType.Magical);
+            var target = TargetSelector.GetTarget(R.Range + Player.BoundingRadius, TargetSelector.DamageType.Magical);
 
             float range = R.Range + Player.BoundingRadius;
             if (GetTargetFocus(range) != null)

@@ -189,7 +189,7 @@ namespace xSaliceReligionAIO.Champions
             if (Items.CanUseItem(3074))
                 comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Hydra);
 
-            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 comboDamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
 
             return (float)(comboDamage + Player.GetAutoAttackDamage(target) * 3);
@@ -217,7 +217,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (source == "Combo")
             {
-                var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+                var qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
                 if (qTarget != null)
                 {
                     if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>() && Player.Distance(qTarget) < 300)
@@ -290,7 +290,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_Q()
         {
-            var target = SimpleTs.GetTarget(Q.Range * 2, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(Q.Range * 2, TargetSelector.DamageType.Physical);
 
             if (GetTargetFocus(Q.Range) != null)
                 target = GetTargetFocus(Q.Range);
@@ -374,7 +374,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_R()
         {
-            var target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
 
             var range = R.Range;
             if (GetTargetFocus(range) != null)
@@ -446,8 +446,9 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        public override void AfterAttack(AttackableUnit unit, AttackableUnit mytarget)
         {
+            var target = (Obj_AI_Base) mytarget;
             if (unit.IsMe)
             {
                 if ((menu.Item("ComboActive").GetValue<KeyBind>().Active || menu.Item("HarassActive").GetValue<KeyBind>().Active )
@@ -475,7 +476,7 @@ namespace xSaliceReligionAIO.Champions
 
         public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
-            SpellSlot castedSlot = ObjectManager.Player.GetSpellSlot(args.SData.Name, false);
+            SpellSlot castedSlot = Player.GetSpellSlot(args.SData.Name, false);
 
             if (castedSlot == SpellSlot.Q)
             {

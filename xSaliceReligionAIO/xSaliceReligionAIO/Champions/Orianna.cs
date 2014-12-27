@@ -184,7 +184,7 @@ namespace xSaliceReligionAIO.Champions
             if (E.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
-            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
 
             if (R.IsReady())
@@ -208,7 +208,7 @@ namespace xSaliceReligionAIO.Champions
         private void UseSpells(bool useQ, bool useW, bool useE, bool useR, String source)
         {
             var range = E.IsReady() ? E.Range : Q.Range;
-            Obj_AI_Hero target = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero target = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
 
             if (GetTargetFocus(range) != null)
                 target = GetTargetFocus(range);
@@ -228,11 +228,11 @@ namespace xSaliceReligionAIO.Champions
 
             //Ignite
             if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && source == "Combo")
+                Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && source == "Combo")
             {
                 if (GetComboDamage(target) > target.Health)
                 {
-                    Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                    Player.Spellbook.CastSpell(IgniteSlot, target);
                 }
             }
 

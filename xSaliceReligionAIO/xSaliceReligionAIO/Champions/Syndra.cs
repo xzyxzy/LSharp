@@ -45,7 +45,7 @@ namespace xSaliceReligionAIO.Champions
                 key.AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Toggle)));
                 key.AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
                 key.AddItem(new MenuItem("Misc_QE_Mouse", "QE to mouse").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
-                key.AddItem(new MenuItem("qAA", "Auto Q AAing target").SetValue(new KeyBind("I".ToCharArray()[0], KeyBindType.Toggle)));
+                //key.AddItem(new MenuItem("qAA", "Auto Q AAing target").SetValue(new KeyBind("I".ToCharArray()[0], KeyBindType.Toggle)));
                 //add to menu
                 menu.AddSubMenu(key);
             }
@@ -207,7 +207,7 @@ namespace xSaliceReligionAIO.Champions
                 return;
 
             var useIgnite = menu.Item("Ignite").GetValue<bool>();
-            var qTarget = SimpleTs.GetTarget(650, SimpleTs.DamageType.Magical);
+            var qTarget = TargetSelector.GetTarget(650, TargetSelector.DamageType.Magical);
             float dmg = 0;
             if (qTarget != null)
                 dmg += GetComboDamage(qTarget);
@@ -282,7 +282,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_Q()
         {
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+            var qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
             if (qTarget == null)
                 return;
 
@@ -294,7 +294,7 @@ namespace xSaliceReligionAIO.Champions
         {
             if (mode)
             {
-                var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
+                var wTarget = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Magical);
 
                 var grabbableObj = Get_Nearest_orb();
                 var wToggleState = Player.Spellbook.GetSpell(SpellSlot.W).ToggleState;
@@ -367,7 +367,7 @@ namespace xSaliceReligionAIO.Champions
             if (getOrbCount() <= 0)
                 return;
 
-            var target = SimpleTs.GetTarget(_qe.Range + 100, SimpleTs.DamageType.Magical);
+            var target = TargetSelector.GetTarget(_qe.Range + 100, TargetSelector.DamageType.Magical);
             if (target == null || Environment.TickCount - W.LastCastAttemptT < Game.Ping)
                 return;
 
@@ -395,7 +395,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_R()
         {
-            var rTarget = SimpleTs.GetTarget(R.Level > 2 ? R.Range : 675, SimpleTs.DamageType.Magical);
+            var rTarget = TargetSelector.GetTarget(R.Level > 2 ? R.Range : 675, TargetSelector.DamageType.Magical);
 
             if (rTarget == null)
                 return;
@@ -422,7 +422,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_QE(bool usePred = true , Obj_AI_Base target = null)
         {
-            var qeTarget = SimpleTs.GetTarget(_qe.Range, SimpleTs.DamageType.Magical);
+            var qeTarget = TargetSelector.GetTarget(_qe.Range, TargetSelector.DamageType.Magical);
             if (qeTarget == null || !Q.IsReady() || !E.IsReady())
                 return;
 
@@ -457,7 +457,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void QImmobile()
         {
-            var qTarget = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+            var qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
             if (!menu.Item("Q_Auto_Immobile").GetValue<bool>() || qTarget == null)
                 return;
             if (Q.GetPrediction(qTarget).Hitchance == HitChance.Immobile)
@@ -525,7 +525,7 @@ namespace xSaliceReligionAIO.Champions
             //draw EQ
             if (menu.Item("Draw_QE_Line").GetValue<bool>())
             {
-                var qeTarget = SimpleTs.GetTarget(_qe.Range, SimpleTs.DamageType.Magical);
+                var qeTarget = TargetSelector.GetTarget(_qe.Range, TargetSelector.DamageType.Magical);
                 if (qeTarget == null || !Q.IsReady() || !E.IsReady())
                     return;
 
@@ -557,7 +557,7 @@ namespace xSaliceReligionAIO.Champions
             /*
             if (getOrbCount() <= 0)
                 return;
-            var target = SimpleTs.GetTarget(_qe.Range + 100, SimpleTs.DamageType.Magical);
+            var target = TargetSelector.GetTarget(_qe.Range + 100, TargetSelector.DamageType.Magical);
             if (target == null)
                 return;
 
@@ -666,7 +666,7 @@ namespace xSaliceReligionAIO.Champions
                 Cast_QE(false, unit);
         }
 
-        public override void Game_OnGameProcessPacket(GamePacketEventArgs args)
+        /*public override void Game_OnGameProcessPacket(GamePacketEventArgs args)
         {
             GamePacket g = new GamePacket(args.PacketData);
             if (g.Header != 0xFE)
@@ -687,6 +687,6 @@ namespace xSaliceReligionAIO.Champions
                     }
                 }
             }
-        }
+        }*/
     }
 }

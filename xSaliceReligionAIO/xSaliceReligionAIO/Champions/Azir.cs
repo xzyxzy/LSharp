@@ -228,8 +228,8 @@ namespace xSaliceReligionAIO.Champions
 
         private void UseSpells(bool useQ, bool useW, bool useE, bool useR)
         {
-            var qTarget = SimpleTs.GetTarget(QExtend.Range, SimpleTs.DamageType.Magical);
-            var soilderTarget = SimpleTs.GetTarget(1200, SimpleTs.DamageType.Magical);
+            var qTarget = TargetSelector.GetTarget(QExtend.Range, TargetSelector.DamageType.Magical);
+            var soilderTarget = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Magical);
 
             // Game.PrintChat("Spell state: " + qSpell.State);
             var igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
@@ -258,11 +258,11 @@ namespace xSaliceReligionAIO.Champions
             }
 
             //Ignite
-            if (qTarget != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (qTarget != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
             {
                 if (igniteMode == 0 && GetComboDamage(qTarget) > qTarget.Health)
                 {
-                    Player.SummonerSpellbook.CastSpell(IgniteSlot, qTarget);
+                    Player.Spellbook.CastSpell(IgniteSlot, qTarget);
                 }
             }
 
@@ -299,12 +299,12 @@ namespace xSaliceReligionAIO.Champions
                 {
                     //ignite
                     if (menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                            Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Player.Distance(target.ServerPosition) <= 600)
+                            Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Player.Distance(target.ServerPosition) <= 600)
                     {
                         var igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
                         if (igniteMode == 1 && Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health)
                         {
-                            Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                            Player.Spellbook.CastSpell(IgniteSlot, target);
                         }
                     }
 
@@ -740,7 +740,7 @@ namespace xSaliceReligionAIO.Champions
             if (soilderCount() < 1)
                 return;
 
-            var soilderTarget = SimpleTs.GetTarget(800, SimpleTs.DamageType.Magical);
+            var soilderTarget = TargetSelector.GetTarget(800, TargetSelector.DamageType.Magical);
 
             //Game.PrintChat("YEhhhhh");
 
@@ -896,7 +896,7 @@ namespace xSaliceReligionAIO.Champions
             }
             else if (menu.Item("qeCombo").GetValue<KeyBind>().Active)
             {
-                var soilderTarget = SimpleTs.GetTarget(900, SimpleTs.DamageType.Magical);
+                var soilderTarget = TargetSelector.GetTarget(900, TargetSelector.DamageType.Magical);
 
                 xSLxOrbwalker.Orbwalk(Game.CursorPos, null);
                 CastQe(soilderTarget);
