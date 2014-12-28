@@ -575,6 +575,7 @@ namespace xSaliceReligionAIO.Champions
                 _cancelUlts = true;
                 Player.IssueOrder(GameObjectOrder.MoveTo, target.ServerPosition);
                 _cancelUlts = false;
+                xSLxOrbwalker.R.LastCastAttemptT = 0;
             }
         }
 
@@ -594,6 +595,7 @@ namespace xSaliceReligionAIO.Champions
                         _cancelUlts = true;
                         Player.IssueOrder(GameObjectOrder.MoveTo, objAiHero);
                         _cancelUlts = false;
+                        xSLxOrbwalker.R.LastCastAttemptT = 0;
                         //xSLxOrbwalker.Orbwalk(nearChamps.FirstOrDefault().ServerPosition, null);
                     }
                 }
