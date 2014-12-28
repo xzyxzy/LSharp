@@ -178,11 +178,11 @@ namespace ViktorTheMindBlower
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             GameObject.OnCreate += OnCreate;
             GameObject.OnDelete += OnDelete;
-            LXOrbwalker.AfterAttack += AfterAttack;
+            Orbwalking.AfterAttack += AfterAttack;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
 
-        public static void AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        public static void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             if (unit.IsMe && chargeQ)
             {
