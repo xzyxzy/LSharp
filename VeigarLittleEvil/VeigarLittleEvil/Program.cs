@@ -81,7 +81,7 @@ namespace VeigarLittleEvil
 
             //Target selector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
-            SimpleTs.AddToMenu(targetSelectorMenu);
+            TargetSelector.AddToMenu(targetSelectorMenu);
             menu.AddSubMenu(targetSelectorMenu);
 
 
@@ -213,7 +213,7 @@ namespace VeigarLittleEvil
             if (W.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.W);
 
-            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
 
             if (Items.HasItem(3155, (Obj_AI_Hero)enemy))
@@ -244,10 +244,10 @@ namespace VeigarLittleEvil
         {
             var range = E.IsReady() ? E.Range : Q.Range;
             var focusSelected = menu.Item("selected").GetValue<bool>();
-            Obj_AI_Hero target = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
-            if (SimpleTs.GetSelectedTarget() != null)
-                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range)
-                    target = SimpleTs.GetSelectedTarget();
+            Obj_AI_Hero target = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
+            if (TargetSelector.GetSelectedTarget() != null)
+                if (focusSelected && TargetSelector.GetSelectedTarget().Distance(Player.ServerPosition) < range)
+                    target = TargetSelector.GetSelectedTarget();
 
             int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
             int dfgMode = menu.Item("dfgMode").GetValue<StringList>().SelectedIndex;
@@ -302,11 +302,11 @@ namespace VeigarLittleEvil
 
             //Ignite
             if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Source == "Combo" && hasMana)
+                Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Source == "Combo" && hasMana)
             {
                 if (IgniteMode == 0 && dmg > target.Health)
                 {
-                    Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                    Player.Spellbook.CastSpell(IgniteSlot, target);
                 }
             }
 
@@ -414,13 +414,13 @@ namespace VeigarLittleEvil
 
                     //ignite
                     if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                        Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
+                        Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
                         Player.Distance(target.ServerPosition) <= 600)
                     {
                         int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
                         if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)
                         {
-                            Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                            Player.Spellbook.CastSpell(IgniteSlot, target);
                         }
                     }
                 }
