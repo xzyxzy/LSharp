@@ -417,7 +417,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void CastR(Vector3 source, Vector3 destination)
         {
-            Player.Spellbook.CastSpell(SpellSlot.R, source, destination, true);
+            Player.Spellbook.CastSpell(SpellSlot.R, source, destination);
         }
 
         public override void Game_OnGameUpdate(EventArgs args)

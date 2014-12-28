@@ -275,9 +275,9 @@ namespace xSaliceReligionAIO
         {
             var delay = Menu.Item("orb_Misc_Humanizer").GetValue<Slider>().Value;
 
-            if (MyHero.ChampionName == "Katarina" && delay < 300)
+            if (MyHero.ChampionName == "Katarina" && delay < 300 && (R.IsReady() || MyHero.Spellbook.GetSpell(SpellSlot.R).State == SpellState.Surpressed) && MyHero.CountEnemysInRange(1000) > 0)
             {
-                delay = 300;
+                delay = 30;
             }
             if (Environment.TickCount - _lastMovement < delay)
                 return;
