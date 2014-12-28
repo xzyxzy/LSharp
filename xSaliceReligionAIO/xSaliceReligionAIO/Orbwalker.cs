@@ -157,11 +157,12 @@ namespace xSaliceReligionAIO
             }
         }
 
+        public static bool rCasted;
         private static void OnUpdate(EventArgs args)
         {
-            CheckAutoWindUp();
-            if (CurrentMode == Mode.None || MenuGUI.IsChatOpen || CustomOrbwalkMode || MyHero.IsChannelingImportantSpell())
+            if (CurrentMode == Mode.None || MenuGUI.IsChatOpen || CustomOrbwalkMode || MyHero.IsChannelingImportantSpell() || Environment.TickCount - R.LastCastAttemptT < 3100)
                 return;
+            CheckAutoWindUp();
             var target = GetPossibleTarget();
             Orbwalk(Game.CursorPos, target);
         }
@@ -251,6 +252,7 @@ namespace xSaliceReligionAIO
                     {
                         MyHero.IssueOrder(GameObjectOrder.AttackUnit, target);
                         _lastAATick = Environment.TickCount + Game.Ping / 2;
+                        R.LastCastAttemptT = 0;
                     }
                 }
             }
@@ -262,9 +264,12 @@ namespace xSaliceReligionAIO
                 _movementPrediction.Delay = MyHero.BasicAttack.SpellCastTime;
                 _movementPrediction.Speed = MyHero.BasicAttack.MissileSpeed;
                 MoveTo(_movementPrediction.GetPrediction(target).UnitPosition);
+                R.LastCastAttemptT = 0;
             }
             else
                 MoveTo(goalPosition);
+
+            R.LastCastAttemptT = 0;
         }
 
 
@@ -324,6 +329,7 @@ namespace xSaliceReligionAIO
 
         }
 
+        public static Spell R = new Spell(SpellSlot.R);
         private static void OnProcessSpell(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs spell)
         {
 
@@ -334,6 +340,13 @@ namespace xSaliceReligionAIO
                 return;
             if (unit.IsMe)
             {
+                SpellSlot castedSlot = MyHero.GetSpellSlot(spell.SData.Name, false);
+
+                if (castedSlot == SpellSlot.R)
+                {
+                    R.LastCastAttemptT = Environment.TickCount;
+                }
+
                 _lastAATick = Environment.TickCount - Game.Ping / 2; // need test todo
                 // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
                 if (spell.Target is AttackableUnit)
