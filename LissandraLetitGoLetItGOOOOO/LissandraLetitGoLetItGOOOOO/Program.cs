@@ -15,6 +15,7 @@ namespace LissandraLetitGoLetItGOOOOO
     class Program
     {
         public const string ChampionName = "Lissandra";
+        public static Orbwalking.Orbwalker Orbwalker;
 
         //Spells
         public static List<Spell> SpellList = new List<Spell>();
@@ -74,7 +75,7 @@ namespace LissandraLetitGoLetItGOOOOO
 
             //Orbwalker submenu
             var orbwalkerMenu = new Menu("My Orbwalker", "my_Orbwalker");
-            LXOrbwalker.AddToMenu(orbwalkerMenu);
+            Orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
             menu.AddSubMenu(orbwalkerMenu);
 
             //Target selector
