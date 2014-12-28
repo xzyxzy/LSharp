@@ -417,12 +417,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void CastR(Vector3 source, Vector3 destination)
         {
-            CastR(source.To2D(), destination.To2D());
-        }
-
-        private void CastR(Vector2 source, Vector2 destination)
-        {
-            R.Cast(destination, source);
+            Player.Spellbook.CastSpell(SpellSlot.R, source, destination, true);
         }
 
         public override void Game_OnGameUpdate(EventArgs args)
