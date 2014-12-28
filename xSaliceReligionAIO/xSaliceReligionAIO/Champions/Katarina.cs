@@ -803,7 +803,7 @@ namespace xSaliceReligionAIO.Champions
                 {
                     if (args.Order == GameObjectOrder.MoveTo || args.Order == GameObjectOrder.AttackTo)
                     {
-                        Game.PrintChat("RAWRRRRR");
+                        //Game.PrintChat("RAWRRRRR");
                         args.Process = false;
                     }
                 }
