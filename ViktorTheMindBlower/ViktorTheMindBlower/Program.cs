@@ -49,6 +49,8 @@ namespace ViktorTheMindBlower
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
 
+        public static Orbwalking.Orbwalker Orbwalker;
+
         private static void Game_OnGameLoad(EventArgs args)
         {
             Player = ObjectManager.Player;
@@ -82,7 +84,7 @@ namespace ViktorTheMindBlower
 
             //Orbwalker submenu
             var orbwalkerMenu = new Menu("My Orbwalker", "my_Orbwalker");
-            LXOrbwalker.AddToMenu(orbwalkerMenu);
+            Orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
             menu.AddSubMenu(orbwalkerMenu);
 
             //Target selector
