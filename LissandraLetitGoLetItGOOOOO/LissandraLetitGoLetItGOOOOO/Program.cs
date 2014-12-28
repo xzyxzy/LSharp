@@ -79,7 +79,7 @@ namespace LissandraLetitGoLetItGOOOOO
 
             //Target selector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
-            SimpleTs.AddToMenu(targetSelectorMenu);
+            TargetSelector.AddToMenu(targetSelectorMenu);
             menu.AddSubMenu(targetSelectorMenu);
 
 
@@ -188,7 +188,7 @@ namespace LissandraLetitGoLetItGOOOOO
 
             damage = damage - 15;
 
-            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
 
             return (float)damage;
@@ -208,8 +208,8 @@ namespace LissandraLetitGoLetItGOOOOO
 
         private static void UseSpells(bool useQ, bool useW, bool useE, bool useR, string Source)
         {
-            var qTarget = SimpleTs.GetTarget(Q2.Range, SimpleTs.DamageType.Magical);
-            var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+            var qTarget = TargetSelector.GetTarget(Q2.Range, TargetSelector.DamageType.Magical);
+            var eTarget = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
 
             var IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
 
@@ -227,11 +227,11 @@ namespace LissandraLetitGoLetItGOOOOO
 
             //Ignite
             if (qTarget != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+                Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
             {
                 if (IgniteMode == 0 && GetComboDamage(qTarget) > qTarget.Health)
                 {
-                    Player.SummonerSpellbook.CastSpell(IgniteSlot, qTarget);
+                    Player.Spellbook.CastSpell(IgniteSlot, qTarget);
                 }
             }
 
@@ -332,12 +332,12 @@ namespace LissandraLetitGoLetItGOOOOO
             {
                 //ignite
                 if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                                Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Player.Distance(target.ServerPosition) <= 600)
+                                Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Player.Distance(target.ServerPosition) <= 600)
                 {
                     var IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
                     if (IgniteMode == 1 && Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health)
                     {
-                        Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                        Player.Spellbook.CastSpell(IgniteSlot, target);
                     }
                 }
 
@@ -447,7 +447,7 @@ namespace LissandraLetitGoLetItGOOOOO
 
         public static void detonateE()
         {
-            var enemy = SimpleTs.GetTarget(2000, SimpleTs.DamageType.Magical);
+            var enemy = TargetSelector.GetTarget(2000, TargetSelector.DamageType.Magical);
 
             if (eMissle != null && enemy.ServerPosition.Distance(eMissle.Position) < 110 && enemy != null && eCreated && menu.Item("ComboActive").GetValue<KeyBind>().Active && E.IsReady())
             {
@@ -467,7 +467,7 @@ namespace LissandraLetitGoLetItGOOOOO
 
         public static void gapClose()
         {
-            var Target = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Magical);
+            var Target = TargetSelector.GetTarget(1500, TargetSelector.DamageType.Magical);
             var distance = menu.Item("gapD").GetValue<Slider>().Value;
 
             if (Player.Distance(Target.ServerPosition) >= distance && Target.IsValidTarget(E.Range) && !eCreated && E.GetPrediction(Target).Hitchance >= HitChance.Medium && E.IsReady())
