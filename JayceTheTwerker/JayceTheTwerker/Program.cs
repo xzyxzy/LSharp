@@ -96,7 +96,7 @@ namespace JayceTheTwerker
 
             //Target selector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
-            SimpleTs.AddToMenu(targetSelectorMenu);
+            TargetSelector.AddToMenu(targetSelectorMenu);
             menu.AddSubMenu(targetSelectorMenu);
 
 
@@ -215,14 +215,14 @@ namespace JayceTheTwerker
 
         private static void UseSpells(bool useQ, bool useW, bool useE, bool useQ2, bool useW2, bool useE2, bool useR, String source)
         {
-            var qTarget = SimpleTs.GetTarget(QCharge.Range, SimpleTs.DamageType.Physical);
-            var q2Target = SimpleTs.GetTarget(Q2.Range, SimpleTs.DamageType.Physical);
+            var qTarget = TargetSelector.GetTarget(QCharge.Range, TargetSelector.DamageType.Physical);
+            var q2Target = TargetSelector.GetTarget(Q2.Range, TargetSelector.DamageType.Physical);
 
-            var wTarget = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Physical);
-            var w2Target = SimpleTs.GetTarget(W2.Range, SimpleTs.DamageType.Magical);
+            var wTarget = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Physical);
+            var w2Target = TargetSelector.GetTarget(W2.Range, TargetSelector.DamageType.Magical);
 
-            var eTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
-            var e2Target = SimpleTs.GetTarget(E2.Range, SimpleTs.DamageType.Physical);
+            var eTarget = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
+            var e2Target = TargetSelector.GetTarget(E2.Range, TargetSelector.DamageType.Physical);
 
             //mana manager for harass
             var mana = menu.Item("manaH").GetValue<Slider>().Value;
