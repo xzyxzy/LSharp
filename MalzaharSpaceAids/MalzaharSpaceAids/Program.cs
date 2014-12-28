@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using LX_Orbwalker;
 
 namespace MalzaharSpaceAids
 {
@@ -29,6 +28,7 @@ namespace MalzaharSpaceAids
         public static Menu menu;
 
         private static Obj_AI_Hero Player;
+        public static Orbwalking.Orbwalker Orbwalker;
 
         //mana manager
         public static int[] qMana = { 60, 60, 65, 70, 75, 80 };
@@ -69,7 +69,7 @@ namespace MalzaharSpaceAids
 
             //Orbwalker submenu
             var orbwalkerMenu = new Menu("My Orbwalker", "my_Orbwalker");
-            LXOrbwalker.AddToMenu(orbwalkerMenu);
+            Orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
             menu.AddSubMenu(orbwalkerMenu);
 
             //Target selector
@@ -83,11 +83,11 @@ namespace MalzaharSpaceAids
             menu.SubMenu("Keys")
                 .AddItem(
                     new MenuItem("ComboActive", "Combo!").SetValue(
-                        new KeyBind(menu.Item("Combo_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+                        new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
             menu.SubMenu("Keys")
                 .AddItem(
                     new MenuItem("HarassActive", "Harass!").SetValue(
-                        new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+                        new KeyBind("S".ToCharArray()[0], KeyBindType.Press)));
             menu.SubMenu("Keys")
                 .AddItem(
                     new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0],
@@ -95,11 +95,11 @@ namespace MalzaharSpaceAids
             menu.SubMenu("Keys")
                 .AddItem(
                     new MenuItem("lastHit", "Last hit with Q").SetValue(
-                        new KeyBind(menu.Item("LastHit_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+                        new KeyBind("A".ToCharArray()[0], KeyBindType.Press)));
             menu.SubMenu("Keys")
                 .AddItem(
                     new MenuItem("LaneClearActive", "Farm!").SetValue(
-                        new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+                        new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
 
             //Combo menu:
             menu.AddSubMenu(new Menu("Combo", "Combo"));

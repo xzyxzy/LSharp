@@ -292,7 +292,6 @@ namespace xSaliceReligionAIO
             300 * (position.To2D() - MyHero.ServerPosition.To2D()).Normalized().To3D();
             MyHero.IssueOrder(GameObjectOrder.MoveTo, point);
 
-
         }
 
         private static bool IsAllowedToMove()
@@ -333,6 +332,7 @@ namespace xSaliceReligionAIO
         public static Spell R = new Spell(SpellSlot.R);
         private static void OnProcessSpell(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs spell)
         {
+
             SpellSlot castedSlot = MyHero.GetSpellSlot(spell.SData.Name, false);
 
             if (castedSlot == SpellSlot.R)
