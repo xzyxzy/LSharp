@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using LX_Orbwalker;
 using SharpDX;
 using Color = System.Drawing.Color;
 
@@ -37,6 +36,8 @@ namespace YorickMILFDigger
         public static int[] eMana = {55, 55, 60, 65, 70, 75};
         public static int[] rMana = {100, 100, 100, 100};
 
+        public static Orbwalking.Orbwalker Orbwalker;
+
         private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -69,12 +70,12 @@ namespace YorickMILFDigger
 
             //Orbwalker submenu
             var orbwalkerMenu = new Menu("My Orbwalker", "my_Orbwalker");
-            LXOrbwalker.AddToMenu(orbwalkerMenu);
+            Orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
             menu.AddSubMenu(orbwalkerMenu);
 
             //Target selector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
-            SimpleTs.AddToMenu(targetSelectorMenu);
+            TargetSelector.AddToMenu(targetSelectorMenu);
             menu.AddSubMenu(targetSelectorMenu);
 
 
@@ -83,11 +84,11 @@ namespace YorickMILFDigger
             menu.SubMenu("Keys")
                 .AddItem(
                     new MenuItem("ComboActive", "Combo!").SetValue(
-                        new KeyBind(menu.Item("Combo_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+                        new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
             menu.SubMenu("Keys")
                 .AddItem(
                     new MenuItem("HarassActive", "Harass!").SetValue(
-                        new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+                        new KeyBind("S".ToCharArray()[0], KeyBindType.Press)));
             menu.SubMenu("Keys")
                 .AddItem(
                     new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0],
@@ -95,7 +96,7 @@ namespace YorickMILFDigger
             menu.SubMenu("Keys")
                 .AddItem(
                     new MenuItem("LaneClearActive", "Farm!").SetValue(
-                        new KeyBind(menu.Item("LaneClear_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
+                        new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
             menu.SubMenu("Keys")
                 .AddItem(
                     new MenuItem("LastHitE", "Last hit with E").SetValue(new KeyBind("A".ToCharArray()[0],
@@ -205,7 +206,7 @@ namespace YorickMILFDigger
             //Events
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
-            LXOrbwalker.AfterAttack += OnAfterAttack;
+            Orbwalking.AfterAttack += OnAfterAttack;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             Game.PrintChat(ChampionName + " Loaded! --- by xSalice");
         }
@@ -232,7 +233,7 @@ namespace YorickMILFDigger
             }
         }
 
-        private static void OnAfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        private static void OnAfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             if (unit.IsMe)
             {
@@ -250,8 +251,8 @@ namespace YorickMILFDigger
                             if (useQCombo || useQHarass)
                             {
                                 Q.Cast();
-                                LXOrbwalker.ResetAutoAttackTimer();
-                                LXOrbwalker.Orbwalk(Game.CursorPos, target);
+                                Orbwalking.ResetAutoAttackTimer();
+                                Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
                             }
                         }
                     }
@@ -272,7 +273,7 @@ namespace YorickMILFDigger
             if (E.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
-            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
 
             damage += Player.GetAutoAttackDamage(enemy)*2;
@@ -296,10 +297,10 @@ namespace YorickMILFDigger
         {
             var range = W.IsReady() ? W.Range : E.Range;
             var focusSelected = menu.Item("selected").GetValue<bool>();
-            Obj_AI_Hero target = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
-            if (SimpleTs.GetSelectedTarget() != null)
-                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range)
-                    target = SimpleTs.GetSelectedTarget();
+            Obj_AI_Hero target = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
+            if (TargetSelector.GetSelectedTarget() != null)
+                if (focusSelected && TargetSelector.GetSelectedTarget().Distance(Player.ServerPosition) < range)
+                    target = TargetSelector.GetSelectedTarget();
 
             bool hasmana = manaCheck();
 
@@ -321,11 +322,11 @@ namespace YorickMILFDigger
 
             //Ignite
             if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Source == "Combo" && hasmana)
+                Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Source == "Combo" && hasmana)
             {
                 if (IgniteMode == 0 && GetComboDamage(target) > target.Health)
                 {
-                    Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                    Player.Spellbook.CastSpell(IgniteSlot, target);
                 }
             }
 
@@ -391,7 +392,7 @@ namespace YorickMILFDigger
         {
             int HPtoE = menu.Item("autoE").GetValue<Slider>().Value;
             float playerHP = (Player.Health/Player.MaxHealth)*100;
-            Obj_AI_Hero Target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
+            Obj_AI_Hero Target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
 
             if (Target == null)
                 return;
@@ -497,13 +498,13 @@ namespace YorickMILFDigger
 
                 //ignite
                 if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                    Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
+                    Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
                     Player.Distance(target.ServerPosition) <= 600)
                 {
                     int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
                     if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)
                     {
-                        Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                        Player.Spellbook.CastSpell(IgniteSlot, target);
                     }
                 }
             }
