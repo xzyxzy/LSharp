@@ -87,7 +87,7 @@ namespace ViktorTheMindBlower
 
             //Target selector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
-            SimpleTs.AddToMenu(targetSelectorMenu);
+            TargetSelector.AddToMenu(targetSelectorMenu);
             menu.AddSubMenu(targetSelectorMenu);
 
             //Keys
@@ -207,7 +207,7 @@ namespace ViktorTheMindBlower
             if (activeR)
                 damage += Player.GetSpellDamage(enemy, SpellSlot.R, 1);
 
-            if (IgniteSlot != SpellSlot.Unknown && Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
 
             return (float)damage;
@@ -222,10 +222,10 @@ namespace ViktorTheMindBlower
         {
             var range = E.IsReady() ? (E.Range + E2.Range) : Q.Range;
             var focusSelected = menu.Item("selected").GetValue<bool>();
-            Obj_AI_Hero target = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
-            if (SimpleTs.GetSelectedTarget() != null)
-                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range)
-                    target = SimpleTs.GetSelectedTarget();
+            Obj_AI_Hero target = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
+            if (TargetSelector.GetSelectedTarget() != null)
+                if (focusSelected && TargetSelector.GetSelectedTarget().Distance(Player.ServerPosition) < range)
+                    target = TargetSelector.GetSelectedTarget();
 
             var dmg = GetComboDamage(target);
             int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
@@ -263,11 +263,11 @@ namespace ViktorTheMindBlower
 
             //Ignite
             if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Source == "Combo" && hasMana)
+                Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Source == "Combo" && hasMana)
             {
                 if (IgniteMode == 0 && dmg > target.Health)
                 {
-                    Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                    Player.Spellbook.CastSpell(IgniteSlot, target);
                 }
             }
 
@@ -418,12 +418,12 @@ namespace ViktorTheMindBlower
 
         private static void castE(Vector3 source, Vector3 destination)
         {
-            castE(source.To2D(), destination.To2D());
+            E.Cast(source, destination);
         }
 
         private static void castE(Vector2 source, Vector2 destination)
         {
-            Packet.C2S.Cast.Encoded(new Packet.C2S.Cast.Struct(0, SpellSlot.E, Player.NetworkId, source.X, source.Y, destination.X, destination.Y)).Send();
+            E.Cast(source, destination);
         }
 
         public static void eCalc(Obj_AI_Hero eTarget, String Source)
@@ -469,10 +469,10 @@ namespace ViktorTheMindBlower
             //Game.PrintChat("rawr");
             var range = E.IsReady() ? (E.Range + E2.Range) : Q.Range;
             var focusSelected = menu.Item("selected").GetValue<bool>();
-            Obj_AI_Hero eTarget2 = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
-            if (SimpleTs.GetSelectedTarget() != null)
-                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range)
-                    eTarget2 = SimpleTs.GetSelectedTarget();
+            Obj_AI_Hero eTarget2 = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
+            if (TargetSelector.GetSelectedTarget() != null)
+                if (focusSelected && TargetSelector.GetSelectedTarget().Distance(Player.ServerPosition) < range)
+                    eTarget2 = TargetSelector.GetSelectedTarget();
 
             if (eTarget2 != null && Player.Distance(eTarget2) <= 1200)
             {   
