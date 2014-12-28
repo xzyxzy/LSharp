@@ -80,7 +80,7 @@ namespace xSaliceReligionAIO
             menuMisc.AddItem(new MenuItem("orb_Misc_ExtraWindUp", "Extra Winduptime").SetValue(new Slider(80, 200, 0)));
             menuMisc.AddItem(new MenuItem("orb_Misc_AutoWindUp", "Autoset Windup").SetValue(false));
             menuMisc.AddItem(new MenuItem("orb_Misc_Priority_Unit", "Priority Unit").SetValue(new StringList(new[] { "Minion", "Hero" })));
-            menuMisc.AddItem(new MenuItem("orb_Misc_Humanizer", "Humanizer Delay").SetValue(new Slider(80, 200, 15)));
+            menuMisc.AddItem(new MenuItem("orb_Misc_Humanizer", "Humanizer Delays").SetValue(new Slider(80, 50, 500)));
             menuMisc.AddItem(new MenuItem("orb_Misc_AllMovementDisabled", "Disable All Movement").SetValue(false));
             menuMisc.AddItem(new MenuItem("orb_Misc_AllAttackDisabled", "Disable All Attacks").SetValue(false));
 
@@ -137,7 +137,6 @@ namespace xSaliceReligionAIO
             GameObject.OnCreate += Obj_SpellMissile_OnCreate;
         }
 
-
         private static void Obj_SpellMissile_OnCreate(GameObject sender, EventArgs args)
         {
             if (sender.IsMe)
@@ -160,7 +159,7 @@ namespace xSaliceReligionAIO
         public static bool rCasted;
         private static void OnUpdate(EventArgs args)
         {
-            if (CurrentMode == Mode.None || MenuGUI.IsChatOpen || CustomOrbwalkMode || MyHero.IsChannelingImportantSpell() || Environment.TickCount - R.LastCastAttemptT < 3100 || MyHero.HasBuff("katarinarsound", true))
+            if (CurrentMode == Mode.None || MenuGUI.IsChatOpen || CustomOrbwalkMode || MyHero.IsChannelingImportantSpell() || Environment.TickCount - R.LastCastAttemptT < 2900 || MyHero.HasBuff("katarinarsound", true))
                 return;
             CheckAutoWindUp();
             var target = GetPossibleTarget();
@@ -275,6 +274,11 @@ namespace xSaliceReligionAIO
         private static void MoveTo(Vector3 position)
         {
             var delay = Menu.Item("orb_Misc_Humanizer").GetValue<Slider>().Value;
+
+            if (MyHero.ChampionName == "Katarina" && delay < 300)
+            {
+                delay = 300;
+            }
             if (Environment.TickCount - _lastMovement < delay)
                 return;
             _lastMovement = Environment.TickCount;

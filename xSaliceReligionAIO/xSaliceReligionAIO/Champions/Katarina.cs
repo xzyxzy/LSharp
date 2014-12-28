@@ -572,9 +572,7 @@ namespace xSaliceReligionAIO.Champions
             if (Player.IsChannelingImportantSpell() || Player.HasBuff("katarinarsound", true))
             {
                 //xSLxOrbwalker.Orbwalk(target.ServerPosition, null);
-                _cancelUlts = true;
                 Player.IssueOrder(GameObjectOrder.MoveTo, target.ServerPosition);
-                _cancelUlts = false;
                 xSLxOrbwalker.R.LastCastAttemptT = 0;
             }
         }
@@ -592,9 +590,7 @@ namespace xSaliceReligionAIO.Champions
                     var objAiHero = nearChamps.FirstOrDefault();
                     if (objAiHero != null)
                     {
-                        _cancelUlts = true;
                         Player.IssueOrder(GameObjectOrder.MoveTo, objAiHero);
-                        _cancelUlts = false;
                         xSLxOrbwalker.R.LastCastAttemptT = 0;
                         //xSLxOrbwalker.Orbwalk(nearChamps.FirstOrDefault().ServerPosition, null);
                     }
@@ -793,22 +789,6 @@ namespace xSaliceReligionAIO.Champions
 
                 Drawing.DrawText(wts[0], wts[1], Color.White,
                     menu.Item("KS_With_E").GetValue<KeyBind>().Active ? "Ks E Active" : "Ks E Off");
-            }
-        }
-
-        private bool _cancelUlts;
-        public override void ObjAiHeroOnOnIssueOrder(Obj_AI_Base sender, GameObjectIssueOrderEventArgs args)
-        {
-            if (sender.IsMe)
-            {
-                if ((Player.IsChannelingImportantSpell() || Player.HasBuff("katarinarsound", true) || Environment.TickCount - xSLxOrbwalker.R.LastCastAttemptT < 3000) && !_cancelUlts)
-                {
-                    if (args.Order == GameObjectOrder.MoveTo || args.Order == GameObjectOrder.AttackTo)
-                    {
-                        //Game.PrintChat("RAWRRRRR");
-                        args.Process = false;
-                    }
-                }
             }
         }
 
