@@ -22,6 +22,7 @@ namespace xSaliceReligionAIO
             Game.OnGameSendPacket += Game_OnSendPacket;
             Game.OnGameProcessPacket += Game_OnGameProcessPacket;
             GameObject.OnDelete += GameObject_OnDelete;
+            Obj_AI_Base.OnIssueOrder += ObjAiHeroOnOnIssueOrder;
 
             if (menu.Item("Orbwalker_Mode").GetValue<bool>())
             {
@@ -542,6 +543,11 @@ namespace xSaliceReligionAIO
         }
 
         public virtual void BeforeAttack(xSLxOrbwalker.BeforeAttackEventArgs args)
+        {
+            //for champ use
+        }
+
+        public virtual void ObjAiHeroOnOnIssueOrder(Obj_AI_Base sender, GameObjectIssueOrderEventArgs args)
         {
             //for champ use
         }

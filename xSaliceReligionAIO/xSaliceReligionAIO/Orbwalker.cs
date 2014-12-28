@@ -160,7 +160,7 @@ namespace xSaliceReligionAIO
         public static bool rCasted;
         private static void OnUpdate(EventArgs args)
         {
-            if (CurrentMode == Mode.None || MenuGUI.IsChatOpen || CustomOrbwalkMode || MyHero.IsChannelingImportantSpell() || Environment.TickCount - R.LastCastAttemptT < 3100)
+            if (CurrentMode == Mode.None || MenuGUI.IsChatOpen || CustomOrbwalkMode || MyHero.IsChannelingImportantSpell() || Environment.TickCount - R.LastCastAttemptT < 3100 || MyHero.HasBuff("katarinarsound", true))
                 return;
             CheckAutoWindUp();
             var target = GetPossibleTarget();
@@ -240,8 +240,6 @@ namespace xSaliceReligionAIO
 
         public static void Orbwalk(Vector3 goalPosition, AttackableUnit mytarget)
         {
-            if (MyHero.IsChannelingImportantSpell())
-                return;
             var target = (Obj_AI_Base) mytarget;
 
             if (target != null && (CanAttack() || HaveCancled()) && IsAllowedToAttack())

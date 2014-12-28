@@ -569,7 +569,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void CancelUlt(Obj_AI_Hero target)
         {
-            if (Player.IsChannelingImportantSpell())
+            if (Player.IsChannelingImportantSpell() || Player.HasBuff("katarinarsound", true))
             {
                 //xSLxOrbwalker.Orbwalk(target.ServerPosition, null);
                 _cancelUlts = true;
@@ -740,7 +740,7 @@ namespace xSaliceReligionAIO.Champions
 
             SmartKs();
 
-            if (Player.IsChannelingImportantSpell())
+            if (Player.IsChannelingImportantSpell() || Player.HasBuff("katarinarsound",true))
             {
                 ShouldCancel();
                 return;
@@ -795,17 +795,21 @@ namespace xSaliceReligionAIO.Champions
         }
 
         private bool _cancelUlts;
-        public override void Game_OnSendPacket(GamePacketEventArgs args)
+        public override void ObjAiHeroOnOnIssueOrder(Obj_AI_Base sender, GameObjectIssueOrderEventArgs args)
         {
-            if (Player.IsChannelingImportantSpell())
+            if (sender.IsMe)
             {
-                var gamePacket = new GamePacket(args.PacketData);
-                if (gamePacket.Header == Packet.C2S.Move.Header)
+                if ((Player.IsChannelingImportantSpell() || Player.HasBuff("katarinarsound", true) || Environment.TickCount - xSLxOrbwalker.R.LastCastAttemptT < 3000) && !_cancelUlts)
                 {
-                    args.Process = false;
+                    if (args.Order == GameObjectOrder.MoveTo || args.Order == GameObjectOrder.AttackTo)
+                    {
+                        Game.PrintChat("RAWRRRRR");
+                        args.Process = false;
+                    }
                 }
             }
         }
+
         public override void GameObject_OnCreate(GameObject sender, EventArgs args)
         {
             if (Environment.TickCount < lastPlaced + 300)
