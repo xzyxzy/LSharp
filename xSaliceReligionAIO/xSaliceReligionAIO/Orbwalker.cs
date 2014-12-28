@@ -240,7 +240,7 @@ namespace xSaliceReligionAIO
 
         public static void Orbwalk(Vector3 goalPosition, AttackableUnit mytarget)
         {
-            if (MyHero.IsChannelingImportantSpell() || Environment.TickCount - R.LastCastAttemptT < 500)
+            if (MyHero.IsChannelingImportantSpell())
                 return;
             var target = (Obj_AI_Base) mytarget;
 
