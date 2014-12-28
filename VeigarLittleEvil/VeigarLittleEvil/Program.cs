@@ -35,7 +35,7 @@ namespace VeigarLittleEvil
 
         //Menu
         public static Menu menu;
-
+        public static Orbwalking.Orbwalker Orbwalker;
         private static Obj_AI_Hero Player;
 
         private static void Main(string[] args)
@@ -76,7 +76,7 @@ namespace VeigarLittleEvil
 
             //Orbwalker submenu
             var orbwalkerMenu = new Menu("My Orbwalker", "my_Orbwalker");
-            LXOrbwalker.AddToMenu(orbwalkerMenu);
+            Orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
             menu.AddSubMenu(orbwalkerMenu);
 
             //Target selector
