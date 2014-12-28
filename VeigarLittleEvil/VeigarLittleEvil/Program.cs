@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using LX_Orbwalker;
 using SharpDX;
 using Color = System.Drawing.Color;
 
@@ -525,7 +524,7 @@ namespace VeigarLittleEvil
             {
                 if (E.IsReady())
                     castE(GetNearestEnemy(Player));
-                LXOrbwalker.Orbwalk(Game.CursorPos, null);
+                Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             }
             else if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {

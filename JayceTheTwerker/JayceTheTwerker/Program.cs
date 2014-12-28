@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
-using LX_Orbwalker;
 using Color = System.Drawing.Color;
 
 namespace JayceTheTwerker
@@ -531,7 +530,7 @@ namespace JayceTheTwerker
 
         public static void castQCannonMouse()
         {
-            LXOrbwalker.Orbwalk(Game.CursorPos, null);
+            Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
 
             if (HammerTime && !R.IsReady())
                 return;
