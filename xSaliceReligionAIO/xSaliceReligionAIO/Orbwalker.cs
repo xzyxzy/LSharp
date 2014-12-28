@@ -159,7 +159,7 @@ namespace xSaliceReligionAIO
         public static bool rCasted;
         private static void OnUpdate(EventArgs args)
         {
-            if (CurrentMode == Mode.None || MenuGUI.IsChatOpen || CustomOrbwalkMode || MyHero.IsChannelingImportantSpell() || Environment.TickCount - R.LastCastAttemptT < 2900 || MyHero.HasBuff("katarinarsound", true))
+            if (CurrentMode == Mode.None || MenuGUI.IsChatOpen || CustomOrbwalkMode || MyHero.IsChannelingImportantSpell() || MyHero.HasBuff("katarinarsound", true))
                 return;
             CheckAutoWindUp();
             var target = GetPossibleTarget();
