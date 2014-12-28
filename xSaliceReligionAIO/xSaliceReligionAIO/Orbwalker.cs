@@ -333,7 +333,7 @@ namespace xSaliceReligionAIO
 
             SpellSlot castedSlot = MyHero.GetSpellSlot(spell.SData.Name, false);
 
-            if (castedSlot == SpellSlot.R)
+            if (castedSlot == SpellSlot.R && MyHero.ChampionName == "Katarina")
             {
                 R.LastCastAttemptT = Environment.TickCount;
             }
