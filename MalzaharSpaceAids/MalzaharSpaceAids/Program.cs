@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Net.Mail;
 using LeagueSharp;
 using LeagueSharp.Common;
 using LX_Orbwalker;
@@ -75,7 +74,7 @@ namespace MalzaharSpaceAids
 
             //Target selector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
-            SimpleTs.AddToMenu(targetSelectorMenu);
+            TargetSelector.AddToMenu(targetSelectorMenu);
             menu.AddSubMenu(targetSelectorMenu);
 
 
@@ -201,10 +200,10 @@ namespace MalzaharSpaceAids
         {
             var range = Q.IsReady() ? Q.Range : R.Range;
             var focusSelected = menu.Item("selected").GetValue<bool>();
-            Obj_AI_Hero target = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
-            if (SimpleTs.GetSelectedTarget() != null)
-                if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range)
-                    target = SimpleTs.GetSelectedTarget();
+            Obj_AI_Hero target = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
+            if (TargetSelector.GetSelectedTarget() != null)
+                if (focusSelected && TargetSelector.GetSelectedTarget().Distance(Player.ServerPosition) < range)
+                    target = TargetSelector.GetSelectedTarget();
 
             var hasmana = manaCheck();
 
@@ -228,11 +227,11 @@ namespace MalzaharSpaceAids
 
             //Ignite
             if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Source == "Combo" && hasmana)
+                Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Source == "Combo" && hasmana)
             {
                 if (IgniteMode == 0 && GetComboDamage(target) > target.Health)
                 {
-                    Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                    Player.Spellbook.CastSpell(IgniteSlot, target);
                 }
             }
 
@@ -335,13 +334,13 @@ namespace MalzaharSpaceAids
 
                     //ignite
                     if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                        Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
+                        Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
                         Player.Distance(target.ServerPosition) <= 600)
                     {
                         int IgniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
                         if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)
                         {
-                            Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                            Player.Spellbook.CastSpell(IgniteSlot, target);
                         }
                     }
                 }
@@ -490,10 +489,10 @@ namespace MalzaharSpaceAids
                     //Game.PrintChat("Woot");
                     var range = R.Range;
                     var focusSelected = menu.Item("selected").GetValue<bool>();
-                    Obj_AI_Hero target = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
-                    if (SimpleTs.GetSelectedTarget() != null)
-                        if (focusSelected && SimpleTs.GetSelectedTarget().Distance(Player.ServerPosition) < range)
-                            target = SimpleTs.GetSelectedTarget();
+                    Obj_AI_Hero target = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
+                    if (TargetSelector.GetSelectedTarget() != null)
+                        if (focusSelected && TargetSelector.GetSelectedTarget().Distance(Player.ServerPosition) < range)
+                            target = TargetSelector.GetSelectedTarget();
 
                     if(GetComboDamage(target) > target.Health && R.IsReady() && target.Distance(obj.Position) < 250)
                         R.CastOnUnit(target, packets());
