@@ -174,7 +174,7 @@ namespace JayceTheTwerker
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             GameObject.OnCreate += OnCreate;
             GameObject.OnDelete += OnDelete;
-            LXOrbwalker.AfterAttack += Orbwalking_AfterAttack;
+            Orbwalking.AfterAttack += Orbwalking_AfterAttack;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             Game.PrintChat(Player.ChampionName + " Loaded by --- xSalice, If you like my Assemblies, please feel free to donate to keep me motivated! :D");
@@ -647,7 +647,7 @@ namespace JayceTheTwerker
             }
         }
 
-        public static void Orbwalking_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        public static void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             var useWCombo = menu.Item("UseWCombo").GetValue<bool>();
             var useWHarass = menu.Item("UseWHarass").GetValue<bool>();
