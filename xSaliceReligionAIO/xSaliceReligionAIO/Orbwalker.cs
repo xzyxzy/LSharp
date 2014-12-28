@@ -240,6 +240,8 @@ namespace xSaliceReligionAIO
 
         public static void Orbwalk(Vector3 goalPosition, AttackableUnit mytarget)
         {
+            if (MyHero.IsChannelingImportantSpell())
+                return;
             var target = (Obj_AI_Base) mytarget;
 
             if (target != null && (CanAttack() || HaveCancled()) && IsAllowedToAttack())
@@ -252,7 +254,6 @@ namespace xSaliceReligionAIO
                     {
                         MyHero.IssueOrder(GameObjectOrder.AttackUnit, target);
                         _lastAATick = Environment.TickCount + Game.Ping / 2;
-                        R.LastCastAttemptT = 0;
                     }
                 }
             }
