@@ -417,12 +417,12 @@ namespace xSaliceReligionAIO.Champions
 
         private void CastR(Vector3 source, Vector3 destination)
         {
-            CastR(source.To2D(), destination.To2D());
+            R.Cast(source, destination);
         }
 
         private void CastR(Vector2 source, Vector2 destination)
         {
-            Packet.C2S.Cast.Encoded(new Packet.C2S.Cast.Struct(0, SpellSlot.R, Player.NetworkId, source.X, source.Y, destination.X, destination.Y)).Send();
+            R.Cast(source, destination);
         }
 
         public override void Game_OnGameUpdate(EventArgs args)

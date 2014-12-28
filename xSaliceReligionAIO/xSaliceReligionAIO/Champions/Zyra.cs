@@ -177,13 +177,14 @@ namespace xSaliceReligionAIO.Champions
 
             if (useW)
             {
-                if (useQ)
+                if (useE)
                 {
-                    var pred = Q.GetPrediction(target, true);
+                    var pred = E.GetPrediction(target, true);
                     if (pred.Hitchance >= GetHitchance(source))
                     {
-                        Q.Cast(target, packets());
+                        E.Cast(target, packets());
                         Cast_W(pred.CastPosition);
+                        return;
                     }
                 }
 
@@ -196,13 +197,14 @@ namespace xSaliceReligionAIO.Champions
                     }
                 }
 
-                if (useE)
+                if (useQ)
                 {
-                    var pred = E.GetPrediction(target, true);
+                    var pred = Q.GetPrediction(target, true);
                     if (pred.Hitchance >= GetHitchance(source))
                     {
-                        E.Cast(target, packets());
+                        Q.Cast(target, packets());
                         Cast_W(pred.CastPosition);
+                        return;
                     }
                 }
             }
@@ -219,9 +221,24 @@ namespace xSaliceReligionAIO.Champions
                 Cast_R();
         }
 
+        public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
+        {
+            if (!unit.IsMe) return;
+
+            SpellSlot castedSlot = ObjectManager.Player.GetSpellSlot(args.SData.Name, false);
+
+            if (castedSlot == SpellSlot.E || castedSlot == SpellSlot.Q)
+            {
+                E.LastCastAttemptT = Environment.TickCount;
+            }
+        }
+
         private void Cast_W(Vector3 pos)
         {
             if (!W.IsReady() || Player.Distance(pos) > W.Range || W.Instance.Ammo == 0)
+                return;
+
+            if (Environment.TickCount - E.LastCastAttemptT > 100 + Game.Ping)
                 return;
 
             if (W.Instance.Ammo == 1)// 1 cast
@@ -231,7 +248,7 @@ namespace xSaliceReligionAIO.Champions
             else if (W.Instance.Ammo == 2)// 2 cast
             {
                 Utility.DelayAction.Add(50, () => W.Cast(pos, packets()));
-                Utility.DelayAction.Add(75, () => W.Cast(pos, packets()));
+                Utility.DelayAction.Add(150, () => W.Cast(pos, packets()));
             }
         }
 
@@ -362,7 +379,6 @@ namespace xSaliceReligionAIO.Champions
 
             if (Player.IsZombie)
             {
-                Game.PrintChat("RAWR");
                 var target = TargetSelector.GetTarget(P.Range, TargetSelector.DamageType.True);
                 if (target == null)
                     return;
