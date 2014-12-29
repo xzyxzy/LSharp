@@ -49,7 +49,7 @@ namespace xSaliceReligionAIO.Champions
             //Combo menu:
             var combo = new Menu("Combo", "Combo"); { 
                 combo.AddItem(new MenuItem("UseQCombo", "Use Cannon Q").SetValue(true));
-                combo.AddItem(new MenuItem("qSpeed", "Charge Q Proj Speed").SetValue(new Slider(1600, 400, 2500)));
+                combo.AddItem(new MenuItem("qSpeed", "QE Speed, Higher = Faster, Lower = Accurate").SetValue(new Slider(1600, 400, 2500)));
                 combo.AddItem(new MenuItem("UseWCombo", "Use Cannon W").SetValue(true));
                 combo.AddItem(new MenuItem("UseECombo", "Use Cannon E").SetValue(true));
                 combo.AddItem(new MenuItem("UseQComboHam", "Use Hammer Q").SetValue(true));
