@@ -265,7 +265,7 @@ namespace xSaliceReligionAIO.Champions
 
             var pushedPos = pred.CastPosition + Vector3.Normalize(pred.CastPosition - Player.ServerPosition) * 350;
 
-            if (IsPassWall(Player.ServerPosition, pushedPos))
+            if (IsPassWall(target.ServerPosition, pushedPos))
                 return true;
 
             return false;
