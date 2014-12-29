@@ -180,11 +180,10 @@ namespace xSaliceReligionAIO.Champions
                 if (useE)
                 {
                     var pred = E.GetPrediction(target, true);
-                    if (pred.Hitchance >= GetHitchance(source))
+                    if (pred.Hitchance >= GetHitchance(source) && E.IsReady())
                     {
                         E.Cast(target, packets());
                         Cast_W(pred.CastPosition);
-                        return;
                     }
                 }
 
@@ -199,10 +198,10 @@ namespace xSaliceReligionAIO.Champions
 
                 if (useQ)
                 {
-                    var pred = Q.GetPrediction(target, true);
-                    if (pred.Hitchance >= GetHitchance(source))
+                    var pred = Q.GetPrediction(target);
+                    if (pred.Hitchance >= GetHitchance(source) && pred.CastPosition.Distance(Player.ServerPosition) < Q.Range)
                     {
-                        Q.Cast(target, packets());
+                        Q.Cast(pred.CastPosition, packets());
                         Cast_W(pred.CastPosition);
                         return;
                     }
