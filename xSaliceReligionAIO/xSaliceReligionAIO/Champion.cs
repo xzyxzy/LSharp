@@ -116,6 +116,11 @@ namespace xSaliceReligionAIO
             menu.AddSubMenu(new Menu("Packet Setting", "Packets"));
             menu.SubMenu("Packets").AddItem(new MenuItem("packet", "Use Packets").SetValue(false));
 
+            //Item Menu
+            var itemMenu = new Menu("Items and Summoners", "Items");
+            ActiveItems.AddToMenu(itemMenu);
+            menu.AddSubMenu(itemMenu);
+
             menu.AddToMainMenu();
 
             try

@@ -58,7 +58,7 @@ namespace xSaliceReligionAIO.Champions
             {
 
                 var qMenu = new Menu("QSpell", "QSpell"); { 
-                    qMenu.AddItem(new MenuItem("qOutRange", "Only When Enemy out of Range").SetValue(false));
+                    qMenu.AddItem(new MenuItem("qOutRange", "Only Use When target out of range").SetValue(false));
                     qMenu.AddItem(new MenuItem("qExtend", "Use Extended Q Range").SetValue(true));
                     qMenu.AddItem(new MenuItem("qMulti", "Q if 2+ Soilder").SetValue(true));
                     qMenu.AddItem(new MenuItem("qHit", "Q HitChance").SetValue(new Slider(3, 1, 3)));
@@ -96,8 +96,6 @@ namespace xSaliceReligionAIO.Champions
                 combo.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
                 combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
-                combo.AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
-                combo.AddItem(new MenuItem("igniteMode", "Mode").SetValue(new StringList(new[] {"Combo", "KS"})));
                 menu.AddSubMenu(combo);
             }
 
@@ -189,6 +187,8 @@ namespace xSaliceReligionAIO.Champions
             if (R.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.R);
 
+            damage = ActiveItems.CalcDamage(enemy, damage);
+
             return (float)damage;
         }
 
@@ -217,22 +217,19 @@ namespace xSaliceReligionAIO.Champions
         private void Combo()
         {
             UseSpells(menu.Item("UseQCombo").GetValue<bool>(), menu.Item("UseWCombo").GetValue<bool>(),
-                menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>());
+                menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>(), "Combo");
         }
 
         private void Harass()
         {
             UseSpells(menu.Item("UseQHarass").GetValue<bool>(), menu.Item("UseWHarass").GetValue<bool>(),
-                menu.Item("UseEHarass").GetValue<bool>(), false);
+                menu.Item("UseEHarass").GetValue<bool>(), false, "Harass");
         }
 
-        private void UseSpells(bool useQ, bool useW, bool useE, bool useR)
+        private void UseSpells(bool useQ, bool useW, bool useE, bool useR, string source)
         {
             var qTarget = TargetSelector.GetTarget(QExtend.Range, TargetSelector.DamageType.Magical);
             var soilderTarget = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Magical);
-
-            // Game.PrintChat("Spell state: " + qSpell.State);
-            var igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
 
             //R
             if (useR && R.IsReady() && ShouldR(qTarget) && Player.Distance(qTarget) < R.Range)
@@ -257,12 +254,20 @@ namespace xSaliceReligionAIO.Champions
                 return;
             }
 
-            //Ignite
-            if (qTarget != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            //items
+            if (source == "Combo")
             {
-                if (igniteMode == 0 && GetComboDamage(qTarget) > qTarget.Health)
+                var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                var dmg = GetComboDamage(itemTarget);
+                if (itemTarget != null)
                 {
-                    Player.Spellbook.CastSpell(IgniteSlot, qTarget);
+                    ActiveItems.Target = itemTarget;
+
+                    //see if killable
+                    if (dmg > itemTarget.Health - 50)
+                        ActiveItems.KillableTarget = true;
+
+                    ActiveItems.UseTargetted = true;
                 }
             }
 
@@ -291,23 +296,11 @@ namespace xSaliceReligionAIO.Champions
         {
             if (!menu.Item("smartKS").GetValue<bool>())
                 return;
-            var nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>() where champ.IsValidTarget(1200) select champ).ToList();
 
-            foreach (var target in nearChamps)
+            foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(1200) && !x.HasBuffOfType(BuffType.Invulnerability)).OrderByDescending(GetComboDamage))
             {
-                if (target != null && !target.IsDead && !target.HasBuffOfType(BuffType.Invulnerability) && target.IsValidTarget(1200))
+                if (target != null)
                 {
-                    //ignite
-                    if (menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                            Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Player.Distance(target.ServerPosition) <= 600)
-                    {
-                        var igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
-                        if (igniteMode == 1 && Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health)
-                        {
-                            Player.Spellbook.CastSpell(IgniteSlot, target);
-                        }
-                    }
-
                     //R
                     if ((Player.GetSpellDamage(target, SpellSlot.R)) > target.Health + 20 && Player.Distance(target) < R.Range && menu.Item("rKS").GetValue<bool>())
                     {
@@ -746,6 +739,7 @@ namespace xSaliceReligionAIO.Champions
 
             AttackTarget(soilderTarget);
         }
+
         private HitChance getQHitchance()
         {
             var hitC = HitChance.High;

@@ -75,8 +75,6 @@ namespace xSaliceReligionAIO.Champions
                 combo.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
                 combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
-                combo.AddItem(new MenuItem("Ignite", "Use Ignite").SetValue(true));
-                combo.AddItem(new MenuItem("Botrk", "Use BOTRK/Bilge").SetValue(true));
                 //add to menu
                 menu.AddSubMenu(combo);
             }
@@ -167,14 +165,7 @@ namespace xSaliceReligionAIO.Champions
             if (R.IsReady())
                 comboDamage += Player.GetSpellDamage(target, SpellSlot.R) * 4;
 
-            if (Items.CanUseItem(Bilge.Id))
-                comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Bilgewater);
-
-            if (Items.CanUseItem(Botrk.Id))
-                comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Botrk);
-
-            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
-                comboDamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
+            comboDamage = ActiveItems.CalcDamage(target, comboDamage);
 
             return (float)(comboDamage + Player.GetAutoAttackDamage(target) * 4);
         }
@@ -210,21 +201,20 @@ namespace xSaliceReligionAIO.Champions
                 Cast_Q();
             if(useW)
                 Cast_W();
+            //items
             if (source == "Combo")
             {
-                var qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
-                if (qTarget != null)
+                var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                var dmg = GetComboDamage(itemTarget);
+                if (itemTarget != null)
                 {
-                    if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>())
-                        Use_Ignite(qTarget);
+                    ActiveItems.Target = itemTarget;
 
-                    if (menu.Item("Botrk").GetValue<bool>())
-                    {
-                        if (GetComboDmgPercent(qTarget) < 5 &&!qTarget.HasBuffOfType(BuffType.Slow)) Use_Bilge(qTarget);
+                    //see if killable
+                    if (dmg > itemTarget.Health - 50)
+                        ActiveItems.KillableTarget = true;
 
-                        if (GetComboDmgPercent(qTarget) < 5 && !qTarget.HasBuffOfType(BuffType.Slow))
-                            Use_Botrk(qTarget);
-                    }
+                    ActiveItems.UseTargetted = true;
                 }
             }
             if(useE)

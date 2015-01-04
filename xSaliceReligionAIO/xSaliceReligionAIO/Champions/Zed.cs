@@ -92,8 +92,6 @@ namespace xSaliceReligionAIO.Champions
                 combo.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
                 combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
-                combo.AddItem(new MenuItem("Ignite", "Use Ignite").SetValue(true));
-                combo.AddItem(new MenuItem("Botrk", "Use Bilge/Botrk").SetValue(true));
                 //add to menu
                 menu.AddSubMenu(combo);
             }
@@ -167,12 +165,6 @@ namespace xSaliceReligionAIO.Champions
             if (E.IsReady())
                 comboDamage += Player.GetSpellDamage(target, SpellSlot.E) * 2;
 
-            if (Items.CanUseItem(Bilge.Id))
-                comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Bilgewater);
-
-            if (Items.CanUseItem(Botrk.Id))
-                comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Botrk);
-
             if ((target.Health / target.MaxHealth * 100) <= 50)
                 comboDamage += CalcPassive(target);
 
@@ -197,8 +189,7 @@ namespace xSaliceReligionAIO.Champions
                     comboDamage += comboDamage * 1.5;
             }
 
-            if (Ignite_Ready())
-                comboDamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
+            comboDamage = ActiveItems.CalcDamage(target, comboDamage);
 
             return (float)(comboDamage + Player.GetAutoAttackDamage(target) * 2);
         }
@@ -249,25 +240,29 @@ namespace xSaliceReligionAIO.Champions
                 case 0:
                     if (qTarget != null)
                     {
+                        //items
+                        var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+
                         if (GetMarked() != null)
-                            qTarget = GetMarked();
+                            itemTarget = GetMarked();
 
-                        if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>() && Player.Distance(qTarget) < 300)
-                            Use_Ignite(qTarget);
-
-                        if (menu.Item("Botrk").GetValue<bool>())
+                        var dmg = GetComboDamage(itemTarget);
+                        if (itemTarget != null)
                         {
-                            if (HasBuff(qTarget, "zedulttargetmark")) 
-                                Use_Bilge(qTarget);
+                            ActiveItems.Target = itemTarget;
 
-                            if (HasBuff(qTarget, "zedulttargetmark"))
-                                Use_Botrk(qTarget);
+                            //see if killable
+                            if (dmg > itemTarget.Health - 50)
+                                ActiveItems.KillableTarget = true;
+
+                            ActiveItems.UseTargetted = true;
                         }
+                        
                     }
 
                     if (menu.Item("Prioritize_Q").GetValue<bool>())
                     {
-                        if (useQ && W.LastCastAttemptT - Environment.TickCount > Game.Ping)
+                        if (useQ)
                             Cast_Q();
 
                         if (HasEnergy(false, W.IsReady() && useW, E.IsReady() && useE))
@@ -329,16 +324,21 @@ namespace xSaliceReligionAIO.Champions
                         if (GetMarked() != null)
                             qTarget = GetMarked();
 
-                        if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>() && Player.Distance(qTarget) < 300)
-                            Use_Ignite(qTarget);
+                        //items
+                        var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
 
-                        if (menu.Item("Botrk").GetValue<bool>())
+                        if (GetMarked() != null)
+                            itemTarget = GetMarked();
+
+                        if (itemTarget != null)
                         {
-                            if (HasBuff(qTarget, "zedulttargetmark"))
-                                Use_Bilge(qTarget);
+                            ActiveItems.Target = itemTarget;
 
-                            if (HasBuff(qTarget, "zedulttargetmark"))
-                                Use_Botrk(qTarget);
+                            //see if killable
+                            if (dmg > itemTarget.Health - 50)
+                                ActiveItems.KillableTarget = true;
+
+                            ActiveItems.UseTargetted = true;
                         }
                     }
 
@@ -363,25 +363,28 @@ namespace xSaliceReligionAIO.Champions
                         if (dmg2 > qTarget.Health + 50 && qTarget.IsValidTarget(R.Range) && HasEnergy(true, true, false))
                             R.CastOnUnit(qTarget, packets());
 
+                        //items
+                        var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+
                         if (GetMarked() != null)
-                            qTarget = GetMarked();
+                            itemTarget = GetMarked();
 
-                        if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>() && Player.Distance(qTarget) < 300)
-                            Use_Ignite(qTarget);
-
-                        if (menu.Item("Botrk").GetValue<bool>())
+                        var dmg = GetComboDamage(itemTarget);
+                        if (itemTarget != null)
                         {
-                            if (HasBuff(qTarget, "zedulttargetmark")) 
-                                Use_Bilge(qTarget);
+                            ActiveItems.Target = itemTarget;
 
-                            if (HasBuff(qTarget, "zedulttargetmark"))
-                                Use_Botrk(qTarget);
+                            //see if killable
+                            if (dmg > itemTarget.Health - 50)
+                                ActiveItems.KillableTarget = true;
+
+                            ActiveItems.UseTargetted = true;
                         }
                     }
 
                     if (menu.Item("Prioritize_Q").GetValue<bool>())
                     {
-                        if (useQ && W.LastCastAttemptT - Environment.TickCount > Game.Ping)
+                        if (useQ)
                             Cast_Q();
 
                         if (HasEnergy(false, W.IsReady() && useW, E.IsReady() && useE))

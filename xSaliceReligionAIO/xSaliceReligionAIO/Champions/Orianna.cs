@@ -107,7 +107,6 @@ namespace xSaliceReligionAIO.Champions
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
                 combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
                 combo.AddItem(new MenuItem("autoRCombo", "Use R if hit").SetValue(new Slider(2, 1, 5)));
-                combo.AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
                 menu.AddSubMenu(combo);
             }
             //Harass menu:
@@ -184,11 +183,10 @@ namespace xSaliceReligionAIO.Champions
             if (E.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
-            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
-                damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
-
             if (R.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.R) - 25;
+
+            damage = ActiveItems.CalcDamage(enemy, damage);
 
             return (float)damage;
         }
@@ -226,13 +224,20 @@ namespace xSaliceReligionAIO.Champions
                 CastW(target);
             }
 
-            //Ignite
-            if (target != null && menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && source == "Combo")
+            //items
+            if (source == "Combo")
             {
-                if (GetComboDamage(target) > target.Health)
+                var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                var dmg = GetComboDamage(itemTarget);
+                if (itemTarget != null)
                 {
-                    Player.Spellbook.CastSpell(IgniteSlot, target);
+                    ActiveItems.Target = itemTarget;
+
+                    //see if killable
+                    if (dmg > itemTarget.Health - 50)
+                        ActiveItems.KillableTarget = true;
+
+                    ActiveItems.UseTargetted = true;
                 }
             }
 

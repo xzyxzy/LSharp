@@ -130,11 +130,7 @@ namespace xSaliceReligionAIO.Champions
             if (R.IsReady())
                 comboDamage += Player.GetSpellDamage(target, SpellSlot.R) * GetShots();
 
-            if (Items.CanUseItem(Bilge.Id))
-                comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Bilgewater);
-
-            if (Items.CanUseItem(Botrk.Id))
-                comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Botrk);
+            comboDamage = ActiveItems.CalcDamage(target, comboDamage);
 
             return (float)(comboDamage + Player.GetAutoAttackDamage(target) * 2);
         }
@@ -167,18 +163,20 @@ namespace xSaliceReligionAIO.Champions
             if (source == "Harass" && !HasMana("Harass"))
                 return;
 
-            var target = TargetSelector.GetTarget(450, TargetSelector.DamageType.Physical);
-
-            if (target != null)
+            //items
+            if (source == "Combo")
             {
-                if (menu.Item("Botrk").GetValue<bool>())
+                var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                var dmg = GetComboDamage(itemTarget);
+                if (itemTarget != null)
                 {
-                    if ((GetComboDamage(target) > target.Health || GetHealthPercent(Player) < 25) &&
-                        !target.HasBuffOfType(BuffType.Slow))
-                    {
-                        Use_Bilge(target);
-                        Use_Botrk(target);
-                    }
+                    ActiveItems.Target = itemTarget;
+
+                    //see if killable
+                    if (dmg > itemTarget.Health - 50)
+                        ActiveItems.KillableTarget = true;
+
+                    ActiveItems.UseTargetted = true;
                 }
             }
 

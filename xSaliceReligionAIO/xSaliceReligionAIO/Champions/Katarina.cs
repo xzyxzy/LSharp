@@ -95,9 +95,6 @@ namespace xSaliceReligionAIO.Champions
             //Misc Menu:
             var misc = new Menu("Misc", "Misc");
             {
-                misc.AddItem(new MenuItem("dfg", "Use DFG").SetValue(true));
-                misc.AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
-                misc.AddItem(new MenuItem("igniteMode", "Ignite Mode").SetValue(new StringList(new[] {"Combo", "KS"})));
                 misc.AddItem(new MenuItem("autoWz", "Auto W Enemy").SetValue(true));
                 misc.AddItem(new MenuItem("E_Delay_Slider", "Delay Between E(ms)").SetValue(new Slider(0, 0, 1000)));
                 //add to menu
@@ -142,9 +139,6 @@ namespace xSaliceReligionAIO.Champions
         {
             double damage = 0d;
 
-            if (DFG.IsReady())
-                damage += Player.GetItemDamage(enemy, Damage.DamageItems.Dfg) / 1.2;
-
             if (Q.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.Q) + Player.GetSpellDamage(enemy, SpellSlot.Q, 1);
 
@@ -157,11 +151,7 @@ namespace xSaliceReligionAIO.Champions
             if (R.IsReady() || (rSpell.State == SpellState.Surpressed && R.Level > 0))
                 damage += Player.GetSpellDamage(enemy, SpellSlot.R) * 8;
 
-            if (DFG.IsReady())
-                damage = damage * 1.2;
-
-            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
-                damage += Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
+            damage = ActiveItems.CalcDamage(enemy, damage);
 
             return (float)damage;
         }
@@ -195,9 +185,21 @@ namespace xSaliceReligionAIO.Champions
             {
                 if (mode == 0) //qwe
                 {
-                    if (DFG != null && (DFG.IsReady() && E.IsReady() && menu.Item("dfg").GetValue<bool>()))
+                    //items
+                    if (E.IsReady())
                     {
-                        Items.UseItem(DFG.Id, target);
+                        var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                        var dmg = GetComboDamage(itemTarget);
+                        if (itemTarget != null)
+                        {
+                            ActiveItems.Target = itemTarget;
+
+                            //see if killable
+                            if (dmg > itemTarget.Health - 50)
+                                ActiveItems.KillableTarget = true;
+
+                            ActiveItems.UseTargetted = true;
+                        }
                     }
 
                     if (useQ && Q.IsReady() && Player.Distance(target) <= Q.Range)
@@ -220,9 +222,21 @@ namespace xSaliceReligionAIO.Champions
                 }
                 else if (mode == 1) //eqw
                 {
-                    if (DFG.IsReady() && E.IsReady() && menu.Item("dfg").GetValue<bool>())
+                    //items
+                    if (E.IsReady())
                     {
-                        Items.UseItem(DFG.Id, target);
+                        var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                        var dmg = GetComboDamage(itemTarget);
+                        if (itemTarget != null)
+                        {
+                            ActiveItems.Target = itemTarget;
+
+                            //see if killable
+                            if (dmg > itemTarget.Health - 50)
+                                ActiveItems.KillableTarget = true;
+
+                            ActiveItems.UseTargetted = true;
+                        }
                     }
 
                     if (useE && E.IsReady() && Player.Distance(target) < E.Range && Environment.TickCount - E.LastCastAttemptT > 0 &&
@@ -408,10 +422,9 @@ namespace xSaliceReligionAIO.Champions
             if (menu.Item("rCancel").GetValue<bool>() && countEnemiesNearPosition(Player.ServerPosition, 570) > 1)
                 return;
 
-            foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(1375) && x.IsEnemy && !x.IsDead).OrderByDescending(GetComboDamage))
+            foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(1375) && !x.HasBuffOfType(BuffType.Invulnerability)).OrderByDescending(GetComboDamage))
             {
-                if (target != null && !target.HasBuffOfType(BuffType.Invulnerability) &&
-                    target.IsValidTarget(1375))
+                if (target != null)
                 {
                     var delay = menu.Item("E_Delay_Slider").GetValue<Slider>().Value;
                     bool shouldE = !menu.Item("KS_With_E").GetValue<KeyBind>().Active && Environment.TickCount - E.LastCastAttemptT > 0;
@@ -550,17 +563,6 @@ namespace xSaliceReligionAIO.Champions
                             E.LastCastAttemptT = Environment.TickCount + delay;
                             //Game.PrintChat("ks 3");
                             return;
-                        }
-                    }
-
-                    //ignite
-                    if (menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                        Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
-                        Player.Distance(target.ServerPosition) <= 600)
-                    {
-                        if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health)
-                        {
-                            Player.Spellbook.CastSpell(IgniteSlot, target);
                         }
                     }
                 }

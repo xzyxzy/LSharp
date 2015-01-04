@@ -92,8 +92,6 @@ namespace xSaliceReligionAIO.Champions
                 combo.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
                 combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
-                combo.AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
-                combo.AddItem(new MenuItem("igniteMode", "Ignite Mode").SetValue(new StringList(new[] {"Combo", "KS"})));
                 menu.AddSubMenu(combo);
             }
 
@@ -121,7 +119,6 @@ namespace xSaliceReligionAIO.Champions
                 misc.AddItem(new MenuItem("UseInt", "Use E to Interrupt").SetValue(true));
                 misc.AddItem(new MenuItem("UseGap", "Use E for GapCloser").SetValue(true));
                 misc.AddItem(new MenuItem("smartKS", "Use Smart KS System").SetValue(true));
-                misc.AddItem(new MenuItem("mana", "Mana check before ignite").SetValue(true));
                 menu.AddSubMenu(misc);
             }
 
@@ -171,11 +168,10 @@ namespace xSaliceReligionAIO.Champions
             if (E.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
-            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
-                damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
-
             if (R.IsReady())
                 damage += GetUltDmg((Obj_AI_Hero)enemy);
+
+            damage = ActiveItems.CalcDamage(enemy, damage);
 
             damage += GetPassiveDmg();
 
@@ -277,8 +273,6 @@ namespace xSaliceReligionAIO.Champions
             bool hasmana = manaCheck();
             float dmg = GetComboDamage(target);
 
-            int igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
-
             useR = (menu.Item("DontUlt" + target.BaseSkinName) != null && menu.Item("DontUlt" + target.BaseSkinName).GetValue<bool>() == false) && useR;
 
             if (useW && W.IsReady() && Player.Distance(target) <= W.Range &&
@@ -294,12 +288,19 @@ namespace xSaliceReligionAIO.Champions
                 E.Cast(target, packets());
             }
 
-            //Ignite
-            if (menu.Item("ignite").GetValue<bool>() && Ignite_Ready() && hasmana)
+            //items
+            if (source == "Combo")
             {
-                if (igniteMode == 0 && dmg > target.Health)
+                var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                if (itemTarget != null)
                 {
-                    Player.Spellbook.CastSpell(IgniteSlot, target);
+                    ActiveItems.Target = itemTarget;
+
+                    //see if killable
+                    if (dmg > itemTarget.Health - 50)
+                        ActiveItems.KillableTarget = true;
+
+                    ActiveItems.UseTargetted = true;
                 }
             }
 
@@ -491,15 +492,6 @@ namespace xSaliceReligionAIO.Champions
                     }
                 }
 
-                //ignite
-                if (menu.Item("ignite").GetValue<bool>() && Ignite_Ready())
-                {
-                    int igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
-                    if (igniteMode == 1 && Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)
-                    {
-                        Player.Spellbook.CastSpell(IgniteSlot, target);
-                    }
-                }
             }
         }
 

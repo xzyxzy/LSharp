@@ -71,8 +71,6 @@ namespace xSaliceReligionAIO.Champions
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
                 combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
                 combo.AddItem(new MenuItem("rSpeed", "Use All R fast Duel").SetValue(true));
-                combo.AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
-                combo.AddItem(new MenuItem("igniteMode", "Ignite Mode").SetValue(new StringList(new[] { "Combo", "KS" })));
                 //add to menu
                 menu.AddSubMenu(combo);
             }
@@ -176,19 +174,10 @@ namespace xSaliceReligionAIO.Champions
             else if (R.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.R) * 3; 
 
-            if (DFG.IsReady() && E.IsReady())
-                damage = damage * 1.44;
-            else if (DFG.IsReady() && enemy.HasBuffOfType(BuffType.Charm))
-                damage = damage * 1.44;
-            else if (E.IsReady())
-                damage = damage * 1.2;
-            else if (DFG.IsReady())
-                damage = damage * 1.2;
-            else if (enemy.HasBuffOfType(BuffType.Charm))
+            if (enemy.HasBuffOfType(BuffType.Charm))
                 damage = damage * 1.2;
 
-            if (Ignite_Ready())
-                damage += Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
+            damage = ActiveItems.CalcDamage(enemy, damage);
 
             if (E.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
@@ -219,21 +208,30 @@ namespace xSaliceReligionAIO.Champions
 
             Obj_AI_Hero rETarget = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
 
-            int igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
-
             var hitC = GetHitchance(source);
             var dmg = GetComboDamage(eTarget);
             var predOff = menu.Item("Prediction_Check_Off").GetValue<bool>();
-                
-            //DFG
-            if (eTarget != null && dmg > eTarget.Health - 300 && DFG.IsReady() && source == "Combo" && Player.Distance(eTarget) <= 750 &&
-                (eTarget.HasBuffOfType(BuffType.Charm) || !menu.Item("dfgCharm").GetValue<bool>()))
+
+            if (eTarget == null)
+                return;
+
+            if (source == "Combo")
             {
-               Use_DFG(eTarget);
+                //items-------
+                ActiveItems.Target = eTarget;
+
+                //see if killable
+                if (dmg > eTarget.Health - 50)
+                    ActiveItems.KillableTarget = true;
+
+                //Items
+                if (eTarget.HasBuffOfType(BuffType.Charm) || !menu.Item("dfgCharm").GetValue<bool>())
+                    ActiveItems.UseTargetted = true;
             }
+            //end items-------
 
             //E
-            if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range)
+            if (useE && E.IsReady() && Player.Distance(eTarget) < E.Range)
             {
                 if (E.GetPrediction(eTarget).Hitchance >= hitC || predOff)
                 {
@@ -246,17 +244,8 @@ namespace xSaliceReligionAIO.Champions
                 }
             }
 
-            //Ignite
-            if (eTarget != null && Ignite_Ready() && !E.IsReady() && source == "Combo")
-            {
-                if (igniteMode == 0 && dmg > eTarget.Health)
-                {
-                    Use_Ignite(eTarget);
-                }
-            }
-
             //W
-            if (useW && eTarget != null && W.IsReady() && Player.Distance(eTarget) <= W.Range - 100 &&
+            if (useW && W.IsReady() && Player.Distance(eTarget) <= W.Range - 100 &&
                 ShouldW(eTarget, source))
             {
                 W.Cast();
@@ -264,7 +253,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (source == "Harass" && menu.Item("longQ").GetValue<bool>())
             {
-                if (useQ && Q.IsReady() && Player.Distance(eTarget) <= Q.Range && eTarget != null &&
+                if (useQ && Q.IsReady() && Player.Distance(eTarget) <= Q.Range &&
                     ShouldQ(eTarget, source) && Player.Distance(eTarget) > 600)
                 {
                     if (Q.GetPrediction(eTarget).Hitchance >= hitC || predOff)
@@ -274,7 +263,7 @@ namespace xSaliceReligionAIO.Champions
                     }
                 }
             }
-            else if (useQ && Q.IsReady() && Player.Distance(eTarget) <= Q.Range && eTarget != null &&
+            else if (useQ && Q.IsReady() && Player.Distance(eTarget) <= Q.Range &&
                      ShouldQ(eTarget, source))
             {
                 if (Q.GetPrediction(eTarget).Hitchance >= hitC || predOff)
@@ -285,7 +274,7 @@ namespace xSaliceReligionAIO.Champions
             }
 
             //R
-            if (useR && eTarget != null && R.IsReady() && Player.Distance(eTarget) < R.Range)
+            if (useR && R.IsReady() && Player.Distance(eTarget) < R.Range)
             {
                 if (E.IsReady())
                 {
@@ -311,32 +300,6 @@ namespace xSaliceReligionAIO.Champions
             {
                 if (target != null)
                 {
-                    if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health &&
-                        Player.Distance(target.ServerPosition) <= 750)
-                    {
-                        Use_DFG(target);
-                        return;
-                    }
-
-                    if (DFG.IsReady() && Player.Distance(target.ServerPosition) <= 750 && Q.IsReady() &&
-                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
-                         (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1)) *
-                         1.2) > target.Health)
-                    {
-                        Use_DFG(target);
-                        Q.Cast(target, packets());
-                        return;
-                    }
-
-                    if (DFG.IsReady() && Player.Distance(target.ServerPosition) <= 750 && W.IsReady() &&
-                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
-                         Player.GetSpellDamage(target, SpellSlot.W) * 1.2) > target.Health)
-                    {
-                        Use_DFG(target);
-                        W.Cast();
-                        return;
-                    }
-
                     if (Player.Distance(target.ServerPosition) <= W.Range &&
                         (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.Q, 1) +
                          Player.GetSpellDamage(target, SpellSlot.W)) > target.Health && Q.IsReady() && Q.IsReady())
@@ -374,17 +337,6 @@ namespace xSaliceReligionAIO.Champions
                         target.Distance(dashVector) < 425 && R.IsReady())
                     {
                         R.Cast(dashVector, packets());
-                    }
-
-                    //ignite
-                    if (menu.Item("ignite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                        Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready &&
-                        Player.Distance(target.ServerPosition) <= 600)
-                    {
-                        if (Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)
-                        {
-                            Use_Ignite(target);
-                        }
                     }
                 }
             }

@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActiveItems.cs" />
     <Compile Include="Champion.cs" />
     <Compile Include="Champions\Ahri.cs" />
     <Compile Include="Champions\Akali.cs" />

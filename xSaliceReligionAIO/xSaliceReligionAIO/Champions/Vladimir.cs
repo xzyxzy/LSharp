@@ -45,8 +45,6 @@ namespace xSaliceReligionAIO.Champions
                 combo.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
                 combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
-                combo.AddItem(new MenuItem("Ignite", "Use Ignite").SetValue(true));
-                combo.AddItem(new MenuItem("igniteMode", "Ignite Mode").SetValue(new StringList(new[] { "Combo", "KS" })));
                 //add to menu
                 menu.AddSubMenu(combo);
             }
@@ -129,8 +127,7 @@ namespace xSaliceReligionAIO.Champions
                 comboDamage += comboDamage * 1.12;
             }
 
-            if (Ignite_Ready())
-                comboDamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
+            comboDamage = ActiveItems.CalcDamage(target, comboDamage);
 
             return (float)(comboDamage + Player.GetAutoAttackDamage(target));
         }
@@ -138,18 +135,17 @@ namespace xSaliceReligionAIO.Champions
         private void Combo()
         {
             UseSpells(menu.Item("UseQCombo").GetValue<bool>(),
-                menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>());
+                menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>(), "Combo");
         }
 
         private void Harass()
         {
             UseSpells(menu.Item("UseQHarass").GetValue<bool>(),
-                menu.Item("UseEHarass").GetValue<bool>(), false);
+                menu.Item("UseEHarass").GetValue<bool>(), false, "Harass");
         }
 
-        private void UseSpells(bool useQ, bool useE, bool useR)
+        private void UseSpells(bool useQ, bool useE, bool useR, string source)
         {
-            int igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
             Obj_AI_Hero target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
             
             var range = Q.Range;
@@ -164,8 +160,21 @@ namespace xSaliceReligionAIO.Champions
             if (useR && R.IsReady() && target.IsValidTarget(R.Range) && R.GetPrediction(target, true).Hitchance >= HitChance.High)
                 R.Cast(target);
 
-            if (igniteMode == 0 && Ignite_Ready() && dmg > target.Health + 50)
-                Use_Ignite(target);
+            //items
+            if (source == "Combo")
+            {
+                var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                if (itemTarget != null)
+                {
+                    ActiveItems.Target = itemTarget;
+
+                    //see if killable
+                    if (dmg > itemTarget.Health - 50)
+                        ActiveItems.KillableTarget = true;
+
+                    ActiveItems.UseTargetted = true;
+                }
+            }
 
             if (useE && E.IsReady() && target.IsValidTarget(E.Range))
                 E.Cast(packets());

@@ -123,6 +123,8 @@ namespace xSaliceReligionAIO.Champions
             if (R.IsReady())
                 comboDamage += Player.GetSpellDamage(target, SpellSlot.R);
 
+            comboDamage = ActiveItems.CalcDamage(target, comboDamage);
+
             return (float)(comboDamage + Player.GetAutoAttackDamage(target) * 3);
         }
 
@@ -140,6 +142,23 @@ namespace xSaliceReligionAIO.Champions
         {
             if (source == "Harass" && !HasMana("Harass"))
                 return;
+
+            //items
+            if (source == "Combo")
+            {
+                var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                var dmg = GetComboDamage(itemTarget);
+                if (itemTarget != null)
+                {
+                    ActiveItems.Target = itemTarget;
+
+                    //see if killable
+                    if (dmg > itemTarget.Health - 50)
+                        ActiveItems.KillableTarget = true;
+
+                    ActiveItems.UseTargetted = true;
+                }
+            }
 
             var target = TargetSelector.GetTarget(550, TargetSelector.DamageType.Magical);
             if ((target != null && source == "Combo") && menu.Item("Always_Use").GetValue<bool>())

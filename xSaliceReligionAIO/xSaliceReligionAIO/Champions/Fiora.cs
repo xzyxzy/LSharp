@@ -93,8 +93,6 @@ namespace xSaliceReligionAIO.Champions
                 combo.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
                 combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
-                combo.AddItem(new MenuItem("Ignite", "Use Ignite").SetValue(true));
-                combo.AddItem(new MenuItem("Botrk", "Use BOTRK/Bilge").SetValue(true));
                 //add to menu
                 menu.AddSubMenu(combo);
             }
@@ -177,20 +175,7 @@ namespace xSaliceReligionAIO.Champions
             if (R.IsReady())
                 comboDamage += Player.GetSpellDamage(target, SpellSlot.R) / countEnemiesNearPosition(target.ServerPosition, R.Range);
 
-            if (Items.CanUseItem(Bilge.Id))
-                comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Bilgewater);
-
-            if (Items.CanUseItem(Botrk.Id))
-                comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Botrk);
-
-            if (Items.CanUseItem(3077))
-                comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Tiamat);
-
-            if (Items.CanUseItem(3074))
-                comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Hydra);
-
-            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
-                comboDamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
+            comboDamage = ActiveItems.CalcDamage(target, comboDamage);
 
             return (float)(comboDamage + Player.GetAutoAttackDamage(target) * 3);
         }
@@ -215,22 +200,20 @@ namespace xSaliceReligionAIO.Champions
             if (useQ)
                 Cast_Q();
 
+            //items
             if (source == "Combo")
             {
-                var qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
-                if (qTarget != null)
+                var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                var dmg = GetComboDamage(itemTarget);
+                if (itemTarget != null)
                 {
-                    if (GetComboDamage(qTarget) >= qTarget.Health && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>() && Player.Distance(qTarget) < 300)
-                        Use_Ignite(qTarget);
+                    ActiveItems.Target = itemTarget;
 
-                    if (menu.Item("Botrk").GetValue<bool>())
-                    {
-                        if (GetComboDamage(qTarget) > qTarget.Health && !qTarget.HasBuffOfType(BuffType.Slow))
-                        {
-                            Use_Bilge(qTarget);
-                            Use_Botrk(qTarget);
-                        }
-                    }
+                    //see if killable
+                    if (dmg > itemTarget.Health - 50)
+                        ActiveItems.KillableTarget = true;
+
+                    ActiveItems.UseTargetted = true;
                 }
             }
 
@@ -456,11 +439,6 @@ namespace xSaliceReligionAIO.Champions
                 {
                     if (menu.Item("E_Reset").GetValue<bool>() && E.IsReady())
                         E.Cast();
-
-                    if(Items.CanUseItem(3077))
-                        Items.UseItem(3077);
-                    if (Items.CanUseItem(3074))
-                        Items.UseItem(3074);
 
                     int mode = menu.Item("Combo_mode").GetValue<StringList>().SelectedIndex;
                     if (mode == 1)

@@ -150,6 +150,8 @@ namespace xSaliceReligionAIO.Champions
             if (_hamEcd == 0 && E.Level > 0)
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
+            damage = ActiveItems.CalcDamage(enemy, damage);
+
             damage += Player.GetAutoAttackDamage(enemy)*3;
             return (float)damage;
         }
@@ -198,6 +200,19 @@ namespace xSaliceReligionAIO.Champions
 
                     if (useE2 && ECheck(e2Target, useQ, useW) && Player.Distance(e2Target) <= E2.Range + q2Target.BoundingRadius && E2.IsReady())
                         E2.Cast(q2Target, packets());
+                }
+
+                var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                var dmg = GetComboDamage(itemTarget);
+                if (itemTarget != null)
+                {
+                    ActiveItems.Target = itemTarget;
+
+                    //see if killable
+                    if (dmg > itemTarget.Health - 50)
+                        ActiveItems.KillableTarget = true;
+
+                    ActiveItems.UseTargetted = true;
                 }
 
                 //form switch check
@@ -621,9 +636,10 @@ namespace xSaliceReligionAIO.Champions
 
             if (unit == Player.Name && name == "JayceShockBlastMis")
             {
-                if (menu.Item("forceGate").GetValue<bool>() && _canEcd == 0 && Player.Distance(spell.Position) < 250 && E.IsReady())
+                if (menu.Item("forceGate").GetValue<bool>() && _canEcd == 0 && E.IsReady())
                 {
-                    E.Cast(spell.EndPosition, packets());
+                    var vec = spell.Position - Vector3.Normalize(Player.ServerPosition - spell.Position) * 100;
+                    E.Cast(vec, packets());
                 }
             }
         }

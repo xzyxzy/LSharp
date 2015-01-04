@@ -86,8 +86,6 @@ namespace xSaliceReligionAIO.Champions
                 combo.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
                 combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
-                combo.AddItem(new MenuItem("Ignite", "Use Ignite").SetValue(true));
-                combo.AddItem(new MenuItem("DFG", "DFG").SetValue(true));
                 menu.AddSubMenu(combo);
             }
 
@@ -168,10 +166,10 @@ namespace xSaliceReligionAIO.Champions
             if (E.IsReady())
                 comboDamage += Player.GetSpellDamage(target, SpellSlot.E);
 
-            comboDamage += Get_Ult_Dmg(target);
+            if (R.IsReady())
+                comboDamage += (3 + getOrbCount()) * Player.GetSpellDamage(target, SpellSlot.R, 1) - 20;
 
-            if (Ignite_Ready())
-                comboDamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
+            comboDamage = ActiveItems.CalcDamage(target, comboDamage);
 
             return (float)(comboDamage + Player.GetAutoAttackDamage(target));
         }
@@ -180,13 +178,10 @@ namespace xSaliceReligionAIO.Champions
         {
             var damage = 0d;
 
-            if (Items.CanUseItem(DFG.Id) && menu.Item("DFG").GetValue<bool>())
-                damage += Player.GetItemDamage(enemy, Damage.DamageItems.Dfg) / 1.2;
-
             if (R.IsReady())
                 damage += (3 + getOrbCount()) * Player.GetSpellDamage(enemy, SpellSlot.R, 1) - 20;
 
-            return (float)damage * (Items.CanUseItem(DFG.Id) ? 1.2f : 1);
+            return (float) damage;
         }
 
         private void Combo()
@@ -206,7 +201,6 @@ namespace xSaliceReligionAIO.Champions
             if (source == "Harass" && !HasMana("Harass"))
                 return;
 
-            var useIgnite = menu.Item("Ignite").GetValue<bool>();
             var qTarget = TargetSelector.GetTarget(650, TargetSelector.DamageType.Magical);
             float dmg = 0;
             if (qTarget != null)
@@ -224,10 +218,20 @@ namespace xSaliceReligionAIO.Champions
             if (useW)
                 Cast_W(true);
 
-            if (qTarget != null)
+            //items
+            if (source == "Combo")
             {
-                if (dmg >= qTarget.Health + 25 && Ignite_Ready() && useIgnite)
-                    Use_Ignite(qTarget);
+                var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                if (itemTarget != null)
+                {
+                    ActiveItems.Target = itemTarget;
+
+                    //see if killable
+                    if (dmg > itemTarget.Health - 50)
+                        ActiveItems.KillableTarget = true;
+
+                    ActiveItems.UseTargetted = true;
+                }
             }
 
             if (useQe)
@@ -413,9 +417,6 @@ namespace xSaliceReligionAIO.Champions
 
             if (Get_Ult_Dmg(rTarget) > rTarget.Health - 20 && rTarget.Distance(Player) < R.Range)
             {
-                if (Items.CanUseItem(DFG.Id) && menu.Item("DFG").GetValue<bool>())
-                    Use_DFG(rTarget);
-
                 R.CastOnUnit(rTarget);
             }
         }

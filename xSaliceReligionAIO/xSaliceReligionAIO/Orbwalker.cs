@@ -386,7 +386,7 @@ namespace xSaliceReligionAIO
 
         public static bool InSoldierAttackRange(AttackableUnit target)
         {
-            return target != null && ObjectManager.Get<Obj_AI_Minion>().Any(obj => obj.Name == "AzirSoldier" && obj.IsAlly && obj.BoundingRadius < 66 && obj.AttackSpeedMod > 1 && obj.Distance(target) < 380);
+            return target != null && ObjectManager.Get<Obj_AI_Minion>().Any(obj => obj.Name == "AzirSoldier" && obj.IsAlly && obj.Distance(target) < 390);
         }
 
         public static AttackableUnit GetPossibleTarget()
@@ -413,13 +413,10 @@ namespace xSaliceReligionAIO
             {
                 if (MyHero.ChampionName == "Azir")
                 {
-                    foreach (
-                    var minion in
-                        from minion in
-                            ObjectManager.Get<Obj_AI_Minion>().Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InSoldierAttackRange(minion))
-                        let t = (int)(MyHero.AttackCastDelay * 1000) - 100 + Game.Ping / 2 +
-                                1000 * (int)MyHero.Distance(minion) / (int)MyProjectileSpeed()
-                        let predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay()) + 3
+                    var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.NotAlly);
+                    foreach (var minion in from minion in minions.Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InSoldierAttackRange(minion))
+                        let t = (int)(MyHero.AttackCastDelay * 1000) - 100 + Game.Ping / 2 + 1000 * (int)MyHero.Distance(minion) / (int)MyProjectileSpeed()
+                        let predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay())
                         where minion.Team != GameObjectTeam.Neutral && predHealth > 0 &&
                               predHealth <= GetAzirAASandwarriorDamage(minion)
                         select minion)
@@ -432,7 +429,7 @@ namespace xSaliceReligionAIO
                             ObjectManager.Get<Obj_AI_Minion>().Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InAutoAttackRange(minion))
                         let t = (int)(MyHero.AttackCastDelay * 1000) - 100 + Game.Ping / 2 +
                                 1000 * (int)MyHero.Distance(minion) / (int)MyProjectileSpeed()
-                        let predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay()) + 3
+                        let predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay())
                         where minion.Team != GameObjectTeam.Neutral && predHealth > 0 &&
                               predHealth <= MyHero.GetAutoAttackDamage(minion, true)
                         select minion)
@@ -462,9 +459,10 @@ namespace xSaliceReligionAIO
                 {
                     maxhealth = new float[] { 0 };
                     var maxhealth1 = maxhealth;
+                    var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.NotAlly);
                     foreach (
                         var minion in
-                            ObjectManager.Get<Obj_AI_Minion>()
+                            minions
                                 .Where(minion => InSoldierAttackRange(minion) && minion.Name != "Beacon" && minion.IsValidTarget() && minion.Team == GameObjectTeam.Neutral)
                                 .Where(minion => minion.MaxHealth >= maxhealth1[0] || Math.Abs(maxhealth1[0] - float.MaxValue) < float.Epsilon))
                     {
@@ -496,9 +494,10 @@ namespace xSaliceReligionAIO
             {
                 maxhealth = new float[] { 0 };
                 float[] maxhealth1 = maxhealth;
-                foreach (var minion in from minion in ObjectManager.Get<Obj_AI_Minion>()
+                var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.NotAlly);
+                foreach (var minion in from minion in minions
                     .Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InSoldierAttackRange(minion))
-                                       let predHealth = HealthPrediction.LaneClearHealthPrediction(minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay()) + 3
+                                       let predHealth = HealthPrediction.LaneClearHealthPrediction(minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay())
                                        where predHealth >=
                                              GetAzirAASandwarriorDamage(minion) + MyHero.GetAutoAttackDamage(minion, true) ||
                                              Math.Abs(predHealth - minion.Health) < float.Epsilon
@@ -515,7 +514,7 @@ namespace xSaliceReligionAIO
             maxhealth = new float[] { 0 };
             foreach (var minion in from minion in ObjectManager.Get<Obj_AI_Minion>()
                 .Where(minion => minion.IsValidTarget(GetAutoAttackRange(MyHero, minion)) && minion.Name != "Beacon")
-                                   let predHealth = HealthPrediction.LaneClearHealthPrediction(minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay()) + 3
+                                   let predHealth = HealthPrediction.LaneClearHealthPrediction(minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay())
                                    where predHealth >=
                                          2 * MyHero.GetAutoAttackDamage(minion, true) ||
                                          Math.Abs(predHealth - minion.Health) < float.Epsilon
@@ -591,6 +590,8 @@ namespace xSaliceReligionAIO
         private static int FarmDelay(int offset = 0)
         {
             var ret = offset;
+            if (MyHero.ChampionName == "Azir")
+                ret += 50;
             return Menu.Item("orb_Misc_Farmdelay").GetValue<Slider>().Value + ret;
         }
 

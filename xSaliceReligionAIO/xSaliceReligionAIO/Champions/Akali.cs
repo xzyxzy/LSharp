@@ -155,17 +155,13 @@ namespace xSaliceReligionAIO.Champions
 
             comboDamage += Player.CalcDamage(target, Damage.DamageType.Magical, CalcPassiveDmg());
 
-            if (Items.CanUseItem(Bilge.Id))
-                comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Bilgewater);
-
-            if (Items.CanUseItem(Hex.Id))
-                comboDamage += Player.GetItemDamage(target, Damage.DamageItems.Hexgun);
+            if (rStacks > 0)
+                comboDamage += Player.GetSpellDamage(target, SpellSlot.R) * rStacks;
 
             if (Ignite_Ready())
                 comboDamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
 
-            if (rStacks > 0)
-                comboDamage += Player.GetSpellDamage(target, SpellSlot.R) * rStacks;
+            comboDamage = ActiveItems.CalcDamage(target, comboDamage);
 
             return (float)(comboDamage + Player.GetAutoAttackDamage(target));
         }
@@ -229,21 +225,19 @@ namespace xSaliceReligionAIO.Champions
                     break;
             }
 
-            var qTarget = TargetSelector.GetTarget(650, TargetSelector.DamageType.Physical);
-            if (qTarget != null)
+            if (source == "Combo")
             {
-                if (GetComboDamage(qTarget) >= qTarget.Health && menu.Item("Ignite").GetValue<bool>() && Ignite_Ready() && Player.Distance(qTarget) < 300)
-                    Use_Ignite(qTarget);
-
-                if (menu.Item("Bilge").GetValue<bool>())
+                var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                var dmg = GetComboDamage(itemTarget);
+                if (itemTarget != null)
                 {
-                    if (GetComboDamage(qTarget) >= qTarget.Health &&
-                        !qTarget.HasBuffOfType(BuffType.Slow))
-                        Use_Bilge(qTarget);
+                    ActiveItems.Target = itemTarget;
 
-                    if (GetComboDamage(qTarget) >= qTarget.Health &&
-                        !qTarget.HasBuffOfType(BuffType.Slow))
-                        Use_Hex(qTarget);
+                    //see if killable
+                    if (dmg > itemTarget.Health - 50)
+                        ActiveItems.KillableTarget = true;
+
+                    ActiveItems.UseTargetted = true;
                 }
             }
 

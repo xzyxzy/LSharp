@@ -54,8 +54,6 @@ namespace xSaliceReligionAIO.Champions
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
                 combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
                 combo.AddItem(new MenuItem("R_Min", "R if >= Enemies, 6 = off").SetValue(new Slider(3, 1, 6)));
-                combo.AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
-                combo.AddItem(new MenuItem("igniteMode", "Ignite Mode").SetValue(new StringList(new[] { "Combo", "KS" })));
                 //add to menu
                 menu.AddSubMenu(combo);
             }
@@ -85,7 +83,6 @@ namespace xSaliceReligionAIO.Champions
             var misc = new Menu("Misc", "Misc");
             {
                 misc.AddItem(new MenuItem("E_GapCloser", "Use E for GapCloser").SetValue(true));
-                misc.AddItem(new MenuItem("mana", "Mana check before using ignite").SetValue(true));
                 misc.AddItem(new MenuItem("smartKS", "Smart KS").SetValue(true));
                 misc.AddItem(new MenuItem("Auto_Bloom", "Auto bloom Plant if Enemy near").SetValue(true));
                 //add to menu
@@ -143,8 +140,7 @@ namespace xSaliceReligionAIO.Champions
             if (DFG.IsReady())
                 damage = damage * 1.2;
 
-            if (Ignite_Ready())
-                damage += Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
+            damage = ActiveItems.CalcDamage(enemy, damage);
 
             return (float)damage;
         }
@@ -171,8 +167,6 @@ namespace xSaliceReligionAIO.Champions
             if (target == null)
                 return;
 
-            int igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
-            bool hasMana = manaCheck();
             float dmg = GetComboDamage(target);
 
             if (useW)
@@ -187,12 +181,19 @@ namespace xSaliceReligionAIO.Champions
                     }
                 }
 
-                //Ignite
-                if (menu.Item("ignite").GetValue<bool>() && Ignite_Ready() && hasMana)
+                //items
+                if (source == "Combo")
                 {
-                    if (igniteMode == 0 && dmg > target.Health)
+                    var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                    if (itemTarget != null)
                     {
-                        Player.Spellbook.CastSpell(IgniteSlot, target);
+                        ActiveItems.Target = itemTarget;
+
+                        //see if killable
+                        if (dmg > itemTarget.Health - 50)
+                            ActiveItems.KillableTarget = true;
+
+                        ActiveItems.UseTargetted = true;
                     }
                 }
 
@@ -341,15 +342,6 @@ namespace xSaliceReligionAIO.Champions
                 {
                     R.Cast(target);
                     return;
-                }
-                //ignite
-                if (menu.Item("ignite").GetValue<bool>() && Ignite_Ready())
-                {
-                    int igniteMode = menu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
-                    if (igniteMode == 1 && Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite) > target.Health + 20)
-                    {
-                        Player.Spellbook.CastSpell(IgniteSlot, target);
-                    }
                 }
             }
         }

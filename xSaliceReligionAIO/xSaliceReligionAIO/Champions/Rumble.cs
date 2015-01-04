@@ -86,7 +86,6 @@ namespace xSaliceReligionAIO.Champions
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
                 combo.AddItem(new MenuItem("qHit", "E HitChance").SetValue(new Slider(3, 1, 3)));
                 combo.AddItem(new MenuItem("UseRCombos", "Use R").SetValue(false));
-                combo.AddItem(new MenuItem("Ignite", "Use Ignite").SetValue(true));
                 //add to menu
                 menu.AddSubMenu(combo);
             }
@@ -164,8 +163,7 @@ namespace xSaliceReligionAIO.Champions
             if (R.IsReady())
                 comboDamage += Player.GetSpellDamage(target, SpellSlot.R) * 3;
 
-            if (Ignite_Ready())
-                comboDamage += Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
+            comboDamage = ActiveItems.CalcDamage(target, comboDamage);
 
             return (float)(comboDamage + Player.GetAutoAttackDamage(target));
         }
@@ -195,8 +193,22 @@ namespace xSaliceReligionAIO.Champions
             if (useW && menu.Item("W_Always").GetValue<bool>() && W.IsReady())
                 W.Cast(packets());
 
-            if (GetComboDamage(target) >= target.Health + 150 && Ignite_Ready() && menu.Item("Ignite").GetValue<bool>() && source == "Combo")
-                Use_Ignite(target);
+            //items
+            if (source == "Combo")
+            {
+                var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                var dmg = GetComboDamage(itemTarget);
+                if (itemTarget != null)
+                {
+                    ActiveItems.Target = itemTarget;
+
+                    //see if killable
+                    if (dmg > itemTarget.Health - 50)
+                        ActiveItems.KillableTarget = true;
+
+                    ActiveItems.UseTargetted = true;
+                }
+            }
 
             if (useE && ShouldE(target, source))
                 E.Cast(target, packets());
