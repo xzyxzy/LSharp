@@ -67,6 +67,7 @@
     <Compile Include="Champions\Rumble.cs" />
     <Compile Include="Champions\Velkoz.cs" />
     <Compile Include="Champions\Vladimir.cs" />
+    <Compile Include="Champions\Yasuo.cs" />
     <Compile Include="Champions\Zyra.cs" />
     <Compile Include="DamageIndicator.cs" />
     <Compile Include="Champions\Ezreal.cs" />
