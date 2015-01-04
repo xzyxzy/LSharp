@@ -271,7 +271,7 @@ namespace xSaliceReligionAIO.Champions
                 var minDistance = menu.Item("Q_Min_Distance").GetValue<Slider>().Value;
 
                 if (!menu.Item("Q_Under_Tower").GetValue<bool>())
-                    if (Utility.UnderTurret(target, true))
+                    if (target.UnderTurret(true))
                         return;
 
                 if (Player.Distance(target) > Q.Range / 2 && menu.Item("Q_Gap_Close").GetValue<bool>())
