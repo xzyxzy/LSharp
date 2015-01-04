@@ -73,7 +73,7 @@ namespace xSaliceReligionAIO
         public SpellSlot IgniteSlot = ObjectManager.Player.GetSpellSlot("SummonerDot");
         
         //items
-        public Items.Item DFG = Utility.Map.GetMap().Type == Utility.Map.MapType.TwistedTreeline ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
+        public Items.Item DFG = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
         public Items.Item Botrk = new Items.Item(3153, 450);
         public Items.Item Bilge = new Items.Item(3144, 450);
         public Items.Item Hex = new Items.Item(3146, 700);
@@ -379,16 +379,12 @@ namespace xSaliceReligionAIO
             return new object[3] { pointSegment, pointLine, isOnSegment };
         }
 
-        public void CastBasicSkillShot(Spell spell, float range, TargetSelector.DamageType type, HitChance hitChance, bool towerCheck = false)
+        public void CastBasicSkillShot(Spell spell, float range, TargetSelector.DamageType type, HitChance hitChance)
         {
             var target = TargetSelector.GetTarget(range, type);
 
             if (target == null || !spell.IsReady())
                 return;
-
-            if (towerCheck && target.UnderTurret(true))
-                return;
-
             spell.UpdateSourcePosition();
 
             if (spell.GetPrediction(target).Hitchance >= hitChance)

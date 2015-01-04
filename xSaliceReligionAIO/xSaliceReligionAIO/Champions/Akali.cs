@@ -75,6 +75,8 @@ namespace xSaliceReligionAIO.Champions
                 combo.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
                 combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
+                combo.AddItem(new MenuItem("Ignite", "Use Ignite").SetValue(true));
+                combo.AddItem(new MenuItem("Bilge", "Use Bilge/Hextech").SetValue(true));
                 //add to menu
                 menu.AddSubMenu(combo);
             }
