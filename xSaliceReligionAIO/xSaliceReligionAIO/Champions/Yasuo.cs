@@ -240,14 +240,14 @@ namespace xSaliceReligionAIO.Champions
                 return;
 
             //EQ3
-            if (ThirdQ() && Player.Distance(target) < E.Range)
+            if (ThirdQ() && Player.ServerPosition.To2D().Distance(target.ServerPosition.To2D()) < E.Range)
             {
                 E.Cast(target);
                 Utility.DelayAction.Add(200, () => Q.Cast(target.Position, packets()));
                 return;
             }
 
-            if (Player.Distance(target) < menu.Item("E_Min_Dist").GetValue<Slider>().Value)
+            if (Player.Distance(target) <= menu.Item("E_Min_Dist").GetValue<Slider>().Value)
                 return;
             
             //gapclose
@@ -281,7 +281,7 @@ namespace xSaliceReligionAIO.Champions
                 return;
             }
 
-            if (Player.Distance(target) > menu.Item("E_Min_Dist").GetValue<Slider>().Value && Player.Distance(target) < E.Range)
+            if (Player.ServerPosition.To2D().Distance(target.ServerPosition.To2D()) > menu.Item("E_Min_Dist").GetValue<Slider>().Value && Player.Distance(target) < E.Range)
                 E.Cast(target, packets());
         }
 
