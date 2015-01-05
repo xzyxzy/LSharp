@@ -149,6 +149,7 @@ namespace xSaliceReligionAIO.Champions
                 drawMenu.AddItem(new MenuItem("Draw_Q2", "Draw Q Extended").SetValue(true));
                 drawMenu.AddItem(new MenuItem("Draw_E", "Draw E").SetValue(true));
                 drawMenu.AddItem(new MenuItem("Draw_R", "Draw R").SetValue(true));
+                drawMenu.AddItem(new MenuItem("Draw_AutoQ", "Draw Auto Q Enable").SetValue(true));
 
                 MenuItem drawComboDamageMenu = new MenuItem("Draw_ComboDamage", "Draw Combo Damage").SetValue(true);
                 MenuItem drawFill = new MenuItem("Draw_Fill", "Draw Combo Damage Fill").SetValue(new Circle(true, Color.FromArgb(90, 255, 169, 4)));
@@ -682,6 +683,15 @@ namespace xSaliceReligionAIO.Champions
             if (menu.Item("Draw_R").GetValue<bool>())
                 if (R.Level > 0)
                     Utility.DrawCircle(Player.Position, R.Range, R.IsReady() ? Color.Green : Color.Red);
+
+            if (menu.Item("Draw_AutoQ").GetValue<bool>())
+            {
+                Vector2 wts = Drawing.WorldToScreen(Player.Position);
+                if (menu.Item("Q_Auto").GetValue<KeyBind>().Active)
+                    Drawing.DrawText(wts[0] - 20, wts[1], Color.White, "Auto Q Enabled");
+                else
+                    Drawing.DrawText(wts[0] - 20, wts[1], Color.Red, "Auto Q Disabled");
+            }
         }
 
     }
