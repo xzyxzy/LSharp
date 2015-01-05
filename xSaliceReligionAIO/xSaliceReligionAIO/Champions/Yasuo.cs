@@ -17,11 +17,11 @@ namespace xSaliceReligionAIO.Champions
 
         private void SetSpells()
         {
-            Q = new Spell(SpellSlot.Q, 450);
-            Q.SetSkillshot(0.1f, 80f, float.MaxValue, false, SkillshotType.SkillshotLine);
+            Q = new Spell(SpellSlot.Q, 475);
+            Q.SetSkillshot(0.4f, 70f, float.MaxValue, false, SkillshotType.SkillshotLine);
 
             Q2 = new Spell(SpellSlot.Q, 900);
-            Q2.SetSkillshot(0.25f, 100f, 1600f, true, SkillshotType.SkillshotLine);
+            Q2.SetSkillshot(0.4f, 90f, 1500f, true, SkillshotType.SkillshotLine);
 
             W = new Spell(SpellSlot.W, 400);
 
