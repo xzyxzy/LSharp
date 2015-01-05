@@ -272,7 +272,6 @@ namespace xSaliceReligionAIO.Champions
             if (target == null)
                 return;
 
-            bool hasmana = manaCheck();
             float dmg = GetComboDamage(target);
 
             useR = (menu.Item("DontUlt" + target.BaseSkinName) != null && menu.Item("DontUlt" + target.BaseSkinName).GetValue<bool>() == false) && useR;
@@ -439,7 +438,6 @@ namespace xSaliceReligionAIO.Champions
             {
                 Q.Cast();
                 _qMissle = null;
-                Game.PrintChat("splitted");
             }
         }
 
@@ -588,6 +586,7 @@ namespace xSaliceReligionAIO.Champions
 
         public override void Game_OnSendPacket(GamePacketEventArgs args)
         {
+            /*
             //Disable action on Ult
             if (args.GetPacketId() == LeagueSharp.Network.Packets.Packet.GetPacketId<PKT_ChargedSpell>())
             {
@@ -599,7 +598,7 @@ namespace xSaliceReligionAIO.Champions
                     args.Process = !(menu.Item("ComboActive").GetValue<KeyBind>().Active && menu.Item("UseRCombo").GetValue<bool>() && menu.Item("smartKS").GetValue<bool>()
                         && menu.Item("HarassActive").GetValue<KeyBind>().Active && menu.Item("HarassActiveT").GetValue<KeyBind>().Active && menu.Item("R_Mouse").GetValue<KeyBind>().Active);
                 }
-            }
+            }*/
         }
 
         public override void GameObject_OnCreate(GameObject obj, EventArgs args)
