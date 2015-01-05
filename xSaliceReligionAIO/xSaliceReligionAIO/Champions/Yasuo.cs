@@ -591,6 +591,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (sender.Name != "missile")
             {
+                Game.PrintChat(args.SData.Name);
 
                 if (menu.Item(args.SData.Name + "W_Wall").GetValue<bool>() && W.IsReady() && Player.Distance(args.Position) < 400)
                 {
