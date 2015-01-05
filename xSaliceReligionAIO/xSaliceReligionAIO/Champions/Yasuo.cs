@@ -18,7 +18,7 @@ namespace xSaliceReligionAIO.Champions
         private void SetSpells()
         {
             Q = new Spell(SpellSlot.Q, 475);
-            Q.SetSkillshot(0.4f, 70f, float.MaxValue, false, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0.35f, 70f, float.MaxValue, false, SkillshotType.SkillshotLine);
 
             Q2 = new Spell(SpellSlot.Q, 900);
             Q2.SetSkillshot(0.4f, 90f, 1500f, true, SkillshotType.SkillshotLine);
@@ -246,7 +246,7 @@ namespace xSaliceReligionAIO.Champions
                 if (menu.Item("Q_thirdE").GetValue<bool>() && E.IsReady() && CanCastE(target))
                     return;
 
-            if (!ThirdQ() && target != null)
+            if (!ThirdQ() && target != null && target.IsValidTarget(Q.Range))
             {
                 Q.Cast(target, packets());
             }
@@ -359,7 +359,7 @@ namespace xSaliceReligionAIO.Champions
 
             var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
 
-            if (!ThirdQ() && target != null)
+            if (!ThirdQ() && target != null && target.IsValidTarget(Q.Range))
             {
                 if (menu.Item("Q_UnderTower").GetValue<bool>() && target.UnderTurret(true))
                     return;
