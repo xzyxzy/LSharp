@@ -694,7 +694,7 @@ namespace xSaliceReligionAIO.Champions
 
                 if (menu.Item(args.SData.Name + "E").GetValue<bool>() && (Player.Distance(args.Start) < 1000 || Player.Distance(args.End) < 1000))
                 {
-                    var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
+                    var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range - 75, MinionTypes.All, MinionTeam.NotAlly);
 
                     foreach (var m in minion.Where(CanCastE))
                     {
@@ -771,7 +771,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (_eSlide != null)
             {
-                var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
+                var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range - 75, MinionTypes.All, MinionTeam.NotAlly);
                 if (Player.Distance(_eSlide.Position) < 400)
                 {
                     foreach (var m in minion.Where(CanCastE))
