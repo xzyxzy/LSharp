@@ -590,6 +590,25 @@ namespace xSaliceReligionAIO.Champions
                     return;
 
 
+                if (menu.Item(args.SData.Name + "E").GetValue<bool>())
+                {
+                    var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
+
+                    foreach (var m in minion)
+                    {
+                        Object[] obj = VectorPointProjectionOnLineSegment(m.ServerPosition.To2D(), args.Start.To2D(), args.End.To2D());
+                        var isOnseg = (bool)obj[2];
+
+                        if (!isOnseg)
+                        {
+                            E.CastOnUnit(m, packets());
+                            E.LastCastAttemptT = Environment.TickCount;
+                            return;
+                        }
+                    }
+
+                }
+
                 if (menu.Item(args.SData.Name + "W_Wall").GetValue<bool>() && W.IsReady())
                 {
                     W.Cast(args.Start, packets());
@@ -600,20 +619,6 @@ namespace xSaliceReligionAIO.Champions
                     return;
                 }
 
-                if (menu.Item(args.SData.Name + "E").GetValue<bool>())
-                {
-                    var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
-
-                    foreach (var m in minion)
-                    {
-                        Object[] obj = VectorPointProjectionOnLineSegment(m.ServerPosition.To2D(), args.Start.To2D(), args.End.To2D());
-                        var isOnseg = (bool)obj[2];
-
-                        if(!isOnseg)
-                            E.CastOnUnit(m, packets());
-                    }
-
-                }
             }
 
             if (unit.IsMe)
