@@ -593,6 +593,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 if (menu.Item(args.SData.Name + "W_Wall").GetValue<bool>() && W.IsReady())
                 {
+                    Game.PrintChat("RAWR1");
                     if (Player.Distance(args.Position) < 400)
                     {
                         Game.PrintChat("RAWR");
