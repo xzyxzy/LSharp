@@ -21,7 +21,7 @@ namespace xSaliceReligionAIO.Champions
             Q.SetSkillshot(0.1f, 80f, float.MaxValue, false, SkillshotType.SkillshotLine);
 
             Q2 = new Spell(SpellSlot.Q, 900);
-            Q2.SetSkillshot(0.3f, 80f, 1500f, true, SkillshotType.SkillshotLine);
+            Q2.SetSkillshot(0.25f, 100f, 1600f, true, SkillshotType.SkillshotLine);
 
             W = new Spell(SpellSlot.W, 400);
 
@@ -107,7 +107,7 @@ namespace xSaliceReligionAIO.Champions
             var combo = new Menu("Combo", "Combo");
             {
                 combo.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
-                combo.AddItem(new MenuItem("qHit", "Q3 HitChance").SetValue(new Slider(3, 1, 3)));
+                combo.AddItem(new MenuItem("qHit", "Q3 HitChance").SetValue(new Slider(2, 1, 3)));
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
                 combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
                 combo.AddItem(new MenuItem("ComboR_MEC", "R if >= Enemies")).SetValue(new Slider(3, 1, 5));
@@ -117,7 +117,7 @@ namespace xSaliceReligionAIO.Champions
             var harass = new Menu("Harass", "Harass");
             {
                 harass.AddItem(new MenuItem("UseQHarass", "Use Q").SetValue(true));
-                harass.AddItem(new MenuItem("qHit2", "Q3 HitChance").SetValue(new Slider(3, 1, 3)));
+                harass.AddItem(new MenuItem("qHit2", "Q3 HitChance").SetValue(new Slider(2, 1, 3)));
                 harass.AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
                 //add to menu
                 menu.AddSubMenu(harass);
@@ -207,7 +207,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void UseSpells(bool useQ, bool useW, bool useE, bool useR, string source)
         {
-            var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+            var itemTarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
             var dmg = GetComboDamage(itemTarget);
 
             if (useE)
@@ -248,7 +248,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (!ThirdQ() && target != null)
             {
-                Q.Cast(target.Position, packets());
+                Q.Cast(target, packets());
             }
             else
             {
@@ -258,7 +258,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_E()
         {
-            var target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Physical);
+            var target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
 
             if (target == null || !E.IsReady() || !CanCastE(target))
                 return;
@@ -270,7 +270,7 @@ namespace xSaliceReligionAIO.Champions
             if (ThirdQ() && Player.ServerPosition.To2D().Distance(target.ServerPosition.To2D()) < E.Range + target.BoundingRadius)
             {
                 E.CastOnUnit(target);
-                Utility.DelayAction.Add(200, () => Q.Cast(target.Position, packets()));
+                Utility.DelayAction.Add(200, () => Q.Cast(target, packets()));
                 return;
             }
 
@@ -279,26 +279,28 @@ namespace xSaliceReligionAIO.Champions
 
             //gapclose
             if (menu.Item("E_GapClose").GetValue<bool>()) { 
-                var allMinionQ = MinionManager.GetMinions(Player.ServerPosition, 500, MinionTypes.All, MinionTeam.NotAlly);
+                var allMinionQ = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
 
-                Obj_AI_Base bestMinion = allMinionQ[0];
-                Vector3 bestVec = Player.ServerPosition + Vector3.Normalize(bestMinion.ServerPosition - Player.ServerPosition) * 475;
-
-                foreach (var minion in allMinionQ.Where(CanCastE))
+                if (allMinionQ.Count > 0)
                 {
-                    var dashVec = Player.ServerPosition + Vector3.Normalize(minion.ServerPosition - Player.ServerPosition) * 475;
+                    Obj_AI_Base bestMinion = allMinionQ[0];
+                    Vector3 bestVec = Player.ServerPosition + Vector3.Normalize(bestMinion.ServerPosition - Player.ServerPosition) * 475;
 
-                    if (Player.Distance(target) > target.Distance(dashVec) && target.Distance(bestVec) > target.Distance(dashVec))
+                    foreach (var minion in allMinionQ.Where(CanCastE))
                     {
-                        bestMinion = minion;
-                        bestVec = dashVec;
-                    }
-                }
+                        var dashVec = Player.ServerPosition + Vector3.Normalize(minion.ServerPosition - Player.ServerPosition) * 475;
 
-                if (target.Distance(Player) > target.Distance(bestVec) - 150 && bestMinion != null)
-                {
-                    E.CastOnUnit(bestMinion, packets());
-                    return;
+                        if (target.Distance(Player) > target.Distance(bestVec) - 50 && target.Distance(bestVec) > target.Distance(dashVec))
+                        {
+                            bestMinion = minion;
+                            bestVec = dashVec;
+                        }
+                    }
+                    if (target.Distance(Player) > target.Distance(bestVec) - 50 && bestMinion != null)
+                    {
+                        E.CastOnUnit(bestMinion, packets());
+                        return;
+                    }
                 }
             }
 
@@ -306,7 +308,7 @@ namespace xSaliceReligionAIO.Champions
                 Player.Distance(target) < E.Range)
             {
                 E.CastOnUnit(target, packets());
-                Utility.DelayAction.Add(200, () => Q.Cast(target.Position, packets()));
+                Utility.DelayAction.Add(200, () => Q.Cast(target, packets()));
                 return;
             }
 
@@ -359,7 +361,10 @@ namespace xSaliceReligionAIO.Champions
 
             if (!ThirdQ() && target != null)
             {
-                Q.Cast(target.Position, packets());
+                if (menu.Item("Q_UnderTower").GetValue<bool>() && target.UnderTurret(true))
+                    return;
+
+                Q.Cast(target, packets());
             }
             else if (menu.Item("Q_Auto_third").GetValue<bool>())
             {
@@ -411,7 +416,7 @@ namespace xSaliceReligionAIO.Champions
                     {
                         if (!ThirdQ() && target.IsValidTarget(Q.Range))
                         {
-                            Q.Cast(target.Position, packets());
+                            Q.Cast(target, packets());
                         }
                         else 
                         {
