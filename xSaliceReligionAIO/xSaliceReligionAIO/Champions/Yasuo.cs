@@ -139,6 +139,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 misc.AddItem(new MenuItem("smartKS", "Use Smart KS System").SetValue(true));
                 misc.AddItem(new MenuItem("Interrupt", "Interrupt Spells").SetValue(true));
+                menu.AddSubMenu(misc);
             }
 
             var drawMenu = new Menu("Drawing", "Drawing");
