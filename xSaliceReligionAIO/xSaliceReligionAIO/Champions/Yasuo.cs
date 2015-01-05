@@ -692,7 +692,7 @@ namespace xSaliceReligionAIO.Champions
                     return;
 
 
-                if (menu.Item(args.SData.Name + "E").GetValue<bool>())
+                if (menu.Item(args.SData.Name + "E").GetValue<bool>() && (Player.Distance(args.Start) < 1000 || Player.Distance(args.End) < 1000))
                 {
                     var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
 
@@ -772,22 +772,24 @@ namespace xSaliceReligionAIO.Champions
             if (_eSlide != null)
             {
                 var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
-
-                foreach (var m in minion.Where(CanCastE))
+                if (Player.Distance(_eSlide.Position) < 400)
                 {
-                    var dashVec = Player.ServerPosition + Vector3.Normalize(m.ServerPosition - Player.ServerPosition) * 475;
-
-                    Object[] obj = VectorPointProjectionOnLineSegment(dashVec.To2D(), _eSlide.Position.To2D(), _eSlide.EndPosition.To2D());
-                    var isOnseg = (bool)obj[2];
-                    
-                    var pointLine = (Vector2)obj[1];
-                    if (!isOnseg && !dashVec.UnderTurret(true) && dashVec.Distance(pointLine.To3D()) > _eSlide.SData.LineWidth)
+                    foreach (var m in minion.Where(CanCastE))
                     {
+                        var dashVec = Player.ServerPosition + Vector3.Normalize(m.ServerPosition - Player.ServerPosition) * 475;
 
-                        E.CastOnUnit(m, packets());
-                        E.LastCastAttemptT = Environment.TickCount;
-                        _eSlide = null;
-                        return;
+                        Object[] obj = VectorPointProjectionOnLineSegment(dashVec.To2D(), _eSlide.Position.To2D(), _eSlide.EndPosition.To2D());
+                        var isOnseg = (bool)obj[2];
+                    
+                        var pointLine = (Vector2)obj[1];
+                        if (!isOnseg && !dashVec.UnderTurret(true) && dashVec.Distance(pointLine.To3D()) > _eSlide.SData.LineWidth)
+                        {
+
+                            E.CastOnUnit(m, packets());
+                            E.LastCastAttemptT = Environment.TickCount;
+                            _eSlide = null;
+                            return;
+                        }
                     }
                 }
             }
