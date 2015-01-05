@@ -649,7 +649,7 @@ namespace xSaliceReligionAIO.Champions
 
                     if (_windWall != null && W.IsReady())
                     {
-                        if (Player.Distance(_windWall.Position) < 400)
+                        if (Player.Distance(_windWall.Position) < 200)
                         {
                             W.Cast(_windWall.Position, packets());
 
