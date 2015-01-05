@@ -106,7 +106,6 @@ namespace xSaliceReligionAIO.Champions
 
             var combo = new Menu("Combo", "Combo");
             {
-                combo.AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
                 combo.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
                 combo.AddItem(new MenuItem("qHit", "Q3 HitChance").SetValue(new Slider(3, 1, 3)));
                 combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
@@ -135,6 +134,13 @@ namespace xSaliceReligionAIO.Champions
                 //add to menu
                 menu.AddSubMenu(farm);
             }
+
+            var misc = new Menu("Misc", "Misc");
+            {
+                misc.AddItem(new MenuItem("smartKS", "Use Smart KS System").SetValue(true));
+                misc.AddItem(new MenuItem("Interrupt", "Interrupt Spells").SetValue(true));
+            }
+
             var drawMenu = new Menu("Drawing", "Drawing");
             {
                 drawMenu.AddItem(new MenuItem("Draw_Disabled", "Disable All").SetValue(false));
@@ -375,6 +381,56 @@ namespace xSaliceReligionAIO.Champions
                 Q.Cast(enemies[0], packets());
         }
 
+
+        private void SmartKs()
+        {
+            
+            if (!menu.Item("smartKS").GetValue<bool>())
+                return;
+
+            foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(Q2.Range) && !x.HasBuffOfType(BuffType.Invulnerability)).OrderByDescending(GetComboDamage))
+            {
+                if (target != null)
+                {
+                    //E + Q
+                    if (Player.Distance(target.ServerPosition) <= E.Range && (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.Q)) >
+                        target.Health + 20)
+                    {
+                        if (E.IsReady() && Q.IsReady())
+                        {
+                            E.Cast(target, packets());
+                            Obj_AI_Hero target1 = target;
+                            Utility.DelayAction.Add(200, () => Q.Cast(target1.Position));
+                            return;
+                        }
+                    }
+
+                    //Q
+                    if ((Player.GetSpellDamage(target, SpellSlot.Q)) > target.Health + 20)
+                    {
+                        if (!ThirdQ() && target.IsValidTarget(Q.Range))
+                        {
+                            Q.Cast(target.Position, packets());
+                        }
+                        else 
+                        {
+                            Q.Cast(target, packets());
+                        }
+                    }
+
+                    //E
+                    if (Player.Distance(target.ServerPosition) <= E.Range && (Player.GetSpellDamage(target, SpellSlot.E)) > target.Health + 20)
+                    {
+                        if (E.IsReady())
+                        {
+                            E.Cast(target, packets());
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
         private void LastHit()
         {
             var allMinionsQ = MinionManager.GetMinions(Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly);
@@ -495,6 +551,22 @@ namespace xSaliceReligionAIO.Champions
         private bool CanCastE(Obj_AI_Base target)
         {
             return !target.HasBuff("YasuoDashWrapper");
+        }
+
+        public override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        {
+            if (spell.DangerLevel < InterruptableDangerLevel.Medium || unit.IsAlly || !Q.IsReady() || !ThirdQ() || !menu.Item("Interrupt").GetValue<bool>())
+                return;
+
+            if (unit.IsValidTarget(E.Range))
+            {
+                E.CastOnUnit(unit, packets());
+                Utility.DelayAction.Add(200, () => Q.Cast(unit.Position));
+            }
+            else if(unit.IsValidTarget(Q2.Range))
+            {
+                Q2.Cast(unit);
+            }
         }
 
         public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
