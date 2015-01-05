@@ -582,7 +582,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-
+        private Obj_SpellMissile _windWall = null;
         public override void GameObject_OnCreate(GameObject sender, EventArgs args2)
         {
             if (!(sender is Obj_SpellMissile) || !sender.IsValid)
@@ -594,19 +594,25 @@ namespace xSaliceReligionAIO.Champions
                 if (menu.Item(args.SData.Name + "W_Wall").GetValue<bool>() && W.IsReady())
                 {
                     Game.PrintChat("RAWR1");
-                    if (Player.Distance(args.Position) < 400)
-                    {
-                        Game.PrintChat("RAWR");
-                        W.Cast(args.Position, packets());
-
-                        var vec = Player.ServerPosition - (args.Position - Player.ServerPosition)*50;
-
-                        Player.IssueOrder(GameObjectOrder.MoveTo, vec);
-                    }
+                    _windWall = args;
                 }
             }
         }
 
+        public override void GameObject_OnDelete(GameObject sender, EventArgs args2)
+        {
+            if (!(sender is Obj_SpellMissile) || !sender.IsValid)
+                return;
+            var args = (Obj_SpellMissile)sender;
+
+            if (sender.Name != "missile")
+            {
+                if (menu.Item(args.SData.Name + "W_Wall").GetValue<bool>() && W.IsReady())
+                {
+                    _windWall = null;
+                }
+            }
+        }
         public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
             if (unit.IsEnemy && (unit is Obj_AI_Hero))
@@ -691,6 +697,20 @@ namespace xSaliceReligionAIO.Champions
                     Harass();
             }
 
+
+            if (_windWall != null)
+            {
+                if (Player.Distance(_windWall.Position) < 400)
+                {
+                    Game.PrintChat("RAWR");
+                    W.Cast(_windWall.Position, packets());
+
+                    var vec = Player.ServerPosition - (_windWall.Position - Player.ServerPosition) * 50;
+
+                    Player.IssueOrder(GameObjectOrder.MoveTo, vec);
+                    _windWall = null;
+                }
+            }
             //stack Q
             StackQ();
         }
