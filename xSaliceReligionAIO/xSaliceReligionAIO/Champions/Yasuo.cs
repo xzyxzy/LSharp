@@ -271,26 +271,28 @@ namespace xSaliceReligionAIO.Champions
                 return;
 
             //gapclose
-            var allMinionQ = MinionManager.GetMinions(Player.ServerPosition, 500, MinionTypes.All, MinionTeam.NotAlly);
+            if (menu.Item("E_GapClose").GetValue<bool>()) { 
+                var allMinionQ = MinionManager.GetMinions(Player.ServerPosition, 500, MinionTypes.All, MinionTeam.NotAlly);
 
-            Obj_AI_Base bestMinion = allMinionQ[0];
-            Vector3 bestVec = Player.ServerPosition + Vector3.Normalize(bestMinion.ServerPosition - Player.ServerPosition) * 475;
+                Obj_AI_Base bestMinion = allMinionQ[0];
+                Vector3 bestVec = Player.ServerPosition + Vector3.Normalize(bestMinion.ServerPosition - Player.ServerPosition) * 475;
 
-            foreach (var minion in allMinionQ.Where(CanCastE))
-            {
-                var dashVec = Player.ServerPosition + Vector3.Normalize(minion.ServerPosition - Player.ServerPosition) * 475;
-
-                if (Player.Distance(target) > target.Distance(dashVec) && target.Distance(bestVec) > target.Distance(dashVec))
+                foreach (var minion in allMinionQ.Where(CanCastE))
                 {
-                    bestMinion = minion;
-                    bestVec = dashVec;
-                }
-            }
+                    var dashVec = Player.ServerPosition + Vector3.Normalize(minion.ServerPosition - Player.ServerPosition) * 475;
 
-            if (target.Distance(Player) > target.Distance(bestVec) - 150 && bestMinion != null)
-            {
-                E.CastOnUnit(bestMinion, packets());
-                return;
+                    if (Player.Distance(target) > target.Distance(dashVec) && target.Distance(bestVec) > target.Distance(dashVec))
+                    {
+                        bestMinion = minion;
+                        bestVec = dashVec;
+                    }
+                }
+
+                if (target.Distance(Player) > target.Distance(bestVec) - 150 && bestMinion != null)
+                {
+                    E.CastOnUnit(bestMinion, packets());
+                    return;
+                }
             }
 
             if (Q.IsReady() && Player.Distance(target) > menu.Item("E_Min_Dist").GetValue<Slider>().Value &&
