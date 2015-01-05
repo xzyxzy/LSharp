@@ -128,6 +128,7 @@ namespace xSaliceReligionAIO.Champions
                 farm.AddItem(new MenuItem("UseQLast", "Use Q Last hit").SetValue(true));
                 farm.AddItem(new MenuItem("UseELast", "Use E Last hit").SetValue(true));
                 farm.AddItem(new MenuItem("UseQFarm", "Use Q Farm").SetValue(true));
+                farm.AddItem(new MenuItem("UseQ3Farm", "Use Q3 Farm").SetValue(true));
                 farm.AddItem(new MenuItem("UseEFarm", "Use E Farm").SetValue(true));
                 farm.AddItem(new MenuItem("E_UnderTower_Farm", "E under Tower")).SetValue(false);
                 farm.AddItem(new MenuItem("LaneClear_useQ_minHit", "Use Q if min. hit").SetValue(new Slider(2, 1, 6)));
@@ -427,6 +428,8 @@ namespace xSaliceReligionAIO.Champions
 
             var useQ = menu.Item("UseQFarm").GetValue<bool>();
             var useE = menu.Item("UseEFarm").GetValue<bool>();
+            var useQ3 = menu.Item("UseQ3Farm").GetValue<bool>();
+
             var min = menu.Item("LaneClear_useQ_minHit").GetValue<Slider>().Value;
 
             if (useQ && useE && Q.IsReady() && E.IsReady())
@@ -457,7 +460,7 @@ namespace xSaliceReligionAIO.Champions
                     if (pred.MinionsHit >= min)
                         Q.Cast(pred.Position, packets());
                 }
-                else
+                else if(useQ3)
                 {
                     var pred = Q.GetLineFarmLocation(allMinionsQ2);
 
