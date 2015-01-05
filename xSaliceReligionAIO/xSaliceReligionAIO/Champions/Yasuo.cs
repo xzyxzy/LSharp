@@ -598,9 +598,11 @@ namespace xSaliceReligionAIO.Champions
                     {
                         Object[] obj = VectorPointProjectionOnLineSegment(m.ServerPosition.To2D(), args.Start.To2D(), args.End.To2D());
                         var isOnseg = (bool)obj[2];
+                        var dashVec = Player.ServerPosition + Vector3.Normalize(m.ServerPosition - Player.ServerPosition) * 475;
 
-                        if (!isOnseg)
+                        if (!isOnseg && !dashVec.UnderTurret(true))
                         {
+                            
                             E.CastOnUnit(m, packets());
                             E.LastCastAttemptT = Environment.TickCount;
                             return;
