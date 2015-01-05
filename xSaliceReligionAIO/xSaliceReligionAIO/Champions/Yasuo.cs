@@ -609,7 +609,7 @@ namespace xSaliceReligionAIO.Champions
 
                 }
 
-                if (menu.Item(args.SData.Name + "W_Wall").GetValue<bool>() && W.IsReady())
+                if (menu.Item(args.SData.Name + "W_Wall").GetValue<bool>() && W.IsReady() && Player.Distance(args.Start) < 1000 && Player.Distance(args.End) < 1000)
                 {
                     W.Cast(args.Start, packets());
 
