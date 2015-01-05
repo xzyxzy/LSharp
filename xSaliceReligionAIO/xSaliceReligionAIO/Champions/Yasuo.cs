@@ -703,7 +703,7 @@ namespace xSaliceReligionAIO.Champions
                         var isOnseg = (bool)obj[2];
                         var pointLine = (Vector2)obj[1];
 
-                        if (!isOnseg && !dashVec.UnderTurret(true) && m.Distance(pointLine.To3D()) > args.SData.LineWidth)
+                        if (!isOnseg && !dashVec.UnderTurret(true) && dashVec.Distance(pointLine.To3D()) > args.SData.LineWidth)
                         {
                             
                             E.CastOnUnit(m, packets());
@@ -781,7 +781,7 @@ namespace xSaliceReligionAIO.Champions
                     var isOnseg = (bool)obj[2];
                     
                     var pointLine = (Vector2)obj[1];
-                    if (!isOnseg && !dashVec.UnderTurret(true) && m.Distance(pointLine.To3D()) > _eSlide.SData.LineWidth)
+                    if (!isOnseg && !dashVec.UnderTurret(true) && dashVec.Distance(pointLine.To3D()) > _eSlide.SData.LineWidth)
                     {
 
                         E.CastOnUnit(m, packets());
