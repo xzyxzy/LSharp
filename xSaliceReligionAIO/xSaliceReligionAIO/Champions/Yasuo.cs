@@ -591,14 +591,17 @@ namespace xSaliceReligionAIO.Champions
 
             if (sender.Name != "missile")
             {
-                if (menu.Item(args.SData.Name + "W_Wall").GetValue<bool>() && W.IsReady() && Player.Distance(args.Position) < 400)
+                if (menu.Item(args.SData.Name + "W_Wall").GetValue<bool>() && W.IsReady())
                 {
-                    Game.PrintChat("RAWR");
-                    W.Cast(args.Position, packets());
+                    if (Player.Distance(args.Position) < 400)
+                    {
+                        Game.PrintChat("RAWR");
+                        W.Cast(args.Position, packets());
 
-                    var vec = Player.ServerPosition - (args.Position - Player.ServerPosition) * 50;
+                        var vec = Player.ServerPosition - (args.Position - Player.ServerPosition)*50;
 
-                    Player.IssueOrder(GameObjectOrder.MoveTo, vec);
+                        Player.IssueOrder(GameObjectOrder.MoveTo, vec);
+                    }
                 }
             }
         }
