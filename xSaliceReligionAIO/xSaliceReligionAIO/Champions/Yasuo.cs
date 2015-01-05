@@ -61,13 +61,35 @@ namespace xSaliceReligionAIO.Champions
                     //wind wall
                     var dangerous = new Menu("Dodge Dangerous", "Dodge Dangerous");
                     {
+                        SpellDatabase.CreateSpellDatabase();
                         foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsEnemy))
                         {
                             dangerous.AddSubMenu(new Menu(hero.ChampionName, hero.ChampionName));
-                            dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.Q).Name + "W_Wall", hero.Spellbook.GetSpell(SpellSlot.Q).Name).SetValue(false));
-                            dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.W).Name + "W_Wall", hero.Spellbook.GetSpell(SpellSlot.W).Name).SetValue(false));
-                            dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.E).Name + "W_Wall", hero.Spellbook.GetSpell(SpellSlot.E).Name).SetValue(false));
-                            dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.R).Name + "W_Wall", hero.Spellbook.GetSpell(SpellSlot.R).Name).SetValue(false));
+
+                            var q = SpellDatabase.Spells.FirstOrDefault(x => x.ChampionName == hero.ChampionName && x.Slot == SpellSlot.Q);
+                            if (q != null)
+                                dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(q.MissileSpellName + "W_Wall", q.MissileSpellName).SetValue(false));
+                            else
+                                dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.Q).Name + "W_Wall", hero.Spellbook.GetSpell(SpellSlot.Q).Name).SetValue(false));
+                            
+                            var w = SpellDatabase.Spells.FirstOrDefault(x => x.ChampionName == hero.ChampionName && x.Slot == SpellSlot.W);
+                            if (w != null)
+                                dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(w.MissileSpellName + "W_Wall", w.MissileSpellName).SetValue(false));
+                            else
+                                dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.W).Name + "W_Wall", hero.Spellbook.GetSpell(SpellSlot.W).Name).SetValue(false));
+
+                            var e = SpellDatabase.Spells.FirstOrDefault(x => x.ChampionName == hero.ChampionName && x.Slot == SpellSlot.E);
+                            if (e != null)
+                                dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(e.MissileSpellName + "W_Wall", e.MissileSpellName).SetValue(false));
+                            else
+                                dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.E).Name + "W_Wall", hero.Spellbook.GetSpell(SpellSlot.E).Name).SetValue(false));
+
+                            var r = SpellDatabase.Spells.FirstOrDefault(x => x.ChampionName == hero.ChampionName && x.Slot == SpellSlot.R);
+                            if (r != null)
+                                dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(r.MissileSpellName + "W_Wall", r.MissileSpellName).SetValue(false));
+                            else
+                                 dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.R).Name + "W_Wall", hero.Spellbook.GetSpell(SpellSlot.R).Name).SetValue(false));
+
                         }
                         wMenu.AddSubMenu(dangerous);
                     }
@@ -591,6 +613,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (sender.Name != "missile")
             {
+                //Game.PrintChat(args.SData.Name);
                 if (menu.Item(args.SData.Name + "W_Wall").GetValue<bool>() && W.IsReady())
                 {
                     //Game.PrintChat("RAWR1");
@@ -698,7 +721,7 @@ namespace xSaliceReligionAIO.Champions
             }
 
 
-            if (_windWall != null)
+            if (_windWall != null && W.IsReady())
             {
                 if (Player.Distance(_windWall.Position) < 400)
                 {
