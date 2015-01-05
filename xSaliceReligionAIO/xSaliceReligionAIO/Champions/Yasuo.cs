@@ -504,7 +504,7 @@ namespace xSaliceReligionAIO.Champions
                 {
                     W.Cast(args.Start, packets());
 
-                    var vec = Player.ServerPosition - (args.Start - Player.ServerPosition)*100;
+                    var vec = Player.ServerPosition - (args.Start - Player.ServerPosition)*50;
 
                     Player.IssueOrder(GameObjectOrder.MoveTo, vec);
                 }
