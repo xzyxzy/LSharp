@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
+using LeagueSharp.Network.Packets;
 using SharpDX;
 using Color = System.Drawing.Color;
+using Packet = LeagueSharp.Common.Packet;
 
 namespace xSaliceReligionAIO.Champions
 {
@@ -513,11 +515,19 @@ namespace xSaliceReligionAIO.Champions
                 int aimMode = menu.Item("rAimer").GetValue<StringList>().SelectedIndex;
 
                 if (target != null && aimMode == 0)
-                    Packet.C2S.ChargedCast.Encoded(new Packet.C2S.ChargedCast.Struct(SpellSlot.R,
-                        target.ServerPosition.X, target.ServerPosition.Z, target.ServerPosition.Y)).Send();
+                    new PKT_ChargedSpell
+                    {
+                        NetworkId = ObjectManager.Player.NetworkId,
+                        SpellSlot = (byte)SpellSlot.R,
+                        TargetPosition = target.ServerPosition,
+                    }.Encode().SendAsPacket();
                 else
-                    Packet.C2S.ChargedCast.Encoded(new Packet.C2S.ChargedCast.Struct(SpellSlot.R, Game.CursorPos.X,
-                        Game.CursorPos.Z, Game.CursorPos.Y)).Send();
+                    new PKT_ChargedSpell
+                    {
+                        NetworkId = ObjectManager.Player.NetworkId,
+                        SpellSlot = (byte)SpellSlot.R,
+                        TargetPosition = Game.CursorPos,
+                    }.Encode().SendAsPacket();
 
                 return;
             }
@@ -579,12 +589,13 @@ namespace xSaliceReligionAIO.Champions
         public override void Game_OnSendPacket(GamePacketEventArgs args)
         {
             //Disable action on Ult
-            if (args.PacketData[0] == Packet.C2S.ChargedCast.Header)
+            if (args.GetPacketId() == LeagueSharp.Network.Packets.Packet.GetPacketId<PKT_ChargedSpell>())
             {
-                var decodedPacket = Packet.C2S.ChargedCast.Decoded(args.PacketData);
+                var decodedPacket = new PKT_ChargedSpell();
+                decodedPacket.Decode(args.PacketData);
 
-                if (decodedPacket.SourceNetworkId == Player.NetworkId)
-                {
+                if (decodedPacket.NetworkId == Player.NetworkId)
+                    {
                     args.Process = !(menu.Item("ComboActive").GetValue<KeyBind>().Active && menu.Item("UseRCombo").GetValue<bool>() && menu.Item("smartKS").GetValue<bool>()
                         && menu.Item("HarassActive").GetValue<KeyBind>().Active && menu.Item("HarassActiveT").GetValue<KeyBind>().Active && menu.Item("R_Mouse").GetValue<KeyBind>().Active);
                 }
