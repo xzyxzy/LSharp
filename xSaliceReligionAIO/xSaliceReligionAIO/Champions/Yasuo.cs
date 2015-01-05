@@ -105,10 +105,30 @@ namespace xSaliceReligionAIO.Champions
                         foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsEnemy))
                         {
                             dangerous.AddSubMenu(new Menu(hero.ChampionName, hero.ChampionName));
-                            dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.Q).Name + "E", hero.Spellbook.GetSpell(SpellSlot.Q).Name).SetValue(false));
-                            dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.W).Name + "E", hero.Spellbook.GetSpell(SpellSlot.W).Name).SetValue(false));
-                            dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.E).Name + "E", hero.Spellbook.GetSpell(SpellSlot.E).Name).SetValue(false));
-                            dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.R).Name + "E", hero.Spellbook.GetSpell(SpellSlot.R).Name).SetValue(false));
+
+                            var q = SpellDatabase.Spells.FirstOrDefault(x => x.ChampionName == hero.ChampionName && x.Slot == SpellSlot.Q);
+                            if (q != null)
+                                dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(q.MissileSpellName + "E", q.MissileSpellName).SetValue(false));
+                            else
+                                dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.Q).Name + "E", hero.Spellbook.GetSpell(SpellSlot.Q).Name).SetValue(false));
+
+                            var w = SpellDatabase.Spells.FirstOrDefault(x => x.ChampionName == hero.ChampionName && x.Slot == SpellSlot.W);
+                            if (w != null)
+                                dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(w.MissileSpellName + "E", w.MissileSpellName).SetValue(false));
+                            else
+                                dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.W).Name + "E", hero.Spellbook.GetSpell(SpellSlot.W).Name).SetValue(false));
+
+                            var e = SpellDatabase.Spells.FirstOrDefault(x => x.ChampionName == hero.ChampionName && x.Slot == SpellSlot.E);
+                            if (e != null)
+                                dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(e.MissileSpellName + "E", e.MissileSpellName).SetValue(false));
+                            else
+                                dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.E).Name + "E", hero.Spellbook.GetSpell(SpellSlot.E).Name).SetValue(false));
+
+                            var r = SpellDatabase.Spells.FirstOrDefault(x => x.ChampionName == hero.ChampionName && x.Slot == SpellSlot.R);
+                            if (r != null)
+                                dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(r.MissileSpellName + "E", r.MissileSpellName).SetValue(false));
+                            else
+                                dangerous.SubMenu(hero.ChampionName).AddItem(new MenuItem(hero.Spellbook.GetSpell(SpellSlot.R).Name + "E", hero.Spellbook.GetSpell(SpellSlot.R).Name).SetValue(false));
                         }
                         eMenu.AddSubMenu(dangerous);
                     }
@@ -605,6 +625,8 @@ namespace xSaliceReligionAIO.Champions
         }
 
         private Obj_SpellMissile _windWall = null;
+        private Obj_SpellMissile _eSlide = null;
+
         public override void GameObject_OnCreate(GameObject sender, EventArgs args2)
         {
             if (!(sender is Obj_SpellMissile) || !sender.IsValid)
@@ -613,12 +635,32 @@ namespace xSaliceReligionAIO.Champions
 
             if (sender.Name != "missile")
             {
+                if (menu.Item(args.SData.Name + "E").GetValue<bool>() && E.IsReady())
+                {
+                    //Game.PrintChat("RAWR1");
+                    _eSlide = args;
+                }
+
                 //Game.PrintChat(args.SData.Name);
                 if (menu.Item(args.SData.Name + "W_Wall").GetValue<bool>() && W.IsReady())
                 {
                     //Game.PrintChat("RAWR1");
                     _windWall = args;
+
+                    if (_windWall != null && W.IsReady())
+                    {
+                        if (Player.Distance(_windWall.Position) < 400)
+                        {
+                            W.Cast(_windWall.Position, packets());
+
+                            var vec = Player.ServerPosition - (_windWall.Position - Player.ServerPosition) * 50;
+                            
+                            Player.IssueOrder(GameObjectOrder.MoveTo, vec);
+                            _windWall = null;
+                        }
+                    }
                 }
+
             }
         }
 
@@ -630,9 +672,15 @@ namespace xSaliceReligionAIO.Champions
 
             if (sender.Name != "missile")
             {
-                if (menu.Item(args.SData.Name + "W_Wall").GetValue<bool>() && W.IsReady())
+                if (menu.Item(args.SData.Name + "W_Wall").GetValue<bool>())
                 {
                     _windWall = null;
+                }
+
+                if (menu.Item(args.SData.Name + "E").GetValue<bool>())
+                {
+                    //Game.PrintChat("RAWR1");
+                    _eSlide = null;
                 }
             }
         }
@@ -648,13 +696,14 @@ namespace xSaliceReligionAIO.Champions
                 {
                     var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
 
-                    foreach (var m in minion)
+                    foreach (var m in minion.Where(CanCastE))
                     {
-                        Object[] obj = VectorPointProjectionOnLineSegment(m.ServerPosition.To2D(), args.Start.To2D(), args.End.To2D());
-                        var isOnseg = (bool)obj[2];
                         var dashVec = Player.ServerPosition + Vector3.Normalize(m.ServerPosition - Player.ServerPosition) * 475;
+                        Object[] obj = VectorPointProjectionOnLineSegment(dashVec.To2D(), args.Start.To2D(), args.End.To2D());
+                        var isOnseg = (bool)obj[2];
+                        var pointLine = (Vector2)obj[1];
 
-                        if (!isOnseg && !dashVec.UnderTurret(true))
+                        if (!isOnseg && !dashVec.UnderTurret(true) && m.Distance(pointLine.To3D()) > args.SData.LineWidth)
                         {
                             
                             E.CastOnUnit(m, packets());
@@ -720,6 +769,28 @@ namespace xSaliceReligionAIO.Champions
                     Harass();
             }
 
+            if (_eSlide != null)
+            {
+                var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
+
+                foreach (var m in minion.Where(CanCastE))
+                {
+                    var dashVec = Player.ServerPosition + Vector3.Normalize(m.ServerPosition - Player.ServerPosition) * 475;
+
+                    Object[] obj = VectorPointProjectionOnLineSegment(dashVec.To2D(), _eSlide.Position.To2D(), _eSlide.EndPosition.To2D());
+                    var isOnseg = (bool)obj[2];
+                    
+                    var pointLine = (Vector2)obj[1];
+                    if (!isOnseg && !dashVec.UnderTurret(true) && m.Distance(pointLine.To3D()) > _eSlide.SData.LineWidth)
+                    {
+
+                        E.CastOnUnit(m, packets());
+                        E.LastCastAttemptT = Environment.TickCount;
+                        _eSlide = null;
+                        return;
+                    }
+                }
+            }
 
             if (_windWall != null && W.IsReady())
             {
@@ -734,6 +805,7 @@ namespace xSaliceReligionAIO.Champions
                     _windWall = null;
                 }
             }
+
             //stack Q
             StackQ();
         }
