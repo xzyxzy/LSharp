@@ -253,7 +253,7 @@ namespace xSaliceReligionAIO.Champions
                 else
                     Q.Cast(target, packets());
             }
-            else
+            else if(ThirdQ())
             {
                 CastBasicSkillShot(Q2, Q2.Range, TargetSelector.DamageType.Physical, GetHitchance(source));
             }
@@ -270,7 +270,7 @@ namespace xSaliceReligionAIO.Champions
                 E.CastOnUnit(target, packets());
 
             //EQ3
-            if (ThirdQ() && Player.ServerPosition.To2D().Distance(target.ServerPosition.To2D()) < E.Range + target.BoundingRadius)
+            if (ThirdQ() && Player.ServerPosition.To2D().Distance(target.ServerPosition.To2D()) < E.Range)
             {
                 E.CastOnUnit(target);
                 Utility.DelayAction.Add(200, () => Q.Cast(target, packets()));
@@ -370,9 +370,9 @@ namespace xSaliceReligionAIO.Champions
                 if (Player.Distance(target) < 100)
                     Q.Cast(target.ServerPosition, packets());
                 else
-                Q.Cast(target, packets());
+                    Q.Cast(target, packets());
             }
-            else if (menu.Item("Q_Auto_third").GetValue<bool>())
+            else if (menu.Item("Q_Auto_third").GetValue<bool>() && ThirdQ())
             {
                 CastBasicSkillShot(Q2, Q2.Range, TargetSelector.DamageType.Physical, GetHitchance("Harass"), menu.Item("Q_UnderTower").GetValue<bool>());
             }
@@ -424,7 +424,7 @@ namespace xSaliceReligionAIO.Champions
                         {
                             Q.Cast(target, packets());
                         }
-                        else 
+                        else if(ThirdQ() && target.IsValidTarget(Q2.Range))
                         {
                             Q.Cast(target, packets());
                         }
