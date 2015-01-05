@@ -657,6 +657,7 @@ namespace xSaliceReligionAIO.Champions
                             
                             Player.IssueOrder(GameObjectOrder.MoveTo, vec);
                             _windWall = null;
+                            _eSlide = null;
                         }
                     }
                 }
