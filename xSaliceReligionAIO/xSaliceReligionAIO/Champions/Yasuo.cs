@@ -578,13 +578,14 @@ namespace xSaliceReligionAIO.Champions
                     return;
 
 
-                if (menu.Item(args.SData.Name + "W_Wall").GetValue<bool>())
+                if (menu.Item(args.SData.Name + "W_Wall").GetValue<bool>() && W.IsReady())
                 {
                     W.Cast(args.Start, packets());
 
                     var vec = Player.ServerPosition - (args.Start - Player.ServerPosition)*50;
 
                     Player.IssueOrder(GameObjectOrder.MoveTo, vec);
+                    return;
                 }
 
                 if (menu.Item(args.SData.Name + "E").GetValue<bool>())
@@ -603,14 +604,14 @@ namespace xSaliceReligionAIO.Champions
                 }
             }
 
-            if (!unit.IsMe)
-                return;
-
-            SpellSlot castedSlot = ObjectManager.Player.GetSpellSlot(args.SData.Name, false);
-
-            if (castedSlot == SpellSlot.E)
+            if (unit.IsMe)
             {
-                E.LastCastAttemptT = Environment.TickCount;
+                SpellSlot castedSlot = ObjectManager.Player.GetSpellSlot(args.SData.Name, false);
+
+                if (castedSlot == SpellSlot.E)
+                {
+                    E.LastCastAttemptT = Environment.TickCount;
+                }
             }
         }
         public override void Game_OnGameUpdate(EventArgs args)
