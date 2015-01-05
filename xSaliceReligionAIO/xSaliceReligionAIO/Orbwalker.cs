@@ -135,10 +135,48 @@ namespace xSaliceReligionAIO
             Game.OnGameUpdate += OnUpdate;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
             GameObject.OnCreate += Obj_SpellMissile_OnCreate;
+            GameObject.OnDelete += OnDelete;
+        }
+
+        public static readonly List<GameObject> Soilders = new List<GameObject>();
+
+        private static void OnDelete(GameObject sender, EventArgs args)
+        {
+            //if(MyHero.Distance(sender.Position) < 500)
+                //Game.PrintChat("obj: " + sender.Name);
+
+            if (MyHero.Distance(sender.Position) < 1200)
+            {
+                if (sender.Name == "Azir_Base_P_Soldier_Ring.troy")
+                {
+                    //Game.PrintChat("Solider Deleted" + sender.NetworkId);
+                    foreach (var minion in Soilders)
+                    {
+                        if (minion.NetworkId == sender.NetworkId)
+                        {
+                            Soilders.Remove(minion);
+                            //Game.PrintChat("" + Soilders.Count);
+                        }
+                    }
+                }
+            }
         }
 
         private static void Obj_SpellMissile_OnCreate(GameObject sender, EventArgs args)
         {
+            //if(MyHero.Distance(sender.Position) < 500)
+                //Game.PrintChat("obj: " + sender.Name);
+
+            if (MyHero.Distance(sender.Position) < 1200)
+            {
+                if (sender.Name == "Azir_Base_P_Soldier_Ring.troy")
+                {
+                    //Game.PrintChat("Solider Added" + sender.NetworkId);
+                    Soilders.Add(sender);
+                    //Game.PrintChat("" + Soilders.Count);
+                }
+            }
+
             if (sender.IsMe)
             {
                 var obj = (Obj_AI_Hero)sender;
@@ -156,7 +194,6 @@ namespace xSaliceReligionAIO
             }
         }
 
-        public static bool rCasted;
         private static void OnUpdate(EventArgs args)
         {
             if (CurrentMode == Mode.None || MenuGUI.IsChatOpen || CustomOrbwalkMode || MyHero.IsChannelingImportantSpell() || MyHero.HasBuff("katarinarsound", true))
@@ -368,17 +405,12 @@ namespace xSaliceReligionAIO
             }
         }
 
-        public static double GetAzirAASandwarriorDamage(AttackableUnit target)
+        public static double GetAzirAaSandwarriorDamage(AttackableUnit target)
         {
             var unit = (Obj_AI_Base)target;
             var damagelist = new List<int> { 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 160, 170 };
             var dmg = damagelist[MyHero.Level - 1] + (MyHero.BaseAbilityDamage * 0.6);
-            if (
-                ObjectManager.Get<Obj_AI_Minion>()
-                    .Count(
-                        obj =>
-                            obj.Name == "AzirSoldier" && obj.IsAlly && obj.BoundingRadius < 66 && obj.AttackSpeedMod > 1 &&
-                            obj.Distance(unit) < 350) == 2)
+            if (Soilders.Count(obj => obj.Position.Distance(unit.Position) < 390) == 2)
                 return MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg) +
                        (MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg) * 0.25);
             return MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg);
@@ -386,7 +418,7 @@ namespace xSaliceReligionAIO
 
         public static bool InSoldierAttackRange(AttackableUnit target)
         {
-            return target != null && ObjectManager.Get<Obj_AI_Minion>().Any(obj => obj.Name == "AzirSoldier" && obj.IsAlly && obj.Distance(target) < 390);
+            return target != null && Soilders.Count(obj => obj.Position.Distance(target.Position) < 390) > 0;
         }
 
         public static AttackableUnit GetPossibleTarget()
@@ -409,16 +441,17 @@ namespace xSaliceReligionAIO
                     return tempTarget;
             }
 
+            //last hit
             if (CurrentMode == Mode.Harass || CurrentMode == Mode.Lasthit || CurrentMode == Mode.LaneClear || CurrentMode == Mode.LaneFreeze)
             {
-                if (MyHero.ChampionName == "Azir")
+                if (MyHero.ChampionName == "Azir" && Soilders.Count > 0)
                 {
                     var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.NotAlly);
                     foreach (var minion in from minion in minions.Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InSoldierAttackRange(minion))
                         let t = (int)(MyHero.AttackCastDelay * 1000) - 100 + Game.Ping / 2 + 1000 * (int)MyHero.Distance(minion) / (int)MyProjectileSpeed()
                         let predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay())
                         where minion.Team != GameObjectTeam.Neutral && predHealth > 0 &&
-                              predHealth <= GetAzirAASandwarriorDamage(minion)
+                              predHealth <= GetAzirAaSandwarriorDamage(minion)
                         select minion)
                         return minion;
                 }
@@ -452,18 +485,19 @@ namespace xSaliceReligionAIO
                     return turret;
             }
 
+            //jungle
             float[] maxhealth;
             if (CurrentMode == Mode.LaneClear || CurrentMode == Mode.Harass || CurrentMode == Mode.LaneFreeze)
             {
-                if (MyHero.ChampionName == "Azir")
+                if (MyHero.ChampionName == "Azir" && Soilders.Count > 0)
                 {
                     maxhealth = new float[] { 0 };
                     var maxhealth1 = maxhealth;
-                    var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.NotAlly);
+                    var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.Neutral);
                     foreach (
                         var minion in
                             minions
-                                .Where(minion => InSoldierAttackRange(minion) && minion.Name != "Beacon" && minion.IsValidTarget() && minion.Team == GameObjectTeam.Neutral)
+                                .Where(minion => InSoldierAttackRange(minion) && minion.Name != "Beacon" && minion.IsValidTarget())
                                 .Where(minion => minion.MaxHealth >= maxhealth1[0] || Math.Abs(maxhealth1[0] - float.MaxValue) < float.Epsilon))
                     {
                         tempTarget = minion;
@@ -484,13 +518,14 @@ namespace xSaliceReligionAIO
                     return tempTarget;
             }
 
+            //LANE CLEAR
             if (CurrentMode != Mode.LaneClear || ShouldWait())
             {
                 //ResetAutoAttackTimer();
                 return null;
             }
 
-            if (MyHero.ChampionName == "Azir")
+            if (MyHero.ChampionName == "Azir" && Soilders.Count > 0)
             {
                 maxhealth = new float[] { 0 };
                 float[] maxhealth1 = maxhealth;
@@ -499,7 +534,7 @@ namespace xSaliceReligionAIO
                     .Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InSoldierAttackRange(minion))
                                        let predHealth = HealthPrediction.LaneClearHealthPrediction(minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay())
                                        where predHealth >=
-                                             GetAzirAASandwarriorDamage(minion) + MyHero.GetAutoAttackDamage(minion, true) ||
+                                             GetAzirAaSandwarriorDamage(minion) + MyHero.GetAutoAttackDamage(minion, true) ||
                                              Math.Abs(predHealth - minion.Health) < float.Epsilon
                                        where minion.Health >= maxhealth1[0] || Math.Abs(maxhealth1[0] - float.MaxValue) < float.Epsilon
                                        select minion)
@@ -510,7 +545,7 @@ namespace xSaliceReligionAIO
                 if (tempTarget != null)
                     return tempTarget;
             }
-
+            else { 
             maxhealth = new float[] { 0 };
             foreach (var minion in from minion in ObjectManager.Get<Obj_AI_Minion>()
                 .Where(minion => minion.IsValidTarget(GetAutoAttackRange(MyHero, minion)) && minion.Name != "Beacon")
@@ -526,12 +561,24 @@ namespace xSaliceReligionAIO
             }
             if (tempTarget != null)
                 return tempTarget;
+            }
 
             return null;
         }
 
         private static bool ShouldWait()
         {
+            if (MyHero.ChampionName == "Azir" && Soilders.Count > 0)
+            {
+                return ObjectManager.Get<Obj_AI_Minion>()
+                    .Any(
+                    minion =>
+                    minion.IsValidTarget() && minion.Team != GameObjectTeam.Neutral &&
+                    InSoldierAttackRange(minion) &&
+                    HealthPrediction.LaneClearHealthPrediction(
+                    minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay()) <= GetAzirAaSandwarriorDamage(minion));
+            }
+
             return ObjectManager.Get<Obj_AI_Minion>()
             .Any(
             minion =>
@@ -590,8 +637,6 @@ namespace xSaliceReligionAIO
         private static int FarmDelay(int offset = 0)
         {
             var ret = offset;
-            if (MyHero.ChampionName == "Azir")
-                ret += 50;
             return Menu.Item("orb_Misc_Farmdelay").GetValue<Slider>().Value + ret;
         }
 
@@ -599,7 +644,7 @@ namespace xSaliceReligionAIO
         {
             Obj_AI_Hero killableEnemy = null;
             var hitsToKill = double.MaxValue;
-            if (MyHero.ChampionName == "Azir")
+            if (MyHero.ChampionName == "Azir" && Soilders.Count > 0)
             {
                 foreach (var enemy in AllEnemys.Where(hero => hero.IsValidTarget() && InSoldierAttackRange(hero)))
                 {
@@ -612,7 +657,7 @@ namespace xSaliceReligionAIO
                 if (hitsToKill <= 4)
                     return killableEnemy;
                 Obj_AI_Hero[] mostdmgenemy = { null };
-                foreach (var enemy in AllEnemys.Where(hero => hero.IsValidTarget() && InSoldierAttackRange(hero)).Where(enemy => mostdmgenemy[0] == null || GetAzirAASandwarriorDamage(enemy) > GetAzirAASandwarriorDamage(mostdmgenemy[0])))
+                foreach (var enemy in AllEnemys.Where(hero => hero.IsValidTarget() && InSoldierAttackRange(hero)).Where(enemy => mostdmgenemy[0] == null || GetAzirAaSandwarriorDamage(enemy) > GetAzirAaSandwarriorDamage(mostdmgenemy[0])))
                 {
                     mostdmgenemy[0] = enemy;
                 }
@@ -637,7 +682,7 @@ namespace xSaliceReligionAIO
 
         public static double CountKillhitsAzirSoldier(AttackableUnit enemy)
         {
-            return enemy.Health / GetAzirAASandwarriorDamage(enemy);
+            return enemy.Health / GetAzirAaSandwarriorDamage(enemy);
         }
 
         private static void CheckAutoWindUp()

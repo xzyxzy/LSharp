@@ -80,6 +80,7 @@
     <Compile Include="Orbwalker.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Champions\Yasuo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
