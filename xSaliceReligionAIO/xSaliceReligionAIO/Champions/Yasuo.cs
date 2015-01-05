@@ -623,6 +623,9 @@ namespace xSaliceReligionAIO.Champions
             //rmec
             Cast_MecR();
 
+            //smart ks
+            SmartKs();
+
             if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 Combo();
