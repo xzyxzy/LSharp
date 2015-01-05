@@ -694,7 +694,7 @@ namespace xSaliceReligionAIO.Champions
 
                 if (menu.Item(args.SData.Name + "E").GetValue<bool>() && (Player.Distance(args.Start) < 1000 || Player.Distance(args.End) < 1000))
                 {
-                    var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range - 75, MinionTypes.All, MinionTeam.NotAlly);
+                    var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range - 150, MinionTypes.All, MinionTeam.NotAlly);
 
                     foreach (var m in minion.Where(CanCastE))
                     {
@@ -703,7 +703,7 @@ namespace xSaliceReligionAIO.Champions
                         var isOnseg = (bool)obj[2];
                         var pointLine = (Vector2)obj[1];
 
-                        if (!isOnseg && !dashVec.UnderTurret(true) && dashVec.Distance(pointLine.To3D()) > args.SData.LineWidth)
+                        if (!isOnseg && !dashVec.UnderTurret(true) && dashVec.Distance(pointLine.To3D()) > args.SData.LineWidth+ 40)
                         {
                             
                             E.CastOnUnit(m, packets());
@@ -771,7 +771,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (_eSlide != null)
             {
-                var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range - 75, MinionTypes.All, MinionTeam.NotAlly);
+                var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range - 150, MinionTypes.All, MinionTeam.NotAlly);
                 if (Player.Distance(_eSlide.Position) < 400)
                 {
                     foreach (var m in minion.Where(CanCastE))
@@ -782,7 +782,7 @@ namespace xSaliceReligionAIO.Champions
                         var isOnseg = (bool)obj[2];
                     
                         var pointLine = (Vector2)obj[1];
-                        if (!isOnseg && !dashVec.UnderTurret(true) && dashVec.Distance(pointLine.To3D()) > _eSlide.SData.LineWidth)
+                        if (!isOnseg && !dashVec.UnderTurret(true) && dashVec.Distance(pointLine.To3D()) > _eSlide.SData.LineWidth + 40)
                         {
 
                             E.CastOnUnit(m, packets());
