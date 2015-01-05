@@ -146,21 +146,19 @@ namespace xSaliceReligionAIO
             //if(MyHero.Distance(sender.Position) < 500)
                 //Game.PrintChat("obj: " + sender.Name);
 
-            if (MyHero.Distance(sender.Position) < 1200)
+            if (sender.Name == "Azir_Base_P_Soldier_Ring.troy")
             {
-                if (sender.Name == "Azir_Base_P_Soldier_Ring.troy")
+                //Game.PrintChat("Solider Deleted" + sender.NetworkId);
+                foreach (var minion in Soilders)
                 {
-                    //Game.PrintChat("Solider Deleted" + sender.NetworkId);
-                    foreach (var minion in Soilders)
+                    if (minion.NetworkId == sender.NetworkId)
                     {
-                        if (minion.NetworkId == sender.NetworkId)
-                        {
-                            Soilders.Remove(minion);
-                            //Game.PrintChat("" + Soilders.Count);
-                        }
+                        Soilders.Remove(minion);
+                        //Game.PrintChat("" + Soilders.Count);
                     }
                 }
             }
+            
         }
 
         private static void Obj_SpellMissile_OnCreate(GameObject sender, EventArgs args)
@@ -168,15 +166,13 @@ namespace xSaliceReligionAIO
             //if(MyHero.Distance(sender.Position) < 500)
                 //Game.PrintChat("obj: " + sender.Name);
 
-            if (MyHero.Distance(sender.Position) < 1200)
+            if (sender.Name == "Azir_Base_P_Soldier_Ring.troy")
             {
-                if (sender.Name == "Azir_Base_P_Soldier_Ring.troy")
-                {
-                    //Game.PrintChat("Solider Added" + sender.NetworkId);
-                    Soilders.Add(sender);
-                    //Game.PrintChat("" + Soilders.Count);
-                }
+                //Game.PrintChat("Solider Added" + sender.NetworkId);
+                Soilders.Add(sender);
+                //Game.PrintChat("" + Soilders.Count);
             }
+            
 
             if (sender.IsMe)
             {
