@@ -511,7 +511,7 @@ namespace xSaliceReligionAIO.Champions
                         target = TargetSelector.GetSelectedTarget();
 
                 int aimMode = menu.Item("rAimer").GetValue<StringList>().SelectedIndex;
-
+                /*
                 if (target != null && aimMode == 0)
                     new PKT_ChargedSpell
                     {
@@ -526,8 +526,8 @@ namespace xSaliceReligionAIO.Champions
                         SpellSlot = (byte)SpellSlot.R,
                         TargetPosition = Game.CursorPos,
                     }.Encode().SendAsPacket();
-
-                return;
+                */
+                //return;
             }
 
             if (_qMissle != null && _qMissle.IsValid && menu.Item("qSplit").GetValue<bool>())
