@@ -593,7 +593,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 if (menu.Item(args.SData.Name + "W_Wall").GetValue<bool>() && W.IsReady())
                 {
-                    Game.PrintChat("RAWR1");
+                    //Game.PrintChat("RAWR1");
                     _windWall = args;
                 }
             }
@@ -702,7 +702,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 if (Player.Distance(_windWall.Position) < 400)
                 {
-                    Game.PrintChat("RAWR");
+                    //Game.PrintChat("RAWR");
                     W.Cast(_windWall.Position, packets());
 
                     var vec = Player.ServerPosition - (_windWall.Position - Player.ServerPosition) * 50;
