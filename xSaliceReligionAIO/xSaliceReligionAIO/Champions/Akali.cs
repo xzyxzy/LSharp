@@ -320,7 +320,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_W()
         {
-            if (menu.Item("useW_enemyCount").GetValue<Slider>().Value > Utility.CountEnemysInRange(400) &&
+            if (menu.Item("useW_enemyCount").GetValue<Slider>().Value > Player.CountEnemysInRange(400) &&
                 menu.Item("useW_Health").GetValue<Slider>().Value < (int)(Player.Health / Player.MaxHealth * 100))
                 return;
             W.Cast(Player.Position, packets());

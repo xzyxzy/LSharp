@@ -511,13 +511,15 @@ namespace xSaliceReligionAIO.Champions
                         target = TargetSelector.GetSelectedTarget();
 
                 int aimMode = menu.Item("rAimer").GetValue<StringList>().SelectedIndex;
-                /*
+                
                 if (target != null && aimMode == 0)
                     new PKT_ChargedSpell
                     {
                         NetworkId = ObjectManager.Player.NetworkId,
                         SpellSlot = (byte)SpellSlot.R,
                         TargetPosition = target.ServerPosition,
+                        Unknown1 = true,
+                        Unknown2 = true,
                     }.Encode().SendAsPacket();
                 else
                     new PKT_ChargedSpell
@@ -525,9 +527,11 @@ namespace xSaliceReligionAIO.Champions
                         NetworkId = ObjectManager.Player.NetworkId,
                         SpellSlot = (byte)SpellSlot.R,
                         TargetPosition = Game.CursorPos,
+                        Unknown1 = true,
+                        Unknown2 = true,
                     }.Encode().SendAsPacket();
-                */
-                //return;
+                
+                return;
             }
 
             if (_qMissle != null && _qMissle.IsValid && menu.Item("qSplit").GetValue<bool>())
@@ -586,7 +590,7 @@ namespace xSaliceReligionAIO.Champions
 
         public override void Game_OnSendPacket(GamePacketEventArgs args)
         {
-            /*
+            
             //Disable action on Ult
             if (args.GetPacketId() == LeagueSharp.Network.Packets.Packet.GetPacketId<PKT_ChargedSpell>())
             {
@@ -594,11 +598,11 @@ namespace xSaliceReligionAIO.Champions
                 decodedPacket.Decode(args.PacketData);
 
                 if (decodedPacket.NetworkId == Player.NetworkId)
-                    {
+                {
                     args.Process = !(menu.Item("ComboActive").GetValue<KeyBind>().Active && menu.Item("UseRCombo").GetValue<bool>() && menu.Item("smartKS").GetValue<bool>()
                         && menu.Item("HarassActive").GetValue<KeyBind>().Active && menu.Item("HarassActiveT").GetValue<KeyBind>().Active && menu.Item("R_Mouse").GetValue<KeyBind>().Active);
                 }
-            }*/
+            }
         }
 
         public override void GameObject_OnCreate(GameObject obj, EventArgs args)
