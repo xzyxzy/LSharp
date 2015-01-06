@@ -60,6 +60,7 @@
     <Compile Include="Champions\Akali.cs" />
     <Compile Include="Champions\Anivia.cs" />
     <Compile Include="Champions\Azir.cs" />
+    <Compile Include="Champions\Blitzcrank.cs" />
     <Compile Include="Champions\Corki.cs" />
     <Compile Include="Champions\Fiora.cs" />
     <Compile Include="Champions\Jayce.cs" />
