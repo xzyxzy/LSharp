@@ -87,6 +87,7 @@ namespace xSaliceReligionAIO.Champions
                 killSteal.AddItem(new MenuItem("smartKS", "Use Smart KS System").SetValue(true));
                 killSteal.AddItem(new MenuItem("wardKs", "Use Jump KS").SetValue(true));
                 killSteal.AddItem(new MenuItem("rKS", "Use R for KS").SetValue(true));
+                killSteal.AddItem(new MenuItem("dfgKS", "Use DFG for KS").SetValue(true));
                 killSteal.AddItem(new MenuItem("rCancel", "NO R Cancel for KS").SetValue(false));
                 killSteal.AddItem(new MenuItem("KS_With_E", "Don't KS with E Toggle!").SetValue(new KeyBind("H".ToCharArray()[0], KeyBindType.Toggle)));
                 //add to menu
@@ -525,44 +526,46 @@ namespace xSaliceReligionAIO.Champions
                             return;
                         }
                     }
-
-                    //dfg
-                    if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health + 20 &&
-                        Player.Distance(target.ServerPosition) <= 750)
+                    if (menu.Item("dfgKS").GetValue<bool>())
                     {
-                        Items.UseItem(DFG.Id, target);
-                        //Game.PrintChat("ks 1");
-                        return;
-                    }
-
-                    //dfg + q
-                    if (Player.Distance(target.ServerPosition) <= Q.Range &&
-                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
-                         (Player.GetSpellDamage(target, SpellSlot.Q)) * 1.2) > target.Health + 20)
-                    {
-                        if (DFG.IsReady() && Q.IsReady())
+                        //dfg
+                        if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health + 20 &&
+                            Player.Distance(target.ServerPosition) <= 750)
                         {
                             Items.UseItem(DFG.Id, target);
-                            CancelUlt(target);
-                            Q.Cast(target, packets());
-                            //Game.PrintChat("ks 2");
+                            //Game.PrintChat("ks 1");
                             return;
                         }
-                    }
 
-                    //dfg + e
-                    if (Player.Distance(target.ServerPosition) <= E.Range &&
-                        (Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
-                         (Player.GetSpellDamage(target, SpellSlot.E)) * 1.2) > target.Health + 20)
-                    {
-                        if (DFG.IsReady() && E.IsReady())
+                        //dfg + q
+                        if (Player.Distance(target.ServerPosition) <= Q.Range &&
+                            (Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
+                             (Player.GetSpellDamage(target, SpellSlot.Q))*1.2) > target.Health + 20)
                         {
-                            Items.UseItem(DFG.Id, target);
-                            CancelUlt(target);
-                            E.Cast(target, packets());
-                            E.LastCastAttemptT = Environment.TickCount + delay;
-                            //Game.PrintChat("ks 3");
-                            return;
+                            if (DFG.IsReady() && Q.IsReady())
+                            {
+                                Items.UseItem(DFG.Id, target);
+                                CancelUlt(target);
+                                Q.Cast(target, packets());
+                                //Game.PrintChat("ks 2");
+                                return;
+                            }
+                        }
+
+                        //dfg + e
+                        if (Player.Distance(target.ServerPosition) <= E.Range &&
+                            (Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
+                             (Player.GetSpellDamage(target, SpellSlot.E))*1.2) > target.Health + 20)
+                        {
+                            if (DFG.IsReady() && E.IsReady())
+                            {
+                                Items.UseItem(DFG.Id, target);
+                                CancelUlt(target);
+                                E.Cast(target, packets());
+                                E.LastCastAttemptT = Environment.TickCount + delay;
+                                //Game.PrintChat("ks 3");
+                                return;
+                            }
                         }
                     }
                 }
