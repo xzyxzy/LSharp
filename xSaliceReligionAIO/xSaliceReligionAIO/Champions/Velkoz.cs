@@ -6,7 +6,6 @@ using LeagueSharp.Common;
 using LeagueSharp.Network.Packets;
 using SharpDX;
 using Color = System.Drawing.Color;
-using Packet = LeagueSharp.Common.Packet;
 
 namespace xSaliceReligionAIO.Champions
 {

@@ -454,7 +454,7 @@ namespace xSaliceReligionAIO.Champions
 
         public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
-            SpellSlot castedSlot = Player.GetSpellSlot(args.SData.Name, false);
+            SpellSlot castedSlot = Player.GetSpellSlot(args.SData.Name);
 
             if (castedSlot == SpellSlot.Q)
             {

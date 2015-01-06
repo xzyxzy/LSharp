@@ -369,7 +369,7 @@ namespace xSaliceReligionAIO
         private static void OnProcessSpell(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs spell)
         {
 
-            SpellSlot castedSlot = MyHero.GetSpellSlot(spell.SData.Name, false);
+            SpellSlot castedSlot = MyHero.GetSpellSlot(spell.SData.Name);
 
             if (castedSlot == SpellSlot.R && MyHero.ChampionName == "Katarina")
             {

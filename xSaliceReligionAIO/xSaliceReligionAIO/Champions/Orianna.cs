@@ -711,7 +711,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (!unit.IsMe) return;
 
-            SpellSlot castedSlot = ObjectManager.Player.GetSpellSlot(args.SData.Name, false);
+            SpellSlot castedSlot = ObjectManager.Player.GetSpellSlot(args.SData.Name);
 
             if (castedSlot == SpellSlot.Q)
             {
