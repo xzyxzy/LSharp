@@ -293,7 +293,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (!ThirdQ() && target != null && target.IsValidTarget(Q.Range))
             {
-                if (Player.Distance(target) < 100)
+                if (Player.Distance(target) < 150)
                     Q.Cast(target.Position, packets());
                 else
                     Q.Cast(target, packets());
@@ -435,8 +435,8 @@ namespace xSaliceReligionAIO.Champions
                 if (menu.Item("Q_UnderTower").GetValue<bool>() && target.UnderTurret(true))
                     return;
 
-                if (Player.Distance(target) < 100)
-                    Q.Cast(target.ServerPosition, packets());
+                if (Player.Distance(target) < 150)
+                    Q.Cast(target.Position, packets());
                 else
                     Q.Cast(target, packets());
             }
