@@ -40,6 +40,7 @@ namespace xSaliceReligionAIO.Champions
                 key.AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Toggle)));
                 key.AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
                 key.AddItem(new MenuItem("LastHit", "Last hit").SetValue(new KeyBind("A".ToCharArray()[0], KeyBindType.Press)));
+                key.AddItem(new MenuItem("Flee", "Escape with E").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
                 //add to menu
                 menu.AddSubMenu(key);
             }
@@ -133,6 +134,7 @@ namespace xSaliceReligionAIO.Champions
                         eMenu.AddSubMenu(dangerous);
                     }
                     eMenu.AddItem(new MenuItem("E_GapClose", "Use E to gapclose").SetValue(true));
+                    eMenu.AddItem(new MenuItem("E_Turret", "Don't E into Turret Toggle")).SetValue(new KeyBind("H".ToCharArray()[0], KeyBindType.Toggle));
                     spellMenu.AddSubMenu(eMenu);
                 }
 
@@ -191,7 +193,7 @@ namespace xSaliceReligionAIO.Champions
                 drawMenu.AddItem(new MenuItem("Draw_Q2", "Draw Q Extended").SetValue(true));
                 drawMenu.AddItem(new MenuItem("Draw_E", "Draw E").SetValue(true));
                 drawMenu.AddItem(new MenuItem("Draw_R", "Draw R").SetValue(true));
-                drawMenu.AddItem(new MenuItem("Draw_AutoQ", "Draw Auto Q Enable").SetValue(true));
+                drawMenu.AddItem(new MenuItem("Draw_AutoQ", "Draw Modes").SetValue(true));
 
                 MenuItem drawComboDamageMenu = new MenuItem("Draw_ComboDamage", "Draw Combo Damage").SetValue(true);
                 MenuItem drawFill = new MenuItem("Draw_Fill", "Draw Combo Damage Fill").SetValue(new Circle(true, Color.FromArgb(90, 255, 169, 4)));
@@ -309,22 +311,26 @@ namespace xSaliceReligionAIO.Champions
             if (target == null || !E.IsReady() || !CanCastE(target))
                 return;
 
-            if (E.IsKillable(target) && Player.Distance(target) < E.Range + target.BoundingRadius)
+            if (E.IsKillable(target) && Player.Distance(target) < E.Range + target.BoundingRadius && EturretCheck(target))
                 E.CastOnUnit(target, packets());
 
             //EQ3
             if (ThirdQ() && Player.ServerPosition.To2D().Distance(target.ServerPosition.To2D()) < E.Range)
             {
-                E.CastOnUnit(target);
-                Utility.DelayAction.Add(200, () => Q.Cast(target, packets()));
-                return;
+                if (EturretCheck(target))
+                {
+                    E.CastOnUnit(target);
+                    Utility.DelayAction.Add(200, () => Q.Cast(target, packets()));
+                    return;
+                }
             }
 
             if (Player.ServerPosition.To2D().Distance(target.ServerPosition.To2D()) <= menu.Item("E_Min_Dist").GetValue<Slider>().Value)
                 return;
 
             //gapclose
-            if (menu.Item("E_GapClose").GetValue<bool>()) { 
+            if (menu.Item("E_GapClose").GetValue<bool>())
+            { 
                 var allMinionQ = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
 
                 if (allMinionQ.Count > 0)
@@ -344,8 +350,11 @@ namespace xSaliceReligionAIO.Champions
                     }
                     if (target.Distance(Player) > target.Distance(bestVec) - 50 && bestMinion != null)
                     {
-                        E.CastOnUnit(bestMinion, packets());
-                        return;
+                        if (EturretCheck(bestMinion))
+                        {
+                            E.CastOnUnit(bestMinion, packets());
+                            return;
+                        }
                     }
                 }
             }
@@ -353,13 +362,29 @@ namespace xSaliceReligionAIO.Champions
             if (Q.IsReady() && Player.Distance(target) > menu.Item("E_Min_Dist").GetValue<Slider>().Value &&
                 Player.Distance(target) < E.Range)
             {
-                E.CastOnUnit(target, packets());
-                Utility.DelayAction.Add(200, () => Q.Cast(target, packets()));
-                return;
+                if (EturretCheck(target))
+                {
+                    E.CastOnUnit(target, packets());
+                    Utility.DelayAction.Add(200, () => Q.Cast(target, packets()));
+                    return;
+                }
             }
 
-            if (Player.ServerPosition.To2D().Distance(target.ServerPosition.To2D()) > menu.Item("E_Min_Dist").GetValue<Slider>().Value && Player.Distance(target) < E.Range + target.BoundingRadius)
+            if (Player.ServerPosition.To2D().Distance(target.ServerPosition.To2D()) > menu.Item("E_Min_Dist").GetValue<Slider>().Value && Player.Distance(target) < E.Range + target.BoundingRadius) 
+                if(EturretCheck(target))
                 E.CastOnUnit(target, packets());
+        }
+
+        private bool EturretCheck(Obj_AI_Base target)
+        {
+            var dashCheck = menu.Item("E_Turret").GetValue<KeyBind>().Active;
+
+            if (dashCheck)
+            {
+                var dashVec = Player.ServerPosition + Vector3.Normalize(target.ServerPosition - Player.ServerPosition)*475;
+                return !dashVec.UnderTurret(true);
+            }
+            return true;
         }
 
         private void Cast_R(float dmg)
@@ -437,6 +462,21 @@ namespace xSaliceReligionAIO.Champions
         }
 
 
+        private void Escape()
+        {
+            var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
+
+            foreach (var m in minion.Where(x=> CanCastE(x) && x.Distance(Game.CursorPos) < 500).OrderBy(x => x.Distance(Game.CursorPos)))
+            {
+                var dash = Player.ServerPosition + Vector3.Normalize(m.ServerPosition - Player.ServerPosition) * 475;
+
+                if (Player.Distance(Game.CursorPos) > Player.Distance(dash) - 200)
+                {
+                    E.CastOnUnit(m, packets());
+                    return;
+                }
+            }
+        }
         private void SmartKs()
         {
             
@@ -451,7 +491,7 @@ namespace xSaliceReligionAIO.Champions
                     if (Player.Distance(target.ServerPosition) <= E.Range && (Player.GetSpellDamage(target, SpellSlot.E) + Player.GetSpellDamage(target, SpellSlot.Q)) >
                         target.Health + 20)
                     {
-                        if (E.IsReady() && Q.IsReady())
+                        if (E.IsReady() && Q.IsReady() && EturretCheck(target))
                         {
                             E.Cast(target, packets());
                             Obj_AI_Hero target1 = target;
@@ -474,7 +514,7 @@ namespace xSaliceReligionAIO.Champions
                     }
 
                     //E
-                    if (Player.Distance(target.ServerPosition) <= E.Range && (Player.GetSpellDamage(target, SpellSlot.E)) > target.Health + 20)
+                    if (Player.Distance(target.ServerPosition) <= E.Range && (Player.GetSpellDamage(target, SpellSlot.E)) > target.Health + 20 && EturretCheck(target))
                     {
                         if (E.IsReady())
                         {
@@ -624,8 +664,8 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        private Obj_SpellMissile _windWall = null;
-        private Obj_SpellMissile _eSlide = null;
+        private Obj_SpellMissile _windWall;
+        private Obj_SpellMissile _eSlide;
 
         public override void GameObject_OnCreate(GameObject sender, EventArgs args2)
         {
@@ -639,6 +679,20 @@ namespace xSaliceReligionAIO.Champions
                 {
                     //Game.PrintChat("RAWR1");
                     _eSlide = args;
+                    var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
+                    if (Player.Distance(_eSlide.Position) < 800)
+                    {
+                        foreach (var m in minion.Where(CanCastE))
+                        {
+                            if (IsPassableE(m))
+                            {
+                                E.CastOnUnit(m, packets());
+                                E.LastCastAttemptT = Environment.TickCount;
+                                _eSlide = null;
+                                return;
+                            }
+                        }
+                    }
                 }
 
                 //Game.PrintChat(args.SData.Name);
@@ -695,18 +749,12 @@ namespace xSaliceReligionAIO.Champions
 
                 if (menu.Item(args.SData.Name + "E").GetValue<bool>() && (Player.Distance(args.Start) < 1000 || Player.Distance(args.End) < 1000))
                 {
-                    var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range - 175, MinionTypes.All, MinionTeam.NotAlly);
+                    var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
 
                     foreach (var m in minion.Where(CanCastE))
                     {
-                        var dashVec = Player.ServerPosition + Vector3.Normalize(m.ServerPosition - Player.ServerPosition) * 475;
-                        Object[] obj = VectorPointProjectionOnLineSegment(dashVec.To2D(), args.Start.To2D(), args.End.To2D());
-                        var isOnseg = (bool)obj[2];
-                        var pointLine = (Vector2)obj[1];
-
-                        if (!isOnseg && !dashVec.UnderTurret(true) && dashVec.Distance(pointLine.To3D()) > args.SData.LineWidth + 60)
+                        if (IsPassableE(m))
                         {
-                            
                             E.CastOnUnit(m, packets());
                             E.LastCastAttemptT = Environment.TickCount;
                             return;
@@ -742,6 +790,20 @@ namespace xSaliceReligionAIO.Champions
             //check if player is dead
             if (Player.IsDead) return;
 
+            if (_windWall != null && W.IsReady())
+            {
+                if (Player.Distance(_windWall.Position) < 400)
+                {
+                    //Game.PrintChat("RAWR");
+                    W.Cast(_windWall.Position, packets());
+
+                    var vec = Player.ServerPosition - (_windWall.Position - Player.ServerPosition) * 50;
+
+                    Player.IssueOrder(GameObjectOrder.MoveTo, vec);
+                    _windWall = null;
+                }
+            }
+
             //auto Q harass
             AutoQ();
 
@@ -751,7 +813,11 @@ namespace xSaliceReligionAIO.Champions
             //smart ks
             SmartKs();
 
-            if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
+            if (menu.Item("Flee").GetValue<KeyBind>().Active)
+            {
+                Escape();
+            }
+            else if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 Combo();
             }
@@ -770,47 +836,25 @@ namespace xSaliceReligionAIO.Champions
                     Harass();
             }
 
-            if (_eSlide != null)
-            {
-                var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range - 175, MinionTypes.All, MinionTeam.NotAlly);
-                if (Player.Distance(_eSlide.Position) < 400)
-                {
-                    foreach (var m in minion.Where(CanCastE))
-                    {
-                        var dashVec = Player.ServerPosition + Vector3.Normalize(m.ServerPosition - Player.ServerPosition) * 475;
-
-                        Object[] obj = VectorPointProjectionOnLineSegment(dashVec.To2D(), _eSlide.Position.To2D(), _eSlide.EndPosition.To2D());
-                        var isOnseg = (bool)obj[2];
-                    
-                        var pointLine = (Vector2)obj[1];
-                        if (!isOnseg && !dashVec.UnderTurret(true) && dashVec.Distance(pointLine.To3D()) > _eSlide.SData.LineWidth + 60)
-                        {
-
-                            E.CastOnUnit(m, packets());
-                            E.LastCastAttemptT = Environment.TickCount;
-                            _eSlide = null;
-                            return;
-                        }
-                    }
-                }
-            }
-
-            if (_windWall != null && W.IsReady())
-            {
-                if (Player.Distance(_windWall.Position) < 400)
-                {
-                    //Game.PrintChat("RAWR");
-                    W.Cast(_windWall.Position, packets());
-
-                    var vec = Player.ServerPosition - (_windWall.Position - Player.ServerPosition) * 50;
-
-                    Player.IssueOrder(GameObjectOrder.MoveTo, vec);
-                    _windWall = null;
-                }
-            }
-
             //stack Q
             StackQ();
+        }
+
+        private bool IsPassableE(Obj_AI_Base m)
+        {
+            for (int i = 238; i <= 475; i += 238) { 
+                var dashVec = Player.ServerPosition + Vector3.Normalize(m.ServerPosition - Player.ServerPosition) * i;
+            
+                Object[] obj = VectorPointProjectionOnLineSegment(dashVec.To2D(), _eSlide.Position.To2D(), _eSlide.EndPosition.To2D());
+                var isOnseg = (bool)obj[2];
+
+                var pointLine = (Vector2)obj[1];
+                if (isOnseg || dashVec.UnderTurret(true) || dashVec.Distance(pointLine.To3D()) < _eSlide.SData.LineWidth + 20)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public override void Drawing_OnDraw(EventArgs args)
@@ -841,6 +885,11 @@ namespace xSaliceReligionAIO.Champions
                     Drawing.DrawText(wts[0] - 20, wts[1], Color.White, "Auto Q Enabled");
                 else
                     Drawing.DrawText(wts[0] - 20, wts[1], Color.Red, "Auto Q Disabled");
+
+                if(menu.Item("E_Turret").GetValue<KeyBind>().Active)
+                    Drawing.DrawText(wts[0] - 20, wts[1] - 20, Color.White, "Don't E Turret On");
+                else
+                    Drawing.DrawText(wts[0] - 20, wts[1]- 20, Color.Red, "Don't E Turret off");
             }
         }
 
