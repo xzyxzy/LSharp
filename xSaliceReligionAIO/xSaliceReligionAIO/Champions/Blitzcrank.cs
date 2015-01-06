@@ -135,6 +135,7 @@ namespace xSaliceReligionAIO.Champions
                 damage += Player.GetSpellDamage(enemy, SpellSlot.R);
 
             damage += Player.GetAutoAttackDamage(enemy);
+            damage = ActiveItems.CalcDamage(enemy, damage);
             return (float)damage;
         }
 
