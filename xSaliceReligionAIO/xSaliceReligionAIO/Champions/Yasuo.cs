@@ -294,7 +294,7 @@ namespace xSaliceReligionAIO.Champions
             if (!ThirdQ() && target != null && target.IsValidTarget(Q.Range))
             {
                 if (Player.Distance(target) < 100)
-                    Q.Cast(target.ServerPosition, packets());
+                    Q.Cast(target.Position, packets());
                 else
                     Q.Cast(target, packets());
             }
