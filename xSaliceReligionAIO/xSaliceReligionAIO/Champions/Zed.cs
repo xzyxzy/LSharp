@@ -246,9 +246,9 @@ namespace xSaliceReligionAIO.Champions
                         if (GetMarked() != null)
                             itemTarget = GetMarked();
 
-                        var dmg = GetComboDamage(itemTarget);
                         if (itemTarget != null)
                         {
+                            var dmg = GetComboDamage(itemTarget);
                             ActiveItems.Target = itemTarget;
 
                             //see if killable
@@ -369,9 +369,9 @@ namespace xSaliceReligionAIO.Champions
                         if (GetMarked() != null)
                             itemTarget = GetMarked();
 
-                        var dmg = GetComboDamage(itemTarget);
                         if (itemTarget != null)
                         {
+                            var dmg = GetComboDamage(itemTarget);
                             ActiveItems.Target = itemTarget;
 
                             //see if killable

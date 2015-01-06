@@ -252,7 +252,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void UseSpells(bool useQ, bool useW, bool useE, bool useR, string source)
         {
-            var itemTarget = TargetSelector.GetTarget(Q2.Range, TargetSelector.DamageType.Physical);
+            var itemTarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
             var dmg = GetComboDamage(itemTarget);
 
             if (useE)

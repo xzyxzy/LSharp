@@ -226,9 +226,9 @@ namespace xSaliceReligionAIO.Champions
             if (source == "Combo")
             {
                 var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
-                var dmg = GetComboDamage(itemTarget);
                 if (itemTarget != null)
                 {
+                    var dmg = GetComboDamage(itemTarget);
                     ActiveItems.Target = itemTarget;
 
                     //see if killable
