@@ -177,11 +177,11 @@ namespace xSaliceReligionAIO.Champions
 
             int eDis = menu.Item("eDis").GetValue<Slider>().Value;
 
-            var range = E.Range;
+            var range = E.Range + 100;
             if (GetTargetFocus(range) != null)
                 target = GetTargetFocus(range);
 
-            if (!target.HasBuffOfType(BuffType.Invulnerability) && target.IsValidTarget(E.Range))
+            if (!target.HasBuffOfType(BuffType.Invulnerability) && target.IsValidTarget(E.Range + 100) && !target.IsZombie)
             {
                 if (mode == 0) //qwe
                 {
