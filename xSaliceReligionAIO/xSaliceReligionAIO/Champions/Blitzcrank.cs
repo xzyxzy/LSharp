@@ -172,6 +172,19 @@ namespace xSaliceReligionAIO.Champions
                 return;
             }
 
+            var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+            if (itemTarget != null)
+            {
+                var dmg = GetComboDamage(itemTarget);
+                ActiveItems.Target = itemTarget;
+
+                //see if killable
+                if (dmg > itemTarget.Health - 50)
+                    ActiveItems.KillableTarget = true;
+
+                ActiveItems.UseTargetted = true;
+            }
+
             if (useE && target != null && E.IsReady() && Player.Distance(target) < 300 && !menu.Item("resetE").GetValue<bool>())
             {
                 E.Cast();
