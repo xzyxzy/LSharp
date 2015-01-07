@@ -248,7 +248,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (useR && target != null && R.IsReady())
             {
-                if (menu.Item("intR" + target.BaseSkinName) != null)
+                if (menu.Item("intR" + target.BaseSkinName, true) != null)
                 {
                     foreach (
                         Obj_AI_Hero enemy in
@@ -679,7 +679,7 @@ namespace xSaliceReligionAIO.Champions
                         ObjectManager.Get<Obj_AI_Hero>()
                             .Where(x => Player.Distance(x) < E.Range && Player.Distance(unit) < 1500 && x.IsAlly && !x.IsDead).OrderBy(x => x.Distance(args.End)))
                 {
-                    if (menu.Item("shield" + ally.BaseSkinName) != null)
+                    if (menu.Item("shield" + ally.BaseSkinName, true) != null)
                     {
                         if (menu.Item("shield" + ally.BaseSkinName, true).GetValue<bool>())
                         {

@@ -297,7 +297,7 @@ namespace xSaliceReligionAIO.Champions
             if (Player.Distance(target.ServerPosition) < qRangeMin)
                 return false;
 
-            if (menu.Item("intR" + target.BaseSkinName) != null)
+            if (menu.Item("intR" + target.BaseSkinName, true) != null)
                 if (menu.Item("intR" + target.BaseSkinName, true).GetValue<bool>())
                     return false;
 

@@ -273,7 +273,7 @@ namespace xSaliceReligionAIO.Champions
 
             float dmg = GetComboDamage(target);
 
-            useR = (menu.Item("DontUlt" + target.BaseSkinName) != null && menu.Item("DontUlt" + target.BaseSkinName, true).GetValue<bool>() == false) && useR;
+            useR = (menu.Item("DontUlt" + target.BaseSkinName, true) != null && menu.Item("DontUlt" + target.BaseSkinName, true).GetValue<bool>() == false) && useR;
 
             if (useW && W.IsReady() && Player.Distance(target) <= W.Range &&
                 W.GetPrediction(target).Hitchance >= HitChance.High)

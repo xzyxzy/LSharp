@@ -403,7 +403,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (rTarget == null)
                 return;
-            if (menu.Item("Dont_R" + rTarget.ChampionName) == null)
+            if (menu.Item("Dont_R" + rTarget.ChampionName, true) == null)
                 return;
             if (menu.Item("Dont_R" + rTarget.ChampionName, true).GetValue<bool>())
                 return;

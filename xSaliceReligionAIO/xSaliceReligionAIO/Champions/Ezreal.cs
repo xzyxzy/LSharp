@@ -266,7 +266,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (R.IsReady() && target != null)
             {
-                if (menu.Item("Dont_R" + target.BaseSkinName) != null)
+                if (menu.Item("Dont_R" + target.BaseSkinName, true) != null)
                 {
                     if (!menu.Item("Dont_R" + target.BaseSkinName, true).GetValue<bool>())
                     {
@@ -297,7 +297,7 @@ namespace xSaliceReligionAIO.Champions
         {
             foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(20000) && !x.IsDead && x.IsEnemy).OrderBy(x => x.Health))
             {
-                if (menu.Item("Dont_R" + unit.BaseSkinName) != null)
+                if (menu.Item("Dont_R" + unit.BaseSkinName, true) != null)
                 {
                     if (!menu.Item("Dont_R" + unit.BaseSkinName, true).GetValue<bool>())
                     {
