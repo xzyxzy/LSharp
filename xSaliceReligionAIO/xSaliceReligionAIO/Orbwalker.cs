@@ -76,7 +76,7 @@ namespace xSaliceReligionAIO
             menu.AddSubMenu(menuDrawing);
 
             var menuMisc = new Menu("Misc", "orb_Misc");
-            menuMisc.AddItem(new MenuItem("orb_Misc_Holdzone", "Hold Position").SetValue(new Slider(50, 100, 0)));
+            menuMisc.AddItem(new MenuItem("orb_Misc_Holdzone", "Hold Position").SetValue(new Slider(50, 0, 200)));
             menuMisc.AddItem(new MenuItem("orb_Misc_Farmdelay", "Farm Delay").SetValue(new Slider(0, 200, 0)));
             menuMisc.AddItem(new MenuItem("orb_Misc_ExtraWindUp", "Extra Winduptime").SetValue(new Slider(80, 200, 0)));
             menuMisc.AddItem(new MenuItem("orb_Misc_AutoWindUp", "Autoset Windup").SetValue(false));
