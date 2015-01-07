@@ -140,9 +140,9 @@ namespace xSaliceReligionAIO
             {
                 var ignite = new Menu("Ignite", "Ignite");
                 {
-                    ignite.AddItem(new MenuItem("ignite", "Use Ignite").SetValue(true));
+                    ignite.AddItem(new MenuItem("ignite", "Use Ignite", true).SetValue(true));
                     ignite.AddItem(
-                        new MenuItem("igniteMode", "Ignite Mode").SetValue(new StringList(new[] {"Combo", "KS"})));
+                        new MenuItem("igniteMode", "Ignite Mode", true).SetValue(new StringList(new[] {"Combo", "KS"})));
                     summoners.AddSubMenu(ignite);
                 }
                 _myMenu.AddSubMenu(summoners);
@@ -158,12 +158,12 @@ namespace xSaliceReligionAIO
         {
             var active = new Menu(item.ActiveName, item.ActiveName);
             {
-                active.AddItem(new MenuItem(item.ActiveName, item.ActiveName)).SetValue(true);
-                active.AddItem(new MenuItem(item.ActiveName + "dmgCalc", "Add to damage Calculation").SetValue(true));
-                active.AddItem(new MenuItem(item.ActiveName + "killAble", "Use only if enemy is killable").SetValue(false));
-                active.AddItem(new MenuItem(item.ActiveName + "always", "Always use").SetValue(item.Mode == 1 || item.Mode == 2));
-                active.AddItem(new MenuItem(item.ActiveName + "myHP", "Use if HP <= %").SetValue(new Slider(25)));
-                active.AddItem(new MenuItem(item.ActiveName + "enemyHP", "Use if target HP <= %").SetValue(new Slider(50)));
+                active.AddItem(new MenuItem(item.ActiveName, item.ActiveName, true).SetValue(true));
+                active.AddItem(new MenuItem(item.ActiveName + "dmgCalc", "Add to damage Calculation", true).SetValue(true));
+                active.AddItem(new MenuItem(item.ActiveName + "killAble", "Use only if enemy is killable", true).SetValue(false));
+                active.AddItem(new MenuItem(item.ActiveName + "always", "Always use", true).SetValue(item.Mode == 1 || item.Mode == 2));
+                active.AddItem(new MenuItem(item.ActiveName + "myHP", "Use if HP <= %", true).SetValue(new Slider(25)));
+                active.AddItem(new MenuItem(item.ActiveName + "enemyHP", "Use if target HP <= %", true).SetValue(new Slider(50)));
 
                 subMenu.AddSubMenu(active);
             }
@@ -175,7 +175,7 @@ namespace xSaliceReligionAIO
                 return;
 
             //ignite
-            int igniteMode = _myMenu.Item("igniteMode").GetValue<StringList>().SelectedIndex;
+            int igniteMode = _myMenu.Item("igniteMode", true).GetValue<StringList>().SelectedIndex;
             if (KillableTarget && igniteMode == 0 && Ignite_Ready())
                 Use_Ignite(Target);
             else if (ObjectManager.Player.GetSummonerSpellDamage(Target, Damage.SummonerSpell.Ignite) > Target.Health + 20 && Ignite_Ready())
@@ -338,32 +338,32 @@ namespace xSaliceReligionAIO
 
         private static bool ShouldUse(string name)
         {
-            return _myMenu.Item(name).GetValue<bool>();
+            return _myMenu.Item(name, true).GetValue<bool>();
         }
 
         private static bool AlwaysUse(string name)
         {
-            return _myMenu.Item(name + "always").GetValue<bool>();
+            return _myMenu.Item(name + "always", true).GetValue<bool>();
         }
 
         private static bool AddToDmgCalc(string name)
         {
-            return _myMenu.Item(name + "dmgCalc").GetValue<bool>();
+            return _myMenu.Item(name + "dmgCalc", true).GetValue<bool>();
         }
 
         private static bool OnlyIfKillable(string name)
         {
-            return _myMenu.Item(name + "killAble").GetValue<bool>();
+            return _myMenu.Item(name + "killAble", true).GetValue<bool>();
         }
 
         private static int UseAtMyHp(string name)
         {
-            return _myMenu.Item(name + "myHP").GetValue<Slider>().Value;
+            return _myMenu.Item(name + "myHP", true).GetValue<Slider>().Value;
         }
 
         private static int UseAtEnemyHp(string name)
         {
-            return _myMenu.Item(name + "enemyHP").GetValue<Slider>().Value;
+            return _myMenu.Item(name + "enemyHP", true).GetValue<Slider>().Value;
         }
 
         

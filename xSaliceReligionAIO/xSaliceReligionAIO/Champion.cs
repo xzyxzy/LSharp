@@ -24,7 +24,7 @@ namespace xSaliceReligionAIO
             GameObject.OnDelete += GameObject_OnDelete;
             Obj_AI_Base.OnIssueOrder += ObjAiHeroOnOnIssueOrder;
 
-            if (menu.Item("Orbwalker_Mode").GetValue<bool>())
+            if (menu.Item("Orbwalker_Mode", true).GetValue<bool>())
             {
                 Orbwalking.AfterAttack += AfterAttack;
                 Orbwalking.BeforeAttack += BeforeAttack;
@@ -107,13 +107,13 @@ namespace xSaliceReligionAIO
             menu.AddSubMenu(targetSelectorMenu);
 
             //Orbwalker submenu
-            orbwalkerMenu.AddItem(new MenuItem("Orbwalker_Mode", "Change Orbwalker").SetValue(false));
+            orbwalkerMenu.AddItem(new MenuItem("Orbwalker_Mode", "Change Orbwalker", true).SetValue(false));
             menu.AddSubMenu(orbwalkerMenu);
-            chooseOrbwalker(menu.Item("Orbwalker_Mode").GetValue<bool>());
+            chooseOrbwalker(menu.Item("Orbwalker_Mode", true).GetValue<bool>());
 
             //Packet Menu
             menu.AddSubMenu(new Menu("Packet Setting", "Packets"));
-            menu.SubMenu("Packets").AddItem(new MenuItem("packet", "Use Packets").SetValue(false));
+            menu.SubMenu("Packets").AddItem(new MenuItem("packet", "Use Packets", true).SetValue(false));
 
             //Item Menu
             var itemMenu = new Menu("Items and Summoners", "Items");
@@ -157,7 +157,7 @@ namespace xSaliceReligionAIO
         }
         public bool packets()
         {
-            return menu.Item("packet").GetValue<bool>();
+            return menu.Item("packet", true).GetValue<bool>();
         }
 
         public void Use_DFG(Obj_AI_Hero target)
@@ -253,7 +253,7 @@ namespace xSaliceReligionAIO
         public bool manaCheck()
         {
             int totalMana = qMana[Q.Level] + wMana[W.Level] + eMana[E.Level] + rMana[R.Level];
-            var checkMana = menu.Item("mana").GetValue<bool>();
+            var checkMana = menu.Item("mana", true).GetValue<bool>();
 
             if (Player.Mana >= totalMana || !checkMana)
                 return true;
@@ -425,7 +425,7 @@ namespace xSaliceReligionAIO
 
         public Obj_AI_Hero GetTargetFocus(float range)
         {
-            var focusSelected = menu.Item("selected").GetValue<bool>();
+            var focusSelected = menu.Item("selected", true).GetValue<bool>();
 
             if (TargetSelector.GetSelectedTarget() != null)
                 if (focusSelected && TargetSelector.GetSelectedTarget().Distance(Player.ServerPosition) < range + 100 && TargetSelector.GetSelectedTarget().Type == GameObjectType.obj_AI_Hero)
@@ -439,8 +439,8 @@ namespace xSaliceReligionAIO
         public HitChance GetHitchance(string Source)
         {
             var hitC = HitChance.High;
-            int qHit = menu.Item("qHit").GetValue<Slider>().Value;
-            int harassQHit = menu.Item("qHit2").GetValue<Slider>().Value;
+            int qHit = menu.Item("qHit", true).GetValue<Slider>().Value;
+            int harassQHit = menu.Item("qHit2", true).GetValue<Slider>().Value;
 
             // HitChance.Low = 3, Medium , High .... etc..
             if (Source == "Combo")
@@ -484,12 +484,12 @@ namespace xSaliceReligionAIO
         }
         public void AddManaManagertoMenu(Menu myMenu, String source, int standard)
         {
-            myMenu.AddItem(new MenuItem(source + "_Manamanager", "Mana Manager").SetValue(new Slider(standard)));
+            myMenu.AddItem(new MenuItem(source + "_Manamanager", "Mana Manager", true).SetValue(new Slider(standard)));
         }
 
         public bool HasMana(string source)
         {
-            if (GetManaPercent() > menu.Item(source + "_Manamanager").GetValue<Slider>().Value)
+            if (GetManaPercent() > menu.Item(source + "_Manamanager", true).GetValue<Slider>().Value)
                 return true;
             return false;
         }

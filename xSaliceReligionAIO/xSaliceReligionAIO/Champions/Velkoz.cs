@@ -54,11 +54,11 @@ namespace xSaliceReligionAIO.Champions
             //key
             var key = new Menu("Key", "Key");
             {
-                key.AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
-                key.AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
-                key.AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Toggle)));
-                key.AddItem(new MenuItem("LaneClearActive", "Farm!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
-                key.AddItem(new MenuItem("R_Mouse", "R To Mouse").SetValue(new KeyBind("R".ToCharArray()[0], KeyBindType.Press)));
+                key.AddItem(new MenuItem("ComboActive", "Combo!", true).SetValue(new KeyBind(32, KeyBindType.Press)));
+                key.AddItem(new MenuItem("HarassActive", "Harass!", true).SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
+                key.AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!", true).SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Toggle)));
+                key.AddItem(new MenuItem("LaneClearActive", "Farm!", true).SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+                key.AddItem(new MenuItem("R_Mouse", "R To Mouse", true).SetValue(new KeyBind("R".ToCharArray()[0], KeyBindType.Press)));
                 //add to menu
                 menu.AddSubMenu(key);
             }
@@ -68,17 +68,17 @@ namespace xSaliceReligionAIO.Champions
             {
                 //Q Menu
                 var qMenu = new Menu("QSpell", "QSpell"); {
-                    qMenu.AddItem(new MenuItem("qSplit", "Auto Split Q").SetValue(true));
-                    qMenu.AddItem(new MenuItem("qAngle", "Shoot Q At Angle").SetValue(true));
+                    qMenu.AddItem(new MenuItem("qSplit", "Auto Split Q", true).SetValue(true));
+                    qMenu.AddItem(new MenuItem("qAngle", "Shoot Q At Angle", true).SetValue(true));
                     spell.AddSubMenu(qMenu);
                 }   
                 //R
                 var rMenu = new Menu("RSpell", "RSpell");
                 {
-                    rMenu.AddItem(new MenuItem("rAimer", "R Aim").SetValue(new StringList(new[] { "Auto", "To Mouse" })));
+                    rMenu.AddItem(new MenuItem("rAimer", "R Aim", true).SetValue(new StringList(new[] { "Auto", "To Mouse" })));
                     rMenu.AddSubMenu(new Menu("Dont use R on", "DontUlt"));
                     foreach (Obj_AI_Hero enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != Player.Team))
-                        rMenu.SubMenu("DontUlt").AddItem(new MenuItem("DontUlt" + enemy.BaseSkinName, enemy.BaseSkinName).SetValue(false));
+                        rMenu.SubMenu("DontUlt").AddItem(new MenuItem("DontUlt" + enemy.BaseSkinName, enemy.BaseSkinName, true).SetValue(false));
                     spell.AddSubMenu(rMenu);
                 }
                 menu.AddSubMenu(spell);
@@ -87,52 +87,52 @@ namespace xSaliceReligionAIO.Champions
             //Combo menu:
             var combo = new Menu("Combo", "Combo");
             {
-                combo.AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
-                combo.AddItem(new MenuItem("UseQCombo", "Use Q").SetValue(true));
-                combo.AddItem(new MenuItem("qHit", "Q HitChance").SetValue(new Slider(3, 1, 4)));
-                combo.AddItem(new MenuItem("UseWCombo", "Use W").SetValue(true));
-                combo.AddItem(new MenuItem("UseECombo", "Use E").SetValue(true));
-                combo.AddItem(new MenuItem("UseRCombo", "Use R").SetValue(true));
+                combo.AddItem(new MenuItem("selected", "Focus Selected Target", true).SetValue(true));
+                combo.AddItem(new MenuItem("UseQCombo", "Use Q", true).SetValue(true));
+                combo.AddItem(new MenuItem("qHit", "Q HitChance", true).SetValue(new Slider(3, 1, 4)));
+                combo.AddItem(new MenuItem("UseWCombo", "Use W", true).SetValue(true));
+                combo.AddItem(new MenuItem("UseECombo", "Use E", true).SetValue(true));
+                combo.AddItem(new MenuItem("UseRCombo", "Use R", true).SetValue(true));
                 menu.AddSubMenu(combo);
             }
 
             //Harass menu:
             var harass = new Menu("Harass", "Harass");
             {
-                harass.AddItem(new MenuItem("UseQHarass", "Use Q").SetValue(true));
-                harass.AddItem(new MenuItem("qHit2", "Q HitChance").SetValue(new Slider(3, 1, 4)));
-                harass.AddItem(new MenuItem("UseWHarass", "Use W").SetValue(false));
-                harass.AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
+                harass.AddItem(new MenuItem("UseQHarass", "Use Q", true).SetValue(true));
+                harass.AddItem(new MenuItem("qHit2", "Q HitChance", true).SetValue(new Slider(3, 1, 4)));
+                harass.AddItem(new MenuItem("UseWHarass", "Use W", true).SetValue(false));
+                harass.AddItem(new MenuItem("UseEHarass", "Use E", true).SetValue(true));
                 menu.AddSubMenu(harass);
             }
 
             //Farming menu:
             var farm = new Menu("Farm", "Farm");
             {
-                farm.AddItem(new MenuItem("UseQFarm", "Use Q").SetValue(false));
-                farm.AddItem(new MenuItem("UseWFarm", "Use W").SetValue(false));
-                farm.AddItem(new MenuItem("UseEFarm", "Use E").SetValue(false));
+                farm.AddItem(new MenuItem("UseQFarm", "Use Q", true).SetValue(false));
+                farm.AddItem(new MenuItem("UseWFarm", "Use W", true).SetValue(false));
+                farm.AddItem(new MenuItem("UseEFarm", "Use E", true).SetValue(false));
                 menu.AddSubMenu(farm);
             }
             //Misc Menu:
             var misc = new Menu("Misc", "Misc");
             {
-                misc.AddItem(new MenuItem("UseInt", "Use E to Interrupt").SetValue(true));
-                misc.AddItem(new MenuItem("UseGap", "Use E for GapCloser").SetValue(true));
-                misc.AddItem(new MenuItem("smartKS", "Use Smart KS System").SetValue(true));
+                misc.AddItem(new MenuItem("UseInt", "Use E to Interrupt", true).SetValue(true));
+                misc.AddItem(new MenuItem("UseGap", "Use E for GapCloser", true).SetValue(true));
+                misc.AddItem(new MenuItem("smartKS", "Use Smart KS System", true).SetValue(true));
                 menu.AddSubMenu(misc);
             }
 
             //Drawings menu:
             var draw = new Menu("Drawings", "Drawings"); { 
-                draw.AddItem(new MenuItem("QRange", "Q range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
-                draw.AddItem(new MenuItem("WRange", "W range").SetValue(new Circle(true, Color.FromArgb(100, 255, 0, 255))));
-                draw.AddItem(new MenuItem("ERange", "E range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
-                draw.AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
-                draw.AddItem(new MenuItem("drawUlt", "Killable With ult").SetValue(true));
+                draw.AddItem(new MenuItem("QRange", "Q range", true).SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
+                draw.AddItem(new MenuItem("WRange", "W range", true).SetValue(new Circle(true, Color.FromArgb(100, 255, 0, 255))));
+                draw.AddItem(new MenuItem("ERange", "E range", true).SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
+                draw.AddItem(new MenuItem("RRange", "R range", true).SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
+                draw.AddItem(new MenuItem("drawUlt", "Killable With ult", true).SetValue(true));
 
-                MenuItem drawComboDamageMenu = new MenuItem("Draw_ComboDamage", "Draw Combo Damage").SetValue(true);
-                MenuItem drawFill = new MenuItem("Draw_Fill", "Draw Combo Damage Fill").SetValue(new Circle(true, Color.FromArgb(90, 255, 169, 4)));
+                MenuItem drawComboDamageMenu = new MenuItem("Draw_ComboDamage", "Draw Combo Damage", true).SetValue(true);
+                MenuItem drawFill = new MenuItem("Draw_Fill", "Draw Combo Damage Fill", true).SetValue(new Circle(true, Color.FromArgb(90, 255, 169, 4)));
                 draw.AddItem(drawComboDamageMenu);
                 draw.AddItem(drawFill);
                 DamageIndicator.DamageToUnit = GetComboDamage;
@@ -226,7 +226,7 @@ namespace xSaliceReligionAIO.Champions
             if (div >= 3)
                 dmg += 25 + (10 * Player.Level);
 
-            if (menu.Item("drawUlt").GetValue<bool>())
+            if (menu.Item("drawUlt", true).GetValue<bool>())
             {
                 if (R.IsReady() && dmg > target.Health + 20)
                 {
@@ -246,20 +246,20 @@ namespace xSaliceReligionAIO.Champions
 
         private void Combo()
         {
-            UseSpells(menu.Item("UseQCombo").GetValue<bool>(), menu.Item("UseWCombo").GetValue<bool>(),
-                menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>(), "Combo");
+            UseSpells(menu.Item("UseQCombo", true).GetValue<bool>(), menu.Item("UseWCombo", true).GetValue<bool>(),
+                menu.Item("UseECombo", true).GetValue<bool>(), menu.Item("UseRCombo", true).GetValue<bool>(), "Combo");
         }
 
         private void Harass()
         {
-            UseSpells(menu.Item("UseQHarass").GetValue<bool>(), menu.Item("UseWHarass").GetValue<bool>(),
-                menu.Item("UseEHarass").GetValue<bool>(), false, "Harass");
+            UseSpells(menu.Item("UseQHarass", true).GetValue<bool>(), menu.Item("UseWHarass", true).GetValue<bool>(),
+                menu.Item("UseEHarass", true).GetValue<bool>(), false, "Harass");
         }
 
         private void UseSpells(bool useQ, bool useW, bool useE, bool useR, string source)
         {
             var range = R.IsReady() ? R.Range : Q.Range;
-            var focusSelected = menu.Item("selected").GetValue<bool>();
+            var focusSelected = menu.Item("selected", true).GetValue<bool>();
 
             Obj_AI_Hero target = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
             if (TargetSelector.GetSelectedTarget() != null)
@@ -273,7 +273,7 @@ namespace xSaliceReligionAIO.Champions
 
             float dmg = GetComboDamage(target);
 
-            useR = (menu.Item("DontUlt" + target.BaseSkinName) != null && menu.Item("DontUlt" + target.BaseSkinName).GetValue<bool>() == false) && useR;
+            useR = (menu.Item("DontUlt" + target.BaseSkinName) != null && menu.Item("DontUlt" + target.BaseSkinName, true).GetValue<bool>() == false) && useR;
 
             if (useW && W.IsReady() && Player.Distance(target) <= W.Range &&
                 W.GetPrediction(target).Hitchance >= HitChance.High)
@@ -329,9 +329,9 @@ namespace xSaliceReligionAIO.Champions
             List<Obj_AI_Base> allMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, W.Range,
                 MinionTypes.All, MinionTeam.NotAlly);
 
-            var useQ = menu.Item("UseQFarm").GetValue<bool>();
-            var useW = menu.Item("UseWFarm").GetValue<bool>();
-            var useE = menu.Item("UseEFarm").GetValue<bool>();
+            var useQ = menu.Item("UseQFarm", true).GetValue<bool>();
+            var useW = menu.Item("UseWFarm", true).GetValue<bool>();
+            var useE = menu.Item("UseEFarm", true).GetValue<bool>();
 
             if (useW && W.IsReady() && allMinionsW.Count > 0)
             {
@@ -376,7 +376,7 @@ namespace xSaliceReligionAIO.Champions
                 }
             }
 
-            if (!menu.Item("qAngle").GetValue<bool>())
+            if (!menu.Item("qAngle", true).GetValue<bool>())
                 return;
 
             if (Q.Instance.Name == "VelkozQ" && targetExtend != null)
@@ -414,7 +414,7 @@ namespace xSaliceReligionAIO.Champions
             //Game.PrintChat("bleh");
 
             var range = R.IsReady() ? R.Range : Q.Range;
-            var focusSelected = menu.Item("selected").GetValue<bool>();
+            var focusSelected = menu.Item("selected", true).GetValue<bool>();
 
             Obj_AI_Hero target = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
             if (TargetSelector.GetSelectedTarget() != null)
@@ -442,7 +442,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void SmartKs()
         {
-            if (!menu.Item("smartKS").GetValue<bool>())
+            if (!menu.Item("smartKS", true).GetValue<bool>())
                 return;
 
             foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.IsValidTarget(Q.Range) && x.IsEnemy && !x.IsDead).OrderByDescending(GetComboDamage))
@@ -502,14 +502,14 @@ namespace xSaliceReligionAIO.Champions
             if (Player.IsChannelingImportantSpell())
             {
                 var range = R.IsReady() ? R.Range : Q.Range;
-                var focusSelected = menu.Item("selected").GetValue<bool>();
+                var focusSelected = menu.Item("selected", true).GetValue<bool>();
 
                 Obj_AI_Hero target = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
                 if (TargetSelector.GetSelectedTarget() != null)
                     if (focusSelected && TargetSelector.GetSelectedTarget().Distance(Player.ServerPosition) < range)
                         target = TargetSelector.GetSelectedTarget();
 
-                int aimMode = menu.Item("rAimer").GetValue<StringList>().SelectedIndex;
+                int aimMode = menu.Item("rAimer", true).GetValue<StringList>().SelectedIndex;
                 
                 if (target != null && aimMode == 0)
                     new PKT_ChargedSpell
@@ -533,28 +533,28 @@ namespace xSaliceReligionAIO.Champions
                 return;
             }
 
-            if (_qMissle != null && _qMissle.IsValid && menu.Item("qSplit").GetValue<bool>())
+            if (_qMissle != null && _qMissle.IsValid && menu.Item("qSplit", true).GetValue<bool>())
                 SplitMissle();
 
             SmartKs();
 
-            if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
+            if (menu.Item("ComboActive", true).GetValue<KeyBind>().Active)
             {
                 Combo();
             }
             else
             {
-                if (menu.Item("LaneClearActive").GetValue<KeyBind>().Active)
+                if (menu.Item("LaneClearActive", true).GetValue<KeyBind>().Active)
                     Farm();
 
-                if (menu.Item("HarassActive").GetValue<KeyBind>().Active)
+                if (menu.Item("HarassActive", true).GetValue<KeyBind>().Active)
                     Harass();
 
-                if (menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
+                if (menu.Item("HarassActiveT", true).GetValue<KeyBind>().Active)
                     Harass();
             }
 
-            if (menu.Item("R_Mouse").GetValue<KeyBind>().Active)
+            if (menu.Item("R_Mouse", true).GetValue<KeyBind>().Active)
                 R.Cast(Game.CursorPos);
         }
 
@@ -562,7 +562,7 @@ namespace xSaliceReligionAIO.Champions
         {
             foreach (Spell spell in SpellList)
             {
-                var menuItem = menu.Item(spell.Slot + "Range").GetValue<Circle>();
+                var menuItem = menu.Item(spell.Slot + "Range", true).GetValue<Circle>();
                 if (menuItem.Active)
                     Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
             }
@@ -571,7 +571,7 @@ namespace xSaliceReligionAIO.Champions
 
         public override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
-            if (!menu.Item("UseGap").GetValue<bool>()) return;
+            if (!menu.Item("UseGap", true).GetValue<bool>()) return;
 
             if (E.IsReady() && gapcloser.Sender.IsValidTarget(E.Range))
                 E.Cast(gapcloser.Sender, packets());
@@ -579,7 +579,7 @@ namespace xSaliceReligionAIO.Champions
 
         public override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
-            if (!menu.Item("UseInt").GetValue<bool>()) return;
+            if (!menu.Item("UseInt", true).GetValue<bool>()) return;
 
             if (Player.Distance(unit) < E.Range && unit != null && E.IsReady())
             {
@@ -598,8 +598,8 @@ namespace xSaliceReligionAIO.Champions
 
                 if (decodedPacket.NetworkId == Player.NetworkId)
                 {
-                    args.Process = !(menu.Item("ComboActive").GetValue<KeyBind>().Active && menu.Item("UseRCombo").GetValue<bool>() && menu.Item("smartKS").GetValue<bool>()
-                        && menu.Item("HarassActive").GetValue<KeyBind>().Active && menu.Item("HarassActiveT").GetValue<KeyBind>().Active && menu.Item("R_Mouse").GetValue<KeyBind>().Active);
+                    args.Process = !(menu.Item("ComboActive", true).GetValue<KeyBind>().Active && menu.Item("UseRCombo", true).GetValue<bool>() && menu.Item("smartKS", true).GetValue<bool>()
+                        && menu.Item("HarassActive", true).GetValue<KeyBind>().Active && menu.Item("HarassActiveT", true).GetValue<KeyBind>().Active && menu.Item("R_Mouse", true).GetValue<KeyBind>().Active);
                 }
             }
         }

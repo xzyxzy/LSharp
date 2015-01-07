@@ -39,64 +39,64 @@ namespace xSaliceReligionAIO.Champions
         {
             //Keys
             var key = new Menu("Keys", "Keys"); { 
-                key.AddItem(new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
-                key.AddItem(new MenuItem("HarassActive", "Harass!").SetValue(new KeyBind("S".ToCharArray()[0], KeyBindType.Press)));
-                key.AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
-                key.AddItem(new MenuItem("shootMouse", "Shoot QE Mouse").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+                key.AddItem(new MenuItem("ComboActive", "Combo!", true).SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
+                key.AddItem(new MenuItem("HarassActive", "Harass!", true).SetValue(new KeyBind("S".ToCharArray()[0], KeyBindType.Press)));
+                key.AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!", true).SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
+                key.AddItem(new MenuItem("shootMouse", "Shoot QE Mouse", true).SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
                 menu.AddSubMenu(key);
             }
 
             //Combo menu:
             var combo = new Menu("Combo", "Combo"); { 
-                combo.AddItem(new MenuItem("UseQCombo", "Use Cannon Q").SetValue(true));
-                combo.AddItem(new MenuItem("qSpeed", "QE Speed, Higher = Faster, Lower = Accurate").SetValue(new Slider(1600, 400, 2500)));
-                combo.AddItem(new MenuItem("UseWCombo", "Use Cannon W").SetValue(true));
-                combo.AddItem(new MenuItem("UseECombo", "Use Cannon E").SetValue(true));
-                combo.AddItem(new MenuItem("UseQComboHam", "Use Hammer Q").SetValue(true));
-                combo.AddItem(new MenuItem("UseWComboHam", "Use Hammer W").SetValue(true));
-                combo.AddItem(new MenuItem("UseEComboHam", "Use Hammer E").SetValue(true));
-                combo.AddItem(new MenuItem("UseRCombo", "Use R to Switch").SetValue(true));
+                combo.AddItem(new MenuItem("UseQCombo", "Use Cannon Q", true).SetValue(true));
+                combo.AddItem(new MenuItem("qSpeed", "QE Speed, Higher = Faster, Lower = Accurate", true).SetValue(new Slider(1600, 400, 2500)));
+                combo.AddItem(new MenuItem("UseWCombo", "Use Cannon W", true).SetValue(true));
+                combo.AddItem(new MenuItem("UseECombo", "Use Cannon E", true).SetValue(true));
+                combo.AddItem(new MenuItem("UseQComboHam", "Use Hammer Q", true).SetValue(true));
+                combo.AddItem(new MenuItem("UseWComboHam", "Use Hammer W", true).SetValue(true));
+                combo.AddItem(new MenuItem("UseEComboHam", "Use Hammer E", true).SetValue(true));
+                combo.AddItem(new MenuItem("UseRCombo", "Use R to Switch", true).SetValue(true));
                 menu.AddSubMenu(combo);
             }
 
             //Harass menu:
             var harass = new Menu("Harass", "Harass");
             {
-                harass.AddItem(new MenuItem("UseQHarass", "Use Q").SetValue(true));
-                harass.AddItem(new MenuItem("UseWHarass", "Use W").SetValue(true));
-                harass.AddItem(new MenuItem("UseEHarass", "Use E").SetValue(true));
-                harass.AddItem(new MenuItem("UseQHarassHam", "Use Q Hammer").SetValue(true));
-                harass.AddItem(new MenuItem("UseWHarassHam", "Use W Hammer").SetValue(true));
-                harass.AddItem(new MenuItem("UseEHarassHam", "Use E Hammer").SetValue(true));
-                harass.AddItem(new MenuItem("UseRHarass", "Use R to switch").SetValue(true));
-                harass.AddItem(new MenuItem("manaH", "Mana > %").SetValue(new Slider(40)));
+                harass.AddItem(new MenuItem("UseQHarass", "Use Q", true).SetValue(true));
+                harass.AddItem(new MenuItem("UseWHarass", "Use W", true).SetValue(true));
+                harass.AddItem(new MenuItem("UseEHarass", "Use E", true).SetValue(true));
+                harass.AddItem(new MenuItem("UseQHarassHam", "Use Q Hammer", true).SetValue(true));
+                harass.AddItem(new MenuItem("UseWHarassHam", "Use W Hammer", true).SetValue(true));
+                harass.AddItem(new MenuItem("UseEHarassHam", "Use E Hammer", true).SetValue(true));
+                harass.AddItem(new MenuItem("UseRHarass", "Use R to switch", true).SetValue(true));
+                harass.AddItem(new MenuItem("manaH", "Mana > %", true).SetValue(new Slider(40)));
                 menu.AddSubMenu(harass);
             }
 
             //Misc Menu:
             var misc = new Menu("Misc", "Misc"); { 
-                misc.AddItem(new MenuItem("UseInt", "Use E to Interrupt").SetValue(true));
-                misc.AddItem(new MenuItem("UseGap", "Use E for GapCloser").SetValue(true));
-                misc.AddItem(new MenuItem("forceGate", "Force Gate After Q").SetValue(false));
-                misc.AddItem(new MenuItem("gatePlace", "Gate Distance").SetValue(new Slider(300, 50, 600)));
-                misc.AddItem(new MenuItem("UseQAlways", "Use Q When E onCD").SetValue(true));
-                misc.AddItem(new MenuItem("autoE", "EPushInCombo HP < %").SetValue(new Slider(20)));
-                misc.AddItem(new MenuItem("smartKS", "Smart KS").SetValue(true));
+                misc.AddItem(new MenuItem("UseInt", "Use E to Interrupt", true).SetValue(true));
+                misc.AddItem(new MenuItem("UseGap", "Use E for GapCloser", true).SetValue(true));
+                misc.AddItem(new MenuItem("forceGate", "Force Gate After Q", true).SetValue(false));
+                misc.AddItem(new MenuItem("gatePlace", "Gate Distance", true).SetValue(new Slider(300, 50, 600)));
+                misc.AddItem(new MenuItem("UseQAlways", "Use Q When E onCD", true).SetValue(true));
+                misc.AddItem(new MenuItem("autoE", "EPushInCombo HP < %", true).SetValue(new Slider(20)));
+                misc.AddItem(new MenuItem("smartKS", "Smart KS", true).SetValue(true));
                 menu.AddSubMenu(misc);
             }
 
             //Drawings menu:
             var drawMenu = new Menu("Drawings", "Drawings"); {
-                drawMenu.AddItem(new MenuItem("Draw_Disabled", "Disable All").SetValue(false));
-                drawMenu.AddItem(new MenuItem("Draw_Q", "Draw Q Cannon").SetValue(true));
-                drawMenu.AddItem(new MenuItem("Draw_QExtend", "Draw Q Cannon Extended").SetValue(true));
-                drawMenu.AddItem(new MenuItem("Draw_E", "Draw E Cannon").SetValue(true));
-                drawMenu.AddItem(new MenuItem("Draw_Q2", "Draw Q Hammer").SetValue(true));
-                drawMenu.AddItem(new MenuItem("Draw_E2", "Draw E Hammer").SetValue(true));
-                drawMenu.AddItem(new MenuItem("drawcds", "Draw Cooldowns")).SetValue(true);
+                drawMenu.AddItem(new MenuItem("Draw_Disabled", "Disable All", true).SetValue(false));
+                drawMenu.AddItem(new MenuItem("Draw_Q", "Draw Q Cannon", true).SetValue(true));
+                drawMenu.AddItem(new MenuItem("Draw_QExtend", "Draw Q Cannon Extended", true).SetValue(true));
+                drawMenu.AddItem(new MenuItem("Draw_E", "Draw E Cannon", true).SetValue(true));
+                drawMenu.AddItem(new MenuItem("Draw_Q2", "Draw Q Hammer", true).SetValue(true));
+                drawMenu.AddItem(new MenuItem("Draw_E2", "Draw E Hammer", true).SetValue(true));
+                drawMenu.AddItem(new MenuItem("drawcds", "Draw Cooldowns", true).SetValue(true));
 
-                MenuItem drawComboDamageMenu = new MenuItem("Draw_ComboDamage", "Draw Combo Damage").SetValue(true);
-                MenuItem drawFill = new MenuItem("Draw_Fill", "Draw Combo Damage Fill").SetValue(new Circle(true, Color.FromArgb(90, 255, 169, 4)));
+                MenuItem drawComboDamageMenu = new MenuItem("Draw_ComboDamage", "Draw Combo Damage", true).SetValue(true);
+                MenuItem drawFill = new MenuItem("Draw_Fill", "Draw Combo Damage Fill", true).SetValue(new Circle(true, Color.FromArgb(90, 255, 169, 4)));
                 drawMenu.AddItem(drawComboDamageMenu);
                 drawMenu.AddItem(drawFill);
                 DamageIndicator.DamageToUnit = GetComboDamage;
@@ -158,16 +158,16 @@ namespace xSaliceReligionAIO.Champions
 
         private void Combo()
         {
-            UseSpells(menu.Item("UseQCombo").GetValue<bool>(), menu.Item("UseWCombo").GetValue<bool>(),
-                menu.Item("UseECombo").GetValue<bool>(), menu.Item("UseQComboHam").GetValue<bool>(), menu.Item("UseWComboHam").GetValue<bool>(),
-                menu.Item("UseEComboHam").GetValue<bool>(), menu.Item("UseRCombo").GetValue<bool>(), "Combo");
+            UseSpells(menu.Item("UseQCombo", true).GetValue<bool>(), menu.Item("UseWCombo", true).GetValue<bool>(),
+                menu.Item("UseECombo", true).GetValue<bool>(), menu.Item("UseQComboHam", true).GetValue<bool>(), menu.Item("UseWComboHam", true).GetValue<bool>(),
+                menu.Item("UseEComboHam", true).GetValue<bool>(), menu.Item("UseRCombo", true).GetValue<bool>(), "Combo");
 
         }
         private void Harass()
         {
-            UseSpells(menu.Item("UseQHarass").GetValue<bool>(), menu.Item("UseWHarass").GetValue<bool>(),
-                menu.Item("UseEHarass").GetValue<bool>(), menu.Item("UseQHarassHam").GetValue<bool>(), menu.Item("UseWHarassHam").GetValue<bool>(),
-                menu.Item("UseEHarassHam").GetValue<bool>(), menu.Item("UseRHarass").GetValue<bool>(), "Harass");
+            UseSpells(menu.Item("UseQHarass", true).GetValue<bool>(), menu.Item("UseWHarass", true).GetValue<bool>(),
+                menu.Item("UseEHarass", true).GetValue<bool>(), menu.Item("UseQHarassHam", true).GetValue<bool>(), menu.Item("UseWHarassHam", true).GetValue<bool>(),
+                menu.Item("UseEHarassHam", true).GetValue<bool>(), menu.Item("UseRHarass", true).GetValue<bool>(), "Harass");
         }
 
         private void UseSpells(bool useQ, bool useW, bool useE, bool useQ2, bool useW2, bool useE2, bool useR, String source)
@@ -177,7 +177,7 @@ namespace xSaliceReligionAIO.Champions
             var e2Target = TargetSelector.GetTarget(E2.Range, TargetSelector.DamageType.Physical);
 
             //mana manager for harass
-            var mana = menu.Item("manaH").GetValue<Slider>().Value;
+            var mana = menu.Item("manaH", true).GetValue<Slider>().Value;
             var manaPercent = Player.Mana / Player.MaxMana * 100;
 
             //Main Combo
@@ -263,7 +263,7 @@ namespace xSaliceReligionAIO.Champions
                 return true;
             }
 
-            var hp = menu.Item("autoE").GetValue<Slider>().Value;
+            var hp = menu.Item("autoE", true).GetValue<Slider>().Value;
             var hpPercent = Player.Health / Player.MaxHealth * 100;
 
             if (hpPercent <= hp)
@@ -405,8 +405,8 @@ namespace xSaliceReligionAIO.Champions
 
         private void CastQCannon(Obj_AI_Hero target, bool useE)
         {
-            var gateDis = menu.Item("gatePlace").GetValue<Slider>().Value;
-            var qSpeed = menu.Item("qSpeed").GetValue<Slider>().Value;
+            var gateDis = menu.Item("gatePlace", true).GetValue<Slider>().Value;
+            var qSpeed = menu.Item("qSpeed", true).GetValue<Slider>().Value;
 
             _qCharge.Speed = qSpeed;
 
@@ -427,7 +427,7 @@ namespace xSaliceReligionAIO.Champions
                 }
             }
 
-            if ((menu.Item("UseQAlways").GetValue<bool>() || !useE) && _canQcd == 0 && Q.GetPrediction(target).Hitchance >= HitChance.High && Player.Distance(target.ServerPosition) <= Q.Range && Q.IsReady())
+            if ((menu.Item("UseQAlways", true).GetValue<bool>() || !useE) && _canQcd == 0 && Q.GetPrediction(target).Hitchance >= HitChance.High && Player.Distance(target.ServerPosition) <= Q.Range && Q.IsReady())
             {
                 Q.Cast(target, packets());
             }
@@ -449,7 +449,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (_canEcd == 0 && _canQcd == 0 && !_hammerTime)
             {
-                var gateDis = menu.Item("gatePlace").GetValue<Slider>().Value;
+                var gateDis = menu.Item("gatePlace", true).GetValue<Slider>().Value;
                 var gateVector = Player.ServerPosition + Vector3.Normalize(Game.CursorPos - Player.ServerPosition) * gateDis;
 
                 if (E.IsReady() && Q.IsReady())
@@ -514,34 +514,34 @@ namespace xSaliceReligionAIO.Champions
             _hammerTime = !_qdata.Name.Contains("jayceshockblast");
 
             //ks check
-            if (menu.Item("smartKS").GetValue<bool>())
+            if (menu.Item("smartKS", true).GetValue<bool>())
                 KsCheck();
 
-            if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
+            if (menu.Item("ComboActive", true).GetValue<KeyBind>().Active)
             {
                 Combo();
             }
             else
             {
-                if (menu.Item("shootMouse").GetValue<KeyBind>().Active)
+                if (menu.Item("shootMouse", true).GetValue<KeyBind>().Active)
                     CastQCannonMouse();
 
-                if (menu.Item("HarassActive").GetValue<KeyBind>().Active)
+                if (menu.Item("HarassActive", true).GetValue<KeyBind>().Active)
                     Harass();
 
-                if (menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
+                if (menu.Item("HarassActiveT", true).GetValue<KeyBind>().Active)
                     Harass();
             }
         }
 
         public override void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-            var useWCombo = menu.Item("UseWCombo").GetValue<bool>();
-            var useWHarass = menu.Item("UseWHarass").GetValue<bool>();
+            var useWCombo = menu.Item("UseWCombo", true).GetValue<bool>();
+            var useWHarass = menu.Item("UseWHarass", true).GetValue<bool>();
 
             if (unit.IsMe && !_hammerTime)
             {
-                if (menu.Item("ComboActive").GetValue<KeyBind>().Active)
+                if (menu.Item("ComboActive", true).GetValue<KeyBind>().Active)
                 {
                     if (_canWcd == 0 && Player.Distance(target) < 600 && !_hammerTime && W.Level > 0 && W.IsReady())
                         if (useWCombo)
@@ -552,7 +552,7 @@ namespace xSaliceReligionAIO.Champions
                         }
                 }
 
-                if (menu.Item("HarassActive").GetValue<KeyBind>().Active || menu.Item("HarassActiveT").GetValue<KeyBind>().Active)
+                if (menu.Item("HarassActive", true).GetValue<KeyBind>().Active || menu.Item("HarassActiveT", true).GetValue<KeyBind>().Active)
                 {
                     if (_canWcd == 0 && Player.Distance(target) < 600 && !_hammerTime && W.Level > 0 && W.IsReady())
                         if (useWHarass)
@@ -567,30 +567,30 @@ namespace xSaliceReligionAIO.Champions
 
         public override void Drawing_OnDraw(EventArgs args)
         {
-            if (menu.Item("Draw_Disabled").GetValue<bool>())
+            if (menu.Item("Draw_Disabled", true).GetValue<bool>())
                 return;
 
-            if (menu.Item("Draw_Q").GetValue<bool>() && !_hammerTime)
+            if (menu.Item("Draw_Q", true).GetValue<bool>() && !_hammerTime)
                 if (Q.Level > 0)
                     Utility.DrawCircle(Player.Position, Q.Range, Q.IsReady() ? Color.Green : Color.Red);
 
-            if (menu.Item("Draw_QExtend").GetValue<bool>() && !_hammerTime)
+            if (menu.Item("Draw_QExtend", true).GetValue<bool>() && !_hammerTime)
                 if (Q.Level > 0)
                     Utility.DrawCircle(Player.Position, _qCharge.Range, Q.IsReady() ? Color.Green : Color.Red);
 
-            if (menu.Item("Draw_Q2").GetValue<bool>() && _hammerTime)
+            if (menu.Item("Draw_Q2", true).GetValue<bool>() && _hammerTime)
                 if (Q.Level > 0)
                     Utility.DrawCircle(Player.Position, Q2.Range, W.IsReady() ? Color.Green : Color.Red);
 
-            if (menu.Item("Draw_E").GetValue<bool>() && !_hammerTime)
+            if (menu.Item("Draw_E", true).GetValue<bool>() && !_hammerTime)
                 if (E.Level > 0)
                     Utility.DrawCircle(Player.Position, E.Range, E.IsReady() ? Color.Green : Color.Red);
 
-            if (menu.Item("Draw_E2").GetValue<bool>() && _hammerTime)
+            if (menu.Item("Draw_E2", true).GetValue<bool>() && _hammerTime)
                 if (E.Level > 0)
                     Utility.DrawCircle(Player.Position, E2.Range, E.IsReady() ? Color.Green : Color.Red);
 
-            if (menu.Item("drawcds").GetValue<bool>())
+            if (menu.Item("drawcds", true).GetValue<bool>())
             {
                 var wts = Drawing.WorldToScreen(Player.Position);
                 if (_hammerTime)
@@ -636,7 +636,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (unit == Player.Name && name == "JayceShockBlastMis")
             {
-                if (menu.Item("forceGate").GetValue<bool>() && _canEcd == 0 && E.IsReady())
+                if (menu.Item("forceGate", true).GetValue<bool>() && _canEcd == 0 && E.IsReady())
                 {
                     var vec = spell.Position - Vector3.Normalize(Player.ServerPosition - spell.Position) * 100;
                     E.Cast(vec, packets());
@@ -652,7 +652,7 @@ namespace xSaliceReligionAIO.Champions
 
         public override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
-            if (!menu.Item("UseGap").GetValue<bool>()) return;
+            if (!menu.Item("UseGap", true).GetValue<bool>()) return;
 
             if (_hamEcd == 0 && gapcloser.Sender.IsValidTarget(E2.Range + gapcloser.Sender.BoundingRadius))
             {
@@ -666,7 +666,7 @@ namespace xSaliceReligionAIO.Champions
 
         public override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
-            if (!menu.Item("UseInt").GetValue<bool>()) return;
+            if (!menu.Item("UseInt", true).GetValue<bool>()) return;
 
             if (unit != null && Player.Distance(unit) < Q2.Range + unit.BoundingRadius && _hamQcd == 0 && _hamEcd == 0)
             {

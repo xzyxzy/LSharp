@@ -75,7 +75,6 @@
     <Compile Include="Champions\Katarina.cs" />
     <Compile Include="Champions\Orianna.cs" />
     <Compile Include="Champions\Syndra.cs" />
-    <Compile Include="Champions\Teemo.cs" />
     <Compile Include="Champions\Zed.cs" />
     <Compile Include="Initiator.cs" />
     <Compile Include="Orbwalker.cs" />
