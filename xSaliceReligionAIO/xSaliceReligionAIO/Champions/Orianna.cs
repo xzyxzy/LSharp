@@ -645,14 +645,14 @@ namespace xSaliceReligionAIO.Champions
                 if ((spell.Slot == SpellSlot.R && menuItem.Active) || (spell.Slot == SpellSlot.W && menuItem.Active))
                 {
                     if (_ballStatus == 0)
-                        Utility.DrawCircle(Player.Position, spell.Range, spell.IsReady() ? Color.Aqua : Color.Red);
+                        Render.Circle.DrawCircle(Player.Position, spell.Range, spell.IsReady() ? Color.Aqua : Color.Red);
                     else if (_ballStatus == 2)
-                        Utility.DrawCircle(_allyDraw, spell.Range, spell.IsReady() ? Color.Aqua : Color.Red);
+                        Render.Circle.DrawCircle(_allyDraw, spell.Range, spell.IsReady() ? Color.Aqua : Color.Red);
                     else
-                        Utility.DrawCircle(_currentBallPosition, spell.Range, spell.IsReady() ? Color.Aqua : Color.Red);
+                        Render.Circle.DrawCircle(_currentBallPosition, spell.Range, spell.IsReady() ? Color.Aqua : Color.Red);
                 }
                 else if (menuItem.Active)
-                    Utility.DrawCircle(Player.Position, spell.Range, spell.IsReady() ? Color.Aqua : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, spell.Range, spell.IsReady() ? Color.Aqua : Color.Red);
             }
             if (menu.Item("rModeDraw", true).GetValue<Circle>().Active)
             {

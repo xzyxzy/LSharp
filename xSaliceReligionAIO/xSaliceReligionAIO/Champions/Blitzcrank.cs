@@ -344,7 +344,7 @@ namespace xSaliceReligionAIO.Champions
 
                         Q.Range = qRange;
                     }
-                    Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
+                    Render.Circle.DrawCircle(Player.Position, spell.Range, menuItem.Color);
                 }
             }
 

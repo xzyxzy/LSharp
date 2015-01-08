@@ -560,7 +560,7 @@ namespace VeigarLittleEvil
             {
                 var menuItem = menu.Item(spell.Slot + "Range").GetValue<Circle>();
                 if (menuItem.Active)
-                    Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
+                    Render.Circle.DrawCircle(Player.Position, spell.Range, menuItem.Color);
             }
 
             if (menu.Item("manaStatus").GetValue<bool>())

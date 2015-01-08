@@ -785,7 +785,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 var menuItem = menu.Item(spell.Slot + "Range", true).GetValue<Circle>();
                 if (menuItem.Active)
-                    Utility.DrawCircle(Player.Position, spell.Range, (spell.IsReady()) ? Color.Cyan : Color.DarkRed);
+                    Render.Circle.DrawCircle(Player.Position, spell.Range, (spell.IsReady()) ? Color.Cyan : Color.DarkRed);
             }
 
             if (menu.Item("Draw_Mode", true).GetValue<Circle>().Active)

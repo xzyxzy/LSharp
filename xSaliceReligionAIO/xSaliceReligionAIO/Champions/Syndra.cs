@@ -507,21 +507,21 @@ namespace xSaliceReligionAIO.Champions
             xSLxOrbwalker.EnableDrawing();
             if (menu.Item("Draw_Q", true).GetValue<bool>())
                 if (Q.Level > 0)
-                    Utility.DrawCircle(Player.Position, Q.Range, Q.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, Q.Range, Q.IsReady() ? Color.Green : Color.Red);
             if (menu.Item("Draw_QE", true).GetValue<bool>())
                 if (Q.Level > 0 && E.Level > 0)
-                    Utility.DrawCircle(Player.Position, _qe.Range, Q.IsReady() && E.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, _qe.Range, Q.IsReady() && E.IsReady() ? Color.Green : Color.Red);
             if (menu.Item("Draw_W", true).GetValue<bool>())
                 if (W.Level > 0)
-                    Utility.DrawCircle(Player.Position, W.Range, W.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, W.Range, W.IsReady() ? Color.Green : Color.Red);
 
             if (menu.Item("Draw_E", true).GetValue<bool>())
                 if (E.Level > 0)
-                    Utility.DrawCircle(Player.Position, E.Range, E.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, E.Range, E.IsReady() ? Color.Green : Color.Red);
 
             if (menu.Item("Draw_R", true).GetValue<bool>())
                 if (R.Level > 0)
-                    Utility.DrawCircle(Player.Position, R.Range, R.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, R.Range, R.IsReady() ? Color.Green : Color.Red);
 
             //draw EQ
             if (menu.Item("Draw_QE_Line", true).GetValue<bool>())
@@ -548,8 +548,8 @@ namespace xSaliceReligionAIO.Champions
                 {
                     Vector2 wtsPlayer = Drawing.WorldToScreen(Player.Position);
                     Vector2 wtsPred = Drawing.WorldToScreen(endPos);
-                    Utility.DrawCircle(startPos, Q.Width/2, Color.Aquamarine);
-                    Utility.DrawCircle(endPos, Q.Width/2, Color.SpringGreen);
+                    Render.Circle.DrawCircle(startPos, Q.Width/2, Color.Aquamarine);
+                    Render.Circle.DrawCircle(endPos, Q.Width/2, Color.SpringGreen);
                     Drawing.DrawLine(wtsPlayer, wtsPred, 1, Color.LawnGreen);
                 }
 
@@ -580,8 +580,8 @@ namespace xSaliceReligionAIO.Champions
                
                 Vector2 wtsPlayer = Drawing.WorldToScreen(Player.Position);
                 Vector2 wtsPred = Drawing.WorldToScreen(endPos);
-                Utility.DrawCircle(startPos, Q.Width / 2, Color.Aquamarine);
-                Utility.DrawCircle(endPos, Q.Width / 2, Color.SpringGreen);
+                Render.Circle.DrawCircle(startPos, Q.Width / 2, Color.Aquamarine);
+                Render.Circle.DrawCircle(endPos, Q.Width / 2, Color.SpringGreen);
                 Drawing.DrawLine(wtsPlayer, wtsPred, 1, Color.LawnGreen);
             }*/
 

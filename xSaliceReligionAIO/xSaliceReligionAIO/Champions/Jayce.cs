@@ -572,23 +572,23 @@ namespace xSaliceReligionAIO.Champions
 
             if (menu.Item("Draw_Q", true).GetValue<bool>() && !_hammerTime)
                 if (Q.Level > 0)
-                    Utility.DrawCircle(Player.Position, Q.Range, Q.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, Q.Range, Q.IsReady() ? Color.Green : Color.Red);
 
             if (menu.Item("Draw_QExtend", true).GetValue<bool>() && !_hammerTime)
                 if (Q.Level > 0)
-                    Utility.DrawCircle(Player.Position, _qCharge.Range, Q.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, _qCharge.Range, Q.IsReady() ? Color.Green : Color.Red);
 
             if (menu.Item("Draw_Q2", true).GetValue<bool>() && _hammerTime)
                 if (Q.Level > 0)
-                    Utility.DrawCircle(Player.Position, Q2.Range, W.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, Q2.Range, W.IsReady() ? Color.Green : Color.Red);
 
             if (menu.Item("Draw_E", true).GetValue<bool>() && !_hammerTime)
                 if (E.Level > 0)
-                    Utility.DrawCircle(Player.Position, E.Range, E.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, E.Range, E.IsReady() ? Color.Green : Color.Red);
 
             if (menu.Item("Draw_E2", true).GetValue<bool>() && _hammerTime)
                 if (E.Level > 0)
-                    Utility.DrawCircle(Player.Position, E2.Range, E.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, E2.Range, E.IsReady() ? Color.Green : Color.Red);
 
             if (menu.Item("drawcds", true).GetValue<bool>())
             {

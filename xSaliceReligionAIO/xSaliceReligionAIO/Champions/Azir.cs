@@ -928,10 +928,10 @@ namespace xSaliceReligionAIO.Champions
             {
                 var menuItem = menu.Item(spell.Slot + "Range", true).GetValue<Circle>();
                 if (menuItem.Active)
-                    Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
+                    Render.Circle.DrawCircle(Player.Position, spell.Range, menuItem.Color);
             }
             if (menu.Item("QExtendRange", true).GetValue<Circle>().Active)
-                Utility.DrawCircle(Player.Position, QExtend.Range, Color.LightBlue);
+                Render.Circle.DrawCircle(Player.Position, QExtend.Range, Color.LightBlue);
 
             if (menu.Item("slaveDmg", true).GetValue<Circle>().Active)
             {

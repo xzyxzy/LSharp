@@ -176,6 +176,7 @@ namespace xSaliceReligionAIO
 
             //ignite
             int igniteMode = _myMenu.Item("igniteMode", true).GetValue<StringList>().SelectedIndex;
+
             if (KillableTarget && igniteMode == 0 && Ignite_Ready())
                 Use_Ignite(Target);
             else if (ObjectManager.Player.GetSummonerSpellDamage(Target, Damage.SummonerSpell.Ignite) > Target.Health + 20 && Ignite_Ready())

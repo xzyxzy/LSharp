@@ -1063,28 +1063,28 @@ namespace xSaliceReligionAIO.Champions
 
             if (menu.Item("Draw_Q", true).GetValue<bool>())
                 if (Q.Level > 0)
-                    Utility.DrawCircle(Player.Position, Q.Range, Q.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, Q.Range, Q.IsReady() ? Color.Green : Color.Red);
 
             if (menu.Item("Draw_W", true).GetValue<bool>())
                 if (W.Level > 0)
-                    Utility.DrawCircle(Player.Position, W.Range - 2, W.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, W.Range - 2, W.IsReady() ? Color.Green : Color.Red);
 
             if (menu.Item("Draw_E", true).GetValue<bool>())
                 if (E.Level > 0)
-                    Utility.DrawCircle(Player.Position, E.Range, E.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, E.Range, E.IsReady() ? Color.Green : Color.Red);
 
             if (menu.Item("Draw_R", true).GetValue<bool>())
                 if (R.Level > 0)
-                    Utility.DrawCircle(Player.Position, R.Range, R.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, R.Range, R.IsReady() ? Color.Green : Color.Red);
 
             if (WShadow != null)
             {
-                Utility.DrawCircle(WShadow.Position, E.Range, Color.Aqua);
+                Render.Circle.DrawCircle(WShadow.Position, E.Range, Color.Aqua);
             }
 
             if (RShadow != null)
             {
-                Utility.DrawCircle(RShadow.Position, E.Range, Color.Yellow);
+                Render.Circle.DrawCircle(RShadow.Position, E.Range, Color.Yellow);
             }
 
             if (menu.Item("Current_Mode", true).GetValue<bool>())

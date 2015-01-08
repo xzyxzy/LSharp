@@ -260,6 +260,16 @@ namespace xSaliceReligionAIO
 
             return false;
         }
+
+        public bool manaCheck2()
+        {
+            int totalMana = qMana[Q.Level] + wMana[W.Level] + eMana[E.Level] + rMana[R.Level];
+
+            if (Player.Mana >= totalMana)
+                return true;
+
+            return false;
+        }
         public bool IsRecalling()
         {
             return Player.HasBuff("Recall");

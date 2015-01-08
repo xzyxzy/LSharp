@@ -393,7 +393,7 @@ namespace xSaliceReligionAIO.Champions
                         Vector2 cp = Player.ServerPosition.To2D() +
                                      (pred.CastPosition.To2D() - Player.ServerPosition.To2D()).Rotated(i * alpha);
 
-                        //Utility.DrawCircle(cp.To3D(), 100, Color.Blue, 1, 1);
+                        //Render.Circle.DrawCircle(cp.To3D(), 100, Color.Blue, 1, 1);
 
                         if (Q.GetCollision(Player.ServerPosition.To2D(), new List<Vector2> { cp }).Count == 0 &&
                             _qSplit.GetCollision(cp, new List<Vector2> { pred.CastPosition.To2D() }).Count == 0)
@@ -564,7 +564,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 var menuItem = menu.Item(spell.Slot + "Range", true).GetValue<Circle>();
                 if (menuItem.Active)
-                    Utility.DrawCircle(Player.Position, spell.Range, menuItem.Color);
+                    Render.Circle.DrawCircle(Player.Position, spell.Range, menuItem.Color);
             }
         }
 

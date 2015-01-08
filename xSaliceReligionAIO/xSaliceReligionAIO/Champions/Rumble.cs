@@ -505,19 +505,19 @@ namespace xSaliceReligionAIO.Champions
 
             if (menu.Item("Draw_Q", true).GetValue<bool>())
                 if (Q.Level > 0)
-                    Utility.DrawCircle(Player.Position, Q.Range, Q.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, Q.Range, Q.IsReady() ? Color.Green : Color.Red);
 
             if (menu.Item("Draw_W", true).GetValue<bool>())
                 if (W.Level > 0)
-                    Utility.DrawCircle(Player.Position, W.Range - 2, W.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, W.Range - 2, W.IsReady() ? Color.Green : Color.Red);
 
             if (menu.Item("Draw_E", true).GetValue<bool>())
                 if (E.Level > 0)
-                    Utility.DrawCircle(Player.Position, E.Range, E.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, E.Range, E.IsReady() ? Color.Green : Color.Red);
 
             if (menu.Item("Draw_R", true).GetValue<bool>())
                 if (R.Level > 0)
-                    Utility.DrawCircle(Player.Position, R.Range, R.IsReady() ? Color.Green : Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, R.Range, R.IsReady() ? Color.Green : Color.Red);
 
 
             if (menu.Item("Draw_R_Pred", true).GetValue<bool>() && R.IsReady())
@@ -550,9 +550,9 @@ namespace xSaliceReligionAIO.Champions
                             Vector2 wtsPred = Drawing.WorldToScreen(vector2);
 
                             Drawing.DrawLine(wtsPlayer, wtsPred, 1, Color.Wheat);
-                            Utility.DrawCircle(vector1, 50, Color.Aqua);
-                            Utility.DrawCircle(vector2, 50, Color.Yellow);
-                            Utility.DrawCircle(pred.UnitPosition, 50, Color.Red);
+                            Render.Circle.DrawCircle(vector1, 50, Color.Aqua);
+                            Render.Circle.DrawCircle(vector2, 50, Color.Yellow);
+                            Render.Circle.DrawCircle(pred.UnitPosition, 50, Color.Red);
                         }
                     }
                     else if (!IsPassWall(pred.UnitPosition, vector1) && !IsPassWall(pred.UnitPosition, pred.CastPosition))
@@ -566,8 +566,8 @@ namespace xSaliceReligionAIO.Champions
                             Vector2 wtsPred = Drawing.WorldToScreen(pred.CastPosition);
 
                             Drawing.DrawLine(wtsPlayer, wtsPred, 1, Color.Wheat);
-                            Utility.DrawCircle(vector1, 50, Color.Aqua);
-                            Utility.DrawCircle(pred.CastPosition, 50, Color.Yellow);
+                            Render.Circle.DrawCircle(vector1, 50, Color.Aqua);
+                            Render.Circle.DrawCircle(pred.CastPosition, 50, Color.Yellow);
                         }
                     }
                     return;
@@ -637,9 +637,9 @@ namespace xSaliceReligionAIO.Champions
                     Vector2 wtsPred = Drawing.WorldToScreen(end);
 
                     Drawing.DrawLine(wtsPlayer, wtsPred, 1, Color.Wheat);
-                    Utility.DrawCircle(start, 50, Color.Aqua);
-                    Utility.DrawCircle(end, 50, Color.Yellow);
-                    Utility.DrawCircle(mid, 50, Color.Red);
+                    Render.Circle.DrawCircle(start, 50, Color.Aqua);
+                    Render.Circle.DrawCircle(end, 50, Color.Yellow);
+                    Render.Circle.DrawCircle(mid, 50, Color.Red);
                 }
                 //---------------------------------------------------End drawing Ult Mec---------------------------------------
             }
