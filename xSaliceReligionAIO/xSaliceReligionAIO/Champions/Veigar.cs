@@ -263,7 +263,7 @@ namespace xSaliceReligionAIO.Champions
             if (!menu.Item("smartKS", true).GetValue<bool>())
                 return;
 
-            foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.Distance(x) < 900 && x.IsValidTarget() && x.IsEnemy && !x.IsDead))
+            foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>().Where(x => Player.IsValidTarget(700)))
             {
                 if (target != null)
                 {
