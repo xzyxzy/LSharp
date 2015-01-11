@@ -430,6 +430,9 @@ namespace xSaliceReligionAIO.Champions
 
         private void CastR(Vector3 source, Vector3 destination)
         {
+            if (!R.IsReady())
+                return;
+
             new PKT_NPC_CastSpellReq()
             {
                 From = source.To2D(),
