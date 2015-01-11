@@ -270,6 +270,15 @@ namespace xSaliceReligionAIO
 
             return false;
         }
+
+        public bool IsStunned(Obj_AI_Base target)
+        {
+            if (target.HasBuffOfType(BuffType.Stun) || target.HasBuffOfType(BuffType.Snare) ||
+                target.HasBuffOfType(BuffType.Suppression) || target.HasBuffOfType(BuffType.Taunt))
+                return true;
+
+            return false;
+        }
         public bool IsRecalling()
         {
             return Player.HasBuff("Recall");
@@ -415,18 +424,20 @@ namespace xSaliceReligionAIO
 
             if (spell.Type == SkillshotType.SkillshotCircle)
             {
-                var predPosition = spell.GetCircularFarmLocation(minion);
-
                 spell.UpdateSourcePosition();
 
+                var predPosition = spell.GetCircularFarmLocation(minion);
+
                 if (predPosition.MinionsHit >= 2)
-                    spell.Cast(predPosition.Position, packets());
+                {
+                    spell.Cast(predPosition.Position, Player.ChampionName == "Kartus" || packets());
+                }
             }
             else if (spell.Type == SkillshotType.SkillshotLine)
             {
-                var predPosition = spell.GetLineFarmLocation(minion);
-
                 spell.UpdateSourcePosition();
+
+                var predPosition = spell.GetLineFarmLocation(minion);
 
                 if(predPosition.MinionsHit >= 2)
                     spell.Cast(predPosition.Position, packets());

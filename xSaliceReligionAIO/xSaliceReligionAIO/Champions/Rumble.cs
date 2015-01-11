@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
+using LeagueSharp.Network.Packets;
 using SharpDX;
 using Color = System.Drawing.Color;
 using ObjectManager = LeagueSharp.ObjectManager;
@@ -429,7 +430,15 @@ namespace xSaliceReligionAIO.Champions
 
         private void CastR(Vector3 source, Vector3 destination)
         {
-            Player.Spellbook.CastSpell(SpellSlot.R, source, destination);
+            new PKT_NPC_CastSpellReq()
+            {
+                From = source.To2D(),
+                To = destination.To2D(),
+                NetworkId = ObjectManager.Player.NetworkId,
+                SpellSlot = (byte)SpellSlot.R,
+                Unknown1 = true,
+                Unknown2 = true,
+            }.Encode().SendAsPacket();
         }
 
         public override void Game_OnGameUpdate(EventArgs args)

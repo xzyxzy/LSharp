@@ -249,15 +249,6 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        private bool IsStunned(Obj_AI_Base target)
-        {
-            if (target.HasBuffOfType(BuffType.Stun) || target.HasBuffOfType(BuffType.Snare) ||
-                target.HasBuffOfType(BuffType.Suppression) || target.HasBuffOfType(BuffType.Taunt))
-                return true;
-
-            return false;
-        }
-
         private void SmartKs()
         {
             if (!menu.Item("smartKS", true).GetValue<bool>())
