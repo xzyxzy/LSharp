@@ -18,10 +18,10 @@ namespace xSaliceReligionAIO.Champions
         private void SetSpells()
         {
             Q = new Spell(SpellSlot.Q, 475);
-            Q.SetSkillshot(0.35f, 50f, float.MaxValue, false, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0.4f, 20f, float.MaxValue, false, SkillshotType.SkillshotLine);
 
-            Q2 = new Spell(SpellSlot.Q, 900);
-            Q2.SetSkillshot(0.4f, 90f, 1500f, true, SkillshotType.SkillshotLine);
+            Q2 = new Spell(SpellSlot.Q, 1050);
+            Q2.SetSkillshot(0.5f, 90f, 1500f, true, SkillshotType.SkillshotLine);
 
             W = new Spell(SpellSlot.W, 400);
 
@@ -141,6 +141,7 @@ namespace xSaliceReligionAIO.Champions
                 var rMenu = new Menu("RMenu", "RMenu");
                 {
                     rMenu.AddItem(new MenuItem("R_If_Killable", "R If Enemy Is killable", true).SetValue(true));
+                    rMenu.AddItem(new MenuItem("delayR", "Delay R on Killable Enemey", true).SetValue(true));
                     rMenu.AddItem(new MenuItem("R_MEC", "Auto R if >= Enemies, 0 = off", true).SetValue(new Slider(3, 0, 5)));
                     spellMenu.AddSubMenu(rMenu);
                 }
@@ -151,7 +152,7 @@ namespace xSaliceReligionAIO.Champions
             var combo = new Menu("Combo", "Combo");
             {
                 combo.AddItem(new MenuItem("UseQCombo", "Use Q", true).SetValue(true));
-                combo.AddItem(new MenuItem("qHit", "Q3 HitChance", true).SetValue(new Slider(2, 1, 3)));
+                combo.AddItem(new MenuItem("qHit", "Q HitChance", true).SetValue(new Slider(2, 1, 3)));
                 combo.AddItem(new MenuItem("UseECombo", "Use E", true).SetValue(true));
                 combo.AddItem(new MenuItem("UseRCombo", "Use R", true).SetValue(true));
                 combo.AddItem(new MenuItem("ComboR_MEC", "R if >= Enemies", true).SetValue(new Slider(3, 1, 5)));
@@ -161,7 +162,7 @@ namespace xSaliceReligionAIO.Champions
             var harass = new Menu("Harass", "Harass");
             {
                 harass.AddItem(new MenuItem("UseQHarass", "Use Q", true).SetValue(true));
-                harass.AddItem(new MenuItem("qHit2", "Q3 HitChance", true).SetValue(new Slider(2, 1, 3)));
+                harass.AddItem(new MenuItem("qHit2", "Q HitChance", true).SetValue(new Slider(2, 1, 3)));
                 harass.AddItem(new MenuItem("UseEHarass", "Use E", true).SetValue(true));
                 //add to menu
                 menu.AddSubMenu(harass);
@@ -183,6 +184,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 misc.AddItem(new MenuItem("smartKS", "Use Smart KS System", true).SetValue(true));
                 misc.AddItem(new MenuItem("Interrupt", "Interrupt Spells", true).SetValue(true));
+                misc.AddItem(new MenuItem("predMode", "Prediction Mode, off = fast, on = accurate", true).SetValue(true));
                 menu.AddSubMenu(misc);
             }
 
@@ -222,6 +224,9 @@ namespace xSaliceReligionAIO.Champions
 
         private float GetComboDamage(Obj_AI_Base target)
         {
+            if (target == null)
+                return 0;
+
             double comboDamage = 0;
 
             if (Q.IsReady())
@@ -240,17 +245,17 @@ namespace xSaliceReligionAIO.Champions
 
         private void Combo()
         {
-            UseSpells(menu.Item("UseQCombo", true).GetValue<bool>(), false,
+            UseSpells(menu.Item("UseQCombo", true).GetValue<bool>(),
                 menu.Item("UseECombo", true).GetValue<bool>(), menu.Item("UseRCombo", true).GetValue<bool>(), "Combo");
         }
 
         private void Harass()
         {
-            UseSpells(menu.Item("UseQHarass", true).GetValue<bool>(), false,
+            UseSpells(menu.Item("UseQHarass", true).GetValue<bool>(),
                 menu.Item("UseEHarass", true).GetValue<bool>(), false, "Harass");
         }
 
-        private void UseSpells(bool useQ, bool useW, bool useE, bool useR, string source)
+        private void UseSpells(bool useQ, bool useE, bool useR, string source)
         {
             var itemTarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
             var dmg = GetComboDamage(itemTarget);
@@ -293,14 +298,32 @@ namespace xSaliceReligionAIO.Champions
 
             if (!ThirdQ() && target != null && target.IsValidTarget(Q.Range))
             {
-                if (Player.Distance(target) < 150)
-                    Q.Cast(target.Position, packets());
+                if (!menu.Item("predMode", true).GetValue<bool>())
+                {
+                    if (Player.Distance(target) < 150)
+                        Q.Cast(target.ServerPosition, packets());
+                    else
+                        Q.Cast(target, packets());
+                }
                 else
-                    Q.Cast(target, packets());
+                {
+                    CastBasicSkillShot(Q, Q.Range, TargetSelector.DamageType.Physical, GetHitchance(source));
+                }
             }
             else if(ThirdQ())
             {
-                CastBasicSkillShot(Q2, Q2.Range, TargetSelector.DamageType.Physical, GetHitchance(source));
+                var target2 = TargetSelector.GetTarget(Q2.Range, TargetSelector.DamageType.Physical);
+                if (!target2.IsValidTarget(Q2.Range))
+                    return;
+
+                if (!menu.Item("predMode", true).GetValue<bool>())
+                {
+                    Q2.Cast(target2, packets());
+                }
+                else
+                {
+                    CastBasicSkillShot(Q2, Q2.Range, TargetSelector.DamageType.Physical, GetHitchance(source));
+                }
             }
         }
 
@@ -389,12 +412,25 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_R(float dmg)
         {
+            if (!R.IsReady())
+                return;
+
             int hit = 0;
             foreach (var target in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(R.Range) && isKnockedUp(x)))
             {
                 hit = 1;
                 if (dmg > target.Health && menu.Item("R_If_Killable", true).GetValue<bool>())
-                    R.Cast(packets());
+                {
+                    if (menu.Item("delayR", true).GetValue<bool>())
+                    {
+                        Utility.DelayAction.Add((int)(BuffDurationLeft(target)*1000 - 200), () => R.Cast(packets()));
+                        R.LastCastAttemptT = Environment.TickCount;
+                    }
+                    else
+                    {
+                        R.Cast(packets());
+                    }
+                }
 
                 hit += ObjectManager.Get<Obj_AI_Hero>().Count(x => x.ChampionName != target.ChampionName && target.Distance(x) < 400 && isKnockedUp(x));
             }
@@ -405,6 +441,9 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_MecR()
         {
+            if (!R.IsReady())
+                return;
+
             if (menu.Item("R_MEC", true).GetValue<Slider>().Value == 0)
                 return;
 
@@ -423,26 +462,58 @@ namespace xSaliceReligionAIO.Champions
             return (x.HasBuffOfType(BuffType.Knockup) || x.HasBuffOfType(BuffType.Knockback) || x.HasBuff("yasuoq3mis"));
         }
 
+        private float BuffDurationLeft(Obj_AI_Hero target)
+        {
+            var firstOrDefault = target.Buffs.FirstOrDefault(buff => buff.Type.Equals(BuffType.Knockback) || buff.Type.Equals(BuffType.Knockup));
+            if (firstOrDefault != null)
+                return firstOrDefault.EndTime - Game.Time;
+
+            return 0;
+        }
+
         private void AutoQ()
         {
             if (!Q.IsReady() || !menu.Item("Q_Auto", true).GetValue<KeyBind>().Active || Environment.TickCount - E.LastCastAttemptT < 250 + Game.Ping)
                 return;
 
-            var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
-
-            if (!ThirdQ() && target != null && target.IsValidTarget(Q.Range))
+            if (!ThirdQ())
             {
+                var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
+                if (!target.IsValidTarget(Q.Range))
+                    return;
+
                 if (menu.Item("Q_UnderTower", true).GetValue<bool>() && target.UnderTurret(true))
                     return;
 
-                if (Player.Distance(target) < 150)
-                    Q.Cast(target.Position, packets());
+                if (!menu.Item("predMode", true).GetValue<bool>())
+                {
+                    if (Player.Distance(target) < 150)
+                        Q.Cast(target.ServerPosition, packets());
+                    else
+                        Q.Cast(target, packets());
+                }
                 else
-                    Q.Cast(target, packets());
+                {
+                    CastBasicSkillShot(Q, Q.Range, TargetSelector.DamageType.Physical, GetHitchance("Combo"), menu.Item("Q_UnderTower", true).GetValue<bool>());
+                }
             }
-            else if (menu.Item("Q_Auto_third", true).GetValue<bool>() && ThirdQ())
+            else if (ThirdQ())
             {
-                CastBasicSkillShot(Q2, Q2.Range, TargetSelector.DamageType.Physical, GetHitchance("Harass"), menu.Item("Q_UnderTower", true).GetValue<bool>());
+                var target = TargetSelector.GetTarget(Q2.Range, TargetSelector.DamageType.Physical);
+                if (!target.IsValidTarget(Q2.Range))
+                    return;
+
+                if (!menu.Item("predMode", true).GetValue<bool>())
+                {
+                    if (menu.Item("Q_UnderTower", true).GetValue<bool>() && target.UnderTurret(true))
+                        return;
+
+                    Q2.Cast(target, packets());
+                }
+                else
+                {
+                    CastBasicSkillShot(Q2, Q2.Range, TargetSelector.DamageType.Physical, GetHitchance("Combo"), menu.Item("Q_UnderTower", true).GetValue<bool>());
+                }
             }
         }
 
@@ -495,7 +566,7 @@ namespace xSaliceReligionAIO.Champions
                         {
                             E.Cast(target, packets());
                             Obj_AI_Hero target1 = target;
-                            Utility.DelayAction.Add(200, () => Q.Cast(target1.Position));
+                            Utility.DelayAction.Add(200, () => Q.Cast(target1.ServerPosition));
                             return;
                         }
                     }
@@ -675,43 +746,50 @@ namespace xSaliceReligionAIO.Champions
 
             if (sender.Name != "missile")
             {
-                if (menu.Item(args.SData.Name + "E", true).GetValue<bool>() && E.IsReady())
+                if (menu.Item(args.SData.Name + "E", true) != null)
                 {
-                    //Game.PrintChat("RAWR1");
-                    _eSlide = args;
-                    var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
-                    if (Player.Distance(_eSlide.Position) < 800)
+                    if (menu.Item(args.SData.Name + "E", true).GetValue<bool>() && E.IsReady())
                     {
-                        foreach (var m in minion.Where(CanCastE))
+                        //Game.PrintChat("RAWR1");
+                        _eSlide = args;
+                        var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All,
+                            MinionTeam.NotAlly);
+                        if (Player.Distance(_eSlide.Position) < 800)
                         {
-                            if (IsPassableE(m))
+                            foreach (var m in minion.Where(CanCastE))
                             {
-                                E.CastOnUnit(m, packets());
-                                E.LastCastAttemptT = Environment.TickCount;
-                                _eSlide = null;
-                                return;
+                                if (IsPassableE(m))
+                                {
+                                    E.CastOnUnit(m, packets());
+                                    E.LastCastAttemptT = Environment.TickCount;
+                                    _eSlide = null;
+                                    return;
+                                }
                             }
                         }
                     }
                 }
 
                 //Game.PrintChat(args.SData.Name);
-                if (menu.Item(args.SData.Name + "W_Wall", true).GetValue<bool>() && W.IsReady())
+                if (menu.Item(args.SData.Name + "W_Wall", true) != null)
                 {
-                    //Game.PrintChat("RAWR1");
-                    _windWall = args;
-
-                    if (_windWall != null && W.IsReady())
+                    if (menu.Item(args.SData.Name + "W_Wall", true).GetValue<bool>() && W.IsReady())
                     {
-                        if (Player.Distance(_windWall.Position) < 200)
-                        {
-                            W.Cast(_windWall.Position, packets());
+                        //Game.PrintChat("RAWR1");
+                        _windWall = args;
 
-                            var vec = Player.ServerPosition - (_windWall.Position - Player.ServerPosition) * 50;
-                            
-                            Player.IssueOrder(GameObjectOrder.MoveTo, vec);
-                            _windWall = null;
-                            _eSlide = null;
+                        if (_windWall != null && W.IsReady())
+                        {
+                            if (Player.Distance(_windWall.Position) < 200)
+                            {
+                                W.Cast(_windWall.Position, packets());
+
+                                var vec = Player.ServerPosition - (_windWall.Position - Player.ServerPosition)*50;
+
+                                Player.IssueOrder(GameObjectOrder.MoveTo, vec);
+                                _windWall = null;
+                                _eSlide = null;
+                            }
                         }
                     }
                 }
@@ -727,15 +805,20 @@ namespace xSaliceReligionAIO.Champions
 
             if (sender.Name != "missile")
             {
-                if (menu.Item(args.SData.Name + "W_Wall", true).GetValue<bool>())
+                if (menu.Item(args.SData.Name + "W_Wall", true) != null)
                 {
-                    _windWall = null;
+                    if (menu.Item(args.SData.Name + "W_Wall", true).GetValue<bool>())
+                    {
+                        _windWall = null;
+                    }
                 }
-
-                if (menu.Item(args.SData.Name + "E", true).GetValue<bool>())
+                if (menu.Item(args.SData.Name + "E", true) != null)
                 {
-                    //Game.PrintChat("RAWR1");
-                    _eSlide = null;
+                    if (menu.Item(args.SData.Name + "E", true).GetValue<bool>())
+                    {
+                        //Game.PrintChat("RAWR1");
+                        _eSlide = null;
+                    }
                 }
             }
         }
@@ -746,31 +829,37 @@ namespace xSaliceReligionAIO.Champions
                 if (Player.Distance(args.End) > W.Range)
                     return;
 
-
-                if (menu.Item(args.SData.Name + "E", true).GetValue<bool>() && (Player.Distance(args.Start) < 1000 || Player.Distance(args.End) < 1000))
-                {
-                    var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
-
-                    foreach (var m in minion.Where(CanCastE))
+                if (menu.Item(args.SData.Name + "E", true) != null) 
+                { 
+                    if (menu.Item(args.SData.Name + "E", true).GetValue<bool>() && (Player.Distance(args.Start) < 1000 || Player.Distance(args.End) < 1000))
                     {
-                        if (IsPassableE(m))
-                        {
-                            E.CastOnUnit(m, packets());
-                            E.LastCastAttemptT = Environment.TickCount;
-                            return;
-                        }
-                    }
+                        var minion = MinionManager.GetMinions(Player.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly);
 
+                        foreach (var m in minion.Where(CanCastE))
+                        {
+                            if (IsPassableE(m))
+                            {
+                                E.CastOnUnit(m, packets());
+                                E.LastCastAttemptT = Environment.TickCount;
+                                return;
+                            }
+                        }
+
+                    }
                 }
 
-                if (menu.Item(args.SData.Name + "W_Wall", true).GetValue<bool>() && W.IsReady() && (Player.Distance(args.Start) < 1000 || Player.Distance(args.End) < 1000))
+                if (menu.Item(args.SData.Name + "W_Wall", true) != null)
                 {
-                    W.Cast(args.Start, packets());
+                    if (menu.Item(args.SData.Name + "W_Wall", true).GetValue<bool>() && W.IsReady() &&
+                        (Player.Distance(args.Start) < 1000 || Player.Distance(args.End) < 1000))
+                    {
+                        W.Cast(args.Start, packets());
 
-                    var vec = Player.ServerPosition - (args.Start - Player.ServerPosition)*50;
+                        var vec = Player.ServerPosition - (args.Start - Player.ServerPosition)*50;
 
-                    Player.IssueOrder(GameObjectOrder.MoveTo, vec);
-                    return;
+                        Player.IssueOrder(GameObjectOrder.MoveTo, vec);
+                        return;
+                    }
                 }
 
             }
@@ -804,9 +893,6 @@ namespace xSaliceReligionAIO.Champions
                 }
             }
 
-            //auto Q harass
-            AutoQ();
-
             //rmec
             Cast_MecR();
 
@@ -823,6 +909,9 @@ namespace xSaliceReligionAIO.Champions
             }
             else
             {
+                //auto Q harass
+                AutoQ();
+
                 if (menu.Item("LastHit", true).GetValue<KeyBind>().Active)
                     LastHit();
 
@@ -862,11 +951,11 @@ namespace xSaliceReligionAIO.Champions
             if (menu.Item("Draw_Disabled", true).GetValue<bool>())
                 return;
 
-            if (menu.Item("Draw_Q", true).GetValue<bool>())
+            if (menu.Item("Draw_Q", true).GetValue<bool>() && !ThirdQ())
                 if (Q.Level > 0)
                     Render.Circle.DrawCircle(Player.Position, Q.Range, Q.IsReady() ? Color.Green : Color.Red);
 
-            if (menu.Item("Draw_Q2", true).GetValue<bool>())
+            if (menu.Item("Draw_Q2", true).GetValue<bool>() && ThirdQ())
                 if (Q.Level > 0)
                     Render.Circle.DrawCircle(Player.Position, Q2.Range, Q.IsReady() ? Color.Green : Color.Red);
 
