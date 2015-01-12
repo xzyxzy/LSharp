@@ -202,11 +202,11 @@ namespace xSaliceReligionAIO.Champions
 
             if (target != null && target.IsValidTarget(Q.Range))
             {
-                Q.CastOnUnit(target, packets());
-                Utility.DelayAction.Add(25, Orbwalking.ResetAutoAttackTimer);
-                Utility.DelayAction.Add(25, xSLxOrbwalker.ResetAutoAttackTimer);
-                Utility.DelayAction.Add(50, () => Player.IssueOrder(GameObjectOrder.AttackTo, target.ServerPosition));
-                return;
+                if (Q.Cast(target, packets()) == Spell.CastStates.SuccessfullyCasted)
+                {
+                    Q.LastCastAttemptT = Environment.TickCount;
+                    return;
+                }
             }
 
             target = TargetSelector.GetTarget(QExtend.Range, TargetSelector.DamageType.Physical);
@@ -223,7 +223,8 @@ namespace xSaliceReligionAIO.Champions
             if (collisions.Count == 0)
                 return;
 
-            Q.CastOnUnit(collisions[0], packets());
+            if (Q.Cast(collisions[0], packets()) == Spell.CastStates.SuccessfullyCasted)
+                Q.LastCastAttemptT = Environment.TickCount;
         }
 
         private void Cast_W()
@@ -281,13 +282,13 @@ namespace xSaliceReligionAIO.Champions
             if (!menu.Item("CheckPassive", true).GetValue<bool>())
                 return true;
 
-            if (Environment.TickCount - Q.LastCastAttemptT < 250)
+            if (Environment.TickCount - Q.LastCastAttemptT < 300)
                 return false;
 
-            if (Environment.TickCount - W.LastCastAttemptT < 250)
+            if (Environment.TickCount - W.LastCastAttemptT < 300)
                 return false;
 
-            if (Environment.TickCount - E.LastCastAttemptT < 250)
+            if (Environment.TickCount - E.LastCastAttemptT < 300)
                 return false;
 
             if (Player.HasBuff("LucianPassiveBuff"))
@@ -370,9 +371,6 @@ namespace xSaliceReligionAIO.Champions
 
                 if (menu.Item("HarassActive", true).GetValue<KeyBind>().Active)
                     Harass();
-
-                if (menu.Item("HarassActiveT", true).GetValue<KeyBind>().Active)
-                    Harass();
             }
         }
 
@@ -386,14 +384,17 @@ namespace xSaliceReligionAIO.Champions
             if (castedSlot == SpellSlot.Q)
             {
                 Q.LastCastAttemptT = Environment.TickCount;
+                Utility.DelayAction.Add(250, () => Player.IssueOrder(GameObjectOrder.AttackUnit, args.Target));
             }
             if (castedSlot == SpellSlot.W)
             {
                 W.LastCastAttemptT = Environment.TickCount;
+                Utility.DelayAction.Add(250, () => Player.IssueOrder(GameObjectOrder.AttackUnit, args.Target));
             }
             if (castedSlot == SpellSlot.E)
             {
                 E.LastCastAttemptT = Environment.TickCount;
+                Utility.DelayAction.Add(250, () => Player.IssueOrder(GameObjectOrder.AttackUnit, args.Target));
             }
         }
 

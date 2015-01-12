@@ -403,10 +403,10 @@ namespace xSaliceReligionAIO
             }
             else
             {
-                                if (spell.Target is Obj_AI_Base)
+                if (spell.Target is Obj_AI_Base)
                 {
-                FireOnAttack(unit, (Obj_AI_Base)spell.Target);
-}
+                    FireOnAttack(unit, (Obj_AI_Base)spell.Target);
+                }
             }
         }
 
