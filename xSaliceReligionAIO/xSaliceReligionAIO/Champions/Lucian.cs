@@ -205,6 +205,7 @@ namespace xSaliceReligionAIO.Champions
                 if (Q.Cast(target, packets()) == Spell.CastStates.SuccessfullyCasted)
                 {
                     Q.LastCastAttemptT = Environment.TickCount;
+                    Utility.DelayAction.Add(300, () => Player.IssueOrder(GameObjectOrder.AttackUnit, target));
                     return;
                 }
             }
@@ -282,13 +283,13 @@ namespace xSaliceReligionAIO.Champions
             if (!menu.Item("CheckPassive", true).GetValue<bool>())
                 return true;
 
-            if (Environment.TickCount - Q.LastCastAttemptT < 400)
+            if (Environment.TickCount - Q.LastCastAttemptT < 500)
                 return false;
 
-            if (Environment.TickCount - W.LastCastAttemptT < 400)
+            if (Environment.TickCount - W.LastCastAttemptT < 500)
                 return false;
 
-            if (Environment.TickCount - E.LastCastAttemptT < 400)
+            if (Environment.TickCount - E.LastCastAttemptT < 500)
                 return false;
 
             if (Player.HasBuff("LucianPassiveBuff"))
@@ -384,17 +385,14 @@ namespace xSaliceReligionAIO.Champions
             if (castedSlot == SpellSlot.Q)
             {
                 Q.LastCastAttemptT = Environment.TickCount;
-                Utility.DelayAction.Add(250, () => Player.IssueOrder(GameObjectOrder.AttackUnit, args.Target));
             }
             if (castedSlot == SpellSlot.W)
             {
                 W.LastCastAttemptT = Environment.TickCount;
-                Utility.DelayAction.Add(250, () => Player.IssueOrder(GameObjectOrder.AttackUnit, args.Target));
             }
             if (castedSlot == SpellSlot.E)
             {
                 E.LastCastAttemptT = Environment.TickCount;
-                Utility.DelayAction.Add(250, () => Player.IssueOrder(GameObjectOrder.AttackUnit, args.Target));
             }
         }
 
