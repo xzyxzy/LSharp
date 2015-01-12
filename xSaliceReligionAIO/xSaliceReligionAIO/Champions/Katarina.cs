@@ -281,39 +281,45 @@ namespace xSaliceReligionAIO.Champions
 
             if (mode == 0) //qwe
             {
-                if (useQ && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && qTarget != null)
+                if (useQ && Q.IsReady() && qTarget != null)
                 {
-                    Q.Cast(qTarget, packets());
+                    if (Player.Distance(qTarget) <= Q.Range)
+                        Q.Cast(qTarget, packets());
                 }
 
-                if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range)
+                if (useE && eTarget != null && E.IsReady())
                 {
-                    E.Cast(eTarget, packets());
+                    if (Player.Distance(eTarget) < E.Range)
+                        E.Cast(eTarget, packets());
                 }
             }
             else if (mode == 1) //eqw
             {
-                if (useE && eTarget != null && E.IsReady() && Player.Distance(eTarget) < E.Range)
+                if (useE && eTarget != null && E.IsReady())
                 {
-                    E.Cast(eTarget, packets());
+                    if (Player.Distance(eTarget) < E.Range)
+                        E.Cast(eTarget, packets());
                 }
 
-                if (useQ && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && qTarget != null)
+                if (useQ && Q.IsReady() && qTarget != null)
                 {
-                    Q.Cast(qTarget, packets());
+                    if (Player.Distance(qTarget) <= Q.Range)
+                        Q.Cast(qTarget, packets());
                 }
             }
             else if (mode == 2)
             {
-                if (useQ && Q.IsReady() && Player.Distance(qTarget) <= Q.Range && qTarget != null)
+                if (useQ && Q.IsReady() && qTarget != null)
                 {
-                    Q.Cast(qTarget, packets());
+                    if (Player.Distance(qTarget) <= Q.Range)
+                        Q.Cast(qTarget, packets());
                 }
             }
 
-            if (useW && wTarget != null && W.IsReady() && Player.Distance(wTarget) <= W.Range)
+            if (useW && wTarget != null && W.IsReady())
             {
-                W.Cast();
+                if (Player.Distance(wTarget) <= W.Range)
+                    W.Cast();
             }
         }
 
