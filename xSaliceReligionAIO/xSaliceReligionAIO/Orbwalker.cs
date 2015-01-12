@@ -166,6 +166,9 @@ namespace xSaliceReligionAIO
             //if(MyHero.Distance(sender.Position) < 500)
                 //Game.PrintChat("obj: " + sender.Name);
 
+            if (sender is Obj_LampBulb)
+                return;
+
             if (sender.Name == "Azir_Base_P_Soldier_Ring.troy")
             {
                 //Game.PrintChat("Solider Added" + sender.NetworkId);
@@ -274,6 +277,9 @@ namespace xSaliceReligionAIO
         public static void Orbwalk(Vector3 goalPosition, AttackableUnit mytarget)
         {
             var target = (Obj_AI_Base) mytarget;
+
+            if (MyHero.IsChannelingImportantSpell())
+                return;
 
             if (target != null && (CanAttack() || HaveCancled()) && IsAllowedToAttack())
             {

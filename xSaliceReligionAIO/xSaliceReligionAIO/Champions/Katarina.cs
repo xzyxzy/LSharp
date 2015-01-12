@@ -49,7 +49,6 @@ namespace xSaliceReligionAIO.Champions
             //Combo menu:
             var combo = new Menu("Combo", "Combo");
             {
-                combo.AddItem(new MenuItem("selected", "Focus Selected Target", true).SetValue(true));
                 combo.AddItem(new MenuItem("UseQCombo", "Use Q", true).SetValue(true));
                 combo.AddItem(new MenuItem("UseWCombo", "Use W", true).SetValue(true));
                 combo.AddItem(new MenuItem("UseECombo", "Use E", true).SetValue(true));
@@ -174,15 +173,13 @@ namespace xSaliceReligionAIO.Champions
             Obj_AI_Hero target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
 
             int mode = menu.Item("comboMode", true).GetValue<StringList>().SelectedIndex;
-            int igniteMode = menu.Item("igniteMode", true).GetValue<StringList>().SelectedIndex;
 
             int eDis = menu.Item("eDis", true).GetValue<Slider>().Value;
 
-            var range = E.Range ;
-            if (GetTargetFocus(range) != null)
-                target = GetTargetFocus(range);
+            if (!target.IsValidTarget(E.Range))
+                return;
 
-            if (!target.HasBuffOfType(BuffType.Invulnerability) && target.IsValidTarget(E.Range) && !target.IsZombie)
+            if (!target.HasBuffOfType(BuffType.Invulnerability) && !target.IsZombie)
             {
                 if (mode == 0) //qwe
                 {
@@ -256,16 +253,6 @@ namespace xSaliceReligionAIO.Champions
                     if (useQ && Q.IsReady() && Player.Distance(target) <= Q.Range)
                     {
                         Q.Cast(target, packets());
-                    }
-                }
-
-                //Ignite
-                if (menu.Item("ignite", true).GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                    Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
-                {
-                    if (igniteMode == 0 && GetComboDamage(target) > target.Health)
-                    {
-                        Player.Spellbook.CastSpell(IgniteSlot, target);
                     }
                 }
 
@@ -799,6 +786,9 @@ namespace xSaliceReligionAIO.Champions
 
         public override void GameObject_OnCreate(GameObject sender, EventArgs args)
         {
+            if (!(sender is Obj_AI_Minion))
+                return;
+
             if (Environment.TickCount < lastPlaced + 300)
             {
                 var ward = (Obj_AI_Minion)sender;
