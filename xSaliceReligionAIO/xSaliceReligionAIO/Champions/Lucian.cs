@@ -229,7 +229,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_W()
         {
-            if (!W.IsReady() || !PassiveCheck())
+            if (!W.IsReady() || !PassiveCheck() && Environment.TickCount - Q.LastCastAttemptT > 400)
                 return;
 
             CastBasicSkillShot(W, W.Range, TargetSelector.DamageType.Magical, HitChance.Medium);
