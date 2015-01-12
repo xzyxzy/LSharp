@@ -229,7 +229,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void Cast_W()
         {
-            if (!W.IsReady() || !PassiveCheck() && Environment.TickCount - Q.LastCastAttemptT > 400)
+            if (!W.IsReady() || !PassiveCheck())
                 return;
 
             CastBasicSkillShot(W, W.Range, TargetSelector.DamageType.Magical, HitChance.Medium);
@@ -282,13 +282,13 @@ namespace xSaliceReligionAIO.Champions
             if (!menu.Item("CheckPassive", true).GetValue<bool>())
                 return true;
 
-            if (Environment.TickCount - Q.LastCastAttemptT < 300)
+            if (Environment.TickCount - Q.LastCastAttemptT < 400)
                 return false;
 
-            if (Environment.TickCount - W.LastCastAttemptT < 300)
+            if (Environment.TickCount - W.LastCastAttemptT < 400)
                 return false;
 
-            if (Environment.TickCount - E.LastCastAttemptT < 300)
+            if (Environment.TickCount - E.LastCastAttemptT < 400)
                 return false;
 
             if (Player.HasBuff("LucianPassiveBuff"))
