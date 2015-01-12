@@ -374,7 +374,6 @@ namespace xSaliceReligionAIO
         public static Spell R = new Spell(SpellSlot.R);
         private static void OnProcessSpell(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs spell)
         {
-
             SpellSlot castedSlot = MyHero.GetSpellSlot(spell.SData.Name);
 
             if (castedSlot == SpellSlot.R && MyHero.ChampionName == "Katarina")
@@ -391,10 +390,10 @@ namespace xSaliceReligionAIO
             {
                 _lastAATick = Environment.TickCount - Game.Ping / 2; // need test todo
                 // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
-                if (spell.Target is AttackableUnit)
+                if (spell.Target is Obj_AI_Base)
                 {
-                    FireOnTargetSwitch((AttackableUnit)spell.Target);
-                    _lastTarget = (AttackableUnit)spell.Target;
+                    FireOnTargetSwitch((Obj_AI_Base)spell.Target);
+                    _lastTarget = (Obj_AI_Base)spell.Target;
                 }
                 if (unit.IsMelee())
                     Utility.DelayAction.Add(
@@ -404,7 +403,10 @@ namespace xSaliceReligionAIO
             }
             else
             {
-                FireOnAttack(unit, (AttackableUnit)spell.Target);
+                                if (spell.Target is Obj_AI_Base)
+                {
+                FireOnAttack(unit, (Obj_AI_Base)spell.Target);
+}
             }
         }
 
