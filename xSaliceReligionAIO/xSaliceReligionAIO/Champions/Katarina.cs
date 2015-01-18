@@ -184,21 +184,21 @@ namespace xSaliceReligionAIO.Champions
                 if (mode == 0) //qwe
                 {
                     //items
-                    if (E.IsReady())
+                    
+                    var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                    if (itemTarget != null)
                     {
-                        var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
-                        if (itemTarget != null)
-                        {
-                            var dmg = GetComboDamage(itemTarget);
-                            ActiveItems.Target = itemTarget;
+                        var dmg = GetComboDamage(itemTarget);
+                        ActiveItems.Target = itemTarget;
 
-                            //see if killable
-                            if (dmg > itemTarget.Health - 50)
-                                ActiveItems.KillableTarget = true;
+                        //see if killable
+                        if (dmg > itemTarget.Health - 50)
+                            ActiveItems.KillableTarget = true;
 
+                        if(E.IsReady())
                             ActiveItems.UseTargetted = true;
-                        }
                     }
+                    
 
                     if (useQ && Q.IsReady() && Player.Distance(target) <= Q.Range)
                     {
@@ -221,20 +221,18 @@ namespace xSaliceReligionAIO.Champions
                 else if (mode == 1) //eqw
                 {
                     //items
-                    if (E.IsReady())
+                    var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+                    if (itemTarget != null)
                     {
-                        var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
-                        if (itemTarget != null)
-                        {
-                            var dmg = GetComboDamage(itemTarget);
-                            ActiveItems.Target = itemTarget;
+                        var dmg = GetComboDamage(itemTarget);
+                        ActiveItems.Target = itemTarget;
 
-                            //see if killable
-                            if (dmg > itemTarget.Health - 50)
-                                ActiveItems.KillableTarget = true;
+                        //see if killable
+                        if (dmg > itemTarget.Health - 50)
+                            ActiveItems.KillableTarget = true;
 
+                        if (E.IsReady())
                             ActiveItems.UseTargetted = true;
-                        }
                     }
 
                     if (useE && E.IsReady() && Player.Distance(target) < E.Range && Environment.TickCount - E.LastCastAttemptT > 0 &&
