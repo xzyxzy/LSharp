@@ -630,9 +630,15 @@ namespace xSaliceReligionAIO.Champions
 
         public override void GameObject_OnCreate(GameObject sender, EventArgs args)
         {
+            if (!(sender is Obj_SpellMissile))
+                return;
+
             var spell = (Obj_SpellMissile)sender;
             var unit = spell.SpellCaster.Name;
             var name = spell.SData.Name;
+
+            if (unit == null)
+                return;
 
             if (unit == Player.Name && name == "JayceShockBlastMis")
             {

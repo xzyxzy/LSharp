@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using LeagueSharp.Network.Packets;
 using SharpDX;
 using Color = System.Drawing.Color;
 
@@ -512,7 +511,7 @@ namespace xSaliceReligionAIO.Champions
                 int aimMode = menu.Item("rAimer", true).GetValue<StringList>().SelectedIndex;
                 
                 if (target != null && aimMode == 0)
-                    new PKT_ChargedSpell
+                    /*new PKT_ChargedSpell
                     {
                         NetworkId = ObjectManager.Player.NetworkId,
                         SpellSlot = (byte)SpellSlot.R,
@@ -528,7 +527,7 @@ namespace xSaliceReligionAIO.Champions
                         TargetPosition = Game.CursorPos,
                         Unknown1 = true,
                         Unknown2 = true,
-                    }.Encode().SendAsPacket();
+                    }.Encode().SendAsPacket();*/
                 
                 return;
             }
@@ -589,7 +588,7 @@ namespace xSaliceReligionAIO.Champions
 
         public override void Game_OnSendPacket(GamePacketEventArgs args)
         {
-            
+            /*
             //Disable action on Ult
             if (args.GetPacketId() == LeagueSharp.Network.Packets.Packet.GetPacketId<PKT_ChargedSpell>())
             {
@@ -602,6 +601,7 @@ namespace xSaliceReligionAIO.Champions
                         && menu.Item("HarassActive", true).GetValue<KeyBind>().Active && menu.Item("HarassActiveT", true).GetValue<KeyBind>().Active && menu.Item("R_Mouse", true).GetValue<KeyBind>().Active);
                 }
             }
+             * */
         }
 
         public override void GameObject_OnCreate(GameObject obj, EventArgs args)

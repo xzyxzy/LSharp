@@ -155,6 +155,9 @@ namespace xSaliceReligionAIO.Champions
 
         private float GetComboDamage(Obj_AI_Base enemy)
         {
+            if (enemy == null)
+                return 0;
+
             double damage = 0d;
 
             if (Q.IsReady())

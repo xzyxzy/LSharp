@@ -63,6 +63,7 @@
     <Compile Include="Champions\Blitzcrank.cs" />
     <Compile Include="Champions\Corki.cs" />
     <Compile Include="Champions\Fiora.cs" />
+    <Compile Include="Champions\Fizz.cs" />
     <Compile Include="Champions\Jayce.cs" />
     <Compile Include="Champions\Karthus.cs" />
     <Compile Include="Champions\Lucian.cs" />
