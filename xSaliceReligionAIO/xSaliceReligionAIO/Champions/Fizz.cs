@@ -497,7 +497,8 @@ namespace xSaliceReligionAIO.Champions
                     if (R.IsReady() && Environment.TickCount - _qLast < 250)
                     {
                         var vec = _qVec + Vector3.Normalize(Prediction.GetPrediction((Obj_AI_Hero)args.Target, _qDelay).CastPosition - _qVec) * 600;
-                        R.Cast(vec, packets());
+
+                        Utility.DelayAction.Add(50, () => R.Cast(vec));
                     }
                 }
                 if (castedSlot == SpellSlot.E)
