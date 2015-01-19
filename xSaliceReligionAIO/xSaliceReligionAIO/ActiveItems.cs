@@ -312,6 +312,14 @@ namespace xSaliceReligionAIO
                 //tiamat
                 if (item.ActiveId == 3077)
                     dmg += ObjectManager.Player.GetItemDamage(target, Damage.DamageItems.Tiamat);
+
+                //sheen
+                if (Items.HasItem(3057))
+                    dmg += ObjectManager.Player.CalcDamage(target, Damage.DamageType.Physical, SheenDamage());
+
+                //lich bane
+                if (Items.HasItem(3100))
+                    dmg += ObjectManager.Player.CalcDamage(target, Damage.DamageType.Magical, LichDamage());
             }
 
             //dmg calc for dfg/blackfire
@@ -322,6 +330,23 @@ namespace xSaliceReligionAIO
                 dmg += ObjectManager.Player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
 
             return (float) dmg;
+        }
+
+        private static double SheenDamage()
+        {
+            double dmg = 0;
+
+            dmg += ObjectManager.Player.FlatPhysicalDamageMod;
+            return dmg;
+        }
+
+        public static double LichDamage()
+        {
+            double dmg = 0;
+
+            dmg += .75 * ObjectManager.Player.FlatPhysicalDamageMod;
+            dmg += .5 * ObjectManager.Player.FlatMagicDamageMod;
+            return dmg;
         }
 
         private static bool Ignite_Ready()

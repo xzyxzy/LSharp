@@ -166,29 +166,6 @@ namespace xSaliceReligionAIO
                 Items.UseItem(DFG.Id, target);
         }
 
-        public void Use_Hex(Obj_AI_Hero target)
-        {
-            if (target != null && Player.Distance(target) < 450 && Items.CanUseItem(Hex.Id))
-                Items.UseItem(Hex.Id, target);
-        }
-        public void Use_Botrk(Obj_AI_Hero target)
-        {
-            if (target != null && Player.Distance(target) < 450 && Items.CanUseItem(Botrk.Id))
-                Items.UseItem(Botrk.Id, target);
-        }
-
-        public void Use_Bilge(Obj_AI_Hero target)
-        {
-            if (target != null && Bilge.IsReady() && Player.Distance(target) < 450 && Items.CanUseItem(Bilge.Id))
-                Items.UseItem(Bilge.Id, target);
-        }
-        public void Use_Ignite(Obj_AI_Hero target)
-        {
-            if (target != null && IgniteSlot != SpellSlot.Unknown &&
-                    Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready && Player.Distance(target) < 650)
-                Player.Spellbook.CastSpell(IgniteSlot, target);
-        }
-
         public bool Ignite_Ready()
         {
             if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)

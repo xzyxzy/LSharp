@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -14,14 +15,14 @@ namespace xSaliceReligionAIO.Champions
         {
             LoadSpells();
             LoadMenu();
+            Q.LastCastAttemptT = Environment.TickCount;
         }
 
         private void LoadSpells()
         {
             Q = new Spell(SpellSlot.Q, 550);
             W = new Spell(SpellSlot.W, 0);
-            E = new Spell(SpellSlot.E, 400);
-            E2 = new Spell(SpellSlot.E, 400);
+            E = new Spell(SpellSlot.E, 800);
             R = new Spell(SpellSlot.R, 1300);
 
             E.SetSkillshot(0.5f, 270f, 1300, false, SkillshotType.SkillshotCircle);
@@ -45,13 +46,13 @@ namespace xSaliceReligionAIO.Champions
             {
                 var qMenu = new Menu("QMenu", "QMenu");
                 {
-                    qMenu.AddItem(new MenuItem("Q_Min_Dist", "Min Distance to use E", true).SetValue(new Slider(250, 1, 475)));
+                    qMenu.AddItem(new MenuItem("Q_Min_Dist", "Min Distance to use E", true).SetValue(new Slider(100, 1, 475)));
                     spellMenu.AddSubMenu(qMenu);
                 }
 
                 var eMenu = new Menu("EMenu", "EMenu");
                 {
-                    eMenu.AddItem(new MenuItem("E_Min_Dist", "Min Distance to use E", true).SetValue(new Slider(250, 1, 475)));
+                    eMenu.AddItem(new MenuItem("E_Min_Dist", "Min Distance to use E", true).SetValue(new Slider(100, 1, 400)));
                     spellMenu.AddSubMenu(eMenu);
                 }
 
@@ -59,6 +60,8 @@ namespace xSaliceReligionAIO.Champions
                 {   
                     rMenu.AddItem(new MenuItem("rBestTarget", "Shoot R to Best Target", true).SetValue(new KeyBind("R".ToCharArray()[0], KeyBindType.Press)));
                     rMenu.AddItem(new MenuItem("R_Max_Dist", "R Max Distance", true).SetValue(new Slider(1000, 200, 1300)));
+                    rMenu.AddItem(new MenuItem("ROverkill", "R OverKill Check", true).SetValue(false));
+                    rMenu.AddItem(new MenuItem("AlwaysR", "Always Use R in Combo", true).SetValue(false));
                     spellMenu.AddSubMenu(rMenu);
                 }
                 //add to menu
@@ -81,6 +84,7 @@ namespace xSaliceReligionAIO.Champions
                 harass.AddItem(new MenuItem("UseQHarass", "Use Q", true).SetValue(true));
                 harass.AddItem(new MenuItem("UseWHarass", "Use W", true).SetValue(true));
                 harass.AddItem(new MenuItem("UseEHarass", "Use E", true).SetValue(true));
+                harass.AddItem(new MenuItem("turretCheck", "Do not use under enemy Turret", true).SetValue(true));
                 //add to menu
                 menu.AddSubMenu(harass);
             }
@@ -143,7 +147,7 @@ namespace xSaliceReligionAIO.Champions
                 damage += Player.GetSpellDamage(enemy, SpellSlot.Q);
 
             if (W.IsReady())
-                damage += Player.GetSpellDamage(enemy, SpellSlot.W);
+                damage += Player.GetSpellDamage(enemy, SpellSlot.W)*3;
 
             if (E.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
@@ -151,8 +155,7 @@ namespace xSaliceReligionAIO.Champions
             if (R.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.R);
 
-            
-            damage += Player.GetAutoAttackDamage(enemy)*2;
+            damage += Player.GetAutoAttackDamage(enemy)*3;
 
             damage = ActiveItems.CalcDamage(enemy, damage);
 
@@ -174,10 +177,21 @@ namespace xSaliceReligionAIO.Champions
         private void UseSpells(bool useQ, bool useW, bool useE, bool useR, string source)
         {
             int mode = menu.Item("Combo_mode", true).GetValue<StringList>().SelectedIndex;
-            var target = TargetSelector.GetTarget(R.IsReady() || E.IsReady() ? R.Range : Q.Range, TargetSelector.DamageType.Magical);
+            var range = R.IsReady() || E.IsReady() ? R.Range : Q.Range;
+
+            if (source == "Harass")
+                range = E.Range;
+
+            var target = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
 
             if (target == null)
                 return;
+
+            if (source == "Harass" && menu.Item("turretCheck", true).GetValue<bool>())
+            {
+                if (target.UnderTurret(true))
+                    return;
+            }
 
             var dmg = GetComboDamage(target);
 
@@ -206,7 +220,7 @@ namespace xSaliceReligionAIO.Champions
                         }
                     }
 
-                    if (!R.IsReady() || target.HasBuff("FizzMarinerDoom") || dmg < target.Health || !useR)
+                    if (!R.IsReady() || dmg < target.Health - 100 || !useR)
                     {
                         if (useW && W.IsReady())
                         {
@@ -222,7 +236,7 @@ namespace xSaliceReligionAIO.Champions
 
                         if (useE && E.IsReady())
                         {
-                            if (ShouldCatE(target))
+                            if (ShouldCastE(target))
                             {
                                 CastE(target);
                             }
@@ -243,17 +257,17 @@ namespace xSaliceReligionAIO.Champions
                         {
                             Q.CastOnUnit(target, packets());
 
-                            if (R.IsReady() && dmg > target.Health - 75)
+                            if (R.IsReady() && ShouldCastR(target, dmg) && useR)
                             { 
-                                qDelay = (int)Player.Distance(target) / 2;
-                                qVec = Player.ServerPosition + Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * Q.Range;
-                                Q.LastCastAttemptT = Environment.TickCount;
+                                _qDelay = (int)(Player.Distance(target) / 2.2);
+                                _qVec = Player.ServerPosition + Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * Q.Range;
+                                _qLast = Environment.TickCount;
                             }
                         }
                     }
                     if (useE && E.IsReady() && !Q.IsReady())
                     {
-                        if (ShouldCatE(target, true))
+                        if (ShouldCastE(target, true))
                         {
                             CastE(target);
                         }
@@ -271,11 +285,11 @@ namespace xSaliceReligionAIO.Champions
                         }
                     }
 
-                    if (!R.IsReady() || target.HasBuff("FizzMarinerDoom") || dmg < target.Health || !useR)
+                    if (!R.IsReady() || dmg < target.Health - 100 || !useR)
                     {
                         if (useE && E.IsReady())
                         {
-                            if (ShouldCatE(target, true))
+                            if (ShouldCastE(target, true))
                             {
                                 CastE(target);
                                 return;
@@ -298,6 +312,49 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
+        private void CheckKs()
+        {
+            var range = E.IsReady() ? (E.Range * 2 - 50 + Q.Range) : Q.Range;
+            foreach (var target in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(range)).OrderByDescending(GetComboDamage))
+            {
+                if (target != null) {
+                    if ((Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.W) + Player.GetAutoAttackDamage(target) + 
+                        (Items.HasItem(3100) ? Player.CalcDamage(target, Damage.DamageType.Magical, ActiveItems.LichDamage()) : 0)) >
+                        target.Health && Q.IsReady() && W.IsReady())
+                    {
+                        if (Player.Distance(target) < Q.Range)
+                        {
+                            W.Cast(packets());
+                            Q.CastOnUnit(target, packets());
+                            return;
+                        }
+                        if(Player.Distance(target) < range && !target.UnderTurret() && target.CountEnemysInRange(600) < 2 && E.IsReady())
+                        {
+                            E.Cast(target);
+                            Obj_AI_Hero target1 = target;
+                            Utility.DelayAction.Add(200, () =>  E.Cast(target1));
+                            return;
+                        }
+                    }
+
+
+                    if (Player.Distance(target) < Q.Range && Q.IsReady() && (Player.GetSpellDamage(target, SpellSlot.Q) + Player.GetSpellDamage(target, SpellSlot.W) + Player.GetAutoAttackDamage(target) +
+                        (Items.HasItem(3100) ? Player.CalcDamage(target, Damage.DamageType.Magical, ActiveItems.LichDamage()) : 0)) >
+                        target.Health)
+                    {
+                        Q.Cast(target, packets());
+                        return;
+                    }
+
+                    if (Player.Distance(target) < E.Range * 2 - 50 && E.IsReady() && E.IsKillable(target) && !target.UnderTurret() && target.CountEnemysInRange(600) < 2)
+                    {
+                        CastE(target);
+                        return;
+                    }
+                }
+            }
+        }
+
         private void CastR(Vector3 pos)
         {
             var vec = Player.ServerPosition + Vector3.Normalize(pos - Player.ServerPosition)*1200;
@@ -310,8 +367,17 @@ namespace xSaliceReligionAIO.Champions
             if (Player.Spellbook.GetSpell(SpellSlot.E).Name == "FizzJump")
                 E.Cast(target, packets());
 
-            if (Player.Spellbook.GetSpell(SpellSlot.E).Name == "fizzjumptwo" && Environment.TickCount - E.LastCastAttemptT > 100)
-                E.Cast(target.ServerPosition, packets());
+            if (Player.Spellbook.GetSpell(SpellSlot.E).Name == "fizzjumptwo" && Environment.TickCount - E.LastCastAttemptT > 50)
+                E.Cast(target, packets());
+        }
+
+        private void CastE(Vector2 vec)
+        {
+            if (Player.Spellbook.GetSpell(SpellSlot.E).Name == "FizzJump")
+                E.Cast(vec, packets());
+
+            if (Player.Spellbook.GetSpell(SpellSlot.E).Name == "fizzjumptwo" && Environment.TickCount - E.LastCastAttemptT > 50)
+                E.Cast(vec, packets());
         }
 
         private bool ShouldCastQ(Obj_AI_Hero target)
@@ -333,12 +399,12 @@ namespace xSaliceReligionAIO.Champions
             return false;
         }
 
-        private bool ShouldCatE(Obj_AI_Hero target, bool gap = false)
+        private bool ShouldCastE(Obj_AI_Hero target, bool gap = false)
         {
             if (Player.Spellbook.GetSpell(SpellSlot.E).Name == "fizzjumptwo")
                 return true;
 
-            if (Player.Distance(target) > menu.Item("E_Min_Dist", true).GetValue<Slider>().Value && Player.Distance(target) < E.Range)
+            if (Player.Distance(target) > menu.Item("E_Min_Dist", true).GetValue<Slider>().Value && Player.Distance(target) < E.Range*2 - 50)
                 return true;
 
             if (gap && Player.Distance(target) < 1000)
@@ -349,7 +415,17 @@ namespace xSaliceReligionAIO.Champions
 
         private bool ShouldCastR(Obj_AI_Hero target, float dmg)
         {
-            if (dmg > target.Health)
+            if (menu.Item("AlwaysR", true).GetValue<bool>())
+                return true;
+
+            if (menu.Item("ROverkill", true).GetValue<bool>())
+            {
+                if (dmg - Player.GetSpellDamage(target, SpellSlot.R) > target.Health + 75)
+                    return false;
+            }
+
+            Game.PrintChat("RAWR");
+            if (dmg > target.Health - 100)
                 return true;
 
             return false;
@@ -357,11 +433,62 @@ namespace xSaliceReligionAIO.Champions
 
         private void Farm()
         {
-            
+            List<Obj_AI_Base> allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Q.Range,
+                MinionTypes.All, MinionTeam.NotAlly);
+            List<Obj_AI_Base> allMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 300,
+                MinionTypes.All, MinionTeam.NotAlly);
+            List<Obj_AI_Base> allMinionsE = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, E.Range,
+                MinionTypes.All, MinionTeam.NotAlly);
+
+            var useQ = menu.Item("UseQFarm", true).GetValue<bool>();
+            var useW = menu.Item("UseWFarm", true).GetValue<bool>();
+            var useE = menu.Item("UseEFarm", true).GetValue<bool>();
+
+            if (useW && W.IsReady() && allMinionsW.Count > 0)
+                W.Cast();
+
+            if (useQ && Q.IsReady())
+                Q.Cast(allMinionsQ[0]);
+
+            if (useE && E.IsReady())
+            {
+                var pred = E.GetCircularFarmLocation(allMinionsE);
+
+                if (pred.MinionsHit >= menu.Item("LaneClear_useE_minHit", true).GetValue<Slider>().Value)
+                    CastE(pred.Position);
+            }
         }
 
-        private Vector3 qVec;
-        private int qDelay;
+        private void Flee()
+        {
+            if (E.IsReady())
+            {
+                var eVec = Player.ServerPosition + Vector3.Normalize(Game.CursorPos - Player.ServerPosition)*400;
+                E.Cast(eVec);
+            }
+
+            if (!Q.IsReady()) return;
+            foreach (var minion in ObjectManager.Get<Obj_AI_Minion>().Where(x => x.Distance(Player) < Q.Range && !x.IsAlly).OrderBy(x => x.Distance(Game.CursorPos)))
+            {
+                Q.Cast(minion);
+                return;
+            }
+        }
+
+        private void CastBestR()
+        {
+            var target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
+
+            if (target == null)
+                return;
+
+            if (R.GetPrediction(target).Hitchance >= HitChance.Medium)
+                R.Cast(target);
+        }
+
+        private int _qLast;
+        private Vector3 _qVec;
+        private int _qDelay;
         public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
             if (unit.IsMe)
@@ -370,10 +497,11 @@ namespace xSaliceReligionAIO.Champions
 
                 if (castedSlot == SpellSlot.Q)
                 {
-                    if (R.IsReady() && Environment.TickCount - Q.LastCastAttemptT < 250)
+                    if (R.IsReady() && Environment.TickCount - _qLast < 250)
                     {
-                        var vec = qVec + Vector3.Normalize(Prediction.GetPrediction((Obj_AI_Hero)args.Target, qDelay).CastPosition - qVec) * 600;
-                        R.Cast(vec);
+                        var vec = _qVec + Vector3.Normalize(Prediction.GetPrediction((Obj_AI_Hero)args.Target, _qDelay).CastPosition - _qVec) * 600;
+
+                        Utility.DelayAction.Add((int)(_qDelay/1.5), () => R.Cast(vec));
                     }
                 }
                 if (castedSlot == SpellSlot.E)
@@ -417,7 +545,20 @@ namespace xSaliceReligionAIO.Champions
 
             ModeSwitch();
 
-            if (menu.Item("ComboActive", true).GetValue<KeyBind>().Active)
+            //ks check
+            if (menu.Item("smartKS", true).GetValue<bool>())
+                CheckKs();
+
+            if (menu.Item("rBestTarget", true).GetValue<KeyBind>().Active)
+            {
+                CastBestR();
+            }
+
+            if (menu.Item("Flee", true).GetValue<KeyBind>().Active)
+            {
+                Flee();
+            }
+            else if (menu.Item("ComboActive", true).GetValue<KeyBind>().Active)
             {
                 Combo();
             }
@@ -432,6 +573,8 @@ namespace xSaliceReligionAIO.Champions
                 if (menu.Item("HarassActive", true).GetValue<KeyBind>().Active)
                     Harass();
             }
+
+            R.Range = menu.Item("R_Max_Dist", true).GetValue<Slider>().Value;
         }
 
         public override void Drawing_OnDraw(EventArgs args)
