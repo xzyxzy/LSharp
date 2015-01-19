@@ -60,7 +60,7 @@ namespace xSaliceReligionAIO.Champions
                     rMenu.AddItem(new MenuItem("rBestTarget", "Shoot R to Best Target", true).SetValue(new KeyBind("R".ToCharArray()[0], KeyBindType.Press)));
                     rMenu.AddItem(new MenuItem("R_Max_Dist", "R Max Distance", true).SetValue(new Slider(1000, 200, 1300)));
                     rMenu.AddItem(new MenuItem("ROverkill", "R OverKill Check", true).SetValue(false));
-                    rMenu.AddItem(new MenuItem("AlwaysR", "Always Use R in Combo", true).SetValue(false));
+                    rMenu.AddItem(new MenuItem("AlwaysR", "Always Use R in Combo", true).SetValue(true));
                     spellMenu.AddSubMenu(rMenu);
                 }
                 //add to menu
@@ -498,7 +498,7 @@ namespace xSaliceReligionAIO.Champions
                     {
                         var vec = _qVec + Vector3.Normalize(Prediction.GetPrediction((Obj_AI_Hero)args.Target, _qDelay).CastPosition - _qVec) * 600;
 
-                        Utility.DelayAction.Add(250, () => R.Cast(vec));
+                        Utility.DelayAction.Add(100, () => R.Cast(vec));
                     }
                 }
                 if (castedSlot == SpellSlot.E)
