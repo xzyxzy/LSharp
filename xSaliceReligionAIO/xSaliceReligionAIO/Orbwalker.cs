@@ -81,7 +81,7 @@ namespace xSaliceReligionAIO
             if(MyHero.ChampionName == "Azir")
                 menuMisc.AddItem(new MenuItem("azir_Misc_Farmdelay", "Soilder Farm Delay").SetValue(new Slider(0, 0, 300)));
             menuMisc.AddItem(new MenuItem("orb_Misc_ExtraWindUp", "Extra Winduptime").SetValue(new Slider(80, 200, 0)));
-            menuMisc.AddItem(new MenuItem("orb_Misc_AutoWindUp", "Autoset Windup").SetValue(false));
+            menuMisc.AddItem(new MenuItem("orb_Misc_AutoWindUp", "Autoset Windup").SetValue(new KeyBind("O".ToCharArray()[0], KeyBindType.Press)));
             menuMisc.AddItem(new MenuItem("orb_Misc_Priority_Unit", "Priority Unit").SetValue(new StringList(new[] { "Minion", "Hero" })));
             menuMisc.AddItem(new MenuItem("orb_Misc_Humanizer", "Humanizer Delays").SetValue(new Slider(80, 50, 500)));
             menuMisc.AddItem(new MenuItem("orb_Misc_AllMovementDisabled", "Disable All Movement").SetValue(false));
@@ -198,9 +198,9 @@ namespace xSaliceReligionAIO
 
         private static void OnUpdate(EventArgs args)
         {
+            CheckAutoWindUp();
             if (CurrentMode == Mode.None || MenuGUI.IsChatOpen || CustomOrbwalkMode || MyHero.IsChannelingImportantSpell() || MyHero.HasBuff("katarinarsound", true))
                 return;
-            CheckAutoWindUp();
             var target = GetPossibleTarget();
             Orbwalk(Game.CursorPos, target);
         }
@@ -649,7 +649,7 @@ namespace xSaliceReligionAIO
             return Menu.Item("orb_Misc_Farmdelay").GetValue<Slider>().Value;
         }
 
-        private static AttackableUnit GetBestHeroTarget()
+        private static Obj_AI_Hero GetBestHeroTarget()
         {
             Obj_AI_Hero killableEnemy = null;
             var hitsToKill = double.MaxValue;
@@ -696,7 +696,7 @@ namespace xSaliceReligionAIO
 
         private static void CheckAutoWindUp()
         {
-            if (!Menu.Item("orb_Misc_AutoWindUp").GetValue<bool>())
+            if (!Menu.Item("orb_Misc_AutoWindUp").GetValue<KeyBind>().Active)
             {
                 _windup = GetCurrentWindupTime();
                 return;
