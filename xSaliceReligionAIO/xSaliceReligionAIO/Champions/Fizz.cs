@@ -480,9 +480,8 @@ namespace xSaliceReligionAIO.Champions
 
             if (target == null)
                 return;
-
-            if (R.GetPrediction(target).Hitchance >= HitChance.Medium)
-                R.Cast(target);
+            
+            R.Cast(target);
         }
 
         private int _qLast;
@@ -500,7 +499,7 @@ namespace xSaliceReligionAIO.Champions
                     {
                         var vec = _qVec + Vector3.Normalize(Prediction.GetPrediction((Obj_AI_Hero)args.Target, _qDelay).CastPosition - _qVec) * 600;
 
-                        Utility.DelayAction.Add((int)(_qDelay/1.5), () => R.Cast(vec));
+                        Utility.DelayAction.Add((int)(_qDelay), () => R.Cast(vec));
                     }
                 }
                 if (castedSlot == SpellSlot.E)
