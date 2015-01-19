@@ -363,7 +363,7 @@ namespace xSaliceReligionAIO.Champions
                 .FirstOrDefault();
         }
 
-        public override void Game_OnGameUpdate(EventArgs args)
+        protected override void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
             if (Player.IsDead) return;
@@ -400,7 +400,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void Drawing_OnDraw(EventArgs args)
+        protected override void Drawing_OnDraw(EventArgs args)
         {
             foreach (Spell spell in SpellList)
             {
@@ -417,7 +417,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        protected override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             if (!menu.Item("UseGap", true).GetValue<bool>()) return;
 
@@ -425,7 +425,7 @@ namespace xSaliceReligionAIO.Champions
                 CastE((Obj_AI_Hero)gapcloser.Sender);
         }
 
-        public override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        protected override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
             if (!menu.Item("UseInt", true).GetValue<bool>()) return;
 

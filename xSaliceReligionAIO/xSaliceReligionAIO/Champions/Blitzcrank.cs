@@ -251,7 +251,7 @@ namespace xSaliceReligionAIO.Champions
                 R.Cast();
         }
 
-        public override void Game_OnGameUpdate(EventArgs args)
+        protected override void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
             if (Player.IsDead) return;
@@ -304,7 +304,7 @@ namespace xSaliceReligionAIO.Champions
             return true;
         }
 
-        public override void AfterAttack(AttackableUnit unit, AttackableUnit target)
+        protected override void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             var useECombo = menu.Item("UseECombo", true).GetValue<bool>();
             var useEHarass = menu.Item("UseEHarass", true).GetValue<bool>();
@@ -331,7 +331,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void Drawing_OnDraw(EventArgs args)
+        protected override void Drawing_OnDraw(EventArgs args)
         {
             foreach (var spell in SpellList)
             {
@@ -350,7 +350,7 @@ namespace xSaliceReligionAIO.Champions
 
         }
 
-        public override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        protected override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
             if (!menu.Item("UseInt", true).GetValue<bool>()) return;
 

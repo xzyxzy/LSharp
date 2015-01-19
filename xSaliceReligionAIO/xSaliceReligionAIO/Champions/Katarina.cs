@@ -727,7 +727,7 @@ namespace xSaliceReligionAIO.Champions
         //-------------------------------------------------
         //-------------------------------------------------
 
-        public override void Game_OnGameUpdate(EventArgs args)
+        protected override void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
             if (Player.IsDead) return;
@@ -770,7 +770,7 @@ namespace xSaliceReligionAIO.Champions
                 AutoW();
         }
 
-        public override void Drawing_OnDraw(EventArgs args)
+        protected override void Drawing_OnDraw(EventArgs args)
         {
             foreach (Spell spell in SpellList)
             {
@@ -788,7 +788,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void GameObject_OnCreate(GameObject sender, EventArgs args)
+        protected override void GameObject_OnCreate(GameObject sender, EventArgs args)
         {
             if (!(sender is Obj_AI_Minion))
                 return;

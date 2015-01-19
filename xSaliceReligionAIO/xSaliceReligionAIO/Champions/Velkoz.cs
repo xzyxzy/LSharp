@@ -493,7 +493,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void Game_OnGameUpdate(EventArgs args)
+        protected override void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
             if (Player.IsDead) return;
@@ -509,25 +509,11 @@ namespace xSaliceReligionAIO.Champions
                         target = TargetSelector.GetSelectedTarget();
 
                 int aimMode = menu.Item("rAimer", true).GetValue<StringList>().SelectedIndex;
-                
+
                 if (target != null && aimMode == 0)
-                    /*new PKT_ChargedSpell
-                    {
-                        NetworkId = ObjectManager.Player.NetworkId,
-                        SpellSlot = (byte)SpellSlot.R,
-                        TargetPosition = target.ServerPosition,
-                        Unknown1 = true,
-                        Unknown2 = true,
-                    }.Encode().SendAsPacket();
+                    Player.Spellbook.UpdateChargedSpell(SpellSlot.R, target.ServerPosition, false, false);
                 else
-                    new PKT_ChargedSpell
-                    {
-                        NetworkId = ObjectManager.Player.NetworkId,
-                        SpellSlot = (byte)SpellSlot.R,
-                        TargetPosition = Game.CursorPos,
-                        Unknown1 = true,
-                        Unknown2 = true,
-                    }.Encode().SendAsPacket();*/
+                    Player.Spellbook.UpdateChargedSpell(SpellSlot.R, Game.CursorPos, false, false);
                 
                 return;
             }
@@ -557,7 +543,7 @@ namespace xSaliceReligionAIO.Champions
                 R.Cast(Game.CursorPos);
         }
 
-        public override void Drawing_OnDraw(EventArgs args)
+        protected override void Drawing_OnDraw(EventArgs args)
         {
             foreach (Spell spell in SpellList)
             {
@@ -568,7 +554,7 @@ namespace xSaliceReligionAIO.Champions
         }
 
 
-        public override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        protected override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             if (!menu.Item("UseGap", true).GetValue<bool>()) return;
 
@@ -576,7 +562,7 @@ namespace xSaliceReligionAIO.Champions
                 E.Cast(gapcloser.Sender, packets());
         }
 
-        public override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        protected override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
             if (!menu.Item("UseInt", true).GetValue<bool>()) return;
 
@@ -586,25 +572,17 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void Game_OnSendPacket(GamePacketEventArgs args)
+        protected override void Spellbook_OnUpdateChargedSpell(Spellbook sender, SpellbookUpdateChargedSpellEventArgs args)
         {
-            /*
-            //Disable action on Ult
-            if (args.GetPacketId() == LeagueSharp.Network.Packets.Packet.GetPacketId<PKT_ChargedSpell>())
-            {
-                var decodedPacket = new PKT_ChargedSpell();
-                decodedPacket.Decode(args.PacketData);
+            if (!sender.Owner.IsMe)
+                return;
 
-                if (decodedPacket.NetworkId == Player.NetworkId)
-                {
-                    args.Process = !(menu.Item("ComboActive", true).GetValue<KeyBind>().Active && menu.Item("UseRCombo", true).GetValue<bool>() && menu.Item("smartKS", true).GetValue<bool>()
+            args.Process = !(menu.Item("ComboActive", true).GetValue<KeyBind>().Active && menu.Item("UseRCombo", true).GetValue<bool>() && menu.Item("smartKS", true).GetValue<bool>()
                         && menu.Item("HarassActive", true).GetValue<KeyBind>().Active && menu.Item("HarassActiveT", true).GetValue<KeyBind>().Active && menu.Item("R_Mouse", true).GetValue<KeyBind>().Active);
-                }
-            }
-             * */
         }
+        
 
-        public override void GameObject_OnCreate(GameObject obj, EventArgs args)
+        protected override void GameObject_OnCreate(GameObject obj, EventArgs args)
         {
             // return if its not a missle
             if (!(obj is Obj_SpellMissile))

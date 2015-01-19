@@ -23,6 +23,7 @@ namespace xSaliceReligionAIO
             Game.OnGameProcessPacket += Game_OnGameProcessPacket;
             GameObject.OnDelete += GameObject_OnDelete;
             Obj_AI_Base.OnIssueOrder += ObjAiHeroOnOnIssueOrder;
+            Spellbook.OnUpdateChargedSpell += Spellbook_OnUpdateChargedSpell;
 
             if (menu.Item("Orbwalker_Mode", true).GetValue<bool>())
             {
@@ -493,67 +494,72 @@ namespace xSaliceReligionAIO
         }
 
         //to create by champ
-        public virtual void Drawing_OnDraw(EventArgs args)
+        protected virtual void Drawing_OnDraw(EventArgs args)
         {
             //for champs to use
         }
 
-        public virtual void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        protected virtual void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             //for champs to use
         }
 
-        public virtual void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        protected virtual void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
             //for champs to use
         }
 
-        public virtual void Game_OnGameUpdate(EventArgs args)
+        protected virtual void Game_OnGameUpdate(EventArgs args)
         {
             //for champs to use
         }
 
-        public virtual void GameObject_OnCreate(GameObject sender, EventArgs args)
+        protected virtual void GameObject_OnCreate(GameObject sender, EventArgs args)
         {
             //for champs to use
         }
 
-        public virtual void GameObject_OnDelete(GameObject sender, EventArgs args)
+        protected virtual void GameObject_OnDelete(GameObject sender, EventArgs args)
         {
             //for champs to use
         }
 
-        public virtual void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
+        protected virtual void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
             //for champ use
         }
 
-        public virtual void Game_OnSendPacket(GamePacketEventArgs args)
+        protected virtual void Game_OnSendPacket(GamePacketEventArgs args)
         {
             //for champ use
         }
 
-        public virtual void Game_OnGameProcessPacket(GamePacketEventArgs args)
+        protected virtual void Game_OnGameProcessPacket(GamePacketEventArgs args)
         {
             //for champ use
         }
 
-        public virtual void AfterAttack(AttackableUnit unit, AttackableUnit target)
+        protected virtual void AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             //for champ use
         }
 
-        public virtual void BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
+        protected virtual void BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
         {
             //for champ use
         }
 
-        public virtual void BeforeAttack(xSLxOrbwalker.BeforeAttackEventArgs args)
+        protected virtual void BeforeAttack(xSLxOrbwalker.BeforeAttackEventArgs args)
         {
             //for champ use
         }
 
-        public virtual void ObjAiHeroOnOnIssueOrder(Obj_AI_Base sender, GameObjectIssueOrderEventArgs args)
+        protected virtual void ObjAiHeroOnOnIssueOrder(Obj_AI_Base sender, GameObjectIssueOrderEventArgs args)
+        {
+            //for champ use
+        }
+
+        protected virtual void Spellbook_OnUpdateChargedSpell(Spellbook sender, SpellbookUpdateChargedSpellEventArgs args)
         {
             //for champ use
         }

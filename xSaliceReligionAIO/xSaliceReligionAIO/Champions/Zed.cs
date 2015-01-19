@@ -892,7 +892,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void Game_OnGameUpdate(EventArgs args)
+        protected override void Game_OnGameUpdate(EventArgs args)
         {
             if (Player.IsDead) return;
 
@@ -930,7 +930,8 @@ namespace xSaliceReligionAIO.Champions
         }
 
         private float _qCooldown;
-        public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
+
+        protected override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
             if (unit.IsEnemy && (unit is Obj_AI_Hero))
             {
@@ -1010,7 +1011,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void GameObject_OnCreate(GameObject sender, EventArgs args)
+        protected override void GameObject_OnCreate(GameObject sender, EventArgs args)
         {
             if (!(sender is Obj_GeneralParticleEmitter))
                 return;
@@ -1034,7 +1035,7 @@ namespace xSaliceReligionAIO.Champions
 
         }
 
-        public override void GameObject_OnDelete(GameObject sender, EventArgs args)
+        protected override void GameObject_OnDelete(GameObject sender, EventArgs args)
         {
             if (!(sender is Obj_GeneralParticleEmitter))
                 return;
@@ -1055,7 +1056,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void Drawing_OnDraw(EventArgs args)
+        protected override void Drawing_OnDraw(EventArgs args)
         {
 
             if (menu.Item("Draw_Disabled", true).GetValue<bool>())

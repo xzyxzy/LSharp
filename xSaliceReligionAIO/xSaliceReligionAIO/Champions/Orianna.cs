@@ -575,7 +575,7 @@ namespace xSaliceReligionAIO.Champions
                 E.CastOnUnit(Player, packets());
         }
 
-        public override void Game_OnGameUpdate(EventArgs args)
+        protected override void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
             if (Player.IsDead) return;
@@ -637,7 +637,7 @@ namespace xSaliceReligionAIO.Champions
             _ballStatus = 1;
         }
 
-        public override void Drawing_OnDraw(EventArgs args)
+        protected override void Drawing_OnDraw(EventArgs args)
         {
             foreach (Spell spell in SpellList)
             {
@@ -669,7 +669,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
+        protected override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
             //Shield Ally
             if (unit.IsEnemy && unit.Type == GameObjectType.obj_AI_Hero && E.IsReady())
@@ -727,7 +727,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        protected override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
             if (!menu.Item("UseInt", true).GetValue<bool>()) return;
 
@@ -741,7 +741,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void Game_OnSendPacket(GamePacketEventArgs args)
+        protected override void Game_OnSendPacket(GamePacketEventArgs args)
         {
             if (args.PacketData[0] == Packet.C2S.Cast.Header)
             {

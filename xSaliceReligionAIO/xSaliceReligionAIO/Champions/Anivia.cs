@@ -546,7 +546,7 @@ namespace xSaliceReligionAIO.Champions
                 E.Cast(allMinionsE[0]);
         }
 
-        public override void Game_OnGameUpdate(EventArgs args)
+        protected override void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
             if (Player.IsDead)
@@ -590,7 +590,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void Drawing_OnDraw(EventArgs args)
+        protected override void Drawing_OnDraw(EventArgs args)
         {
             foreach (Spell spell in SpellList)
             {
@@ -600,7 +600,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs attack)
+        protected override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs attack)
         {
             if (!unit.IsMe) return;
 
@@ -618,7 +618,7 @@ namespace xSaliceReligionAIO.Champions
             
         }
 
-        public override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        protected override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             if (!menu.Item("UseGap", true).GetValue<bool>()) return;
 
@@ -630,7 +630,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        protected override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
             if (!menu.Item("UseInt", true).GetValue<bool>()) return;
 
@@ -645,7 +645,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void GameObject_OnCreate(GameObject obj, EventArgs args)
+        protected override void GameObject_OnCreate(GameObject obj, EventArgs args)
         {
             //if(Player.Distance(obj.Position) < 300)
             //Game.PrintChat("OBJ: " + obj.Name);
@@ -670,7 +670,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void GameObject_OnDelete(GameObject obj, EventArgs args)
+        protected override void GameObject_OnDelete(GameObject obj, EventArgs args)
         {
             if (obj.Type != GameObjectType.obj_GeneralParticleEmmiter || Player.Distance(obj.Position) > 1500)
                 return;

@@ -477,7 +477,7 @@ namespace xSaliceReligionAIO.Champions
         }
 
 
-        public override void Game_OnGameUpdate(EventArgs args)
+        protected override void Game_OnGameUpdate(EventArgs args)
         {
             if (Player.IsChannelingImportantSpell())
                 return;
@@ -578,7 +578,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void Drawing_OnDraw(EventArgs args)
+        protected override void Drawing_OnDraw(EventArgs args)
         {
             foreach (Spell spell in SpellList)
             {
@@ -592,7 +592,7 @@ namespace xSaliceReligionAIO.Champions
         }
 
 
-        public override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        protected override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             if (!menu.Item("UseGap", true).GetValue<bool>()) return;
 

@@ -266,7 +266,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void Game_OnGameUpdate(EventArgs args)
+        protected override void Game_OnGameUpdate(EventArgs args)
         {
 
             if (menu.Item("smartKS", true).GetValue<bool>())
@@ -302,7 +302,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
+        protected override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
             if (!unit.IsMe)
                 return;
@@ -313,7 +313,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        protected override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             if (!menu.Item("W_Gap_Closer", true).GetValue<bool>()) return;
 
@@ -321,7 +321,7 @@ namespace xSaliceReligionAIO.Champions
                 W.Cast(packets());
         }
 
-        public override void Drawing_OnDraw(EventArgs args)
+        protected override void Drawing_OnDraw(EventArgs args)
         {
             if (menu.Item("Draw_Disabled", true).GetValue<bool>())
                 return;

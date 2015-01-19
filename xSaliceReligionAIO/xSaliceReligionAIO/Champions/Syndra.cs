@@ -465,7 +465,7 @@ namespace xSaliceReligionAIO.Champions
                 Q.Cast(qTarget);
         }
 
-        public override void Game_OnGameUpdate(EventArgs args)
+        protected override void Game_OnGameUpdate(EventArgs args)
         {
 
             if(R.IsReady())
@@ -499,7 +499,7 @@ namespace xSaliceReligionAIO.Champions
             QImmobile();
         }
 
-        public override void Drawing_OnDraw(EventArgs args)
+        protected override void Drawing_OnDraw(EventArgs args)
         {
             if (menu.Item("Draw_Disabled", true).GetValue<bool>())
                 return;
@@ -638,7 +638,7 @@ namespace xSaliceReligionAIO.Champions
             return minion;
         }
 
-        public override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        protected override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             if (!menu.Item("E_Gap_Closer", true).GetValue<bool>())
                 return;
@@ -650,7 +650,7 @@ namespace xSaliceReligionAIO.Champions
         }
 
 
-        public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs spell)
+        protected override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs spell)
         {
             if (!unit.IsMe || !E.IsReady() || (spell.SData.Name != "SyndraQ") ||
                 Environment.TickCount - _qe.LastCastAttemptT >= 300)
@@ -658,7 +658,8 @@ namespace xSaliceReligionAIO.Champions
             E.Cast(spell.End, packets());
             W.LastCastAttemptT = Environment.TickCount + 500;
         }
-        public override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+
+        protected override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
             if (spell.DangerLevel < InterruptableDangerLevel.Medium || unit.IsAlly)
                 return;

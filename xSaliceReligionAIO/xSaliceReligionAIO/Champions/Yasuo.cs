@@ -719,7 +719,7 @@ namespace xSaliceReligionAIO.Champions
             return !target.HasBuff("YasuoDashWrapper");
         }
 
-        public override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        protected override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
             if (spell.DangerLevel < InterruptableDangerLevel.Medium || unit.IsAlly || !Q.IsReady() || !ThirdQ() || !menu.Item("Interrupt", true).GetValue<bool>())
                 return;
@@ -738,7 +738,7 @@ namespace xSaliceReligionAIO.Champions
         private Obj_SpellMissile _windWall;
         private Obj_SpellMissile _eSlide;
 
-        public override void GameObject_OnCreate(GameObject sender, EventArgs args2)
+        protected override void GameObject_OnCreate(GameObject sender, EventArgs args2)
         {
             if (!(sender is Obj_SpellMissile) || !sender.IsValid)
                 return;
@@ -797,7 +797,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void GameObject_OnDelete(GameObject sender, EventArgs args2)
+        protected override void GameObject_OnDelete(GameObject sender, EventArgs args2)
         {
             if (!(sender is Obj_SpellMissile) || !sender.IsValid)
                 return;
@@ -822,7 +822,8 @@ namespace xSaliceReligionAIO.Champions
                 }
             }
         }
-        public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
+
+        protected override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
             if (unit.IsEnemy && (unit is Obj_AI_Hero))
             {
@@ -874,7 +875,8 @@ namespace xSaliceReligionAIO.Champions
                 }
             }
         }
-        public override void Game_OnGameUpdate(EventArgs args)
+
+        protected override void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
             if (Player.IsDead) return;
@@ -946,7 +948,7 @@ namespace xSaliceReligionAIO.Champions
             return true;
         }
 
-        public override void Drawing_OnDraw(EventArgs args)
+        protected override void Drawing_OnDraw(EventArgs args)
         {
             if (menu.Item("Draw_Disabled", true).GetValue<bool>())
                 return;

@@ -361,7 +361,7 @@ namespace xSaliceReligionAIO.Champions
                 R.Cast(target, packets());
         }
 
-        public override void Game_OnGameUpdate(EventArgs args)
+        protected override void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
             if (Player.IsDead) return;
@@ -404,7 +404,7 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
-        public override void Drawing_OnDraw(EventArgs args)
+        protected override void Drawing_OnDraw(EventArgs args)
         {
             if (menu.Item("Draw_Disabled", true).GetValue<bool>())
                 return;
