@@ -423,7 +423,6 @@ namespace xSaliceReligionAIO.Champions
                     return false;
             }
 
-            Game.PrintChat("RAWR");
             if (dmg > target.Health - 100)
                 return true;
 
