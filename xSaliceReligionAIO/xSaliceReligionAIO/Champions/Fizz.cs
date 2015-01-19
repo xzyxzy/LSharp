@@ -58,6 +58,7 @@ namespace xSaliceReligionAIO.Champions
                 var rMenu = new Menu("RMenu", "RMenu");
                 {   
                     rMenu.AddItem(new MenuItem("rBestTarget", "Shoot R to Best Target", true).SetValue(new KeyBind("R".ToCharArray()[0], KeyBindType.Press)));
+                    rMenu.AddItem(new MenuItem("R_Delay", "Delay to shoot R During Q(ms)", true).SetValue(new Slider(100, 0, 500)));
                     rMenu.AddItem(new MenuItem("R_Max_Dist", "R Max Distance", true).SetValue(new Slider(1000, 200, 1300)));
                     rMenu.AddItem(new MenuItem("ROverkill", "R OverKill Check", true).SetValue(false));
                     rMenu.AddItem(new MenuItem("AlwaysR", "Always Use R in Combo", true).SetValue(true));
@@ -498,7 +499,8 @@ namespace xSaliceReligionAIO.Champions
                     {
                         var vec = _qVec + Vector3.Normalize(Prediction.GetPrediction((Obj_AI_Hero)args.Target, _qDelay).CastPosition - _qVec) * 600;
 
-                        Utility.DelayAction.Add(100, () => R.Cast(vec, packets()));
+                        var delay = menu.Item("R_Delay", true).GetValue<Slider>().Value;
+                        Utility.DelayAction.Add(delay, () => R.Cast(vec, packets()));
                     }
                 }
                 if (castedSlot == SpellSlot.E)
