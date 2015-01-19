@@ -174,13 +174,16 @@ namespace xSaliceReligionAIO
             if (Target == null || ObjectManager.Player.IsDead)
                 return;
 
-            //ignite
-            int igniteMode = _myMenu.Item("igniteMode", true).GetValue<StringList>().SelectedIndex;
+            if (_myMenu.Item("ignite", true).GetValue<bool>())
+            { 
+                //ignite
+                int igniteMode = _myMenu.Item("igniteMode", true).GetValue<StringList>().SelectedIndex;
 
-            if (KillableTarget && igniteMode == 0 && Ignite_Ready())
-                Use_Ignite(Target);
-            else if (ObjectManager.Player.GetSummonerSpellDamage(Target, Damage.SummonerSpell.Ignite) > Target.Health + 20 && Ignite_Ready())
-                Use_Ignite(Target);
+                if (KillableTarget && igniteMode == 0 && Ignite_Ready())
+                    Use_Ignite(Target);
+                else if (ObjectManager.Player.GetSummonerSpellDamage(Target, Damage.SummonerSpell.Ignite) > Target.Health + 20 && Ignite_Ready())
+                    Use_Ignite(Target);
+            }
 
             if (!UseTargetted)
                 return;
