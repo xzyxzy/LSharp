@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using LeagueSharp;
 using LeagueSharp.Common;
 using Microsoft.Win32.SafeHandles;
@@ -128,6 +129,7 @@ namespace xSaliceReligionAIO
                 if (Activator.CreateInstance(null, "xSaliceReligionAIO.Champions." + Player.ChampionName) != null)
                 {
                     Game.PrintChat("<font color = \"#FFB6C1\">xSalice's " + Player.ChampionName + " Loaded!</font>");
+                    Game.PrintChat("Version: " + Assembly.GetEntryAssembly().GetName().Version);
                 }
             }
             catch
