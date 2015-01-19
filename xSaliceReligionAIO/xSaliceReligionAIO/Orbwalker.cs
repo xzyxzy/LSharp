@@ -77,7 +77,9 @@ namespace xSaliceReligionAIO
 
             var menuMisc = new Menu("Misc", "orb_Misc");
             menuMisc.AddItem(new MenuItem("orb_Misc_Holdzone", "Hold Position").SetValue(new Slider(50, 0, 200)));
-            menuMisc.AddItem(new MenuItem("orb_Misc_Farmdelay", "Farm Delay").SetValue(new Slider(0, 200, 0)));
+            menuMisc.AddItem(new MenuItem("orb_Misc_Farmdelay", "Farm Delay").SetValue(new Slider(0, 0, 300)));
+            if(MyHero.ChampionName == "Azir")
+                menuMisc.AddItem(new MenuItem("azir_Misc_Farmdelay", "Soilder Farm Delay").SetValue(new Slider(0, 0, 300)));
             menuMisc.AddItem(new MenuItem("orb_Misc_ExtraWindUp", "Extra Winduptime").SetValue(new Slider(80, 200, 0)));
             menuMisc.AddItem(new MenuItem("orb_Misc_AutoWindUp", "Autoset Windup").SetValue(false));
             menuMisc.AddItem(new MenuItem("orb_Misc_Priority_Unit", "Priority Unit").SetValue(new StringList(new[] { "Minion", "Hero" })));
@@ -415,9 +417,10 @@ namespace xSaliceReligionAIO
             var unit = (Obj_AI_Base)target;
             var damagelist = new List<int> { 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 160, 170 };
             var dmg = damagelist[MyHero.Level - 1] + (MyHero.BaseAbilityDamage * 0.6);
-            if (Soilders.Count(obj => obj.Position.Distance(unit.Position) < 390) == 2)
-                return MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg) +
-                       (MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg) * 0.25);
+
+            var count = Soilders.Count(obj => obj.Position.Distance(unit.Position) < 390);
+            if (count > 1)
+                return MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg) + ((MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg) * 0.25)*(count - 1));
             return MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg);
         }
 
@@ -454,7 +457,7 @@ namespace xSaliceReligionAIO
                     var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.NotAlly);
                     foreach (var minion in from minion in minions.Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InSoldierAttackRange(minion))
                         let t = (int)(MyHero.AttackCastDelay * 1000) - 100 + Game.Ping / 2 + 1000 * (int)MyHero.Distance(minion) / (int)MyProjectileSpeed()
-                        let predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay())
+                        let predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay(Menu.Item("azir_Misc_Farmdelay").GetValue<Slider>().Value))
                         where minion.Team != GameObjectTeam.Neutral && predHealth > 0 &&
                               predHealth <= GetAzirAaSandwarriorDamage(minion)
                         select minion)
@@ -537,7 +540,7 @@ namespace xSaliceReligionAIO
                 var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.NotAlly);
                 foreach (var minion in from minion in minions
                     .Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InSoldierAttackRange(minion))
-                                       let predHealth = HealthPrediction.LaneClearHealthPrediction(minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay())
+                                       let predHealth = HealthPrediction.LaneClearHealthPrediction(minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay(Menu.Item("azir_Misc_Farmdelay").GetValue<Slider>().Value))
                                        where predHealth >=
                                              GetAzirAaSandwarriorDamage(minion) + MyHero.GetAutoAttackDamage(minion, true) ||
                                              Math.Abs(predHealth - minion.Health) < float.Epsilon
@@ -581,7 +584,7 @@ namespace xSaliceReligionAIO
                     minion.IsValidTarget() && minion.Team != GameObjectTeam.Neutral &&
                     InSoldierAttackRange(minion) &&
                     HealthPrediction.LaneClearHealthPrediction(
-                    minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay()) <= GetAzirAaSandwarriorDamage(minion));
+                    minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay(Menu.Item("azir_Misc_Farmdelay").GetValue<Slider>().Value)) <= GetAzirAaSandwarriorDamage(minion));
             }
 
             return ObjectManager.Get<Obj_AI_Minion>()
@@ -641,8 +644,9 @@ namespace xSaliceReligionAIO
 
         private static int FarmDelay(int offset = 0)
         {
-            var ret = offset;
-            return Menu.Item("orb_Misc_Farmdelay").GetValue<Slider>().Value + ret;
+            if (offset != 0)
+                return offset;
+            return Menu.Item("orb_Misc_Farmdelay").GetValue<Slider>().Value;
         }
 
         private static AttackableUnit GetBestHeroTarget()
