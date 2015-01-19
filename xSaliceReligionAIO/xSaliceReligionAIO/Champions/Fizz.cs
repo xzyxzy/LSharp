@@ -21,7 +21,7 @@ namespace xSaliceReligionAIO.Champions
         {
             Q = new Spell(SpellSlot.Q, 550);
             W = new Spell(SpellSlot.W, 0);
-            E = new Spell(SpellSlot.E, 800);
+            E = new Spell(SpellSlot.E, 725);
             R = new Spell(SpellSlot.R, 1300);
 
             E.SetSkillshot(0.5f, 270f, 1300, false, SkillshotType.SkillshotCircle);
