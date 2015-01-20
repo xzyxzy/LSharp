@@ -65,7 +65,7 @@ namespace LissandraLetitGoLetItGOOOOO
 
             IgniteSlot = Player.GetSpellSlot("SummonerDot");
 
-            DFG = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline || Utility.Map.GetMap()._MapType == Utility.Map.MapType.CrystalScar ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
+            DFG = Utility.Map.GetMap().Type == Utility.Map.MapType.TwistedTreeline || Utility.Map.GetMap().Type == Utility.Map.MapType.CrystalScar ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
 
             //Create the menu
             menu = new Menu(ChampionName, ChampionName, true);
@@ -311,7 +311,7 @@ namespace LissandraLetitGoLetItGOOOOO
 
             var rDef = menu.Item("defR").GetValue<Slider>().Value;
 
-            if (Utility.CountEnemysInRange(300) >= rDef)
+            if (Player.CountEnemiesInRange(300) >= rDef)
             {
                 R.CastOnUnit(Player, packets());
                 return;
