@@ -334,7 +334,7 @@ namespace xSaliceReligionAIO.Champions
             if (target == null)
                 return;
 
-            var vector1 = target.ServerPosition - Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * 300;
+            var vector1 = target.ServerPosition - Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * 350;
 
             _r2.UpdateSourcePosition(vector1, vector1);
 
@@ -344,8 +344,8 @@ namespace xSaliceReligionAIO.Champions
             {
                 var midpoint = (Player.ServerPosition + pred.UnitPosition)/2;
 
-                vector1 = midpoint + Vector3.Normalize(pred.UnitPosition - Player.ServerPosition) * 800;
-                var vector2 = midpoint - Vector3.Normalize(pred.UnitPosition - Player.ServerPosition) * 300;
+                vector1 = midpoint + Vector3.Normalize(pred.UnitPosition - Player.ServerPosition) * 650;
+                var vector2 = midpoint - Vector3.Normalize(pred.UnitPosition - Player.ServerPosition) * 350;
 
                 if(!IsPassWall(pred.UnitPosition, vector1) && !IsPassWall(pred.UnitPosition, vector2))
                     CastR(vector1, vector2);
@@ -385,8 +385,8 @@ namespace xSaliceReligionAIO.Champions
 
                     var midpoint = (enemyPred.CastPosition + targetPred.CastPosition) / 2;
 
-                    var startpos = midpoint + Vector3.Normalize(enemyPred.CastPosition - targetPred.CastPosition) * 600;
-                    var endPos = midpoint - Vector3.Normalize(enemyPred.CastPosition - targetPred.CastPosition) * 600;
+                    var startpos = midpoint + Vector3.Normalize(enemyPred.CastPosition - targetPred.CastPosition) * 500;
+                    var endPos = midpoint - Vector3.Normalize(enemyPred.CastPosition - targetPred.CastPosition) * 500;
 
                     if (!IsPassWall(midpoint, startpos) && !IsPassWall(midpoint, endPos) && countEnemiesNearPosition(Player.ServerPosition, R.Range + 1000) > 2)
                     {
@@ -442,8 +442,7 @@ namespace xSaliceReligionAIO.Champions
                 Unknown2 = true,
             }.Encode().SendAsPacket();
              * */
-
-            R.Cast(source, destination);
+            Player.Spellbook.CastSpell(SpellSlot.R, source, destination, false);
         }
 
         protected override void Game_OnGameUpdate(EventArgs args)
@@ -543,18 +542,18 @@ namespace xSaliceReligionAIO.Champions
                     if (target == null)
                         return;
 
-                    var vector1 = target.ServerPosition - Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * 300;
+                    var vector1 = target.ServerPosition - Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * 350;
 
                     _r2.UpdateSourcePosition(vector1, vector1);
 
                     var pred = _r2.GetPrediction(target, true);
 
                     var midpoint = (Player.ServerPosition + pred.UnitPosition) / 2;
-                    var vector2 = midpoint - Vector3.Normalize(pred.UnitPosition - Player.ServerPosition) * 300;
+                    var vector2 = midpoint - Vector3.Normalize(pred.UnitPosition - Player.ServerPosition) * 350;
 
                     if (Player.Distance(target) < 400)
                     {
-                        vector1 = midpoint + Vector3.Normalize(pred.UnitPosition - Player.ServerPosition)*800;
+                        vector1 = midpoint + Vector3.Normalize(pred.UnitPosition - Player.ServerPosition)*650;
                         if (!IsPassWall(pred.UnitPosition, vector1) && !IsPassWall(pred.UnitPosition, vector2))
                         {
                             Vector2 wts = Drawing.WorldToScreen(Player.Position);
@@ -611,8 +610,8 @@ namespace xSaliceReligionAIO.Champions
 
                         var midpoint = (enemyPred.CastPosition + targetPred.CastPosition) / 2;
 
-                        var startpos = midpoint + Vector3.Normalize(enemyPred.CastPosition - targetPred.CastPosition) * 600;
-                        var endPos = midpoint - Vector3.Normalize(enemyPred.CastPosition - targetPred.CastPosition) * 600;
+                        var startpos = midpoint + Vector3.Normalize(enemyPred.CastPosition - targetPred.CastPosition) * 500;
+                        var endPos = midpoint - Vector3.Normalize(enemyPred.CastPosition - targetPred.CastPosition) * 500;
 
                         if (!IsPassWall(midpoint, startpos) && !IsPassWall(midpoint, endPos) && countEnemiesNearPosition(Player.ServerPosition, R.Range + 1000) > 2)
                         {
