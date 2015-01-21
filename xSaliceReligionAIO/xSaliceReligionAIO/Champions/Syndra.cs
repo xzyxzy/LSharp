@@ -32,7 +32,7 @@ namespace xSaliceReligionAIO.Champions
             R = new Spell(SpellSlot.R, 750);
 
             _qe = new Spell(SpellSlot.Q, 1250);
-            _qe.SetSkillshot(.900f, 115f, 2100f, false, SkillshotType.SkillshotLine);
+            _qe.SetSkillshot(.900f, 50f, 2100f, false, SkillshotType.SkillshotLine);
 
         }
 
@@ -45,6 +45,7 @@ namespace xSaliceReligionAIO.Champions
                 key.AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!", true).SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Toggle)));
                 key.AddItem(new MenuItem("LaneClearActive", "Farm!", true).SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
                 key.AddItem(new MenuItem("Misc_QE_Mouse", "QE to mouse", true).SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+                key.AddItem(new MenuItem("forceR", "Force R to best Target", true).SetValue(new KeyBind("R".ToCharArray()[0], KeyBindType.Press)));
                 //key.AddItem(new MenuItem("qAA", "Auto Q AAing target", true).SetValue(new KeyBind("I".ToCharArray()[0], KeyBindType.Toggle)));
                 //add to menu
                 menu.AddSubMenu(key);
@@ -342,27 +343,33 @@ namespace xSaliceReligionAIO.Champions
             }
             else
             {
-                var allMinionsW = MinionManager.GetMinions(Player.ServerPosition, W.Range + W.Width + 20, MinionTypes.All, MinionTeam.NotAlly);
-
-                if (allMinionsW.Count < 2)
-                    return;
-
                 var grabbableObj = Get_Nearest_orb();
                 var wToggleState = Player.Spellbook.GetSpell(SpellSlot.W).ToggleState;
 
-                if (wToggleState == 1 && Environment.TickCount - W.LastCastAttemptT > Game.Ping && W.IsReady() &&
-                        grabbableObj != null)
+                if (grabbableObj == null)
+                    return;
+
+                if (wToggleState == 1 && Environment.TickCount - W.LastCastAttemptT > Game.Ping && W.IsReady())
                 {
                     W.Cast(grabbableObj.ServerPosition);
                     W.LastCastAttemptT = Environment.TickCount + 1000;
                     return;
                 }
 
-                W.From = Get_Current_Orb().ServerPosition;
-                var farmLocation = W.GetCircularFarmLocation(allMinionsW);
+                if (Get_Current_Orb() == null)
+                    return;
 
-                if (farmLocation.MinionsHit >= 1)
+                W.From = Get_Current_Orb().ServerPosition;
+
+                var allMinionsW = MinionManager.GetMinions(Player.ServerPosition, W.Range, MinionTypes.All, MinionTeam.NotAlly);
+                var farmLocation = Q.GetCircularFarmLocation(allMinionsW, W.Width);
+
+                if (farmLocation.MinionsHit > 0)
                     W.Cast(farmLocation.Position);
+                else
+                {
+                    W.Cast(packets());
+                }
             }
         }
 
@@ -403,6 +410,9 @@ namespace xSaliceReligionAIO.Champions
 
             if (rTarget == null)
                 return;
+            if (rTarget.HasBuffOfType(BuffType.Invulnerability))
+                return;
+
             if (menu.Item("Dont_R" + rTarget.ChampionName, true) == null)
                 return;
             if (menu.Item("Dont_R" + rTarget.ChampionName, true).GetValue<bool>())
@@ -480,6 +490,13 @@ namespace xSaliceReligionAIO.Champions
 
             SmartKs();
 
+            if (menu.Item("forceR", true).GetValue<KeyBind>().Active)
+            {
+                var target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
+
+                if(target != null)
+                    R.CastOnUnit(target, packets());
+            }
             if (menu.Item("ComboActive", true).GetValue<KeyBind>().Active)
             {
                 Combo();
@@ -522,6 +539,9 @@ namespace xSaliceReligionAIO.Champions
             if (menu.Item("Draw_R", true).GetValue<bool>())
                 if (R.Level > 0)
                     Render.Circle.DrawCircle(Player.Position, R.Range, R.IsReady() ? Color.Green : Color.Red);
+
+            if (Get_Current_Orb() != null)
+                Render.Circle.DrawCircle(Get_Current_Orb().Position, W.Width, Color.Green);
 
             //draw EQ
             if (menu.Item("Draw_QE_Line", true).GetValue<bool>())
@@ -610,6 +630,14 @@ namespace xSaliceReligionAIO.Champions
 
         private Obj_AI_Minion Get_Nearest_orb()
         {
+            if (!menu.Item("W_Only_Orb", true).GetValue<bool>())
+            {
+                var minion = ObjectManager.Get<Obj_AI_Minion>().FirstOrDefault(x => x.IsValidTarget(W.Range));
+
+                if (minion != null)
+                    return minion;
+            }
+
             var orb =
                 ObjectManager.Get<Obj_AI_Minion>()
                     .Where(obj => obj.IsValid && obj.Team == ObjectManager.Player.Team && obj.Name == "Seed")
@@ -619,11 +647,7 @@ namespace xSaliceReligionAIO.Champions
             if (orb != null)
                 return orb;
 
-            if (menu.Item("W_Only_Orb", true).GetValue<bool>())
-                return null;
-            var minion = ObjectManager.Get<Obj_AI_Minion>().FirstOrDefault(x => x.IsValidTarget(W.Range));
-
-            return minion;
+            return null;
         }
 
         private Obj_AI_Base Get_Current_Orb()
@@ -635,7 +659,10 @@ namespace xSaliceReligionAIO.Champions
 
             var minion = ObjectManager.Get<Obj_AI_Minion>().FirstOrDefault(x => x.IsInvulnerable && x.Name != "Seed" && x.Name != "k");
 
-            return minion;
+            if(minion != null)
+                return minion;
+
+            return null;
         }
 
         protected override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)

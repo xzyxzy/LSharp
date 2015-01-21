@@ -115,6 +115,7 @@ namespace xSaliceReligionAIO.Champions
                 harass.AddItem(new MenuItem("UseQHarass", "Use Q", true).SetValue(true));
                 harass.AddItem(new MenuItem("UseWHarass", "Use W", true).SetValue(false));
                 harass.AddItem(new MenuItem("UseEHarass", "Use E", true).SetValue(true));
+                AddManaManagertoMenu(harass, "Harass", 30);
                 menu.AddSubMenu(harass);
             }
             //Farming menu:
@@ -205,6 +206,9 @@ namespace xSaliceReligionAIO.Champions
 
         private void UseSpells(bool useQ, bool useW, bool useE, bool useR, String source)
         {
+            if (source == "Harass" && !HasMana("Harass"))
+                return;
+
             var range = E.IsReady() ? E.Range : Q.Range;
             Obj_AI_Hero target = TargetSelector.GetTarget(range, TargetSelector.DamageType.Magical);
 
