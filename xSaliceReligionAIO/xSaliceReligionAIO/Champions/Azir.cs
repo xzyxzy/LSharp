@@ -377,7 +377,8 @@ namespace xSaliceReligionAIO.Champions
                     {
                         var vecPoint = nearSlave.Position + Vector3.Normalize(_point - nearSlave.Position) * Q.Range;
                         var delay = (int)(Player.Distance(nearSlave.Position) / 8 + menu.Item("escapeDelay", true).GetValue<Slider>().Value);
-                        Game.PrintChat("Delay" + delay);
+                        
+                        //Game.PrintChat("Delay" + delay);
                         Utility.DelayAction.Add(delay, () => Q.Cast(vecPoint, packets()));
                     }
                 }
@@ -899,7 +900,11 @@ namespace xSaliceReligionAIO.Champions
                     AutoAtk();
             }
 
-            if (Player.Distance(_point) > Q.Range + W.Range)
+            if (soilderCount() < 1 && Player.Distance(_point) > Q.Range)
+            {
+                _point = Vector3.Zero;
+            }
+            else if (Player.Distance(_point) > Q.Range + W.Range)
             {
                 _point = Vector3.Zero;
             }
