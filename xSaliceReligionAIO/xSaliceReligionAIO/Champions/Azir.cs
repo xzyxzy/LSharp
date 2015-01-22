@@ -23,6 +23,7 @@ namespace xSaliceReligionAIO.Champions
             //intalize spell
             Q = new Spell(SpellSlot.Q, 850);
             QExtend = new Spell(SpellSlot.Q, 1150);
+            Q2 = new Spell(SpellSlot.Q, 2000);
             W = new Spell(SpellSlot.W, 450);
             E = new Spell(SpellSlot.E, 2000);
             R = new Spell(SpellSlot.R, 450);
@@ -379,7 +380,7 @@ namespace xSaliceReligionAIO.Champions
                         var delay = (int)(Player.Distance(nearSlave.Position) / 8 + menu.Item("escapeDelay", true).GetValue<Slider>().Value);
                         
                         //Game.PrintChat("Delay" + delay);
-                        Utility.DelayAction.Add(delay, () => Q.Cast(vecPoint, packets()));
+                        Utility.DelayAction.Add(delay, () => Q2.Cast(vecPoint, packets()));
                     }
                 }
             }
@@ -900,11 +901,7 @@ namespace xSaliceReligionAIO.Champions
                     AutoAtk();
             }
 
-            if (soilderCount() < 1 && Player.Distance(_point) > Q.Range)
-            {
-                _point = Vector3.Zero;
-            }
-            else if (Player.Distance(_point) > Q.Range + W.Range)
+            if (Player.Distance(_point) > Q.Range + W.Range)
             {
                 _point = Vector3.Zero;
             }
