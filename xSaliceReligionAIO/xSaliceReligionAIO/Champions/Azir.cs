@@ -359,6 +359,11 @@ namespace xSaliceReligionAIO.Champions
             }
             else
             {
+                if (Environment.TickCount - E.LastCastAttemptT < 250 + Game.Ping / 2 && Environment.TickCount - E.LastCastAttemptT > _delay && ESpell.State == SpellState.Cooldown && _point != Vector3.Zero)
+                {
+                    Q2.Cast(_vecPoint, packets());
+                }
+
                 if ((E.IsReady() || ESpell.State == SpellState.Surpressed) && _point != Vector3.Zero)
                 {
                     if(soilderCount() < 1 && W.IsReady())
@@ -376,16 +381,17 @@ namespace xSaliceReligionAIO.Champions
 
                     if (QExtend.IsReady() || QSpell.State == SpellState.Surpressed)
                     {
-                        var vecPoint = nearSlave.Position + Vector3.Normalize(_point - nearSlave.Position) * Q.Range;
-                        var delay = (int)(Player.Distance(nearSlave.Position) / 4 + menu.Item("escapeDelay", true).GetValue<Slider>().Value);
+                        _vecPoint = nearSlave.Position + Vector3.Normalize(_point - nearSlave.Position) * 700;
+                        _delay = (int)(100*(Player.Distance(nearSlave.Position)/600) - Game.Ping/2 + menu.Item("escapeDelay", true).GetValue<Slider>().Value);
                         
-                        //Game.PrintChat("Delay" + delay);
-                        Utility.DelayAction.Add(delay, () => Q2.Cast(vecPoint, packets()));
+                        //Game.PrintChat("Delay" + _delay);
                     }
                 }
             }
         }
 
+        private int _delay;
+        private Vector3 _vecPoint;
 
         private GameObject GetNearestSoilderToMouse()
         {
