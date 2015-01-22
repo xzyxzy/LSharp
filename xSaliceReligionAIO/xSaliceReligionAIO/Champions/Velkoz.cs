@@ -78,6 +78,7 @@ namespace xSaliceReligionAIO.Champions
                     rMenu.AddSubMenu(new Menu("Dont use R on", "DontUlt"));
                     foreach (Obj_AI_Hero enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != Player.Team))
                         rMenu.SubMenu("DontUlt").AddItem(new MenuItem("DontUlt" + enemy.BaseSkinName, enemy.BaseSkinName, true).SetValue(false));
+                    rMenu.AddItem(new MenuItem("R_Max_Dist", "R Max Distance", true).SetValue(new Slider(1000, 200, 1300)));
                     spell.AddSubMenu(rMenu);
                 }
                 menu.AddSubMenu(spell);
@@ -541,6 +542,8 @@ namespace xSaliceReligionAIO.Champions
 
             if (menu.Item("R_Mouse", true).GetValue<KeyBind>().Active)
                 R.Cast(Game.CursorPos);
+
+            R.Range = menu.Item("R_Max_Dist", true).GetValue<Slider>().Value;
         }
 
         protected override void Drawing_OnDraw(EventArgs args)
