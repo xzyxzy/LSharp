@@ -901,7 +901,7 @@ namespace xSaliceReligionAIO.Champions
                     AutoAtk();
             }
 
-            if (Player.Distance(_point) > Q.Range + W.Range)
+            if (Player.Distance(_point) > QExtend.Range + W.Range)
             {
                 _point = Vector3.Zero;
             }
