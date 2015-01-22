@@ -32,6 +32,7 @@ namespace xSaliceReligionAIO.Champions
             E.SetSkillshot(0.25f, 100, 1200, false, SkillshotType.SkillshotLine);
             R.SetSkillshot(0.5f, 700, 1400, false, SkillshotType.SkillshotLine);
 
+            SpellList.Add(Q);
             SpellList.Add(W);
             SpellList.Add(E);
             SpellList.Add(R);
@@ -374,11 +375,10 @@ namespace xSaliceReligionAIO.Champions
 
                     if (QExtend.IsReady() || QSpell.State == SpellState.Surpressed)
                     {
-                        var vecPoint = wVec + Vector3.Normalize(_point - wVec) * Q.Range;
-                        var delay = menu.Item("escapeDelay", true).GetValue<Slider>().Value;
-                        Vector3 wVec2 = Player.ServerPosition - Vector3.Normalize(Game.CursorPos - Player.ServerPosition) * 450;
-                        Player.IssueOrder(GameObjectOrder.MoveTo, wVec2);
-                        Utility.DelayAction.Add(delay, () => Q.Cast(_point, packets()));
+                        var vecPoint = nearSlave.Position + Vector3.Normalize(_point - nearSlave.Position) * Q.Range;
+                        var delay = (int)(Player.Distance(nearSlave.Position) / 8 + menu.Item("escapeDelay", true).GetValue<Slider>().Value);
+                        Game.PrintChat("Delay" + delay);
+                        Utility.DelayAction.Add(delay, () => Q.Cast(vecPoint, packets()));
                     }
                 }
             }
@@ -899,7 +899,7 @@ namespace xSaliceReligionAIO.Champions
                     AutoAtk();
             }
 
-            if (Player.Distance(_point) > QExtend.Range + W.Range)
+            if (Player.Distance(_point) > Q.Range + W.Range)
             {
                 _point = Vector3.Zero;
             }
@@ -934,11 +934,15 @@ namespace xSaliceReligionAIO.Champions
             if (_point != Vector3.Zero && !menu.Item("fastEscape", true).GetValue<bool>())
             {
                 var vec = Player.ServerPosition + Vector3.Normalize(Game.CursorPos - Player.ServerPosition)*450;
+                var vecPoint = vec + Vector3.Normalize(_point - vec) * Q.Range;
                 if (soilderCount() > 0 && GetNearestSoilderToMouse() != null)
+                {
                     vec = GetNearestSoilderToMouse().Position;
+                    vecPoint = GetNearestSoilderToMouse().Position + Vector3.Normalize(_point - GetNearestSoilderToMouse().Position) * Q.Range;
+                }
 
                 var wts1 = Drawing.WorldToScreen(vec);
-                var wts2 = Drawing.WorldToScreen(_point);
+                var wts2 = Drawing.WorldToScreen(vecPoint);
                 var wts3 = Drawing.WorldToScreen(Player.Position);
                 Drawing.DrawLine(wts3, wts1, 1, Color.Green);
                 Drawing.DrawLine(wts1, wts2, 1, Color.Green);
