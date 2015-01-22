@@ -357,7 +357,7 @@ namespace xSaliceReligionAIO.Champions
             }
             else
             {
-                if (E.IsReady() || ESpell.State == SpellState.Surpressed)
+                if ((E.IsReady() || ESpell.State == SpellState.Surpressed) && _point != Vector3.Zero)
                 {
                     if (!W.IsReady())
                         return;
