@@ -359,10 +359,10 @@ namespace xSaliceReligionAIO.Champions
             {
                 if ((E.IsReady() || ESpell.State == SpellState.Surpressed) && _point != Vector3.Zero)
                 {
-                    if (!W.IsReady())
-                        return;
-
+                    if(soilderCount() < 1 && W.IsReady())
                         W.Cast(wVec);
+                    else if (soilderCount() < 1 && !W.IsReady())
+                        return;
 
                     if (GetNearestSoilderToMouse() == null)
                         return;
@@ -934,6 +934,9 @@ namespace xSaliceReligionAIO.Champions
             if (_point != Vector3.Zero && !menu.Item("fastEscape", true).GetValue<bool>())
             {
                 var vec = Player.ServerPosition + Vector3.Normalize(Game.CursorPos - Player.ServerPosition)*450;
+                if (soilderCount() > 0 && GetNearestSoilderToMouse() != null)
+                    vec = GetNearestSoilderToMouse().Position;
+
                 var wts1 = Drawing.WorldToScreen(vec);
                 var wts2 = Drawing.WorldToScreen(_point);
                 var wts3 = Drawing.WorldToScreen(Player.Position);
