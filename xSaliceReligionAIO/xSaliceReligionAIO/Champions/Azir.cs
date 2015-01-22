@@ -377,7 +377,7 @@ namespace xSaliceReligionAIO.Champions
                     if (QExtend.IsReady() || QSpell.State == SpellState.Surpressed)
                     {
                         var vecPoint = nearSlave.Position + Vector3.Normalize(_point - nearSlave.Position) * Q.Range;
-                        var delay = (int)(Player.Distance(nearSlave.Position) / 8 + menu.Item("escapeDelay", true).GetValue<Slider>().Value);
+                        var delay = (int)(Player.Distance(nearSlave.Position) / 4 + menu.Item("escapeDelay", true).GetValue<Slider>().Value);
                         
                         //Game.PrintChat("Delay" + delay);
                         Utility.DelayAction.Add(delay, () => Q2.Cast(vecPoint, packets()));
