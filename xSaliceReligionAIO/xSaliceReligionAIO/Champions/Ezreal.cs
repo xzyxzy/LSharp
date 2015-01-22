@@ -30,8 +30,8 @@ namespace xSaliceReligionAIO.Champions
             R = new Spell(SpellSlot.R, 3000);
             R.SetSkillshot(0.99f, 160f, 2000f, false, SkillshotType.SkillshotLine);
 
-            _r2 = new Spell(SpellSlot.R, 3000);
-            _r2.SetSkillshot(0.99f, 160f, 2000f, true, SkillshotType.SkillshotLine);
+            R2 = new Spell(SpellSlot.R, 3000);
+            R2.SetSkillshot(0.99f, 160f, 2000f, true, SkillshotType.SkillshotLine);
         }
 
         private void LoadMenu()
@@ -249,7 +249,7 @@ namespace xSaliceReligionAIO.Champions
                     if (menu.Item("E_On_Safe", true).GetValue<bool>())
                     {
                         var ePos = E.GetPrediction(target);
-                        if (ePos.UnitPosition.CountEnemysInRange(500) < 2)
+                        if (ePos.UnitPosition.CountEnemiesInRange(500) < 2)
                             E.Cast(ePos.UnitPosition, packets());
                     }
                     else
@@ -318,7 +318,7 @@ namespace xSaliceReligionAIO.Champions
 
             dmg += Player.GetSpellDamage(target, SpellSlot.R);
 
-            var rPred = _r2.GetPrediction(target);
+            var rPred = R2.GetPrediction(target);
             var collisionCount = rPred.CollisionObjects.Count;
 
             if (collisionCount >= 7)

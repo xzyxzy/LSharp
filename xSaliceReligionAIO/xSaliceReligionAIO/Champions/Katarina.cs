@@ -148,7 +148,7 @@ namespace xSaliceReligionAIO.Champions
             if (E.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.E);
 
-            if (R.IsReady() || (rSpell.State == SpellState.Surpressed && R.Level > 0))
+            if (R.IsReady() || (RSpell.State == SpellState.Surpressed && R.Level > 0))
                 damage += Player.GetSpellDamage(enemy, SpellSlot.R) * 8;
 
             damage = ActiveItems.CalcDamage(enemy, damage);
@@ -210,7 +210,7 @@ namespace xSaliceReligionAIO.Champions
                     {
                         if (menu.Item("smartE", true).GetValue<bool>() &&
                             countEnemiesNearPosition(target.ServerPosition, 500) > 2 &&
-                            (!R.IsReady() || !(rSpell.State == SpellState.Surpressed && R.Level > 0)))
+                            (!R.IsReady() || !(RSpell.State == SpellState.Surpressed && R.Level > 0)))
                             return;
 
                         var delay = menu.Item("E_Delay_Slider", true).GetValue<Slider>().Value;
@@ -240,7 +240,7 @@ namespace xSaliceReligionAIO.Champions
                     {
                         if (menu.Item("smartE", true).GetValue<bool>() &&
                             countEnemiesNearPosition(target.ServerPosition, 500) > 2 &&
-                            (!R.IsReady() || !(rSpell.State == SpellState.Surpressed && R.Level > 0)))
+                            (!R.IsReady() || !(RSpell.State == SpellState.Surpressed && R.Level > 0)))
                             return;
 
                         var delay = menu.Item("E_Delay_Slider", true).GetValue<Slider>().Value;
@@ -520,10 +520,10 @@ namespace xSaliceReligionAIO.Champions
                     if (menu.Item("dfgKS", true).GetValue<bool>())
                     {
                         //dfg
-                        if (DFG.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health + 20 &&
+                        if (Dfg.IsReady() && Player.GetItemDamage(target, Damage.DamageItems.Dfg) > target.Health + 20 &&
                             Player.Distance(target.ServerPosition) <= 750)
                         {
-                            Items.UseItem(DFG.Id, target);
+                            Items.UseItem(Dfg.Id, target);
                             //Game.PrintChat("ks 1");
                             return;
                         }
@@ -533,9 +533,9 @@ namespace xSaliceReligionAIO.Champions
                             (Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
                              (Player.GetSpellDamage(target, SpellSlot.Q))*1.2) > target.Health + 20)
                         {
-                            if (DFG.IsReady() && Q.IsReady())
+                            if (Dfg.IsReady() && Q.IsReady())
                             {
-                                Items.UseItem(DFG.Id, target);
+                                Items.UseItem(Dfg.Id, target);
                                 CancelUlt(target);
                                 Q.Cast(target, packets());
                                 //Game.PrintChat("ks 2");
@@ -548,9 +548,9 @@ namespace xSaliceReligionAIO.Champions
                             (Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
                              (Player.GetSpellDamage(target, SpellSlot.E))*1.2) > target.Health + 20)
                         {
-                            if (DFG.IsReady() && E.IsReady())
+                            if (Dfg.IsReady() && E.IsReady())
                             {
-                                Items.UseItem(DFG.Id, target);
+                                Items.UseItem(Dfg.Id, target);
                                 CancelUlt(target);
                                 E.Cast(target, packets());
                                 E.LastCastAttemptT = Environment.TickCount + delay;
@@ -653,8 +653,8 @@ namespace xSaliceReligionAIO.Champions
                     if (invSlot == null) return;
 
                     Player.Spellbook.CastSpell(invSlot.SpellSlot, position);
-                    lastWardPos = position;
-                    lastPlaced = Environment.TickCount;
+                    LastWardPos = position;
+                    LastPlaced = Environment.TickCount;
                 }
             }
 
@@ -698,7 +698,7 @@ namespace xSaliceReligionAIO.Champions
                 }
             }
 
-            if (Environment.TickCount <= lastPlaced + 3000 || !E.IsReady()) return;
+            if (Environment.TickCount <= LastPlaced + 3000 || !E.IsReady()) return;
 
             Vector3 cursorPos = Game.CursorPos;
             Vector3 myPos = Player.ServerPosition;
@@ -712,8 +712,8 @@ namespace xSaliceReligionAIO.Champions
             if (invSlot == null) return;
 
             Items.UseItem((int)invSlot.Id, wardPosition);
-            lastWardPos = wardPosition;
-            lastPlaced = Environment.TickCount;
+            LastWardPos = wardPosition;
+            LastPlaced = Environment.TickCount;
         }
 
         private static InventorySlot FindBestWardItem()
@@ -793,10 +793,10 @@ namespace xSaliceReligionAIO.Champions
             if (!(sender is Obj_AI_Minion))
                 return;
 
-            if (Environment.TickCount < lastPlaced + 300)
+            if (Environment.TickCount < LastPlaced + 300)
             {
                 var ward = (Obj_AI_Minion)sender;
-                if (ward.Name.ToLower().Contains("ward") && ward.Distance(lastWardPos) < 500 && E.IsReady())
+                if (ward.Name.ToLower().Contains("ward") && ward.Distance(LastWardPos) < 500 && E.IsReady())
                 {
                     E.Cast(ward);
                 }

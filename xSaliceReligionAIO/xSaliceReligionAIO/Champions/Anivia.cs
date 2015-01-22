@@ -13,10 +13,10 @@ namespace xSaliceReligionAIO.Champions
         public Anivia()
         {
             //mana
-            qMana = new[] {80, 80, 90, 100, 110, 120};
-            wMana = new[] {70, 70, 70, 70, 70, 70};
-            eMana = new[] {80, 50, 60, 70, 80, 90};
-            rMana = new[] {75, 75, 75, 75, 75};
+            QMana = new[] {80, 80, 90, 100, 110, 120};
+            WMana = new[] {70, 70, 70, 70, 70, 70};
+            EMana = new[] {80, 50, 60, 70, 80, 90};
+            RMana = new[] {75, 75, 75, 75, 75};
 
             LoadSpells();
             LoadMenu();

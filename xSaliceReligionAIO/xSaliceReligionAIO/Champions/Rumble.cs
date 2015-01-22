@@ -24,11 +24,11 @@ namespace xSaliceReligionAIO.Champions
             W = new Spell(SpellSlot.W);
             E = new Spell(SpellSlot.E, 950);
             R = new Spell(SpellSlot.R, 1700);
-            _r2 = new Spell(SpellSlot.R, 800);
+            R2 = new Spell(SpellSlot.R, 800);
 
             E.SetSkillshot(0.45f, 90, 1200, true, SkillshotType.SkillshotLine);
             R.SetSkillshot(0.25f, 110, 2500, false, SkillshotType.SkillshotLine);
-            _r2.SetSkillshot(0.25f, 110, 2600, false, SkillshotType.SkillshotLine);
+            R2.SetSkillshot(0.25f, 110, 2600, false, SkillshotType.SkillshotLine);
         }
 
         private void LoadMenu()
@@ -336,9 +336,9 @@ namespace xSaliceReligionAIO.Champions
 
             var vector1 = target.ServerPosition - Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * 300;
 
-            _r2.UpdateSourcePosition(vector1, vector1);
+            R2.UpdateSourcePosition(vector1, vector1);
 
-            var pred = _r2.GetPrediction(target, true);
+            var pred = R2.GetPrediction(target, true);
 
             if (Player.Distance(target) < 400)
             {
@@ -545,9 +545,9 @@ namespace xSaliceReligionAIO.Champions
 
                     var vector1 = target.ServerPosition - Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * 300;
 
-                    _r2.UpdateSourcePosition(vector1, vector1);
+                    R2.UpdateSourcePosition(vector1, vector1);
 
-                    var pred = _r2.GetPrediction(target, true);
+                    var pred = R2.GetPrediction(target, true);
 
                     var midpoint = (Player.ServerPosition + pred.UnitPosition) / 2;
                     var vector2 = midpoint - Vector3.Normalize(pred.UnitPosition - Player.ServerPosition) * 300;

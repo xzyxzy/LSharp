@@ -14,10 +14,10 @@ namespace xSaliceReligionAIO.Champions
     {
         public Karthus()
         {
-            qMana = new []{ 20, 20 , 26 , 32 , 38 , 44 };
-            wMana = new []{ 100, 100, 100, 100, 100, 100 };
-            eMana = new[] { 30, 30, 42, 54, 66, 78 };
-            rMana = new []{ 150, 150 , 175 , 200 };
+            QMana = new []{ 20, 20 , 26 , 32 , 38 , 44 };
+            WMana = new []{ 100, 100, 100, 100, 100, 100 };
+            EMana = new[] { 30, 30, 42, 54, 66, 78 };
+            RMana = new []{ 150, 150 , 175 , 200 };
 
             LoadSpell();
             LoadMenu();
@@ -270,7 +270,7 @@ namespace xSaliceReligionAIO.Champions
             }
 
             //E
-            if (useE && E.IsReady() && Player.Distance(eTar) < E.Range && eSpell.ToggleState == 1 && HasManaForE(source) && Environment.TickCount - E.LastCastAttemptT > 500)
+            if (useE && E.IsReady() && Player.Distance(eTar) < E.Range && ESpell.ToggleState == 1 && HasManaForE(source) && Environment.TickCount - E.LastCastAttemptT > 500)
             {
                 E.Cast(packets());
                 E.LastCastAttemptT = Environment.TickCount;
@@ -294,7 +294,7 @@ namespace xSaliceReligionAIO.Champions
 
         private bool ShouldW()
         {
-            if (menu.Item("wIfMana", true).GetValue<bool>() && manaCheck2())
+            if (menu.Item("wIfMana", true).GetValue<bool>() && ManaCheck2())
                 return true;
 
             return false;
@@ -438,7 +438,7 @@ namespace xSaliceReligionAIO.Champions
                 }
 
                 //E
-                if (Player.Distance(target.ServerPosition) <= E.Range && eSpell.ToggleState == 1 &&
+                if (Player.Distance(target.ServerPosition) <= E.Range && ESpell.ToggleState == 1 &&
                     (Player.GetSpellDamage(target, SpellSlot.E)) > target.Health + 30)
                 {
                     if (E.IsReady())
@@ -453,7 +453,7 @@ namespace xSaliceReligionAIO.Champions
 
         private void CheckEState()
         {
-            if (eSpell.ToggleState == 1)
+            if (ESpell.ToggleState == 1)
                 return;
 
             var target = ObjectManager.Get<Obj_AI_Hero>().Count(x => x.IsValidTarget(E.Range));
@@ -472,7 +472,7 @@ namespace xSaliceReligionAIO.Champions
                     return;
             }
 
-            if (E.IsReady() && eSpell.ToggleState != 1)
+            if (E.IsReady() && ESpell.ToggleState != 1)
                 E.Cast();
         }
 
@@ -569,7 +569,7 @@ namespace xSaliceReligionAIO.Champions
                 CastBasicFarm(Q2);
             }
 
-            if (useE && allMinionsE.Count > 0 && E.IsReady() && eSpell.ToggleState == 1)
+            if (useE && allMinionsE.Count > 0 && E.IsReady() && ESpell.ToggleState == 1)
             {
                 MinionManager.FarmLocation ePos = E.GetCircularFarmLocation(allMinionsE);
 

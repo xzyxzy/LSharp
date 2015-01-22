@@ -445,7 +445,7 @@ namespace xSaliceReligionAIO.Champions
                     {
                         Q.CastOnUnit(target, packets());
 
-                        if(qSpell.State == SpellState.Cooldown && R.IsReady())
+                        if(QSpell.State == SpellState.Cooldown && R.IsReady())
                             R.CastOnUnit(target, packets());
                     }
                 }

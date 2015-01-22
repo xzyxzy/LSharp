@@ -50,6 +50,7 @@ namespace xSaliceReligionAIO.Champions
                 key.AddItem(new MenuItem("insec", "Insec Selected target",true).SetValue(new KeyBind("J".ToCharArray()[0], KeyBindType.Press)));
                 key.AddItem(new MenuItem("qeCombo", "Q->E stun Nearest target",true).SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
                 key.AddItem(new MenuItem("qMulti", "Q if 2+ Soilder",true).SetValue(new KeyBind("I".ToCharArray()[0], KeyBindType.Toggle)));
+                key.AddItem(new MenuItem("point", "Escape Point Tag(Delay Escape Only)", true).SetValue(new KeyBind("M".ToCharArray()[0], KeyBindType.Press)));
                 //add to menu
                 menu.AddSubMenu(key);
             }
@@ -132,7 +133,8 @@ namespace xSaliceReligionAIO.Champions
             {
                 misc.AddItem(new MenuItem("UseInt", "Use E to Interrupt",true).SetValue(true));
                 misc.AddItem(new MenuItem("UseGap", "Use E for GapCloser",true).SetValue(true));
-                misc.AddItem(new MenuItem("fastEscape", "Escape Mode 2",true).SetValue(true));
+                misc.AddItem(new MenuItem("fastEscape", "Fast Escape = on, Delay EQ Escape = off",true).SetValue(true));
+                misc.AddItem(new MenuItem("escapeDelay", "Escape Delay Decrease", true).SetValue(new Slider(0, 0, 300)));
                 menu.AddSubMenu(misc);
             }
 
@@ -178,7 +180,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (soilderCount() > 0 || W.IsReady())
             {
-                damage += 2 * Player.CalcDamage(enemy, Damage.DamageType.Magical, DmgAmount());
+                damage += 2*xSLxOrbwalker.GetAzirAaSandwarriorDamage(enemy);
             }
 
             if (E.IsReady())
@@ -190,28 +192,6 @@ namespace xSaliceReligionAIO.Champions
             damage = ActiveItems.CalcDamage(enemy, damage);
 
             return (float)damage;
-        }
-
-        private double DmgAmount()
-        {
-            double dmg = 0;
-
-            if (Player.Level < 12)
-            {
-                dmg += 50 + 5 * Player.Level;
-            }
-            else
-            {
-                dmg += 10 * Player.Level - 10;
-            }
-            dmg += .7 * Player.FlatMagicDamageMod;
-
-            return dmg;
-        }
-
-        private double GetAutoDmg(Obj_AI_Hero enemy)
-        {
-            return Player.CalcDamage(enemy, Damage.DamageType.Magical, DmgAmount());
         }
 
         private void Combo()
@@ -236,7 +216,7 @@ namespace xSaliceReligionAIO.Champions
                 R.Cast(qTarget);
 
             //WQ
-            if (soilderCount() == 0 && useQ && useW && W.IsReady() && (Q.IsReady() || qSpell.State == SpellState.Surpressed) && menu.Item("wQ", true).GetValue<bool>())
+            if (soilderCount() == 0 && useQ && useW && W.IsReady() && (Q.IsReady() || QSpell.State == SpellState.Surpressed) && menu.Item("wQ", true).GetValue<bool>())
             {
                 CastWq(qTarget);
             }
@@ -272,7 +252,7 @@ namespace xSaliceReligionAIO.Champions
             }
 
             //E
-            if (useE && (E.IsReady() || eSpell.State == SpellState.Surpressed))
+            if (useE && (E.IsReady() || ESpell.State == SpellState.Surpressed))
             {
                 CastE(soilderTarget);
             }
@@ -334,17 +314,17 @@ namespace xSaliceReligionAIO.Champions
             {
                 if (W.IsReady() || soilderCount() > 0)
                 {
-                    if ((E.IsReady() || eSpell.State == SpellState.Surpressed))
+                    if ((E.IsReady() || ESpell.State == SpellState.Surpressed))
                     {
                         W.Cast(wVec);
                         W.LastCastAttemptT = Environment.TickCount;
                     }
 
-                    if ((QExtend.IsReady() || qSpell.State == SpellState.Surpressed) &&
+                    if ((QExtend.IsReady() || QSpell.State == SpellState.Surpressed) &&
                         ((Environment.TickCount - E.LastCastAttemptT < Game.Ping + 500 &&
                           Environment.TickCount - E.LastCastAttemptT > Game.Ping + 50) || E.IsReady()))
                     {
-                        if (Environment.TickCount - W.LastCastAttemptT > Game.Ping + 300 || eSpell.State == SpellState.Cooldown || !W.IsReady())
+                        if (Environment.TickCount - W.LastCastAttemptT > Game.Ping + 300 || ESpell.State == SpellState.Cooldown || !W.IsReady())
                         {
                             Vector3 qVec = Player.ServerPosition +
                                            Vector3.Normalize(Game.CursorPos - Player.ServerPosition) * 800;
@@ -357,7 +337,7 @@ namespace xSaliceReligionAIO.Champions
                         }
                     }
 
-                    if ((E.IsReady() || eSpell.State == SpellState.Surpressed))
+                    if ((E.IsReady() || ESpell.State == SpellState.Surpressed))
                     {
                         if (Player.Distance(Game.CursorPos) > GetNearestSoilderToMouse().Position.Distance(Game.CursorPos) && Environment.TickCount - Q.LastCastAttemptT > Game.Ping)
                         {
@@ -366,7 +346,7 @@ namespace xSaliceReligionAIO.Champions
                             //Game.PrintChat("Rawr2");
                             return;
                         }
-                        if (Environment.TickCount - W.LastCastAttemptT < Game.Ping + 300 && (Q.IsReady() || qSpell.State == SpellState.Surpressed))
+                        if (Environment.TickCount - W.LastCastAttemptT < Game.Ping + 300 && (Q.IsReady() || QSpell.State == SpellState.Surpressed))
                         {
                             E.Cast(wVec, packets());
                             E.LastCastAttemptT = Environment.TickCount - 250;
@@ -377,42 +357,33 @@ namespace xSaliceReligionAIO.Champions
             }
             else
             {
-                if (E.IsReady() || eSpell.State == SpellState.Surpressed)
+                if (E.IsReady() || ESpell.State == SpellState.Surpressed)
                 {
-                    if (soilderCount() > 0)
-                    {
-                        Vector3 qVec = Player.ServerPosition +
-                                       Vector3.Normalize(Game.CursorPos - Player.ServerPosition) * 800;
-
-                        var slave = GetNearestSoilderToMouse();
-
-                        var delay = (int)Math.Ceiling(Player.Distance(slave.Position));
-
-                        if (QExtend.IsReady() || qSpell.State == SpellState.Surpressed)
-                            Q.Cast(qVec, packets());
-
-                        Utility.DelayAction.Add(delay,
-                            () => E.Cast(GetNearestSoilderToMouse().Position, packets()));
+                    if (!W.IsReady())
                         return;
-                    }
-                    if (W.IsReady())
-                    {
+
                         W.Cast(wVec);
 
-                        if (E.IsReady() || eSpell.State == SpellState.Surpressed)
-                            E.Cast(wVec, packets());
+                    if (GetNearestSoilderToMouse() == null)
+                        return;
 
-                        if (QExtend.IsReady() || qSpell.State == SpellState.Surpressed)
-                        {
-                            Vector3 qVec = Player.ServerPosition +
-                                           Vector3.Normalize(Game.CursorPos - Player.ServerPosition) * 800;
+                    var nearSlave = GetNearestSoilderToMouse();
 
-                            Utility.DelayAction.Add(300, () => Q.Cast(qVec, packets()));
-                        }
+                    if (E.IsReady() || ESpell.State == SpellState.Surpressed)
+                        E.Cast(nearSlave.Position, packets());
+
+                    if (QExtend.IsReady() || QSpell.State == SpellState.Surpressed)
+                    {
+                        var vecPoint = wVec + Vector3.Normalize(_point - wVec) * Q.Range;
+                        var delay = menu.Item("escapeDelay", true).GetValue<Slider>().Value;
+                        Vector3 wVec2 = Player.ServerPosition - Vector3.Normalize(Game.CursorPos - Player.ServerPosition) * 450;
+                        Player.IssueOrder(GameObjectOrder.MoveTo, wVec2);
+                        Utility.DelayAction.Add(delay, () => Q.Cast(_point, packets()));
                     }
                 }
             }
         }
+
 
         private GameObject GetNearestSoilderToMouse()
         {
@@ -428,7 +399,7 @@ namespace xSaliceReligionAIO.Champions
         {
             if (soilderCount() > 0)
             {
-                if ((Q.IsReady() || qSpell.State == SpellState.Surpressed) && E.IsReady())
+                if ((Q.IsReady() || QSpell.State == SpellState.Surpressed) && E.IsReady())
                 {
                     var slaves = xSLxOrbwalker.Soilders.ToList();
 
@@ -458,7 +429,7 @@ namespace xSaliceReligionAIO.Champions
 
                 var qPred = GetP(wVec, QExtend, target, true);
 
-                if ((Q.IsReady() || qSpell.State == SpellState.Surpressed) && (E.IsReady() || eSpell.State == SpellState.Surpressed) && Player.Distance(target) < 800 && qPred.Hitchance >= getQHitchance())
+                if ((Q.IsReady() || QSpell.State == SpellState.Surpressed) && (E.IsReady() || ESpell.State == SpellState.Surpressed) && Player.Distance(target) < 800 && qPred.Hitchance >= getQHitchance())
                 {
                     var vec = target.ServerPosition - Player.ServerPosition;
                     var castBehind = qPred.CastPosition + Vector3.Normalize(vec) * 75;
@@ -479,7 +450,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (soilderCount() > 0)
             {
-                if ((Q.IsReady() || qSpell.State == SpellState.Surpressed) && E.IsReady())
+                if ((Q.IsReady() || QSpell.State == SpellState.Surpressed) && E.IsReady())
                 {
                     var slaves = xSLxOrbwalker.Soilders.ToList();
 
@@ -492,7 +463,7 @@ namespace xSaliceReligionAIO.Champions
                             var castBehind = qPred.CastPosition + Vector3.Normalize(vec) * 75;
                             _rVec = qPred.CastPosition - Vector3.Normalize(vec) * 300;
 
-                            if (Q.IsReady() && (E.IsReady() || eSpell.State == SpellState.Surpressed) && R.IsReady() && qPred.Hitchance >= getQHitchance())
+                            if (Q.IsReady() && (E.IsReady() || ESpell.State == SpellState.Surpressed) && R.IsReady() && qPred.Hitchance >= getQHitchance())
                             {
 
                                 Q.Cast(castBehind, packets());
@@ -517,7 +488,7 @@ namespace xSaliceReligionAIO.Champions
 
                 var qPred = GetP(wVec, QExtend, target, true);
 
-                if ((Q.IsReady() || qSpell.State == SpellState.Surpressed) && (E.IsReady() || eSpell.State == SpellState.Surpressed)
+                if ((Q.IsReady() || QSpell.State == SpellState.Surpressed) && (E.IsReady() || ESpell.State == SpellState.Surpressed)
                     && R.IsReady() && Player.Distance(target) < 800 && qPred.Hitchance >= getQHitchance())
                 {
                     var vec = target.ServerPosition - Player.ServerPosition;
@@ -546,7 +517,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (Player.Distance(target) < 1150 && Player.Distance(target) > 450)
             {
-                if (W.IsReady() && (Q.IsReady() || qSpell.State == SpellState.Surpressed))
+                if (W.IsReady() && (Q.IsReady() || QSpell.State == SpellState.Surpressed))
                 {
                     Vector3 wVec = Player.ServerPosition + Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * 450;
 
@@ -594,7 +565,7 @@ namespace xSaliceReligionAIO.Champions
                     Vector3 wVec = Player.ServerPosition + Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * 450;
 
                     //Game.PrintChat("W Cast2");
-                    if (W.IsReady() && (Q.IsReady() || qSpell.State == SpellState.Surpressed))
+                    if (W.IsReady() && (Q.IsReady() || QSpell.State == SpellState.Surpressed))
                     {
                         var qPred = GetP(wVec, QExtend, target, true);
 
@@ -818,7 +789,7 @@ namespace xSaliceReligionAIO.Champions
             var min = menu.Item("qFarm", true).GetValue<Slider>().Value;
 
 
-            if (useQ && (Q.IsReady() || qSpell.State == SpellState.Surpressed))
+            if (useQ && (Q.IsReady() || QSpell.State == SpellState.Surpressed))
             {
                 int hit;
                 if (soilderCount() > 0)
@@ -874,12 +845,19 @@ namespace xSaliceReligionAIO.Champions
             }
         }
 
+        private Vector3 _point;
+
         protected override void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
             if (Player.IsDead) return;
 
             SmartKs();
+
+            if (menu.Item("point", true).GetValue<KeyBind>().Active)
+            {
+                _point = Game.CursorPos;
+            }
 
             if (menu.Item("escape", true).GetValue<KeyBind>().Active)
             {
@@ -920,6 +898,11 @@ namespace xSaliceReligionAIO.Champions
                 if (menu.Item("wAtk", true).GetValue<bool>())
                     AutoAtk();
             }
+
+            if (Player.Distance(_point) > QExtend.Range + W.Range)
+            {
+                _point = Vector3.Zero;
+            }
         }
 
         protected override void Drawing_OnDraw(EventArgs args)
@@ -938,7 +921,7 @@ namespace xSaliceReligionAIO.Champions
                 foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != Player.Team && enemy.IsValid && !enemy.IsDead))
                 {
                     var wtsz = Drawing.WorldToScreen(enemy.Position);
-                    Drawing.DrawText(wtsz[0], wtsz[1], Color.White, "AA To Kill: " + Math.Ceiling((enemy.Health / GetAutoDmg(enemy))));
+                    Drawing.DrawText(wtsz[0], wtsz[1], Color.White, "AA To Kill: " + Math.Ceiling((enemy.Health / xSLxOrbwalker.GetAzirAaSandwarriorDamage(enemy))));
                 }
             }
 
@@ -947,8 +930,17 @@ namespace xSaliceReligionAIO.Champions
                 Drawing.DrawText(wts[0] - 20, wts[1], Color.White, "Q If 2+ Soldier");
             else
                 Drawing.DrawText(wts[0] - 20, wts[1], Color.Red, "Q If 2+ Soldier");
-            
 
+            if (_point != Vector3.Zero && !menu.Item("fastEscape", true).GetValue<bool>())
+            {
+                var vec = Player.ServerPosition + Vector3.Normalize(Game.CursorPos - Player.ServerPosition)*450;
+                var wts1 = Drawing.WorldToScreen(vec);
+                var wts2 = Drawing.WorldToScreen(_point);
+                var wts3 = Drawing.WorldToScreen(Player.Position);
+                Drawing.DrawLine(wts3, wts1, 1, Color.Green);
+                Drawing.DrawLine(wts1, wts2, 1, Color.Green);
+                Render.Circle.DrawCircle(_point, 50, Color.Yellow);
+            }
         }
 
         protected override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)

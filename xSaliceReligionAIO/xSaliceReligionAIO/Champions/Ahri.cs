@@ -14,13 +14,13 @@ namespace xSaliceReligionAIO.Champions
         {
             //Set up mana
             //Q
-            qMana = new[] {55, 55, 60, 65, 70, 75};
+            QMana = new[] {55, 55, 60, 65, 70, 75};
             //W
-            wMana = new[] { 50, 50, 50, 50, 50, 50 };
+            WMana = new[] { 50, 50, 50, 50, 50, 50 };
             //E
-            eMana = new[] { 85, 85, 85, 85, 85, 85 };
+            EMana = new[] { 85, 85, 85, 85, 85, 85 };
             //R
-            rMana = new[] { 100, 100, 100, 100 };
+            RMana = new[] { 100, 100, 100, 100 };
    
             //set up spells
             SetUpSpells();
@@ -166,7 +166,7 @@ namespace xSaliceReligionAIO.Champions
                 damage += Player.GetSpellDamage(enemy, SpellSlot.Q, 1);
             }
 
-            if (DFG.IsReady())
+            if (Dfg.IsReady())
                 damage += Player.GetItemDamage(enemy, Damage.DamageItems.Dfg) / 1.2;
 
             if (W.IsReady())
@@ -418,7 +418,7 @@ namespace xSaliceReligionAIO.Champions
 
         private bool ShouldR(Obj_AI_Hero target)
         {
-            if (!manaCheck())
+            if (!ManaCheck())
                 return false;
 
             Vector3 dashVector = Player.Position + Vector3.Normalize(Game.CursorPos - Player.Position) * 425;

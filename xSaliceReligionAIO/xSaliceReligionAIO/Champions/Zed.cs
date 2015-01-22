@@ -278,7 +278,7 @@ namespace xSaliceReligionAIO.Champions
                             if (useW)
                                 Cast_W("Combo", useQ, useE);
                         }
-                        if (useQ && (!W.IsReady() || wSpell.ToggleState == 2))
+                        if (useQ && (!W.IsReady() || WSpell.ToggleState == 2))
                         {
                             Cast_Q();
                         }
@@ -293,7 +293,7 @@ namespace xSaliceReligionAIO.Champions
                     if(target == null)
                         return;
 
-                    if (menu.Item("W_Follow_Combo", true).GetValue<bool>() && wSpell.ToggleState == 2 && Player.Distance(target) > WShadow.Distance(target) && HasBuff(target, "zedulttargetmark"))
+                    if (menu.Item("W_Follow_Combo", true).GetValue<bool>() && WSpell.ToggleState == 2 && Player.Distance(target) > WShadow.Distance(target) && HasBuff(target, "zedulttargetmark"))
                         W.Cast(packets());
 
                     break;
@@ -400,7 +400,7 @@ namespace xSaliceReligionAIO.Champions
                             if (useW)
                                 Cast_W("Combo", useQ, useE);
                         }
-                        if (useQ && (!W.IsReady() || wSpell.ToggleState == 2))
+                        if (useQ && (!W.IsReady() || WSpell.ToggleState == 2))
                         {
                             Cast_Q();
                         }
@@ -415,7 +415,7 @@ namespace xSaliceReligionAIO.Champions
                     if(target == null)
                         return;
 
-                    if (menu.Item("W_Follow_Combo", true).GetValue<bool>() && wSpell.ToggleState == 2 && Player.Distance(target) > WShadow.Distance(target) && HasBuff(target, "zedulttargetmark"))
+                    if (menu.Item("W_Follow_Combo", true).GetValue<bool>() && WSpell.ToggleState == 2 && Player.Distance(target) > WShadow.Distance(target) && HasBuff(target, "zedulttargetmark"))
                         W.Cast(packets());
                     break;
 
@@ -438,7 +438,7 @@ namespace xSaliceReligionAIO.Champions
             if (GetMarked() != null)
                 target = GetMarked();
 
-            if (W.IsReady() && wSpell.ToggleState == 0)
+            if (W.IsReady() && WSpell.ToggleState == 0)
             {
                 Cast_W("Coax", useQ, useE);
                 _coaxDelay = Environment.TickCount + 500;
@@ -453,7 +453,7 @@ namespace xSaliceReligionAIO.Champions
             }
             else
             {
-                if (useQ && (_qCooldown - Game.Time) > (qSpell.Cooldown / 3))
+                if (useQ && (_qCooldown - Game.Time) > (QSpell.Cooldown / 3))
                     return;
                 if (useE && !E.IsReady())
                     return;
@@ -461,7 +461,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (WShadow != null && HasEnergy(Q.IsReady() && useQ, false, E.IsReady() && useE) && Environment.TickCount - _coaxDelay > 0)
             {
-                if (wSpell.ToggleState == 2 && WShadow.Distance(target) < R.Range)
+                if (WSpell.ToggleState == 2 && WShadow.Distance(target) < R.Range)
                 {
                     W.Cast(packets());
                     Utility.DelayAction.Add(50, () => R.Cast(target, packets()));
@@ -487,7 +487,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 var pred = Prediction.GetPrediction(target, 250f);
 
-                if (Environment.TickCount - R.LastCastAttemptT > Game.Ping && rSpell.ToggleState == 0 && W.IsReady())
+                if (Environment.TickCount - R.LastCastAttemptT > Game.Ping && RSpell.ToggleState == 0 && W.IsReady())
                 {
                     R.Cast(target, packets());
                     R.LastCastAttemptT = Environment.TickCount + 300;
@@ -497,7 +497,7 @@ namespace xSaliceReligionAIO.Champions
                 if (HasBuff(target, "zedulttargetmark"))
                 {
 
-                    if (wSpell.ToggleState == 0 && W.IsReady() && Environment.TickCount - R.LastCastAttemptT > 0 && Environment.TickCount - W.LastCastAttemptT > Game.Ping)
+                    if (WSpell.ToggleState == 0 && W.IsReady() && Environment.TickCount - R.LastCastAttemptT > 0 && Environment.TickCount - W.LastCastAttemptT > Game.Ping)
                     {
                         var dist = menu.Item("R_Place_line", true).GetValue<Slider>().Value;
                         var behindVector = Player.ServerPosition - Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * dist;
@@ -527,7 +527,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (RShadow != null)
             {
-                if (GetHealthPercent() < rHp && rSpell.ToggleState == 2 && countEnemiesNearPosition(RShadow.ServerPosition, 400) < 1)
+                if (GetHealthPercent() < rHp && RSpell.ToggleState == 2 && countEnemiesNearPosition(RShadow.ServerPosition, 400) < 1)
                 {
                     R.Cast(packets());
                     return;
@@ -536,7 +536,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (WShadow != null)
             {
-                if (GetHealthPercent() < wHp && wSpell.ToggleState == 2 && countEnemiesNearPosition(WShadow.ServerPosition, 400) < 1)
+                if (GetHealthPercent() < wHp && WSpell.ToggleState == 2 && countEnemiesNearPosition(WShadow.ServerPosition, 400) < 1)
                     W.Cast(packets());
             }
         }
@@ -549,7 +549,7 @@ namespace xSaliceReligionAIO.Champions
                 {
                     Cast_W("Harass", useQ, useE);
 
-                    if (useQ && (!W.IsReady() || wSpell.ToggleState == 2))
+                    if (useQ && (!W.IsReady() || WSpell.ToggleState == 2))
                     {
                         //Game.PrintChat("RAWR");
                         Cast_Q();
@@ -722,7 +722,7 @@ namespace xSaliceReligionAIO.Champions
             if (Q.Level < 1)
                 useQ = false;
 
-            if (wSpell.ToggleState == 0 && W.IsReady() && Environment.TickCount - W.LastCastAttemptT > 0)
+            if (WSpell.ToggleState == 0 && W.IsReady() && Environment.TickCount - W.LastCastAttemptT > 0)
             {
                 if (Player.Distance(target) < W.Range + target.BoundingRadius)
                 {
@@ -904,9 +904,9 @@ namespace xSaliceReligionAIO.Champions
             {
                 var vec = Player.ServerPosition + (Game.CursorPos - Player.ServerPosition)*W.Range;
 
-                if (wSpell.ToggleState == 0)
+                if (WSpell.ToggleState == 0)
                     W.Cast(vec);
-                else if(wSpell.ToggleState == 2)
+                else if(WSpell.ToggleState == 2)
                     W.Cast(packets());
             }
             else if (menu.Item("ComboActive", true).GetValue<KeyBind>().Active)
@@ -935,7 +935,7 @@ namespace xSaliceReligionAIO.Champions
         {
             if (unit.IsEnemy && (unit is Obj_AI_Hero))
             {
-                if (Player.Distance(args.End) > R.Range || !R.IsReady() || rSpell.ToggleState == 2)
+                if (Player.Distance(args.End) > R.Range || !R.IsReady() || RSpell.ToggleState == 2)
                     return;
 
                 if (menu.Item(args.SData.Name + "R_Dodge", true).GetValue<bool>() && args.SData.Name == "SyndraR")
@@ -952,7 +952,7 @@ namespace xSaliceReligionAIO.Champions
                 return;
 
             if (args.SData.Name == "ZedShuriken")
-                _qCooldown = Game.Time + qSpell.Cooldown;
+                _qCooldown = Game.Time + QSpell.Cooldown;
 
             if (args.SData.Name == "ZedShadowDash")
             {
@@ -1029,7 +1029,7 @@ namespace xSaliceReligionAIO.Champions
 
             if (sender.Name == "Zed_Base_R_buf_tell.troy")
             {
-                if (rSpell.ToggleState == 2 && RShadow != null && menu.Item("R_Back", true).GetValue<bool>())
+                if (RSpell.ToggleState == 2 && RShadow != null && menu.Item("R_Back", true).GetValue<bool>())
                     Utility.DelayAction.Add(500, () => R.Cast(packets()));
             }
 

@@ -12,10 +12,10 @@ namespace xSaliceReligionAIO.Champions
     {
         public Veigar()
         {
-            qMana = new []{60, 60, 65, 70, 75, 80};
-            wMana = new []{70, 70, 80, 90, 100, 110};
-            eMana = new []{80, 80, 90, 100, 110, 120};
-            rMana = new []{125, 125, 175, 225};
+            QMana = new []{60, 60, 65, 70, 75, 80};
+            WMana = new []{70, 70, 80, 90, 100, 110};
+            EMana = new []{80, 80, 90, 100, 110, 120};
+            RMana = new []{125, 125, 175, 225};
             LoadSpell();
             LoadMenu();
         }
@@ -182,7 +182,7 @@ namespace xSaliceReligionAIO.Champions
 
             int dfgMode = menu.Item("DFGMode", true).GetValue<StringList>().SelectedIndex;
 
-            bool hasMana = manaCheck2();
+            bool hasMana = ManaCheck2();
 
             float dmg = GetComboDamage(target);
             var waitW = menu.Item("waitW", true).GetValue<bool>();
@@ -316,7 +316,7 @@ namespace xSaliceReligionAIO.Champions
                 return;
 
             //DFG + R
-            if (DFG.IsReady() && R.IsReady() && Player.Distance(target.ServerPosition) < R.Range &&
+            if (Dfg.IsReady() && R.IsReady() && Player.Distance(target.ServerPosition) < R.Range &&
                 Player.GetItemDamage(target, Damage.DamageItems.Dfg) +
                 (Player.GetSpellDamage(target, SpellSlot.R) * 1.2) > target.Health + 50)
             {
@@ -413,7 +413,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 Vector2 wts = Drawing.WorldToScreen(Player.Position);
 
-                Drawing.DrawText(wts[0] - 30, wts[1], Color.White, manaCheck2() ? "Mana Rdy" : "No Mana Full Combo");
+                Drawing.DrawText(wts[0] - 30, wts[1], Color.White, ManaCheck2() ? "Mana Rdy" : "No Mana Full Combo");
             }
         }
 

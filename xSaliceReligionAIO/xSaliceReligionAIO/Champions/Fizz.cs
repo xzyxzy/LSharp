@@ -328,7 +328,7 @@ namespace xSaliceReligionAIO.Champions
                             Q.CastOnUnit(target, packets());
                             return;
                         }
-                        if(Player.Distance(target) < range && !target.UnderTurret() && target.CountEnemysInRange(600) < 2 && E.IsReady())
+                        if(Player.Distance(target) < range && !target.UnderTurret() && target.CountEnemiesInRange(600) < 2 && E.IsReady())
                         {
                             E.Cast(target);
                             Obj_AI_Hero target1 = target;
@@ -346,7 +346,7 @@ namespace xSaliceReligionAIO.Champions
                         return;
                     }
 
-                    if (Player.Distance(target) < E.Range * 2 - 50 && E.IsReady() && E.IsKillable(target) && !target.UnderTurret() && target.CountEnemysInRange(600) < 2)
+                    if (Player.Distance(target) < E.Range * 2 - 50 && E.IsReady() && E.IsKillable(target) && !target.UnderTurret() && target.CountEnemiesInRange(600) < 2)
                     {
                         CastE(target);
                         return;

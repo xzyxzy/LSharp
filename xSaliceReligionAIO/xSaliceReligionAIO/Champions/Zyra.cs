@@ -128,7 +128,7 @@ namespace xSaliceReligionAIO.Champions
             if (Q.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.Q)*2;
 
-            if (DFG.IsReady())
+            if (Dfg.IsReady())
                 damage += Player.GetItemDamage(enemy, Damage.DamageItems.Dfg) / 1.2;
 
             if (E.IsReady())
@@ -137,7 +137,7 @@ namespace xSaliceReligionAIO.Champions
             if (R.IsReady())
                 damage += Player.GetSpellDamage(enemy, SpellSlot.R) * 3;
 
-            if (DFG.IsReady())
+            if (Dfg.IsReady())
                 damage = damage * 1.2;
 
             damage = ActiveItems.CalcDamage(enemy, damage);

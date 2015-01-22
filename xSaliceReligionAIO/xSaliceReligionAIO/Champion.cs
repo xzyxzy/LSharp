@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using LeagueSharp;
 using LeagueSharp.Common;
-using Microsoft.Win32.SafeHandles;
 using SharpDX;
 
 namespace xSaliceReligionAIO
 {
     class Champion
     {
-        public Champion()
+        protected Champion()
         {
             //Events
             Game.OnGameUpdate += Game_OnGameUpdate;
@@ -42,56 +40,52 @@ namespace xSaliceReligionAIO
         public Champion(bool load)
         {
             if(load)
-                GameOnLoad();;
+                GameOnLoad();
         }
 
         //Orbwalker instance
-        public Orbwalking.Orbwalker Orbwalker;
+        private Orbwalking.Orbwalker _orbwalker;
 
         //Player instance
-        public Obj_AI_Hero Player = ObjectManager.Player;
-        public Obj_AI_Hero SelectedTarget = null;
+        protected readonly Obj_AI_Hero Player = ObjectManager.Player;
 
         //Spells
-        public List<Spell> SpellList = new List<Spell>();
+        protected readonly List<Spell> SpellList = new List<Spell>();
 
-        public Spell P;
-        public Spell Q;
-        public Spell Q2;
-        public Spell QExtend;
-        public Spell W;
-        public Spell W2;
-        public Spell E;
-        public Spell E2;
-        public Spell R;
-        public Spell _r2;
-        public SpellDataInst qSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q);
-        public SpellDataInst eSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E);
-        public SpellDataInst wSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W);
-        public SpellDataInst rSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R);
+        protected Spell P;
+        protected Spell Q;
+        protected Spell Q2;
+        protected Spell QExtend;
+        protected Spell W;
+        protected Spell W2;
+        protected Spell E;
+        protected Spell E2;
+        protected Spell R;
+        protected Spell R2;
+        protected readonly SpellDataInst QSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q);
+        protected readonly SpellDataInst ESpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E);
+        protected readonly SpellDataInst WSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W);
+        protected readonly SpellDataInst RSpell = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R);
 
         //summoners
-        public SpellSlot IgniteSlot = ObjectManager.Player.GetSpellSlot("SummonerDot");
+        private readonly SpellSlot _igniteSlot = ObjectManager.Player.GetSpellSlot("SummonerDot");
         
         //items
-        public Items.Item DFG = Utility.Map.GetMap().Type == Utility.Map.MapType.TwistedTreeline ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
-        public Items.Item Botrk = new Items.Item(3153, 450);
-        public Items.Item Bilge = new Items.Item(3144, 450);
-        public Items.Item Hex = new Items.Item(3146, 700);
-        public int lastPlaced;
-        public Vector3 lastWardPos;
+        protected readonly Items.Item Dfg = Utility.Map.GetMap().Type == Utility.Map.MapType.TwistedTreeline ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
+        protected int LastPlaced;
+        protected Vector3 LastWardPos;
 
         //Mana Manager
-        public int[] qMana = { 0, 0, 0, 0, 0, 0 };
-        public int[] wMana = { 0, 0, 0, 0, 0, 0 };
-        public int[] eMana = { 0, 0, 0, 0, 0, 0 };
-        public int[] rMana = { 0, 0, 0, 0, 0, 0 };
+        protected int[] QMana = { 0, 0, 0, 0, 0, 0 };
+        protected int[] WMana = { 0, 0, 0, 0, 0, 0 };
+        protected int[] EMana = { 0, 0, 0, 0, 0, 0 };
+        protected int[] RMana = { 0, 0, 0, 0, 0, 0 };
 
         //Menu
-        public static Menu menu;
-        public static Menu orbwalkerMenu = new Menu("Orbwalker", "Orbwalker");
+        protected static Menu menu;
+        private static readonly Menu OrbwalkerMenu = new Menu("Orbwalker", "Orbwalker");
 
-        public void GameOnLoad()
+        private void GameOnLoad()
         {
             Game.PrintChat("<font color = \"#FFB6C1\">xSalice's Religion AIO</font> by <font color = \"#00FFFF\">xSalice</font>");
             Game.PrintChat("<font color = \"#87CEEB\">Feel free to donate via Paypal to:</font> <font color = \"#FFFF00\">xSalicez@gmail.com</font>");
@@ -109,9 +103,9 @@ namespace xSaliceReligionAIO
             menu.AddSubMenu(targetSelectorMenu);
 
             //Orbwalker submenu
-            orbwalkerMenu.AddItem(new MenuItem("Orbwalker_Mode", "Change Orbwalker", true).SetValue(false));
-            menu.AddSubMenu(orbwalkerMenu);
-            chooseOrbwalker(menu.Item("Orbwalker_Mode", true).GetValue<bool>());
+            OrbwalkerMenu.AddItem(new MenuItem("Orbwalker_Mode", "Change Orbwalker", true).SetValue(false));
+            menu.AddSubMenu(OrbwalkerMenu);
+            ChooseOrbwalker(menu.Item("Orbwalker_Mode", true).GetValue<bool>());
 
             //Packet Menu
             menu.AddSubMenu(new Menu("Packet Setting", "Packets"));
@@ -137,74 +131,60 @@ namespace xSaliceReligionAIO
             }
         }
 
-        public void chooseOrbwalker(bool mode)
+        private void ChooseOrbwalker(bool mode)
         {
             if (Player.ChampionName == "Azir")
             {
-                xSLxOrbwalker.AddToMenu(orbwalkerMenu);
+                xSLxOrbwalker.AddToMenu(OrbwalkerMenu);
                 Game.PrintChat("xSLx Orbwalker Loaded");
                 return;
             }
 
             if (mode)
             {
-                Orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
+                _orbwalker = new Orbwalking.Orbwalker(OrbwalkerMenu);
                 Game.PrintChat("Regular Orbwalker Loaded");
             }
             else
             {
-                xSLxOrbwalker.AddToMenu(orbwalkerMenu);
+                xSLxOrbwalker.AddToMenu(OrbwalkerMenu);
                 Game.PrintChat("xSLx Orbwalker Loaded");
             }
         }
-        public bool packets()
+        protected bool packets()
         {
             return menu.Item("packet", true).GetValue<bool>();
         }
 
-        public void Use_DFG(Obj_AI_Hero target)
+        protected void Use_DFG(Obj_AI_Hero target)
         {
-            if (target != null && Player.Distance(target) < 750 && Items.CanUseItem(DFG.Id))
-                Items.UseItem(DFG.Id, target);
+            if (target != null && Player.Distance(target) < 750 && Items.CanUseItem(Dfg.Id))
+                Items.UseItem(Dfg.Id, target);
         }
 
-        public bool Ignite_Ready()
+        protected bool Ignite_Ready()
         {
-            if (IgniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (_igniteSlot != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
                 return true;
             return false;
         }
-        public static bool IsInsideEnemyTower(Vector3 position)
-        {
-            return ObjectManager.Get<Obj_AI_Turret>()
-                                    .Any(tower => tower.IsEnemy && tower.Health > 0 && tower.Position.Distance(position) < 775);
-        }
-        public float GetManaPercent(Obj_AI_Hero unit = null)
-        {
-            if (unit == null)
-                unit = Player;
-            return (unit.Mana / unit.MaxMana) * 100f;
-        }
-        public float GetHealthPercent(Obj_AI_Hero unit = null)
+        protected float GetHealthPercent(Obj_AI_Hero unit = null)
         {
             if (unit == null)
                 unit = Player;
             return (unit.Health / unit.MaxHealth) * 100f;
         }
-        public bool HasBuff(Obj_AI_Base target, string buffName)
+        protected bool HasBuff(Obj_AI_Base target, string buffName)
         {
             return target.Buffs.Any(buff => buff.Name == buffName);
         }
-        public bool IsWall(Vector2 pos)
+
+        private bool IsWall(Vector2 pos)
         {
             return (NavMesh.GetCollisionFlags(pos.X, pos.Y) == CollisionFlags.Wall ||
                     NavMesh.GetCollisionFlags(pos.X, pos.Y) == CollisionFlags.Building);
         }
-        public Vector2 V2E(Vector3 from, Vector3 direction, float distance)
-        {
-            return from.To2D() + distance * Vector3.Normalize(direction - from).To2D();
-        }
-        public bool IsPassWall(Vector3 start, Vector3 end)
+        protected bool IsPassWall(Vector3 start, Vector3 end)
         {
             double count = Vector3.Distance(start, end);
             for (uint i = 0; i <= count; i += 25)
@@ -215,23 +195,23 @@ namespace xSaliceReligionAIO
             }
             return false;
         }
-        public int countEnemiesNearPosition(Vector3 pos, float range)
+        protected int countEnemiesNearPosition(Vector3 pos, float range)
         {
             return
                 ObjectManager.Get<Obj_AI_Hero>().Count(
                     hero => hero.IsEnemy && !hero.IsDead && hero.IsValid && hero.Distance(pos) <= range);
         }
 
-        public int countAlliesNearPosition(Vector3 pos, float range)
+        protected int countAlliesNearPosition(Vector3 pos, float range)
         {
             return
                 ObjectManager.Get<Obj_AI_Hero>().Count(
                     hero => hero.IsAlly && !hero.IsDead && hero.IsValid && hero.Distance(pos) <= range);
         }
 
-        public bool manaCheck()
+        protected bool ManaCheck()
         {
-            int totalMana = qMana[Q.Level] + wMana[W.Level] + eMana[E.Level] + rMana[R.Level];
+            int totalMana = QMana[Q.Level] + WMana[W.Level] + EMana[E.Level] + RMana[R.Level];
             var checkMana = menu.Item("mana", true).GetValue<bool>();
 
             if (Player.Mana >= totalMana || !checkMana)
@@ -240,9 +220,9 @@ namespace xSaliceReligionAIO
             return false;
         }
 
-        public bool manaCheck2()
+        protected bool ManaCheck2()
         {
-            int totalMana = qMana[Q.Level] + wMana[W.Level] + eMana[E.Level] + rMana[R.Level];
+            int totalMana = QMana[Q.Level] + WMana[W.Level] + EMana[E.Level] + RMana[R.Level];
 
             if (Player.Mana >= totalMana)
                 return true;
@@ -250,7 +230,7 @@ namespace xSaliceReligionAIO
             return false;
         }
 
-        public bool IsStunned(Obj_AI_Base target)
+        protected bool IsStunned(Obj_AI_Base target)
         {
             if (target.HasBuffOfType(BuffType.Stun) || target.HasBuffOfType(BuffType.Snare) ||
                 target.HasBuffOfType(BuffType.Suppression) || target.HasBuffOfType(BuffType.Taunt))
@@ -258,12 +238,12 @@ namespace xSaliceReligionAIO
 
             return false;
         }
-        public bool IsRecalling()
+        protected bool IsRecalling()
         {
             return Player.HasBuff("Recall");
         }
 
-        public PredictionOutput GetP(Vector3 pos, Spell spell, Obj_AI_Base target, float delay, bool aoe)
+        protected PredictionOutput GetP(Vector3 pos, Spell spell, Obj_AI_Base target, float delay, bool aoe)
         {
             return Prediction.GetPrediction(new PredictionInput
             {
@@ -280,7 +260,7 @@ namespace xSaliceReligionAIO
             });
         }
 
-        public PredictionOutput GetP(Vector3 pos, Spell spell, Obj_AI_Base target, bool aoe)
+        protected PredictionOutput GetP(Vector3 pos, Spell spell, Obj_AI_Base target, bool aoe)
         {
             return Prediction.GetPrediction(new PredictionInput
             {
@@ -296,25 +276,7 @@ namespace xSaliceReligionAIO
                 Aoe = aoe,
             });
         }
-
-        public PredictionOutput GetP2(Vector3 pos, Spell spell, Obj_AI_Base target, bool aoe)
-        {
-            return Prediction.GetPrediction(new PredictionInput
-            {
-                Unit = target,
-                Delay = spell.Delay,
-                Radius = spell.Width,
-                Speed = spell.Speed,
-                From = pos,
-                Range = spell.Range,
-                Collision = spell.Collision,
-                Type = spell.Type,
-                RangeCheckFrom = pos,
-                Aoe = aoe,
-            });
-        }
-
-        public PredictionOutput GetPCircle(Vector3 pos, Spell spell, Obj_AI_Base target, bool aoe)
+        protected PredictionOutput GetPCircle(Vector3 pos, Spell spell, Obj_AI_Base target, bool aoe)
         {
             return Prediction.GetPrediction(new PredictionInput
             {
@@ -331,7 +293,7 @@ namespace xSaliceReligionAIO
             });
         }
 
-        public Object[] VectorPointProjectionOnLineSegment(Vector2 v1, Vector2 v2, Vector2 v3)
+        protected Object[] VectorPointProjectionOnLineSegment(Vector2 v1, Vector2 v2, Vector2 v3)
         {
             float cx = v3.X;
             float cy = v3.Y;
@@ -355,28 +317,12 @@ namespace xSaliceReligionAIO
             {
                 rS = rL;
             }
-            bool isOnSegment;
-            if (rS.CompareTo(rL) == 0)
-            {
-                isOnSegment = true;
-            }
-            else
-            {
-                isOnSegment = false;
-            }
-            var pointSegment = new Vector2();
-            if (isOnSegment)
-            {
-                pointSegment = pointLine;
-            }
-            else
-            {
-                pointSegment = new Vector2(ax + rS * (bx - ax), ay + rS * (by - ay));
-            }
-            return new object[3] { pointSegment, pointLine, isOnSegment };
+            bool isOnSegment = rS.CompareTo(rL) == 0;
+            Vector2 pointSegment = isOnSegment ? pointLine : new Vector2(ax + rS * (bx - ax), ay + rS * (@by - ay));
+            return new object[] { pointSegment, pointLine, isOnSegment };
         }
 
-        public void CastBasicSkillShot(Spell spell, float range, TargetSelector.DamageType type, HitChance hitChance, bool towerCheck = false)
+        protected void CastBasicSkillShot(Spell spell, float range, TargetSelector.DamageType type, HitChance hitChance, bool towerCheck = false)
         {
             var target = TargetSelector.GetTarget(range, type);
 
@@ -392,7 +338,7 @@ namespace xSaliceReligionAIO
                 spell.Cast(target, packets());
         }
 
-        public void CastBasicFarm(Spell spell)
+        protected void CastBasicFarm(Spell spell)
         {
             if(!spell.IsReady())
 				return;
@@ -423,7 +369,7 @@ namespace xSaliceReligionAIO
             }
         }
 
-        public Obj_AI_Hero GetTargetFocus(float range)
+        protected Obj_AI_Hero GetTargetFocus(float range)
         {
             var focusSelected = menu.Item("selected", true).GetValue<bool>();
 
@@ -436,14 +382,14 @@ namespace xSaliceReligionAIO
             return null;
         }
 
-        public HitChance GetHitchance(string Source)
+        protected HitChance GetHitchance(string source)
         {
             var hitC = HitChance.High;
             int qHit = menu.Item("qHit", true).GetValue<Slider>().Value;
             int harassQHit = menu.Item("qHit2", true).GetValue<Slider>().Value;
 
             // HitChance.Low = 3, Medium , High .... etc..
-            if (Source == "Combo")
+            if (source == "Combo")
             {
                 switch (qHit)
                 {
@@ -461,7 +407,7 @@ namespace xSaliceReligionAIO
                         break;
                 }
             }
-            else if (Source == "Harass")
+            else if (source == "Harass")
             {
                 switch (harassQHit)
                 {
@@ -482,14 +428,14 @@ namespace xSaliceReligionAIO
 
             return hitC;
         }
-        public void AddManaManagertoMenu(Menu myMenu, String source, int standard)
+        protected void AddManaManagertoMenu(Menu myMenu, String source, int standard)
         {
             myMenu.AddItem(new MenuItem(source + "_Manamanager", "Mana Manager", true).SetValue(new Slider(standard)));
         }
 
-        public bool HasMana(string source)
+        protected bool HasMana(string source)
         {
-            if (GetManaPercent() > menu.Item(source + "_Manamanager", true).GetValue<Slider>().Value)
+            if (Player.ManaPercentage() > menu.Item(source + "_Manamanager", true).GetValue<Slider>().Value)
                 return true;
             return false;
         }

@@ -16,10 +16,10 @@ namespace xSaliceReligionAIO.Champions
 
         public Velkoz()
         {
-            qMana = new[] {40, 40, 45, 50, 55, 60};
-            wMana = new[] {50, 50, 55, 60, 65, 70};
-            eMana = new[] {50, 50, 55, 60, 65, 70};
-            rMana = new[] {100, 100, 100, 100};
+            QMana = new[] {40, 40, 45, 50, 55, 60};
+            WMana = new[] {50, 50, 55, 60, 65, 70};
+            EMana = new[] {50, 50, 55, 60, 65, 70};
+            RMana = new[] {100, 100, 100, 100};
 
             LoadSpell();
             LoadMenu();
