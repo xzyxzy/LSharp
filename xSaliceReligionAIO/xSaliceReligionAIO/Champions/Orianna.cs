@@ -473,14 +473,9 @@ namespace xSaliceReligionAIO.Champions
 
             int minHit = menu.Item("autoRCombo", true).GetValue<Slider>().Value;
 
-            int hit = 0;
-            foreach (Obj_AI_Hero champ in from champ in ObjectManager.Get<Obj_AI_Hero>() where champ.IsValidTarget(1500) && champ.IsVisible && !champ.IsZombie where champ != null let prediction = GetPCircle(_currentBallPosition, R, champ, true) where R.IsReady() && prediction.UnitPosition.Distance(_currentBallPosition) <= R.Width select champ)
-            {
-                if (Player.GetSpellDamage(champ, SpellSlot.R) > champ.Health + 25)
-                    hit += 2;
-                else
-                    hit++;
-            }
+            int hit = (from x in ObjectManager.Get<Obj_AI_Hero>().Where(champ => champ.IsValidTarget(1500) && champ.IsVisible && !champ.IsZombie)
+                       where x != null
+                       select GetPCircle(_currentBallPosition, R, x, true)).Count(prediction => R.IsReady() && prediction.UnitPosition.Distance(_currentBallPosition) < R.Width);
 
             if (hit >= minHit && R.IsReady())
                 R.Cast();
@@ -493,14 +488,10 @@ namespace xSaliceReligionAIO.Champions
 
             int minHit = menu.Item("autoR", true).GetValue<Slider>().Value;
 
-            int hit = 0;
-            foreach (Obj_AI_Hero champ in from champ in ObjectManager.Get<Obj_AI_Hero>() where champ.IsValidTarget(1500) && champ.IsVisible && !champ.IsZombie where champ != null let prediction = GetPCircle(_currentBallPosition, R, champ, true) where R.IsReady() && prediction.UnitPosition.Distance(_currentBallPosition) <= R.Width select champ)
-            {
-                if (Player.GetSpellDamage(champ, SpellSlot.R) > champ.Health + 25)
-                    hit += 2;
-                else
-                    hit++;
-            }
+            int hit = (from x in ObjectManager.Get<Obj_AI_Hero>().Where(champ => champ.IsValidTarget(1500) && champ.IsVisible && !champ.IsZombie)
+                       where x != null
+                       select GetPCircle(_currentBallPosition, R, x, true)).Count(prediction => R.IsReady() && prediction.UnitPosition.Distance(_currentBallPosition) < R.Width);
+
 
             if (hit >= minHit && R.IsReady())
                 R.Cast();

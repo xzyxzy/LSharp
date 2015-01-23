@@ -76,7 +76,6 @@ namespace xSaliceReligionAIO.Champions
                 //E Menu
                 var eMenu =  new Menu("ESpell", "ESpell");
                 {
-                    eMenu.AddItem(new MenuItem("eGap", "GapClose if out of Q Range",true).SetValue(false));
                     eMenu.AddItem(new MenuItem("eKill", "If Killable Combo",true).SetValue(false));
                     eMenu.AddItem(new MenuItem("eKnock", "Always Knockup/DMG",true).SetValue(false));
                     eMenu.AddItem(new MenuItem("eHP", "if HP >",true).SetValue(new Slider(100)));
@@ -134,7 +133,7 @@ namespace xSaliceReligionAIO.Champions
             var misc = new Menu("Misc", "Misc");
             {
                 misc.AddItem(new MenuItem("UseInt", "Use E to Interrupt",true).SetValue(true));
-                misc.AddItem(new MenuItem("UseGap", "Use E for GapCloser",true).SetValue(true));
+                misc.AddItem(new MenuItem("UseGap", "Use R for GapCloser",true).SetValue(true));
                 misc.AddItem(new MenuItem("fastEscape", "Fast Escape = on, Delay EQ Escape = off",true).SetValue(true));
                 misc.AddItem(new MenuItem("escapeDelay", "Escape Delay Decrease", true).SetValue(new Slider(0, 0, 300)));
                 menu.AddSubMenu(misc);
@@ -175,6 +174,9 @@ namespace xSaliceReligionAIO.Champions
 
         private float GetComboDamage(Obj_AI_Base enemy)
         {
+            if (enemy == null)
+                return 0;
+
             var damage = 0d;
 
             if (Q.IsReady())
@@ -212,6 +214,10 @@ namespace xSaliceReligionAIO.Champions
         {
             var qTarget = TargetSelector.GetTarget(QExtend.Range, TargetSelector.DamageType.Magical);
             var soilderTarget = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Magical);
+            var dmg = GetComboDamage(soilderTarget);
+
+            if (soilderTarget == null || qTarget == null)
+                return;
 
             //R
             if (useR && R.IsReady() && ShouldR(qTarget) && Player.Distance(qTarget) < R.Range)
@@ -239,27 +245,24 @@ namespace xSaliceReligionAIO.Champions
             //items
             if (source == "Combo")
             {
-                var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
-                var dmg = GetComboDamage(itemTarget);
-                if (itemTarget != null)
-                {
-                    ActiveItems.Target = itemTarget;
+                ActiveItems.Target = soilderTarget;
 
-                    //see if killable
-                    if (dmg > itemTarget.Health - 50)
-                        ActiveItems.KillableTarget = true;
+                //see if killable
+                if (dmg > soilderTarget.Health - 50)
+                    ActiveItems.KillableTarget = true;
 
-                    ActiveItems.UseTargetted = true;
-                }
+                ActiveItems.UseTargetted = true;
+                
             }
 
             //E
             if (useE && (E.IsReady() || ESpell.State == SpellState.Surpressed))
             {
                 CastE(soilderTarget);
+                //Game.PrintChat("RAWR");
             }
 
-
+            //Console.Clear();
             //AutoAtk
             //attackTarget(soilderTarget);
         }
@@ -544,18 +547,6 @@ namespace xSaliceReligionAIO.Champions
         {
             if (Player.Distance(target) < 1200)
             {
-                if (Player.Level > 11)
-                {
-                    Vector3 wVec = Player.ServerPosition + Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * 450;
-
-                    //Game.PrintChat("W Cast2");
-                    if (W.IsReady())
-                    {
-                        W.Cast(wVec);
-                        if (canAttack())
-                            Utility.DelayAction.Add(200, () => Player.IssueOrder(GameObjectOrder.AttackUnit, target));
-                    }
-                }
                 if (Player.Distance(target) < 600)
                 {
                     Vector3 wVec = Player.ServerPosition + Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * 450;
@@ -571,6 +562,15 @@ namespace xSaliceReligionAIO.Champions
                 else if (Player.Distance(target) < 950)
                 {
                     Vector3 wVec = Player.ServerPosition + Vector3.Normalize(target.ServerPosition - Player.ServerPosition) * 450;
+                    if (Player.Level > 10)
+                    {
+                        if (W.IsReady())
+                        {
+                            W.Cast(wVec);
+                            if (canAttack())
+                                Utility.DelayAction.Add(200, () => Player.IssueOrder(GameObjectOrder.AttackUnit, target));
+                        }
+                    }
 
                     //Game.PrintChat("W Cast2");
                     if (W.IsReady() && (Q.IsReady() || QSpell.State == SpellState.Surpressed))
@@ -624,20 +624,11 @@ namespace xSaliceReligionAIO.Champions
 
             var slaves = xSLxOrbwalker.Soilders.ToList();
 
-            if (Player.Distance(target) > 1200 && menu.Item("eGap", true).GetValue<bool>())
-            {
-                var slavetar = getNearestSoilderToEnemy(target);
-                if (slavetar != null && target.Distance(slavetar.Position) < Player.Distance(target))
-                {
-                    E.Cast(slavetar.Position, packets());
-                }
-            }
-
             foreach (var slave in slaves)
             {
                 if (target != null && Player.Distance(slave.Position) < E.Range)
                 {
-                    var ePred = GetP(slave.Position, E, target, true);
+                    var ePred = E.GetPrediction(target);
                     Object[] obj = VectorPointProjectionOnLineSegment(Player.ServerPosition.To2D(), slave.Position.To2D(), ePred.UnitPosition.To2D());
                     var isOnseg = (bool)obj[2];
                     var pointLine = (Vector2)obj[1];
@@ -649,6 +640,8 @@ namespace xSaliceReligionAIO.Champions
                     }
                 }
             }
+
+            Game.PrintChat("RAWR");
         }
 
         private bool ShouldQ(Obj_AI_Hero target, GameObject slave)
@@ -716,13 +709,14 @@ namespace xSaliceReligionAIO.Champions
 
         private void AutoAtk()
         {
-
             if (soilderCount() < 1)
                 return;
 
             var soilderTarget = TargetSelector.GetTarget(800, TargetSelector.DamageType.Magical);
 
             //Game.PrintChat("YEhhhhh");
+            if (soilderTarget == null)
+                return;
 
             AttackTarget(soilderTarget);
         }

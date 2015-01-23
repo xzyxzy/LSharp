@@ -147,10 +147,10 @@ namespace xSaliceReligionAIO
             //if(MyHero.Distance(sender.Position) < 500)
                 //Game.PrintChat("obj: " + sender.Name);
 
-            if (sender.Name == "Azir_Base_P_Soldier_Ring.troy")
+            if (sender.Name == "Azir_Base_P_Soldier_Ring.troy" && Soilders.Count > 0)
             {
                 //Game.PrintChat("Solider Deleted" + sender.NetworkId);
-                foreach (var minion in Soilders)
+                foreach (var minion in Soilders.ToList())
                 {
                     if (minion.NetworkId == sender.NetworkId)
                     {

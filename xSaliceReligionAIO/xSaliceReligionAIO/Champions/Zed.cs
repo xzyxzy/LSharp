@@ -115,6 +115,7 @@ namespace xSaliceReligionAIO.Champions
             {
                 misc.AddItem(new MenuItem("smartKS", "Use Smart KS System", true).SetValue(true));
                 misc.AddItem(new MenuItem("Use_W_KS", "Use W for KS", true).SetValue(true));
+                misc.AddItem(new MenuItem("AutoE", "Auto E in range", true).SetValue(true));
                 //add to menu
                 menu.AddSubMenu(misc);
             }
@@ -927,6 +928,17 @@ namespace xSaliceReligionAIO.Champions
                 if (menu.Item("HarassActive", true).GetValue<KeyBind>().Active)
                     Harass();
             }
+
+            if(E.IsReady() && menu.Item("AutoE", true).GetValue<bool>())
+                AutoE();
+        }
+
+        private void AutoE()
+        {
+            var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
+
+            if(target != null)
+                Cast_E(target);
         }
 
         private float _qCooldown;

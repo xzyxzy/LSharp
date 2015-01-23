@@ -577,31 +577,28 @@ namespace xSaliceReligionAIO.Champions
         {
             if (countEnemiesNearPosition(Player.ServerPosition, 600) < 1)
             {
-                List<Obj_AI_Hero> nearChamps = (from champ in ObjectManager.Get<Obj_AI_Hero>()
-                                                where champ.IsValidTarget(1375) && champ.IsEnemy
-                                                select champ).ToList();
+                var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
 
-                if (nearChamps.FirstOrDefault() != null && nearChamps.FirstOrDefault().IsValidTarget(1375))
-                {
-                    var objAiHero = nearChamps.FirstOrDefault();
-                    if (objAiHero != null)
-                    {
-                        Player.IssueOrder(GameObjectOrder.MoveTo, objAiHero);
-                        xSLxOrbwalker.R.LastCastAttemptT = 0;
-                        //xSLxOrbwalker.Orbwalk(nearChamps.FirstOrDefault().ServerPosition, null);
-                    }
-                }
+                if (target == null)
+                    return;
+
+                Player.IssueOrder(GameObjectOrder.MoveTo, target);
+                xSLxOrbwalker.R.LastCastAttemptT = 0;
             }
+
         }
 
         private void AutoW()
         {
+            if (!W.IsReady())
+                return;
+
             foreach (Obj_AI_Hero target in ObjectManager.Get<Obj_AI_Hero>())
             {
                 if (target != null && !target.IsDead && target.IsEnemy &&
                     Player.Distance(target.ServerPosition) <= W.Range && target.IsValidTarget(W.Range))
                 {
-                    if (Player.Distance(target.ServerPosition) < W.Range && W.IsReady())
+                    if (Player.Distance(target.ServerPosition) < W.Range)
                         W.Cast();
                 }
             }
@@ -727,6 +724,19 @@ namespace xSaliceReligionAIO.Champions
         //-------------------------------------------------
         //-------------------------------------------------
 
+        protected override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
+        {
+            if (!unit.IsMe) return;
+
+            SpellSlot castedSlot = ObjectManager.Player.GetSpellSlot(args.SData.Name);
+
+            if (castedSlot == SpellSlot.R)
+            {
+                //Game.PrintChat("RAWR 2");
+                R.LastCastAttemptT = Environment.TickCount;
+            }
+        }
+
         protected override void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
@@ -734,8 +744,9 @@ namespace xSaliceReligionAIO.Champions
 
             SmartKs();
 
-            if (Player.IsChannelingImportantSpell() || Player.HasBuff("katarinarsound",true))
+            if ((Player.IsChannelingImportantSpell() || Player.HasBuff("katarinarsound",true)) && Environment.TickCount - R.LastCastAttemptT < 2500 + Game.Ping)
             {
+                //Game.PrintChat("RAWR");
                 ShouldCancel();
                 return;
             }
