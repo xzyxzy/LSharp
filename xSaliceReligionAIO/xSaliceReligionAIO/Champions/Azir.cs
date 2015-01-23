@@ -641,7 +641,7 @@ namespace xSaliceReligionAIO.Champions
                 }
             }
 
-            Game.PrintChat("RAWR");
+            //Game.PrintChat("RAWR");
         }
 
         private bool ShouldQ(Obj_AI_Hero target, GameObject slave)
