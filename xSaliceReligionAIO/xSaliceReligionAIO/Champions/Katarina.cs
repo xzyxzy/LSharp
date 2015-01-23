@@ -186,7 +186,7 @@ namespace xSaliceReligionAIO.Champions
                     //items
                     
                     var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
-                    if (itemTarget != null)
+                    if (itemTarget != null && E.IsReady())
                     {
                         var dmg = GetComboDamage(itemTarget);
                         ActiveItems.Target = itemTarget;
@@ -195,8 +195,7 @@ namespace xSaliceReligionAIO.Champions
                         if (dmg > itemTarget.Health - 50)
                             ActiveItems.KillableTarget = true;
 
-                        if(E.IsReady())
-                            ActiveItems.UseTargetted = true;
+                        ActiveItems.UseTargetted = true;
                     }
                     
 
@@ -222,7 +221,7 @@ namespace xSaliceReligionAIO.Champions
                 {
                     //items
                     var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
-                    if (itemTarget != null)
+                    if (itemTarget != null && E.IsReady())
                     {
                         var dmg = GetComboDamage(itemTarget);
                         ActiveItems.Target = itemTarget;
@@ -231,8 +230,7 @@ namespace xSaliceReligionAIO.Champions
                         if (dmg > itemTarget.Health - 50)
                             ActiveItems.KillableTarget = true;
 
-                        if (E.IsReady())
-                            ActiveItems.UseTargetted = true;
+                        ActiveItems.UseTargetted = true;
                     }
 
                     if (useE && E.IsReady() && Player.Distance(target) < E.Range && Environment.TickCount - E.LastCastAttemptT > 0 &&
