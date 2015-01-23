@@ -27,7 +27,7 @@ namespace xSaliceReligionAIO.Champions
             P.SetSkillshot(0.5f, 70f, 1400f, false, SkillshotType.SkillshotLine);
             Q.SetSkillshot(0.8f, 60f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0.5f, 70f, 1400f, false, SkillshotType.SkillshotLine);
-            R.SetSkillshot(0.5f, 500f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            R.SetSkillshot(0.5f, 400f, float.MaxValue, false, SkillshotType.SkillshotCircle);
         }
 
         private void LoadMenu()
@@ -266,12 +266,23 @@ namespace xSaliceReligionAIO.Champions
                 return;
             }
 
-            int minHit = menu.Item("R_Min", true).GetValue<Slider>().Value;
+            RMec();
+        }
 
-            if (minHit == 6) return;
+        private void RMec()
+        {
+            var minHit = menu.Item("R_Min", true).GetValue<Slider>().Value;
 
-            if (pred.AoeTargetsHitCount >= minHit)
-                R.Cast(target);
+            if (!R.IsReady() && minHit == 6)
+                return;
+
+            foreach (var target in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(R.Range)))
+            {
+                var pred = R.GetPrediction(target, true);
+
+                if (pred.Hitchance >= HitChance.High && pred.AoeTargetsHitCount >= minHit)
+                    R.Cast(pred.CastPosition);
+            }
         }
 
         private void Farm()
