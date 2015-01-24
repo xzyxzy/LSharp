@@ -134,6 +134,9 @@ namespace xSaliceReligionAIO.Champions
 
         private float GetComboDamage(Obj_AI_Base enemy)
         {
+            if (enemy == null)
+                return 0;
+
             var damage = 0d;
 
             if (_canQcd == 0 && _canEcd == 0 && Q.Level > 0 && E.Level > 0)
@@ -184,22 +187,29 @@ namespace xSaliceReligionAIO.Champions
             if (source == "Combo")
             {
 
-                if (useQ && _canQcd == 0 && Player.Distance(qTarget) <= _qCharge.Range && qTarget != null && !_hammerTime)
+                if (qTarget != null)
                 {
-                    CastQCannon(qTarget, useE);
-                    return;
+                    if (useQ && _canQcd == 0 && Player.Distance(qTarget) <= _qCharge.Range && !_hammerTime)
+                    {
+                        CastQCannon(qTarget, useE);
+                        return;
+                    }
                 }
 
                 if (_hammerTime)
                 {
-                    if (useW2 && Player.Distance(q2Target) <= 300 && W.IsReady())
-                        W.Cast();
+                    if (q2Target != null)
+                    {
+                        if (useW2 && Player.Distance(q2Target) <= 300 && W.IsReady())
+                            W.Cast();
 
-                    if (useQ2 && Player.Distance(q2Target) <= Q2.Range + q2Target.BoundingRadius && Q2.IsReady())
-                        Q2.Cast(q2Target, packets());
-
-                    if (useE2 && ECheck(e2Target, useQ, useW) && Player.Distance(e2Target) <= E2.Range + q2Target.BoundingRadius && E2.IsReady())
-                        E2.Cast(q2Target, packets());
+                        if (useQ2 && Player.Distance(q2Target) <= Q2.Range + q2Target.BoundingRadius && Q2.IsReady())
+                            Q2.Cast(q2Target, packets());
+                    }
+                    if (e2Target != null) { 
+                        if (useE2 && ECheck(e2Target, useQ, useW) && Player.Distance(e2Target) <= E2.Range + e2Target.BoundingRadius && E2.IsReady())
+                                E2.Cast(q2Target, packets());
+                    }
                 }
 
                 var itemTarget = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
@@ -221,27 +231,34 @@ namespace xSaliceReligionAIO.Champions
             }
             else if (source == "Harass" && manaPercent > mana)
             {
-
-                if (useQ && _canQcd == 0 && Player.Distance(qTarget) <= _qCharge.Range && qTarget != null && !_hammerTime)
+                if (qTarget != null)
                 {
-                    CastQCannon(qTarget, useE);
-                    return;
+                    if (useQ && _canQcd == 0 && Player.Distance(qTarget) <= _qCharge.Range && !_hammerTime)
+                    {
+                        CastQCannon(qTarget, useE);
+                        return;
+                    }
                 }
-
                 if (_hammerTime)
                 {
-                    if (useW2 && Player.Distance(q2Target) <= 300 && W.IsReady())
-                        W.Cast();
+                    if (q2Target != null)
+                    {
+                        if (useW2 && Player.Distance(q2Target) <= 300 && W.IsReady())
+                            W.Cast();
 
-                    if (useQ2 && Player.Distance(q2Target) <= Q2.Range + q2Target.BoundingRadius && Q2.IsReady())
-                        Q2.Cast(q2Target, packets());
+                        if (useQ2 && Player.Distance(q2Target) <= Q2.Range + q2Target.BoundingRadius && Q2.IsReady())
+                            Q2.Cast(q2Target, packets());
+                    }
 
-                    if (useE2 && Player.Distance(q2Target) <= E2.Range + q2Target.BoundingRadius && E2.IsReady())
-                        E2.Cast(q2Target, packets());
+                    if (e2Target != null)
+                    {
+                        if (useE2 && Player.Distance(q2Target) <= E2.Range + e2Target.BoundingRadius && E2.IsReady())
+                            E2.Cast(q2Target, packets());
+                    }
                 }
 
                 //form switch check
-                if (useR)
+                if (useR && q2Target != null)
                     SwitchFormCheck(q2Target, useQ, useW, useQ2, useW2, useE2);
             }
 
@@ -355,6 +372,9 @@ namespace xSaliceReligionAIO.Champions
 
         private void SwitchFormCheck(Obj_AI_Hero target, bool useQ, bool useW, bool useQ2, bool useW2, bool useE2)
         {
+            if (target == null)
+                return;
+
             if (target.Health > 80)
             {
                 //switch to hammer
@@ -504,6 +524,7 @@ namespace xSaliceReligionAIO.Champions
 
         protected override void Game_OnGameUpdate(EventArgs args)
         {
+            //Console.Clear();
             //check if player is dead
             if (Player.IsDead) return;
 
@@ -554,7 +575,7 @@ namespace xSaliceReligionAIO.Champions
 
                 if (menu.Item("HarassActive", true).GetValue<KeyBind>().Active || menu.Item("HarassActiveT", true).GetValue<KeyBind>().Active)
                 {
-                    if (_canWcd == 0 && Player.Distance(target) < 600 && !_hammerTime && W.Level > 0 && W.IsReady())
+                    if (_canWcd == 0 && Player.Distance(target) < 600 && !_hammerTime && W.Level > 0 && W.IsReady() && target is Obj_AI_Hero)
                         if (useWHarass)
                         {
                             Orbwalking.ResetAutoAttackTimer();

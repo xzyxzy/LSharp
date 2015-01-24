@@ -334,6 +334,7 @@ namespace xSaliceReligionAIO.Champions
         private void LastHit()
         {
             if (!Orbwalking.CanMove(40)) return;
+            if (!xSLxOrbwalker.CanMove()) return;
 
             List<Obj_AI_Base> allMinions = MinionManager.GetMinions(Player.ServerPosition, Q.Range);
 
