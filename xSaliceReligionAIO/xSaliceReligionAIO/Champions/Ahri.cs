@@ -175,9 +175,9 @@ namespace xSaliceReligionAIO.Champions
             if (_rOn)
                 damage += Player.GetSpellDamage(enemy, SpellSlot.R)*RCount();
             else if (R.IsReady())
-                damage += Player.GetSpellDamage(enemy, SpellSlot.R) * 3; 
+                damage += Player.GetSpellDamage(enemy, SpellSlot.R) * 3;
 
-            if (enemy.HasBuffOfType(BuffType.Charm))
+            if (enemy.HasBuffOfType(BuffType.Charm) || enemy.HasBuffOfType(BuffType.Taunt))
                 damage = damage * 1.2;
 
             damage = ActiveItems.CalcDamage(enemy, damage);
@@ -228,7 +228,7 @@ namespace xSaliceReligionAIO.Champions
                     ActiveItems.KillableTarget = true;
 
                 //Items
-                if (eTarget.HasBuffOfType(BuffType.Charm) || !menu.Item("dfgCharm", true).GetValue<bool>())
+                if (eTarget.HasBuffOfType(BuffType.Charm) || eTarget.HasBuffOfType(BuffType.Taunt) || !menu.Item("dfgCharm", true).GetValue<bool>())
                     ActiveItems.UseTargetted = true;
             }
             //end items-------
@@ -359,7 +359,7 @@ namespace xSaliceReligionAIO.Champions
                 if (!menu.Item("charmCombo", true).GetValue<KeyBind>().Active)
                     return true;
 
-                if (target.HasBuffOfType(BuffType.Charm))
+                if (target.HasBuffOfType(BuffType.Charm) || target.HasBuffOfType(BuffType.Taunt))
                     return true;
             }
 
@@ -375,7 +375,7 @@ namespace xSaliceReligionAIO.Champions
                 if (!menu.Item("charmHarass", true).GetValue<bool>())
                     return true;
 
-                if (target.HasBuffOfType(BuffType.Charm))
+                if (target.HasBuffOfType(BuffType.Charm) || target.HasBuffOfType(BuffType.Taunt))
                     return true;
             }
 
@@ -395,7 +395,7 @@ namespace xSaliceReligionAIO.Champions
                 if (!menu.Item("charmCombo", true).GetValue<KeyBind>().Active)
                     return true;
 
-                if (target.HasBuffOfType(BuffType.Charm))
+                if (target.HasBuffOfType(BuffType.Charm) || target.HasBuffOfType(BuffType.Taunt))
                     return true;
             }
             if (source == "Harass")
@@ -409,7 +409,7 @@ namespace xSaliceReligionAIO.Champions
                 if (!menu.Item("charmHarass", true).GetValue<bool>())
                     return true;
 
-                if (target.HasBuffOfType(BuffType.Charm))
+                if (target.HasBuffOfType(BuffType.Charm) || target.HasBuffOfType(BuffType.Taunt))
                     return true;
             }
 
@@ -430,11 +430,11 @@ namespace xSaliceReligionAIO.Champions
 
             if (GetComboDamage(target) > target.Health && !_rOn)
             {
-                if (target.HasBuffOfType(BuffType.Charm))
+                if (target.HasBuffOfType(BuffType.Charm) || target.HasBuffOfType(BuffType.Taunt))
                     return true;
             }
 
-            if (target.HasBuffOfType(BuffType.Charm) && _rOn)
+            if (target.HasBuffOfType(BuffType.Charm) && _rOn || target.HasBuffOfType(BuffType.Taunt))
                 return true;
 
             if (countAlliesNearPosition(Game.CursorPos, 1000) > 2 && _rTimeLeft > 3500)
