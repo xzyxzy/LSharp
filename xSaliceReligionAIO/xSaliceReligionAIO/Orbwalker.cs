@@ -130,7 +130,6 @@ namespace xSaliceReligionAIO
                 menuModes.AddSubMenu(modeFlee);
             }
             menu.AddSubMenu(menuModes);
-            menu.AddItem(new MenuItem("xSLx_info", "Copyright by xSLx"));
             menu.AddItem(new MenuItem("xSLx_info2", "Credits: xSLx & Esk0r"));
 
             Drawing.OnDraw += OnDraw;
@@ -451,6 +450,16 @@ namespace xSaliceReligionAIO
             //last hit
             if (CurrentMode == Mode.Harass || CurrentMode == Mode.Lasthit || CurrentMode == Mode.LaneClear || CurrentMode == Mode.LaneFreeze)
             {
+                foreach (var minion in from minion in ObjectManager.Get<Obj_AI_Minion>().Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InAutoAttackRange(minion)
+                && minion.Health < 2 * (MyHero.BaseAttackDamage + MyHero.FlatPhysicalDamageMod))
+                                       let t = (int)(MyHero.AttackCastDelay * 1000) - 100 + Game.Ping / 2 +
+                                               1000 * (int)MyHero.Distance(minion) / (int)MyProjectileSpeed()
+                                       let predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay())
+                                       where minion.Team != GameObjectTeam.Neutral && predHealth > 0 &&
+                                             predHealth <= MyHero.GetAutoAttackDamage(minion, true)
+                                       select minion)
+                    return minion;
+
                 if (MyHero.ChampionName == "Azir" && Soilders.Count > 0)
                 {
                     var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.NotAlly);
@@ -462,18 +471,6 @@ namespace xSaliceReligionAIO
                         select minion)
                         return minion;
                 }
-
-                foreach (
-                    var minion in
-                        from minion in
-                            ObjectManager.Get<Obj_AI_Minion>().Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InAutoAttackRange(minion))
-                        let t = (int)(MyHero.AttackCastDelay * 1000) - 100 + Game.Ping / 2 +
-                                1000 * (int)MyHero.Distance(minion) / (int)MyProjectileSpeed()
-                        let predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay())
-                        where minion.Team != GameObjectTeam.Neutral && predHealth > 0 &&
-                              predHealth <= MyHero.GetAutoAttackDamage(minion, true)
-                        select minion)
-                    return minion;
             }
 
             if (CurrentMode != Mode.Lasthit)
