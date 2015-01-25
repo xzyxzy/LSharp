@@ -742,7 +742,7 @@ namespace xSaliceReligionAIO.Champions
 
             SmartKs();
 
-            if ((Player.IsChannelingImportantSpell() || Player.HasBuff("katarinarsound",true)) && Environment.TickCount - R.LastCastAttemptT < 2500 + Game.Ping)
+            if ((Player.IsChannelingImportantSpell() || Player.HasBuff("katarinarsound",true)))
             {
                 //Game.PrintChat("RAWR");
                 ShouldCancel();
